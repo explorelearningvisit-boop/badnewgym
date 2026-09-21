@@ -7,7 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -21,8 +20,10 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnaps
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 
 /**
- * Main Member Intelligence card that mirrors the exact 8-theme design sheet.
- * Layout: Left Intelligence Rail + Right content (Header → Hero → Plan → Metrics → CTA → Footer)
+ * Production Member Intelligence card.
+ * - Dense layout (minimal wasted space)
+ * - Side rail actually switches content
+ * - Theme-aware borders & glows
  */
 @Composable
 fun MemberIntelligenceCard(
@@ -36,20 +37,20 @@ fun MemberIntelligenceCard(
 ) {
     val colors = BADGymTheme.colors
 
-    // Outer frame with theme-specific glow + border
     Box(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
                 elevation = when (theme) {
-                    ThemeId.PREMIUM_3D, ThemeId.BEAST_MODE, ThemeId.FUTURISTIC_NEON, ThemeId.PURPLE_ROYAL -> 18.dp
-                    else -> 8.dp
+                    ThemeId.PREMIUM_3D, ThemeId.BEAST_MODE,
+                    ThemeId.FUTURISTIC_NEON, ThemeId.PURPLE_ROYAL -> 16.dp
+                    else -> 6.dp
                 },
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(22.dp),
                 spotColor = colors.cardGlow,
                 ambientColor = colors.cardGlow
             )
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(22.dp))
             .background(
                 when (theme) {
                     ThemeId.PREMIUM_3D -> Brush.verticalGradient(listOf(Color(0xFF14110A), Color(0xFF090704)))
@@ -69,97 +70,95 @@ fun MemberIntelligenceCard(
                     else -> 1.dp
                 },
                 brush = when (theme) {
-                    ThemeId.PREMIUM_3D -> Brush.linearGradient(
-                        listOf(Color(0xFFFFD700), Color(0xFFB8860B), Color(0xFFFFE57F), Color(0xFF8B6914))
-                    )
-                    ThemeId.BEAST_MODE -> Brush.linearGradient(
-                        listOf(Color(0xFFFF1E27), Color(0xFF7F1D1D), Color(0xFFFF4D5E))
-                    )
-                    ThemeId.PURPLE_ROYAL -> Brush.linearGradient(
-                        listOf(Color(0xFFA855F7), Color(0xFF581C87), Color(0xFFC084FC))
-                    )
-                    ThemeId.FUTURISTIC_NEON -> Brush.linearGradient(
-                        listOf(Color(0xFF00E5FF), Color(0xFF0369A1), Color(0xFF38BDF8))
-                    )
-                    ThemeId.VIBRANT_GRADIENT -> Brush.linearGradient(
-                        listOf(Color(0xFFF472B6), Color(0xFF818CF8), Color(0xFF38BDF8))
-                    )
-                    ThemeId.GLASSMORPHISM -> Brush.linearGradient(
-                        listOf(Color(0x90FFFFFF), Color(0x4038BDF8), Color(0x90FFFFFF))
-                    )
-                    ThemeId.MINIMAL_DARK -> Brush.linearGradient(
-                        listOf(Color(0xFF2C3440), Color(0xFF1A1F26))
-                    )
-                    ThemeId.NATURAL_FRESH -> Brush.linearGradient(
-                        listOf(Color(0xFF86EFAC), Color(0xFF22C55E), Color(0xFF86EFAC))
-                    )
+                    ThemeId.PREMIUM_3D -> Brush.linearGradient(listOf(Color(0xFFFFD700), Color(0xFFB8860B), Color(0xFFFFE57F)))
+                    ThemeId.BEAST_MODE -> Brush.linearGradient(listOf(Color(0xFFFF1E27), Color(0xFF7F1D1D), Color(0xFFFF4D5E)))
+                    ThemeId.PURPLE_ROYAL -> Brush.linearGradient(listOf(Color(0xFFA855F7), Color(0xFF581C87), Color(0xFFC084FC)))
+                    ThemeId.FUTURISTIC_NEON -> Brush.linearGradient(listOf(Color(0xFF00E5FF), Color(0xFF0369A1), Color(0xFF38BDF8)))
+                    ThemeId.VIBRANT_GRADIENT -> Brush.linearGradient(listOf(Color(0xFFF472B6), Color(0xFF818CF8), Color(0xFF38BDF8)))
+                    ThemeId.GLASSMORPHISM -> Brush.linearGradient(listOf(Color(0x90FFFFFF), Color(0x4038BDF8), Color(0x90FFFFFF)))
+                    ThemeId.MINIMAL_DARK -> Brush.linearGradient(listOf(Color(0xFF2C3440), Color(0xFF1A1F26)))
+                    ThemeId.NATURAL_FRESH -> Brush.linearGradient(listOf(Color(0xFF86EFAC), Color(0xFF22C55E)))
                 },
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(22.dp)
             )
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxSize()) {
 
-            // ===== LEFT RAIL (Home / Attend / Plan / Pay / Trainer / Workout / More) =====
+            // LEFT RAIL
             IntelligenceRail(
                 menus = menus,
                 activeMenu = activeMenu,
                 onMenuSelected = onMenuSelected
             )
 
-            // ===== RIGHT CONTENT =====
+            // RIGHT CONTENT - switches based on activeMenu
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(top = 10.dp, bottom = 12.dp, start = 8.dp, end = 12.dp)
+                    .fillMaxHeight()
+                    .padding(top = 8.dp, bottom = 10.dp, start = 6.dp, end = 10.dp)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                // 1. Top bar: Logo + subtitle + time + bell + avatar
+                // Always show header + hero (compact)
                 CardHeader(
                     theme = theme,
                     photoUrl = snapshot.identity.photoUrl
                 )
 
-                // 2. Hero: Action chip + Photo + Name + ID + Motto
                 HeroMemberSection(
                     identity = snapshot.identity,
                     theme = theme
                 )
 
-                // 3. Plan badge + ACTIVE status + days left
-                MembershipTierStatus(
-                    membership = snapshot.membership,
-                    theme = theme
-                )
+                // Dynamic content based on selected menu
+                when (activeMenu) {
+                    MenuType.HOME -> {
+                        MembershipTierStatus(membership = snapshot.membership, theme = theme)
+                        val workoutsCount = when (theme) {
+                            ThemeId.NATURAL_FRESH -> 12
+                            ThemeId.FUTURISTIC_NEON -> 18
+                            ThemeId.MINIMAL_DARK -> 14
+                            ThemeId.GLASSMORPHISM -> 16
+                            ThemeId.PREMIUM_3D -> 28
+                            ThemeId.VIBRANT_GRADIENT -> 8
+                            ThemeId.BEAST_MODE -> 24
+                            ThemeId.PURPLE_ROYAL -> 18
+                        }
+                        CardMetricsGrid(
+                            attendance = snapshot.attendance,
+                            payment = snapshot.payment,
+                            workoutsCount = workoutsCount,
+                            theme = theme
+                        )
+                        ThemedCtaButton(theme = theme, onClick = onCtaClick)
+                        CardFooterSection(theme = theme)
+                    }
 
-                // 4. Three metric tiles (Attendance / Payment / Workouts)
-                val workoutsCount = when (theme) {
-                    ThemeId.NATURAL_FRESH -> 12
-                    ThemeId.FUTURISTIC_NEON -> 18
-                    ThemeId.MINIMAL_DARK -> 14
-                    ThemeId.GLASSMORPHISM -> 16
-                    ThemeId.PREMIUM_3D -> 28
-                    ThemeId.VIBRANT_GRADIENT -> 8
-                    ThemeId.BEAST_MODE -> 24
-                    ThemeId.PURPLE_ROYAL -> 18
+                    MenuType.ATTENDANCE -> {
+                        AttendancePanel(snapshot = snapshot, theme = theme)
+                    }
+
+                    MenuType.PLAN -> {
+                        PlanPanel(snapshot = snapshot, theme = theme)
+                    }
+
+                    MenuType.PAYMENT -> {
+                        PaymentPanel(snapshot = snapshot, theme = theme, onCtaClick = onCtaClick)
+                    }
+
+                    MenuType.TRAINER -> {
+                        TrainerPanel(snapshot = snapshot, theme = theme)
+                    }
+
+                    MenuType.WORKOUT -> {
+                        WorkoutPanel(snapshot = snapshot, theme = theme)
+                    }
+
+                    else -> { // SERVICES / MORE
+                        ServicesPanel(snapshot = snapshot, theme = theme)
+                    }
                 }
-                CardMetricsGrid(
-                    attendance = snapshot.attendance,
-                    payment = snapshot.payment,
-                    workoutsCount = workoutsCount,
-                    theme = theme
-                )
-
-                // 5. Primary CTA button (Collect Payment / View Workout / Pay Now ...)
-                ThemedCtaButton(
-                    theme = theme,
-                    onClick = onCtaClick
-                )
-
-                // 6. Footer motto
-                CardFooterSection(
-                    theme = theme
-                )
             }
         }
     }
