@@ -50,7 +50,7 @@ private fun rails()=listOf(R(MenuType.HOME,"Home",Icons.Rounded.Home),R(MenuType
   Column(Modifier.fillMaxSize(),verticalArrangement=Arrangement.spacedBy(6.dp)){
    ThemeStrip(theme,t,onThemeSelected); Brand(theme,t)
    if(snapshot==null) Box(Modifier.fillMaxSize(),contentAlignment=Alignment.Center){Text("Loading member intelligence…",color=t.muted,fontSize=10.sp)}
-   else Card(snapshot,currentEvent,signals,menus,activeMenu?:MenuType.HOME,primarySignal,secondarySignals,cta,theme,t,onMenuSelected,onCta)
+   else Card(snapshot,currentEvent,signals,menus,activeMenu?:MenuType.HOME,primarySignal,secondarySignals,cta,theme,t,Modifier.fillMaxWidth().weight(1f),onMenuSelected,onCta)
   }
  }
 }
@@ -64,9 +64,9 @@ private fun rails()=listOf(R(MenuType.HOME,"Home",Icons.Rounded.Home),R(MenuType
   Box(Modifier.clip(RoundedCornerShape(11.dp)).background(t.card).border(1.dp,t.line,RoundedCornerShape(11.dp)).padding(7.dp)){Text(theme.headerTag.replace("\n","  "),color=t.accent,fontSize=6.8.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.End)}
  }
 }
-@Composable private fun Card(s:MemberSnapshot,e:MemberEvent?,signals:List<IntelligenceSignal>,menus:List<MemberMenu>,active:MenuType,primary:IntelligenceSignal?,secondary:List<IntelligenceSignal>,cta:SignalAction?,theme:ThemeId,t:P,onMenu:(MenuType)->Unit,onCta:(SignalAction)->Unit){
+@Composable private fun Card(s:MemberSnapshot,e:MemberEvent?,signals:List<IntelligenceSignal>,menus:List<MemberMenu>,active:MenuType,primary:IntelligenceSignal?,secondary:List<IntelligenceSignal>,cta:SignalAction?,theme:ThemeId,t:P,m:Modifier,onMenu:(MenuType)->Unit,onCta:(SignalAction)->Unit){
  val visible=menus.filter{it.isVisible}.map{it.id}.toSet()
- Surface(t,Modifier.fillMaxWidth().weight(1f)){Row(Modifier.fillMaxSize()){
+ Surface(t,m){Row(Modifier.fillMaxSize()){
   Column(Modifier.width(53.dp).fillMaxHeight().padding(6.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(4.dp)){
    rails().filter{it.m in visible||it.m==MenuType.HOME}.forEach{r->val a=r.m==active;Column(Modifier.fillMaxWidth().height(45.dp).clip(RoundedCornerShape(11.dp)).background(if(a)t.accent else t.card2).border(1.dp,if(a)t.accent else t.line,RoundedCornerShape(11.dp)).clickable{onMenu(r.m)}.padding(vertical=4.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){Icon(r.icon,null,tint=if(a)t.onAccent else t.ink,modifier=Modifier.size(16.dp));Text(r.name,color=if(a)t.onAccent else t.muted,fontSize=6.4.sp,fontWeight=FontWeight.Bold)}} 
    Spacer(Modifier.weight(1f));Icon(Icons.Rounded.Settings,null,tint=t.muted,modifier=Modifier.size(14.dp))
