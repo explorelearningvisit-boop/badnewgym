@@ -112,7 +112,7 @@ fun MemberDashboard(
                                 }
                             }
                             Text((id.code ?: "MEMBER") + "  •  " + (plan?.planName ?: "No active plan"), color = c.textSecondary, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold)
-                            Text(theme.motto.replace("\\n", " • "), color = c.mottoColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(theme.motto.replace('\n', ' • '), color = c.mottoColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(formatTime(currentEvent.occurredAt), color = c.textPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold)
