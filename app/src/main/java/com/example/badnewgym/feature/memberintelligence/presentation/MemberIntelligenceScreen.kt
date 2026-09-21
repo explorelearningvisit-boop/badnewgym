@@ -4,26 +4,20 @@ import android.content.IntentFilter
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugBridge
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiver
-import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
-import com.example.badnewgym.feature.memberintelligence.design.elevation
-import com.example.badnewgym.feature.memberintelligence.design.motion
-import com.example.badnewgym.feature.memberintelligence.design.shapes
-import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
-import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberDashboard
+import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
 
 @Composable
 fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
@@ -56,53 +50,42 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     val theme = success?.themeId ?: ThemeId.NATURAL_FRESH
 
     if (success == null) {
-        BADGymTheme(colors = theme.colors(), shapes = theme.shapes(), motion = theme.motion(), elevation = theme.elevation()) {
-            Scaffold(containerColor = theme.colors().background) { padding ->
-                Box(Modifier.fillMaxSize().background(theme.colors().background))
-            }
-        }
+        PixelPerfectMemberCard(
+            snapshot = null,
+            currentEvent = null,
+            signals = emptyList(),
+            menus = emptyList(),
+            activeMenu = null,
+            theme = theme,
+            onThemeSelected = viewModel::selectTheme,
+            modifier = Modifier.fillMaxSize()
+        )
         return
     }
 
-    BADGymTheme(
-        colors = theme.colors(),
-        shapes = theme.shapes(),
-        motion = theme.motion(),
-        elevation = theme.elevation()
-    ) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = theme.colors().background
-        ) {
-            AnimatedContent(
-                targetState = theme,
-                transitionSpec = { fadeIn(tween(240)) togetherWith fadeOut(tween(160)) },
-                label = "theme-transition",
-                modifier = Modifier.fillMaxSize()
-            ) { animatedTheme ->
-                BADGymTheme(
-                    colors = animatedTheme.colors(),
-                    shapes = animatedTheme.shapes(),
-                    motion = animatedTheme.motion(),
-                    elevation = animatedTheme.elevation()
-                ) {
-                    MemberDashboard(
-                        snapshot = success.snapshot,
-                        currentEvent = success.currentEvent,
-                        signals = success.signals,
-                        menus = success.menus,
-                        activeMenu = success.activeMenu,
-                        onMenuSelected = viewModel::selectMenu,
-                        primarySignal = success.primarySignal,
-                        secondarySignals = success.secondarySignals,
-                        cta = success.cta,
-                        onCta = viewModel::executeCta,
-                        theme = animatedTheme,
-                        onThemeSelected = viewModel::selectTheme,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
-        }
+    AnimatedContent(
+        targetState = theme,
+        transitionSpec = {
+            fadeIn(tween(220)) + slideInHorizontally(tween(260)) togetherWith
+                fadeOut(tween(150)) + slideOutHorizontally(tween(180))
+        },
+        label = "theme-shell",
+        modifier = Modifier.fillMaxSize()
+    ) { animatedTheme ->
+        PixelPerfectMemberCard(
+            snapshot = success.snapshot,
+            currentEvent = success.currentEvent,
+            signals = success.signals,
+            menus = success.menus,
+            activeMenu = success.activeMenu,
+            primarySignal = success.primarySignal,
+            secondarySignals = success.secondarySignals,
+            cta = success.cta,
+            theme = animatedTheme,
+            onMenuSelected = viewModel::selectMenu,
+            onThemeSelected = viewModel::selectTheme,
+            onCta = viewModel::executeCta,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
