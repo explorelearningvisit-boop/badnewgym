@@ -1,6 +1,11 @@
 package com.example.badnewgym.feature.memberintelligence.presentation
 
 import android.content.IntentFilter
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,21 +74,35 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             modifier = Modifier.fillMaxSize(),
             containerColor = theme.colors().background
         ) {
-            MemberDashboard(
-                snapshot = success.snapshot,
-                currentEvent = success.currentEvent,
-                signals = success.signals,
-                menus = success.menus,
-                activeMenu = success.activeMenu,
-                onMenuSelected = viewModel::selectMenu,
-                primarySignal = success.primarySignal,
-                secondarySignals = success.secondarySignals,
-                cta = success.cta,
-                onCta = viewModel::executeCta,
-                theme = theme,
-                onThemeSelected = viewModel::selectTheme,
+            AnimatedContent(
+                targetState = theme,
+                transitionSpec = { fadeIn(tween(240)) togetherWith fadeOut(tween(160)) },
+                label = "theme-transition",
                 modifier = Modifier.fillMaxSize()
-            )
+            ) { animatedTheme ->
+                BADGymTheme(
+                    colors = animatedTheme.colors(),
+                    shapes = animatedTheme.shapes(),
+                    motion = animatedTheme.motion(),
+                    elevation = animatedTheme.elevation()
+                ) {
+                    MemberDashboard(
+                        snapshot = success.snapshot,
+                        currentEvent = success.currentEvent,
+                        signals = success.signals,
+                        menus = success.menus,
+                        activeMenu = success.activeMenu,
+                        onMenuSelected = viewModel::selectMenu,
+                        primarySignal = success.primarySignal,
+                        secondarySignals = success.secondarySignals,
+                        cta = success.cta,
+                        onCta = viewModel::executeCta,
+                        theme = animatedTheme,
+                        onThemeSelected = viewModel::selectTheme,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
         }
     }
 }
