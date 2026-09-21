@@ -20,6 +20,9 @@ import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugBridge
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiver
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
+import com.example.badnewgym.feature.memberintelligence.design.elevation
+import com.example.badnewgym.feature.memberintelligence.design.motion
+import com.example.badnewgym.feature.memberintelligence.design.shapes
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
