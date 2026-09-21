@@ -1,0 +1,14 @@
+{
+  "reference": "8-theme board supplied by the product owner",
+  "geometry": {"targetRatio":"3:4","outerGutterDp":8,"railWidthDp":53,"mainRadiusDp":18,"innerRadiusDp":12,"ctaHeightDp":44},
+  "themes": {
+    "NATURAL_FRESH":{"accent":"#18B957","accent2":"#6DE89A","background":"#F2FBF5"},
+    "FUTURISTIC_NEON":{"accent":"#00E5FF","accent2":"#63FF5C","background":"#03101C"},
+    "MINIMAL_DARK":{"accent":"#16D6A0","accent2":"#6B7280","background":"#0B0F13"},
+    "GLASSMORPHISM":{"accent":"#278CFF","accent2":"#D66DFF","background":"#EAF4FF"},
+    "PREMIUM_3D":{"accent":"#FFC83D","accent2":"#FFE49A","background":"#0A0804"},
+    "VIBRANT_GRADIENT":{"accent":"#EF4E7B","accent2":"#7266FF","background":"#FFF9FD"},
+    "BEAST_MODE":{"accent":"#FF202B","accent2":"#FF4C55","background":"#080304"},
+    "PURPLE_ROYAL":{"accent":"#B86CFF","accent2":"#7A4DFF","background":"#0D041B"}
+  }
+}
