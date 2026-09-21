@@ -38,7 +38,7 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
             ) {
                 StatItem("This Month", "${att?.visits ?: 16}", colors.textPrimary)
                 StatItem("Target", "${att?.target ?: 26}", colors.textSecondary)
-                StatItem("Streak", "${att?.currentStreak ?: 5} days", Color(0xFF16A34A))
+                StatItem("Streak", "${att?.streakDays ?: 5} days", Color(0xFF16A34A))
             }
         }
 
@@ -78,7 +78,7 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(mem?.planName ?: "Premium Plan", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text("${mem?.durationMonths ?: 12} Months", color = colors.textSecondary, fontSize = 12.sp)
+                Text("${(mem?.daysRemaining ?: 365) / 30} Months", color = colors.textSecondary, fontSize = 12.sp)
                 Text("Status: ACTIVE", color = Color(0xFF16A34A), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
         }
