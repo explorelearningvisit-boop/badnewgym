@@ -24,23 +24,23 @@ class MemberIntelligenceViewModel(
     private val navigator: MemberIntelligenceNavigator = MemberIntelligenceNavigator.NoOp
 ) : ViewModel() {
     private val engine = MemberIntelligenceEngine()
-
     private val _state = MutableStateFlow<MemberIntelligenceUiState>(MemberIntelligenceUiState.Loading)
     val state: StateFlow<MemberIntelligenceUiState> = _state.asStateFlow()
 
-    private var themeId: ThemeId = ThemeId.NATURAL_FRESH
-
     fun loadMemberData(memberId: String, gymId: String = "gym1") {
         viewModelScope.launch {
-            _state.value = MemberIntelligenceUiState.Loading
+            val previous = _state.value as? MemberIntelligenceUiState.Success
+            _state.value = previous ?: MemberIntelligenceUiState.Loading
+
             val snapshotResult = repository.getMemberSnapshot(memberId)
             if (snapshotResult.isFailure) {
                 _state.value = MemberIntelligenceUiState.Error("Failed to load member snapshot")
                 return@launch
             }
+
             val snapshot = snapshotResult.getOrThrow()
             val event = snapshot.recentEvents.firstOrNull() ?: MemberEvent(
-                id = "init_0",
+                id = "init_$memberId",
                 memberId = memberId,
                 gymId = gymId,
                 eventType = EventType.CHECK_IN,
@@ -58,9 +58,14 @@ class MemberIntelligenceViewModel(
         _state.value = current.copy(activeMenu = menu)
     }
 
+    /**
+     * A theme is presentation state. Switching it must not perform repository I/O
+     * or swap the selected member/scenario.
+     */
     fun selectTheme(theme: ThemeId) {
-        themeId = theme
-        loadMemberData(theme.defaultMemberId)
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        if (current.themeId == theme) return
+        _state.value = current.copy(themeId = theme)
     }
 
     fun executeCta(action: SignalAction) {
@@ -83,7 +88,7 @@ class MemberIntelligenceViewModel(
             secondarySignals = result.secondary,
             cta = result.cta,
             activeMenu = menu,
-            themeId = themeId
+            themeId = (_state.value as? MemberIntelligenceUiState.Success)?.themeId ?: ThemeId.NATURAL_FRESH
         )
     }
 
@@ -91,9 +96,8 @@ class MemberIntelligenceViewModel(
         fun provideFactory(repository: MemberIntelligenceRepository): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return MemberIntelligenceViewModel(repository) as T
-                }
+                override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                    MemberIntelligenceViewModel(repository) as T
             }
     }
 }
