@@ -146,7 +146,8 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
                     }
                 }
                 is MemberIntelligenceUiState.Locked -> {
-                    ErrorState(theme, "Feature locked: " + state.featureName, onRetry = {})
+                    val locked = state as MemberIntelligenceUiState.Locked
+                    ErrorState(theme, "Feature locked: " + locked.featureName, onRetry = {})
                 }
             }
         }
