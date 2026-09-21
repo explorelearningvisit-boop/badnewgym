@@ -57,15 +57,15 @@ fun HeroMemberSection(
                         else Color.White.copy(alpha = 0.25f),
                         RoundedCornerShape(12.dp)
                     )
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = theme.actionChipText,
                     color = Color.White,
-                    fontSize = 9.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.5.sp
+                    letterSpacing = 1.sp
                 )
             }
         }
@@ -96,8 +96,9 @@ fun HeroMemberSection(
                     Text(
                         text = identity.name,
                         color = colors.textPrimary,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = (-0.5).sp
                     )
                     Icon(
                         imageVector = Icons.Rounded.CheckCircle,
@@ -110,8 +111,9 @@ fun HeroMemberSection(
                 Text(
                     text = identity.code ?: "",
                     color = colors.textSecondary,
-                    fontSize = 10.5.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -121,9 +123,9 @@ fun HeroMemberSection(
                     text = theme.motto,
                     color = colors.mottoColor,
                     fontSize = when (theme) {
-                        ThemeId.FUTURISTIC_NEON, ThemeId.BEAST_MODE -> 11.5.sp
-                        ThemeId.PREMIUM_3D -> 11.sp
-                        else -> 10.5.sp
+                        ThemeId.FUTURISTIC_NEON, ThemeId.BEAST_MODE -> 13.sp
+                        ThemeId.PREMIUM_3D -> 12.5.sp
+                        else -> 12.sp
                     },
                     fontWeight = when (theme) {
                         ThemeId.FUTURISTIC_NEON, ThemeId.BEAST_MODE -> FontWeight.Black
@@ -131,7 +133,7 @@ fun HeroMemberSection(
                         else -> FontWeight.Bold
                     },
                     fontStyle = if (theme == ThemeId.NATURAL_FRESH || theme == ThemeId.GLASSMORPHISM || theme == ThemeId.PURPLE_ROYAL || theme == ThemeId.PREMIUM_3D) FontStyle.Italic else FontStyle.Normal,
-                    lineHeight = 13.sp
+                    lineHeight = 15.sp
                 )
             }
         }

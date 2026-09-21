@@ -222,27 +222,37 @@ private fun ThemePicker(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         ThemeId.entries.forEach { item ->
             val on = item == selected
+            
+            val backgroundColor by androidx.compose.animation.animateColorAsState(
+                targetValue = if (on) BADGymTheme.colors.accent else BADGymTheme.colors.surface,
+                label = "ThemePickerBg"
+            )
+            val borderColor by androidx.compose.animation.animateColorAsState(
+                targetValue = if (on) BADGymTheme.colors.accent else BADGymTheme.colors.border,
+                label = "ThemePickerBorder"
+            )
+            val textColor by androidx.compose.animation.animateColorAsState(
+                targetValue = if (on) BADGymTheme.colors.textOnAccent else BADGymTheme.colors.textSecondary,
+                label = "ThemePickerText"
+            )
+
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(if (on) BADGymTheme.colors.accent else BADGymTheme.colors.surface)
-                    .border(
-                        1.dp,
-                        if (on) BADGymTheme.colors.accent else BADGymTheme.colors.border,
-                        RoundedCornerShape(14.dp)
-                    )
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(backgroundColor)
+                    .border(1.5.dp, borderColor, RoundedCornerShape(16.dp))
                     .clickable { onSelected(item) }
-                    .padding(horizontal = 10.dp, vertical = 5.dp)
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = item.title,
-                    color = if (on) BADGymTheme.colors.textOnAccent else BADGymTheme.colors.textSecondary,
-                    fontSize = 10.sp,
-                    fontWeight = if (on) FontWeight.Bold else FontWeight.Medium
+                    color = textColor,
+                    fontSize = 11.sp,
+                    fontWeight = if (on) FontWeight.ExtraBold else FontWeight.SemiBold
                 )
             }
         }

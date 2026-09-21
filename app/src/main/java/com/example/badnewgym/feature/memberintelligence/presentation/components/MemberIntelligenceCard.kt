@@ -7,6 +7,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -37,16 +39,22 @@ fun MemberIntelligenceCard(
 ) {
     val colors = BADGymTheme.colors
 
+    val targetElevation = when (theme) {
+        ThemeId.PREMIUM_3D, ThemeId.BEAST_MODE, ThemeId.FUTURISTIC_NEON, ThemeId.PURPLE_ROYAL -> 18.dp
+        else -> 8.dp
+    }
+    val animatedElevation by androidx.compose.animation.core.animateDpAsState(
+        targetValue = targetElevation,
+        label = "CardElevation"
+    )
+
+    // Outer frame with theme-specific glow + border
     Box(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
-                elevation = when (theme) {
-                    ThemeId.PREMIUM_3D, ThemeId.BEAST_MODE,
-                    ThemeId.FUTURISTIC_NEON, ThemeId.PURPLE_ROYAL -> 16.dp
-                    else -> 6.dp
-                },
-                shape = RoundedCornerShape(22.dp),
+                elevation = animatedElevation,
+                shape = RoundedCornerShape(24.dp),
                 spotColor = colors.cardGlow,
                 ambientColor = colors.cardGlow
             )
@@ -96,9 +104,9 @@ fun MemberIntelligenceCard(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(top = 8.dp, bottom = 10.dp, start = 6.dp, end = 10.dp)
+                    .padding(top = 16.dp, bottom = 16.dp, start = 12.dp, end = 16.dp)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Always show header + hero (compact)
                 CardHeader(
