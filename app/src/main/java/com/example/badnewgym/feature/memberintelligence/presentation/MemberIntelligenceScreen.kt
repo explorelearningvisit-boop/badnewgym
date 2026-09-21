@@ -106,28 +106,28 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
                         ThemeContextRow(s.themeId)
 
                         AnimatedContent(
-                            targetState = s.activeMenu,
+                            targetState = s.themeId,
                             transitionSpec = {
-                                fadeIn(androidx.compose.animation.core.tween(180)) togetherWith
-                                    fadeOut(androidx.compose.animation.core.tween(120))
+                                fadeIn(androidx.compose.animation.core.tween(220)) togetherWith
+                                    fadeOut(androidx.compose.animation.core.tween(150))
                             },
-                            label = "member-menu-transition",
+                            label = "theme-transition",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f)
-                        ) { activeMenu ->
+                        ) { selectedTheme ->
                             MemberDashboard(
                                 snapshot = s.snapshot,
                                 currentEvent = s.currentEvent,
                                 signals = s.signals,
                                 menus = s.menus,
-                                activeMenu = activeMenu,
+                                activeMenu = s.activeMenu,
                                 onMenuSelected = viewModel::selectMenu,
                                 primarySignal = s.primarySignal,
                                 secondarySignals = s.secondarySignals,
                                 cta = s.cta,
                                 onCta = viewModel::executeCta,
-                                theme = s.themeId,
+                                theme = selectedTheme,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
