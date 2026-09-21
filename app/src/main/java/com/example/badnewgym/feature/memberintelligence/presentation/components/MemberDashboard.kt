@@ -1,9 +1,7 @@
 package com.example.badnewgym.feature.memberintelligence.presentation.components
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.model.*
 
@@ -24,6 +22,11 @@ fun MemberDashboard(
 ) {
     MemberIntelligenceCard(
         snapshot = snapshot,
+        currentEvent = currentEvent,
+        signals = signals,
+        primarySignal = primarySignal,
+        secondarySignals = secondarySignals,
+        cta = cta,
         theme = theme,
         menus = menus,
         activeMenu = activeMenu,
@@ -31,6 +34,6 @@ fun MemberDashboard(
         onCtaClick = {
             if (cta != null) onCta(cta)
         },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     )
 }
