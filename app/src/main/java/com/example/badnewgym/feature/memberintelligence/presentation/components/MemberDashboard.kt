@@ -23,7 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.clip
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -112,7 +112,7 @@ fun MemberDashboard(
                                 }
                             }
                             Text((id.code ?: "MEMBER") + "  •  " + (plan?.planName ?: "No active plan"), color = c.textSecondary, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold)
-                            Text(theme.motto.replace('\n', ' • '), color = c.mottoColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(theme.motto.replace("\n", " • "), color = c.mottoColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(formatTime(currentEvent.occurredAt), color = c.textPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold)
@@ -338,6 +338,7 @@ private fun themeBackground(t: ThemeId) = Brush.verticalGradient(when (t) {
     ThemeId.PREMIUM_3D -> listOf(Color(0xFF070604), Color(0xFF151108)); ThemeId.VIBRANT_GRADIENT -> listOf(Color(0xFFFFF8FC), Color(0xFFF5F0FF))
     ThemeId.BEAST_MODE -> listOf(Color(0xFF090102), Color(0xFF1A0508)); ThemeId.PURPLE_ROYAL -> listOf(Color(0xFF090312), Color(0xFF17072B))
 })
+@Composable
 private fun eventAccent(e: EventType) = when (e) {
     EventType.PAYMENT_FAILED, EventType.COMPLAINT -> BADGymTheme.colors.danger; EventType.MAINTENANCE -> BADGymTheme.colors.warning
     EventType.PAYMENT, EventType.RENEWAL -> BADGymTheme.colors.success; EventType.CHECK_IN, EventType.CHECK_OUT, EventType.WORKOUT, EventType.TRAINER_SESSION -> BADGymTheme.colors.accent
