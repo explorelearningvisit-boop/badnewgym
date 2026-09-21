@@ -1,72 +1,56 @@
 package com.example.badnewgym.feature.memberintelligence.presentation
 
+import android.content.IntentFilter
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import android.content.IntentFilter
 import androidx.core.content.ContextCompat
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugBridge
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiver
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
-import com.example.badnewgym.feature.memberintelligence.design.elevation
-import com.example.badnewgym.feature.memberintelligence.design.motion
-import com.example.badnewgym.feature.memberintelligence.design.shapes
+import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
+import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
+import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberDashboard
-
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-fun MemberIntelligenceScreen(
-    viewModel: MemberIntelligenceViewModel
-) {
+fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val allThemes = ThemeId.entries
+    val scope = rememberCoroutineScope()
+    val themes = ThemeId.entries
     val currentTheme = (state as? MemberIntelligenceUiState.Success)?.themeId ?: ThemeId.NATURAL_FRESH
+
     val pagerState = rememberPagerState(
-        initialPage = allThemes.indexOf(currentTheme).coerceAtLeast(0),
-        pageCount = { allThemes.size }
+        initialPage = themes.indexOf(currentTheme).coerceAtLeast(0),
+        pageCount = { themes.size }
     )
 
     LaunchedEffect(Unit) {
-        viewModel.loadMemberData("1", "gym1")
+        viewModel.loadMemberData("BG204", "gym1")
     }
 
     LaunchedEffect(pagerState.currentPage) {
-        val targetTheme = allThemes[pagerState.currentPage]
-        if (targetTheme != currentTheme) {
-            viewModel.selectTheme(targetTheme)
-        }
+        val target = themes[pagerState.currentPage]
+        if (target != currentTheme) viewModel.selectTheme(target)
     }
 
     LaunchedEffect(currentTheme) {
-        val targetIndex = allThemes.indexOf(currentTheme)
+        val targetIndex = themes.indexOf(currentTheme)
         if (targetIndex >= 0 && targetIndex != pagerState.currentPage) {
             pagerState.scrollToPage(targetIndex)
         }
@@ -103,9 +87,9 @@ fun MemberIntelligenceScreen(
         ThemeId.NATURAL_FRESH -> Color(0xFFF2FBF5)
         ThemeId.FUTURISTIC_NEON -> Color(0xFF020617)
         ThemeId.MINIMAL_DARK -> Color(0xFF0B0D11)
-        ThemeId.GLASSMORPHISM -> Color(0xFFEFF6FF)
+        ThemeId.GLASSMORPHISM -> Color(0xFFEAF4FF)
         ThemeId.PREMIUM_3D -> Color(0xFF070604)
-        ThemeId.VIBRANT_GRADIENT -> Color(0xFFFFF1F2)
+        ThemeId.VIBRANT_GRADIENT -> Color(0xFFFFF4FA)
         ThemeId.BEAST_MODE -> Color(0xFF0B0102)
         ThemeId.PURPLE_ROYAL -> Color(0xFF090312)
     }
@@ -117,143 +101,62 @@ fun MemberIntelligenceScreen(
         elevation = currentTheme.elevation(),
         adaptiveContext = adaptiveContext
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(outerBackground)
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            // Theme Switcher Chips
-            ThemePicker(
-                selected = currentTheme,
-                onSelected = { theme ->
-                    val index = allThemes.indexOf(theme)
-                    if (index >= 0) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-                    }
-                    viewModel.selectTheme(theme)
-                }
-            )
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            // Category & Theme Name Sub-banner
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = currentTheme.title.uppercase(),
-                    color = BADGymTheme.colors.textPrimary,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp
-                )
-                Text(
-                    text = currentTheme.category,
-                    color = BADGymTheme.colors.textSecondary,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Main Card Swiper
-            HorizontalPager(
-                state = pagerState,
-                pageSpacing = 16.dp,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            ) { page ->
-                val pageTheme = allThemes[page]
-                val (scenarioSnapshot, scenarioEvent) = com.example.badnewgym.feature.memberintelligence.preview.scenarios.MemberScenarios.getScenarioForTheme(pageTheme)
-                val engineResult = com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine().evaluate(
-                    scenarioSnapshot,
-                    scenarioEvent,
-                    scenarioEvent.occurredAt
-                )
-                val resolvedMenus = com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver.resolve(
-                    scenarioSnapshot,
-                    engineResult.signals
-                )
-
-                BADGymTheme(
-                    colors = pageTheme.colors(),
-                    shapes = pageTheme.shapes(),
-                    motion = pageTheme.motion(),
-                    elevation = pageTheme.elevation(),
-                    adaptiveContext = adaptiveContext
-                ) {
-                    MemberDashboard(
-                        snapshot = scenarioSnapshot,
-                        currentEvent = scenarioEvent,
-                        signals = engineResult.signals,
-                        menus = resolvedMenus,
-                        activeMenu = (state as? MemberIntelligenceUiState.Success)?.activeMenu ?: com.example.badnewgym.feature.memberintelligence.domain.model.MenuType.HOME,
-                        onMenuSelected = viewModel::selectMenu,
-                        primarySignal = engineResult.primary,
-                        secondarySignals = engineResult.secondary,
-                        cta = engineResult.cta,
-                        onCta = viewModel::executeCta,
-                        theme = pageTheme,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ThemePicker(
-    selected: ThemeId,
-    onSelected: (ThemeId) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        ThemeId.entries.forEach { item ->
-            val on = item == selected
-            
-            val backgroundColor by androidx.compose.animation.animateColorAsState(
-                targetValue = if (on) BADGymTheme.colors.accent else BADGymTheme.colors.surface,
-                label = "ThemePickerBg"
-            )
-            val borderColor by androidx.compose.animation.animateColorAsState(
-                targetValue = if (on) BADGymTheme.colors.accent else BADGymTheme.colors.border,
-                label = "ThemePickerBorder"
-            )
-            val textColor by androidx.compose.animation.animateColorAsState(
-                targetValue = if (on) BADGymTheme.colors.textOnAccent else BADGymTheme.colors.textSecondary,
-                label = "ThemePickerText"
-            )
-
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = outerBackground
+        ) { padding ->
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(backgroundColor)
-                    .border(1.5.dp, borderColor, RoundedCornerShape(16.dp))
-                    .clickable { onSelected(item) }
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                    .fillMaxSize()
+                    .background(outerBackground)
+                    .padding(padding)
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
             ) {
-                Text(
-                    text = item.title,
-                    color = textColor,
-                    fontSize = 11.sp,
-                    fontWeight = if (on) FontWeight.ExtraBold else FontWeight.SemiBold
-                )
+                HorizontalPager(
+                    state = pagerState,
+                    pageSpacing = 12.dp,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    val pageTheme = themes[page]
+                    val (scenarioSnapshot, scenarioEvent) =
+                        com.example.badnewgym.feature.memberintelligence.preview.scenarios.MemberScenarios
+                            .getScenarioForTheme(pageTheme)
+
+                    val engineResult = MemberIntelligenceEngine().evaluate(
+                        scenarioSnapshot,
+                        scenarioEvent,
+                        scenarioEvent.occurredAt
+                    )
+                    val resolvedMenus = MenuAvailabilityResolver.resolve(
+                        scenarioSnapshot,
+                        engineResult.signals
+                    )
+
+                    BADGymTheme(
+                        colors = pageTheme.colors(),
+                        shapes = pageTheme.shapes(),
+                        motion = pageTheme.motion(),
+                        elevation = pageTheme.elevation(),
+                        adaptiveContext = adaptiveContext
+                    ) {
+                        MemberDashboard(
+                            snapshot = scenarioSnapshot,
+                            currentEvent = scenarioEvent,
+                            signals = engineResult.signals,
+                            menus = resolvedMenus,
+                            activeMenu = (state as? MemberIntelligenceUiState.Success)?.activeMenu ?: MenuType.HOME,
+                            onMenuSelected = viewModel::selectMenu,
+                            primarySignal = engineResult.primary,
+                            secondarySignals = engineResult.secondary,
+                            cta = engineResult.cta,
+                            onCta = viewModel::executeCta,
+                            theme = pageTheme,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
             }
         }
     }
