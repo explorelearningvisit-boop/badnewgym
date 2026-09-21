@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.sp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugBridge
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiver
@@ -144,6 +144,9 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
+                }
+                is MemberIntelligenceUiState.Locked -> {
+                    ErrorState(theme, "Feature locked: " + state.featureName, onRetry = {})
                 }
             }
         }
