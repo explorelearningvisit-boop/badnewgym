@@ -2,11 +2,16 @@ package com.example.badnewgym.feature.memberintelligence.design
 
 import com.example.badnewgym.feature.memberintelligence.design.colors.*
 
+/**
+ * Eight visual skins for the same Member Intelligence experience.
+ * Business facts stay identical; only visual personality changes.
+ */
 enum class ThemeId(
     val title: String,
     val isDark: Boolean,
     val category: String,
     val subtitle: String,
+    val headerTag: String,
     val motto: String,
     val footer: String,
     val timeText: String,
@@ -15,110 +20,14 @@ enum class ThemeId(
     val ctaText: String,
     val defaultMemberId: String
 ) {
-    NATURAL_FRESH(
-        title = "Natural Fresh",
-        isDark = false,
-        category = "Wellness • Clean • Friendly",
-        subtitle = "Healthy People\nHappier Lives",
-        motto = "Good Fitness\nBrighter You",
-        footer = "Small Steps\nBig Results",
-        timeText = "4:03 PM",
-        timeRelative = "Just now",
-        actionChipText = "+ CHECK-IN",
-        ctaText = "Collect Payment",
-        defaultMemberId = "BG204"
-    ),
-    FUTURISTIC_NEON(
-        title = "Futuristic Neon",
-        isDark = true,
-        category = "Bold • Energetic • High Tech",
-        subtitle = "BEYOND LIMITS",
-        motto = "STRONGER\nEVERYDAY",
-        footer = "DISCIPLINE TODAY\nA STRONGER TOMORROW  → → →",
-        timeText = "6:15 PM",
-        timeRelative = "Today",
-        actionChipText = "+ WORKOUT",
-        ctaText = "View Workout",
-        defaultMemberId = "BG105"
-    ),
-    MINIMAL_DARK(
-        title = "Minimal Dark",
-        isDark = true,
-        category = "Simple • Elegant • Focused",
-        subtitle = "FOCUS • TRAIN • GROW",
-        motto = "CONSISTENCY\nCREATES\nCHANGE",
-        footer = "LESS EXCUSES\nMORE RESULTS",
-        timeText = "7:00 AM",
-        timeRelative = "Tomorrow",
-        actionChipText = "+ TRAINER",
-        ctaText = "View Trainer Session",
-        defaultMemberId = "BG310"
-    ),
-    GLASSMORPHISM(
-        title = "Glassmorphism",
-        isDark = false,
-        category = "Translucent • Modern • Elegant",
-        subtitle = "Mind • Body • Community",
-        motto = "More Than\nA Gym  ↗",
-        footer = "Better People\nBetter Communities",
-        timeText = "8:20 AM",
-        timeRelative = "Today",
-        actionChipText = "+ NUTRITION",
-        ctaText = "View Nutrition Plan",
-        defaultMemberId = "BG407"
-    ),
-    PREMIUM_3D(
-        title = "Premium 3D",
-        isDark = true,
-        category = "Luxury • Stylish • Premium",
-        subtitle = "ELITE FITNESS CLUB",
-        motto = "\"A Better You\nEveryday\"",
-        footer = "EXCLUSIVE MEMBERSHIP\nPREMIUM LIFE",
-        timeText = "5:45 PM",
-        timeRelative = "Today",
-        actionChipText = "+ VIP MEMBER",
-        ctaText = "View Elite Services",
-        defaultMemberId = "BG001"
-    ),
-    VIBRANT_GRADIENT(
-        title = "Vibrant Gradient",
-        isDark = false,
-        category = "Youthful • Dynamic • Colorful",
-        subtitle = "FITNESS FOR A BRIGHTER YOU",
-        motto = "Train\nEat\nRepeat",
-        footer = "GOOD ENERGY\nEVERYDAY",
-        timeText = "11:30 AM",
-        timeRelative = "Today",
-        actionChipText = "+ PAYMENT",
-        ctaText = "Pay Now",
-        defaultMemberId = "BG220"
-    ),
-    BEAST_MODE(
-        title = "Gym Beast Mode",
-        isDark = true,
-        category = "Powerful • Intense • Motivational",
-        subtitle = "BEAST MODE ON",
-        motto = "NO\nPAIN\nNO\nGAIN",
-        footer = "BE A BETTER YOU",
-        timeText = "9:10 PM",
-        timeRelative = "Today",
-        actionChipText = "+ CHECK-IN",
-        ctaText = "Take Action",
-        defaultMemberId = "BG330"
-    ),
-    PURPLE_ROYAL(
-        title = "Purple Royal",
-        isDark = true,
-        category = "Elegant • Royal • Exclusive",
-        subtitle = "FITNESS ROYALTY",
-        motto = "Stronger\nFitter\nHappier",
-        footer = "FITNESS TODAY\nA STRONGER YOU TOMORROW",
-        timeText = "10:15 AM",
-        timeRelative = "Today",
-        actionChipText = "+ SERVICE",
-        ctaText = "View Services",
-        defaultMemberId = "BG502"
-    );
+    NATURAL_FRESH("Natural Fresh", false, "Wellness • Clean • Friendly", "Healthy People\nHappier Lives", "Healthy People\nHappier Lives", "Good Fitness\nBrighter You", "Small Steps\nBig Results", "4:03 PM", "Just now", "+ CHECK-IN", "Collect Payment", "BG204"),
+    FUTURISTIC_NEON("Futuristic Neon", true, "Bold • Energetic • High Tech", "BEYOND LIMITS", "Discipline Today\nA Stronger Tomorrow", "STRONGER\nEVERY DAY", "DISCIPLINE TODAY\nA STRONGER TOMORROW", "4:03 PM", "Just now", "+ CHECK-IN", "Collect Payment", "BG204"),
+    MINIMAL_DARK("Minimal Dark", true, "Simple • Elegant • Focused", "FOCUS • TRAIN • GROW", "Less Excuses\nMore Results", "CONSISTENCY\nCREATES CHANGE", "LESS EXCUSES\nMORE RESULTS", "4:03 PM", "Just now", "+ CHECK-IN", "Collect Payment", "BG204"),
+    GLASSMORPHISM("Glassmorphism", false, "Translucent • Modern • Elegant", "MIND • BODY • COMMUNITY", "More Than Gym\nA Better You", "More Than\nA Gym ↗", "Better People\nBetter Communities", "4:03 PM", "Just now", "+ CHECK-IN", "Collect Payment", "BG204"),
+    PREMIUM_3D("Premium 3D", true, "Luxury • Stylish • Premium", "ELITE FITNESS CLUB", "A Premium You\nA Stronger Tomorrow", "Make Fitness\nA Lifestyle", "EXCLUSIVE MEMBERS\nEXTRAORDINARY RESULTS", "4:03 PM", "Just now", "+ CHECK-IN", "Collect Payment", "BG204"),
+    VIBRANT_GRADIENT("Vibrant Gradient", false, "Youthful • Dynamic • Colorful", "FITNESS FOR A BRIGHTER YOU", "Good Energy\nEveryday", "Train\nEat\nRepeat", "GOOD ENERGY\nEVERYDAY", "4:03 PM", "Just now", "+ CHECK-IN", "Collect Payment", "BG204"),
+    BEAST_MODE("Gym Beast Mode", true, "Powerful • Intense • Motivational", "BEAST MODE ON", "Train Harder\nBe Stronger", "NO PAIN\nNO GAIN", "BEAST MODE\nIS A CHOICE", "4:03 PM", "Just now", "+ CHECK-IN", "Collect Payment", "BG204"),
+    PURPLE_ROYAL("Purple Royal", true, "Elegant • Royal • Exclusive", "FITNESS ROYALTY", "Elevate Your\nFitness Journey", "Stronger\nFitter Happier", "FITNESS TODAY\nA STRONGER YOU TOMORROW", "4:03 PM", "Just now", "+ CHECK-IN", "Collect Payment", "BG204");
 
     fun colors(): BADGymColors = when (this) {
         NATURAL_FRESH -> NaturalFreshColors
