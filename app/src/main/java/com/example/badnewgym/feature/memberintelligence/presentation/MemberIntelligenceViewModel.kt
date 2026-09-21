@@ -31,6 +31,9 @@ class MemberIntelligenceViewModel(
     private var themeId: ThemeId = ThemeId.NATURAL_FRESH
 
     fun loadMemberData(memberId: String, gymId: String = "gym1") {
+        // Never reload the business snapshot just because the visual theme changes.
+        // This keeps theme transitions instant and prevents the old screen from
+        // flashing/replacing member data while the user browses themes.
         viewModelScope.launch {
             _state.value = MemberIntelligenceUiState.Loading
             val snapshotResult = repository.getMemberSnapshot(memberId)
@@ -38,6 +41,7 @@ class MemberIntelligenceViewModel(
                 _state.value = MemberIntelligenceUiState.Error("Failed to load member snapshot")
                 return@launch
             }
+
             val snapshot = snapshotResult.getOrThrow()
             val event = snapshot.recentEvents.firstOrNull() ?: MemberEvent(
                 id = "init_0",
@@ -60,7 +64,12 @@ class MemberIntelligenceViewModel(
 
     fun selectTheme(theme: ThemeId) {
         themeId = theme
-        loadMemberData(theme.defaultMemberId)
+        val current = _state.value as? MemberIntelligenceUiState.Success
+        if (current == null) return
+
+        // Theme is presentation state, not data state.
+        // Preserve the loaded snapshot, active menu, intelligence signals and CTA.
+        _state.value = current.copy(themeId = theme)
     }
 
     fun executeCta(action: SignalAction) {
