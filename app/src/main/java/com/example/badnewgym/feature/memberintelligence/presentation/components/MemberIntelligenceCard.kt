@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -241,7 +242,7 @@ private fun IntelligenceFeed(
             FeedRow(eventIcon(currentEvent.eventType), currentEvent.eventType.displayLabel(), "Member activity recorded", BADGymTheme.colors.success)
         } else {
             feed.forEach { signal ->
-                FeedRow(signalIcon(signal.category), signal.title, signal.subtitle ?: signal.value ?: "Action available", signalColor(signal.priority))
+                FeedRow(signalIcon(signal.category), signal.title, signal.subtitle ?: signal.value ?: "Action available", signalColor(signal.priority, BADGymTheme.colors))
             }
         }
     }
@@ -318,10 +319,13 @@ private fun QuickAction(icon: ImageVector, label: String, color: Color, modifier
     }
 }
 
-private fun signalColor(priority: SignalPriority): Color = when (priority) {
-    SignalPriority.P0_CRITICAL, SignalPriority.P1_ACTION_REQUIRED -> BADGymTheme.colors.danger
-    SignalPriority.P2_IMPORTANT -> BADGymTheme.colors.warning
-    SignalPriority.P3_BACKGROUND -> BADGymTheme.colors.success
+private fun signalColor(
+    priority: SignalPriority,
+    colors: com.example.badnewgym.feature.memberintelligence.design.colors.BADGymColors
+): Color = when (priority) {
+    SignalPriority.P0_CRITICAL, SignalPriority.P1_ACTION_REQUIRED -> colors.danger
+    SignalPriority.P2_IMPORTANT -> colors.warning
+    SignalPriority.P3_BACKGROUND -> colors.success
 }
 
 private fun signalIcon(category: SignalCategory): ImageVector = when (category) {
