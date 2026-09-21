@@ -20,6 +20,10 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 
+/**
+ * Main Member Intelligence card that mirrors the exact 8-theme design sheet.
+ * Layout: Left Intelligence Rail + Right content (Header → Hero → Plan → Metrics → CTA → Footer)
+ */
 @Composable
 fun MemberIntelligenceCard(
     snapshot: MemberSnapshot,
@@ -32,12 +36,15 @@ fun MemberIntelligenceCard(
 ) {
     val colors = BADGymTheme.colors
 
-    // Card Outer Frame with Theme Specific Borders and Styling
+    // Outer frame with theme-specific glow + border
     Box(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
-                elevation = if (theme == ThemeId.PREMIUM_3D || theme == ThemeId.BEAST_MODE || theme == ThemeId.FUTURISTIC_NEON) 16.dp else 8.dp,
+                elevation = when (theme) {
+                    ThemeId.PREMIUM_3D, ThemeId.BEAST_MODE, ThemeId.FUTURISTIC_NEON, ThemeId.PURPLE_ROYAL -> 18.dp
+                    else -> 8.dp
+                },
                 shape = RoundedCornerShape(24.dp),
                 spotColor = colors.cardGlow,
                 ambientColor = colors.cardGlow
@@ -58,10 +65,7 @@ fun MemberIntelligenceCard(
             .border(
                 width = when (theme) {
                     ThemeId.PREMIUM_3D -> 2.dp
-                    ThemeId.BEAST_MODE -> 1.5.dp
-                    ThemeId.FUTURISTIC_NEON -> 1.5.dp
-                    ThemeId.PURPLE_ROYAL -> 1.5.dp
-                    ThemeId.GLASSMORPHISM -> 1.dp
+                    ThemeId.BEAST_MODE, ThemeId.FUTURISTIC_NEON, ThemeId.PURPLE_ROYAL -> 1.5.dp
                     else -> 1.dp
                 },
                 brush = when (theme) {
@@ -93,44 +97,42 @@ fun MemberIntelligenceCard(
                 shape = RoundedCornerShape(24.dp)
             )
     ) {
-        // Layout: Left Rail + Right Content Area
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // Left Rail
+        Row(modifier = Modifier.fillMaxWidth()) {
+
+            // ===== LEFT RAIL (Home / Attend / Plan / Pay / Trainer / Workout / More) =====
             IntelligenceRail(
                 menus = menus,
                 activeMenu = activeMenu,
                 onMenuSelected = onMenuSelected
             )
 
-            // Right Content Area
+            // ===== RIGHT CONTENT =====
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(top = 10.dp, bottom = 10.dp, start = 8.dp, end = 10.dp)
+                    .padding(top = 10.dp, bottom = 12.dp, start = 8.dp, end = 12.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Header (Logo, Subtitle, Bell, Avatar, Time)
+                // 1. Top bar: Logo + subtitle + time + bell + avatar
                 CardHeader(
                     theme = theme,
                     photoUrl = snapshot.identity.photoUrl
                 )
 
-                // Hero Member Area (Action Pill, Avatar, Name, Code, Motto)
+                // 2. Hero: Action chip + Photo + Name + ID + Motto
                 HeroMemberSection(
                     identity = snapshot.identity,
                     theme = theme
                 )
 
-                // Plan & Active / Due Status
+                // 3. Plan badge + ACTIVE status + days left
                 MembershipTierStatus(
                     membership = snapshot.membership,
                     theme = theme
                 )
 
-                // 3-Column Metrics (Attendance, Payment, Workouts)
+                // 4. Three metric tiles (Attendance / Payment / Workouts)
                 val workoutsCount = when (theme) {
                     ThemeId.NATURAL_FRESH -> 12
                     ThemeId.FUTURISTIC_NEON -> 18
@@ -148,13 +150,13 @@ fun MemberIntelligenceCard(
                     theme = theme
                 )
 
-                // Primary CTA Button
+                // 5. Primary CTA button (Collect Payment / View Workout / Pay Now ...)
                 ThemedCtaButton(
                     theme = theme,
                     onClick = onCtaClick
                 )
 
-                // Footer Section
+                // 6. Footer motto
                 CardFooterSection(
                     theme = theme
                 )
