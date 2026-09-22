@@ -19,6 +19,9 @@ import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiv
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
 
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+
 @Composable
 fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     val state by viewModel.state.collectAsState()
@@ -58,7 +61,10 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             activeMenu = null,
             theme = theme,
             onThemeSelected = viewModel::selectTheme,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
         )
         return
     }
@@ -70,7 +76,10 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
                 fadeOut(tween(150)) + slideOutHorizontally(tween(180))
         },
         label = "theme-shell",
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
     ) { animatedTheme ->
         PixelPerfectMemberCard(
             snapshot = success.snapshot,

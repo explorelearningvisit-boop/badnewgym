@@ -26,7 +26,7 @@ import com.example.badnewgym.feature.memberintelligence.design.shapes
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
-import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberDashboard
+import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
 import com.example.badnewgym.feature.memberintelligence.preview.scenarios.MemberScenarios
 
 @Composable
@@ -65,7 +65,7 @@ fun ThemeGalleryScreen() {
             ThemeId.GLASSMORPHISM
         )
         
-        val (snapshot, event) = MemberScenarios.overdueActiveMember()
+        val (snapshot, event) = MemberScenarios.naturalFreshYash()
         val result = MemberIntelligenceEngine().evaluate(snapshot, event, event.occurredAt)
         
         themes.forEach { themeId ->
@@ -99,7 +99,7 @@ fun ThemeGalleryScreen() {
                     elevation = themeId.elevation(),
                     adaptiveContext = adaptiveContext
                 ) {
-                    MemberDashboard(
+                    PixelPerfectMemberCard(
                         snapshot = snapshot,
                         currentEvent = event,
                         signals = result.signals,
@@ -108,7 +108,8 @@ fun ThemeGalleryScreen() {
                         onMenuSelected = {},
                         primarySignal = result.primary,
                         secondarySignals = result.secondary,
-                        cta = result.cta
+                        cta = result.cta,
+                        theme = themeId
                     )
                 }
             }

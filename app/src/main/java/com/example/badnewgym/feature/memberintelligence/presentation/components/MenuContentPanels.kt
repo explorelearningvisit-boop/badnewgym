@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
+import com.example.badnewgym.feature.memberintelligence.domain.model.IntelligenceSignal
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
 
 /* =========================================================
@@ -251,6 +252,39 @@ fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     Spacer(Modifier.width(10.dp))
                     Text(title, color = colors.textPrimary, fontWeight = FontWeight.Medium, fontSize = 13.sp)
                 }
+            }
+        }
+    }
+}
+
+/* =========================================================
+   INSIGHT PANEL
+   ========================================================= */
+@Composable
+fun InsightPanel(
+    snapshot: MemberSnapshot,
+    signals: List<IntelligenceSignal>,
+    theme: ThemeId
+) {
+    val colors = BADGymTheme.colors
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("Member Intelligence Insights", theme)
+
+        if (signals.isEmpty()) {
+            InfoCard(theme) {
+                Text(
+                    text = "All systems green. No active anomalies detected.",
+                    color = colors.textSecondary,
+                    fontSize = 12.sp
+                )
+            }
+        } else {
+            for (signal in signals) {
+                IntelligenceSignalCard(
+                    signal = signal,
+                    emphasized = true
+                )
             }
         }
     }

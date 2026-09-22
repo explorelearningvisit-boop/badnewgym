@@ -9,13 +9,13 @@ import com.example.badnewgym.feature.memberintelligence.design.motion
 import com.example.badnewgym.feature.memberintelligence.design.shapes
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
-import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberDashboard
+import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
 import com.example.badnewgym.feature.memberintelligence.preview.scenarios.MemberScenarios
 
 @Preview(name = "360x500 light", widthDp = 360, heightDp = 640)
 @Composable
 fun OverdueMemberPreview() {
-    val (snapshot, event) = MemberScenarios.overdueActiveMember()
+    val (snapshot, event) = MemberScenarios.naturalFreshYash()
     val result = MemberIntelligenceEngine().evaluate(snapshot, event, event.occurredAt)
     val theme = ThemeId.NATURAL_FRESH
     BADGymTheme(
@@ -24,7 +24,7 @@ fun OverdueMemberPreview() {
         motion = theme.motion(),
         elevation = theme.elevation()
     ) {
-        MemberDashboard(
+        PixelPerfectMemberCard(
             snapshot = snapshot,
             currentEvent = event,
             signals = result.signals,
@@ -33,7 +33,8 @@ fun OverdueMemberPreview() {
             onMenuSelected = {},
             primarySignal = result.primary,
             secondarySignals = result.secondary,
-            cta = result.cta
+            cta = result.cta,
+            theme = theme
         )
     }
 }
