@@ -3,6 +3,8 @@ package com.example.badnewgym.feature.memberintelligence.presentation
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.model.IntelligenceSignal
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
+import com.example.badnewgym.feature.memberintelligence.domain.model.GymLiveSnapshot
+import com.example.badnewgym.feature.memberintelligence.domain.model.GymOperationalEvent
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
@@ -22,7 +24,9 @@ sealed class MemberIntelligenceUiState {
         val cta: SignalAction?,
         val activeMenu: MenuType = MenuType.HOME,
         val themeId: ThemeId = ThemeId.NATURAL_FRESH,
-        val syncStatus: SyncStatus = SyncStatus.SYNCED
+        val syncStatus: SyncStatus = SyncStatus.SYNCED,
+        val gymLive: GymLiveSnapshot = GymLiveSnapshot(),
+        val gymEvents: List<GymOperationalEvent> = emptyList()
     ) : MemberIntelligenceUiState()
 
     data class Error(val message: String) : MemberIntelligenceUiState()
