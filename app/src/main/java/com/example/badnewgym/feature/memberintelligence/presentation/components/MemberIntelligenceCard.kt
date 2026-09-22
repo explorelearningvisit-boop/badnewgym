@@ -466,11 +466,13 @@ private fun operationalIcon(c: GymOperationalCategory): ImageVector = when (c) {
     GymOperationalCategory.SECURITY -> Icons.Rounded.Shield
     GymOperationalCategory.SYSTEM -> Icons.Rounded.Settings
 }
+@Composable
 private fun severity(p: SignalPriority): Color = when (p) {
     SignalPriority.P0_CRITICAL, SignalPriority.P1_ACTION_REQUIRED -> BADGymTheme.colors.danger
     SignalPriority.P2_IMPORTANT -> BADGymTheme.colors.warning
     SignalPriority.P3_BACKGROUND -> BADGymTheme.colors.success
 }
+@Composable
 private fun issueColor(s: IssueSeverity): Color = when (s) {
     IssueSeverity.LOW -> BADGymTheme.colors.success
     IssueSeverity.MEDIUM -> BADGymTheme.colors.warning
