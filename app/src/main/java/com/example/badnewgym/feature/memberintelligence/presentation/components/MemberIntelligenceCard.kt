@@ -264,7 +264,6 @@ private fun Payment(s: MemberSnapshot) {
         Metric(Modifier.weight(1f), "LAST", rupees(p?.lastPaymentAmount ?: 0.0), p?.lastPaymentMethod ?: "—", c.info)
     }
     Rows(listOf("Due date" to (p?.dueDate?.let(::dateTime) ?: "—"), "Last payment" to (p?.lastPaymentDate?.let(::dateTime) ?: "—")))
-    p?.history?.take(3)?.forEach { tx -> EventRow(Icons.Rounded.Payments, "Payment " + rupees(tx.amount), tx.method + " • " + dateTime(tx.occurredAt), c.success) }
 }
 
 @Composable
