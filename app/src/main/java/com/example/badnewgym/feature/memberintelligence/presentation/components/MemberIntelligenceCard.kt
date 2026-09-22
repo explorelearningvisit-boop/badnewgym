@@ -439,9 +439,9 @@ private fun menuIcon(t: MenuType): ImageVector = when (t) {
     MenuType.PAYMENT -> Icons.Rounded.Payments
     MenuType.TRAINER -> Icons.Rounded.Person
     MenuType.WORKOUT -> Icons.Rounded.FitnessCenter
-    MenuType.SUPPLEMENTS -> Icons.Rounded.Medication
+    MenuType.SUPPLEMENTS -> Icons.Rounded.Restaurant
     MenuType.NUTRITION -> Icons.Rounded.Restaurant
-    MenuType.SERVICES -> Icons.Rounded.Extension
+    MenuType.SERVICES -> Icons.Rounded.MoreHoriz
     MenuType.HISTORY -> Icons.Rounded.History
     MenuType.INSIGHT -> Icons.Rounded.AutoAwesome
 }
@@ -459,9 +459,9 @@ private fun operationalIcon(c: GymOperationalCategory): ImageVector = when (c) {
     GymOperationalCategory.PAYMENT, GymOperationalCategory.FINANCE -> Icons.Rounded.Payments
     GymOperationalCategory.MEMBERSHIP -> Icons.Rounded.CardMembership
     GymOperationalCategory.TRAINER -> Icons.Rounded.Person
-    GymOperationalCategory.EQUIPMENT, GymOperationalCategory.MAINTENANCE -> Icons.Rounded.Build
-    GymOperationalCategory.CLEANING -> Icons.Rounded.CleaningServices
-    GymOperationalCategory.POWER -> Icons.Rounded.Power
+    GymOperationalCategory.EQUIPMENT, GymOperationalCategory.MAINTENANCE -> Icons.Rounded.ReportProblem
+    GymOperationalCategory.CLEANING -> Icons.Rounded.Home
+    GymOperationalCategory.POWER -> Icons.Rounded.Bolt
     GymOperationalCategory.FACILITY -> Icons.Rounded.HomeRepairService
     GymOperationalCategory.SECURITY -> Icons.Rounded.Shield
     GymOperationalCategory.SYSTEM -> Icons.Rounded.Settings
