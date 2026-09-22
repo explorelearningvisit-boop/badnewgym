@@ -123,7 +123,7 @@ private fun Identity(snapshot: MemberSnapshot, theme: ThemeId, compact: Boolean)
             .padding(9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MemberPhoto(snapshot.identity.photoUrl, snapshot.identity.tier, if (compact) 50.dp else 56.dp, snapshot.identity.isVerified)
+        MemberPhoto(photoUrl = snapshot.identity.photoUrl, tier = snapshot.identity.tier, size = if (compact) 50.dp else 56.dp, showVerified = snapshot.identity.isVerified)
         Spacer(Modifier.width(9.dp))
         Column(Modifier.weight(1f)) {
             Text(snapshot.identity.name, color = c.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
