@@ -247,7 +247,7 @@ private fun CardBody(
                 CardHeader(
                     theme = theme,
                     memberPhotoUrl = snapshot.identity.photoUrl,
-                    eventTime = currentEvent.occurredAt
+                    eventTime = currentEvent?.occurredAt ?: System.currentTimeMillis()
                 )
 
                 // Hero Member Info (Verified, ID, Motto, Photo)
