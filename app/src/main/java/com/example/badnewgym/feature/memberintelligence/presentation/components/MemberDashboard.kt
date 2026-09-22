@@ -18,7 +18,9 @@ fun MemberDashboard(
     primarySignal: IntelligenceSignal? = null,
     secondarySignals: List<IntelligenceSignal> = emptyList(),
     cta: SignalAction? = null,
-    onCta: (SignalAction) -> Unit = {}
+    onCta: (SignalAction) -> Unit = {},
+    gymLive: GymLiveSnapshot = GymLiveSnapshot(),
+    gymEvents: List<GymOperationalEvent> = emptyList()
 ) {
     MemberIntelligenceCard(
         snapshot = snapshot,
@@ -31,9 +33,9 @@ fun MemberDashboard(
         menus = menus,
         activeMenu = activeMenu,
         onMenuSelected = onMenuSelected,
-        onCtaClick = {
-            if (cta != null) onCta(cta)
-        },
+        onCtaClick = { if (cta != null) onCta(cta) },
+        gymLive = gymLive,
+        gymEvents = gymEvents,
         modifier = modifier
     )
 }
