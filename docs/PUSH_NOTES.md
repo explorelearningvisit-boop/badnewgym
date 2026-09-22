@@ -1,0 +1,1 @@
+V3 branch is member-intelligence-v3. It is intentionally isolated from main. Preserve unrelated app code. Replace the Member Intelligence implementation with V3 components and contracts on this branch. Do not force-push main. Do not add CI workflows solely to generate verification noise.
