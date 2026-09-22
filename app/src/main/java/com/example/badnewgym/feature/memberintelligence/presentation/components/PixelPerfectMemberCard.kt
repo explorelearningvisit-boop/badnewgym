@@ -244,7 +244,11 @@ private fun CardBody(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 // Header (BAD GYM Branding + Slogan)
-                CardHeader(theme = theme)
+                CardHeader(
+                    theme = theme,
+                    memberPhotoUrl = snapshot.identity.photoUrl,
+                    eventTime = currentEvent.occurredAt
+                )
 
                 // Hero Member Info (Verified, ID, Motto, Photo)
                 HeroMemberSection(
