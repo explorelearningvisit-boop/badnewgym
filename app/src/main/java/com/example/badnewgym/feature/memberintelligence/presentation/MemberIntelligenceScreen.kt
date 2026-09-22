@@ -128,6 +128,8 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
                                 cta = s.cta,
                                 onCta = viewModel::executeCta,
                                 theme = selectedTheme,
+                                gymLive = s.gymLive,
+                                gymEvents = s.gymEvents,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
