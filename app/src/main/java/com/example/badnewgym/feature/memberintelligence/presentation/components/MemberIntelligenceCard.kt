@@ -462,7 +462,7 @@ private fun operationalIcon(c: GymOperationalCategory): ImageVector = when (c) {
     GymOperationalCategory.EQUIPMENT, GymOperationalCategory.MAINTENANCE -> Icons.Rounded.ReportProblem
     GymOperationalCategory.CLEANING -> Icons.Rounded.Home
     GymOperationalCategory.POWER -> Icons.Rounded.Bolt
-    GymOperationalCategory.FACILITY -> Icons.Rounded.HomeRepairService
+    GymOperationalCategory.FACILITY -> Icons.Rounded.Home
     GymOperationalCategory.SECURITY -> Icons.Rounded.Shield
     GymOperationalCategory.SYSTEM -> Icons.Rounded.Settings
 }
