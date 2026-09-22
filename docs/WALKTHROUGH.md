@@ -5,6 +5,12 @@ This document records the complete redesign, architectural fixes, and verificati
 
 ---
 
+## 📸 Verified Running Screenshot
+
+![BAD GYM Pixel-Perfect Member Intelligence Card](screenshots/badgym_screenshot.png)
+
+---
+
 ## 2. Issues Encountered & Resolved
 
 1. **Compilation Errors in `PixelPerfectMemberCard.kt`**:
