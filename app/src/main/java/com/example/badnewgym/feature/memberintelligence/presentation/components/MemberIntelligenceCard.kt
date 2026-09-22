@@ -87,7 +87,7 @@ fun MemberIntelligenceCard(
                         }
                     }
                     item { Related(snapshot, signals, gymEvents, theme) }
-                    if (cta != null) item { ThemedCtaButton(theme, cta.label, onCtaClick) }
+                    if (cta != null) item { ThemedCtaButton(theme = theme, onClick = onCtaClick, label = cta.label) }
                 }
             }
         }
