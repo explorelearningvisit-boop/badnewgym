@@ -1,14 +1,14 @@
 package com.example.badnewgym.feature.memberintelligence.presentation.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -17,7 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,105 +36,142 @@ fun IntelligenceRail(
     modifier: Modifier = Modifier
 ) {
     val colors = BADGymTheme.colors
+    val displayMenus = listOf(
+        MenuType.HOME to "Home",
+        MenuType.ATTENDANCE to "Attend",
+        MenuType.PLAN to "Plan",
+        MenuType.PAYMENT to "Pay",
+        MenuType.TRAINER to "Trainer",
+        MenuType.WORKOUT to "Workout",
+        MenuType.SERVICES to "More"
+    )
 
     Column(
         modifier = modifier
-            .width(54.dp)
             .fillMaxHeight()
-            .clip(RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp))
+            .clip(RoundedCornerShape(topStart = 28.dp, bottomStart = 28.dp))
             .background(colors.railBackground)
-            .padding(vertical = 12.dp, horizontal = 4.dp),
+            .padding(horizontal = 5.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        // Top collapse / arrow icon
-        Box(
-            modifier = Modifier
-                .size(30.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(colors.surfaceMuted)
-                .clickable { /* Toggle expand/collapse */ },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.ChevronLeft,
-                contentDescription = "Collapse Rail",
-                tint = colors.railInactiveIcon,
-                modifier = Modifier.size(18.dp)
-            )
-        }
-
-        // Main Nav Items: Home, Attend, Plan, Pay, Trainer, Workout, More
-        val displayMenus = listOf(
-            MenuType.HOME to "Home",
-            MenuType.ATTENDANCE to "Attend",
-            MenuType.PLAN to "Plan",
-            MenuType.PAYMENT to "Pay",
-            MenuType.TRAINER to "Trainer",
-            MenuType.WORKOUT to "Workout",
-            MenuType.SERVICES to "More"
+        RailBrandButton(
+            onClick = { onMenuSelected(MenuType.HOME) }
         )
 
+        Spacer(Modifier.height(2.dp))
+
         displayMenus.forEach { (type, label) ->
-            val isActive = activeMenu == type
-            val iconBgColor by animateColorAsState(
-                targetValue = if (isActive) colors.railActiveBackground else Color.Transparent,
-                animationSpec = tween(180),
-                label = "railItemBg"
+            val menu = menus.firstOrNull { it.id == type }
+            val enabled = menu?.isEnabled != false && menu?.isLocked != true
+            RailItem(
+                type = type,
+                label = label,
+                selected = activeMenu == type,
+                enabled = enabled,
+                badge = menu?.badgeCount ?: 0,
+                alert = menu?.hasAlert == true,
+                onClick = { if (enabled) onMenuSelected(type) }
             )
-            val iconColor = if (isActive) colors.railActiveIcon else colors.railInactiveIcon
-            val textColor = if (isActive) colors.textPrimary else colors.textMuted
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .clickable { onMenuSelected(type) }
-                    .padding(vertical = 2.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(iconBgColor)
-                        .then(
-                            if (isActive) Modifier.border(0.5.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
-                            else Modifier
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = getRailIcon(type),
-                        contentDescription = label,
-                        tint = iconColor,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = label,
-                    color = textColor,
-                    fontSize = 8.5.sp,
-                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
-                    maxLines = 1
-                )
-            }
         }
     }
 }
 
-private fun getRailIcon(type: MenuType): ImageVector {
-    return when (type) {
-        MenuType.HOME -> Icons.Rounded.Home
-        MenuType.ATTENDANCE -> Icons.Rounded.CalendarToday
-        MenuType.PLAN -> Icons.Rounded.Assignment
-        MenuType.PAYMENT -> Icons.Rounded.CreditCard
-        MenuType.TRAINER -> Icons.Rounded.PersonOutline
-        MenuType.WORKOUT -> Icons.Rounded.FitnessCenter
-        MenuType.SERVICES -> Icons.Rounded.Settings
-        else -> Icons.Rounded.Apps
+@Composable
+private fun RailBrandButton(onClick: () -> Unit) {
+    val colors = BADGymTheme.colors
+    Box(
+        Modifier
+            .size(36.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Brush.linearGradient(listOf(colors.accent, colors.accentStrong)))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(Icons.Rounded.Eco, "Home", tint = colors.textOnAccent, modifier = Modifier.size(20.dp))
     }
+}
+
+@Composable
+private fun RailItem(
+    type: MenuType,
+    label: String,
+    selected: Boolean,
+    enabled: Boolean,
+    badge: Int,
+    alert: Boolean,
+    onClick: () -> Unit
+) {
+    val colors = BADGymTheme.colors
+    val background by animateColorAsState(
+        if (selected) colors.railActiveBackground else Color.Transparent,
+        label = "rail-background"
+    )
+    val iconColor by animateColorAsState(
+        if (selected) colors.railActiveIcon else colors.railInactiveIcon,
+        label = "rail-icon"
+    )
+    val scale by animateFloatAsState(
+        if (selected) 1f else 0.94f,
+        animationSpec = spring(stiffness = 700f),
+        label = "rail-scale"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(enabled = enabled, onClick = onClick)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .padding(vertical = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(11.dp))
+                .background(background)
+                .then(
+                    if (selected) Modifier.border(1.dp, colors.accentStrong.copy(alpha = 0.45f), RoundedCornerShape(11.dp))
+                    else Modifier
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                getRailIcon(type),
+                contentDescription = label,
+                tint = if (enabled) iconColor else colors.textMuted.copy(alpha = 0.45f),
+                modifier = Modifier.size(18.dp)
+            )
+
+            if (alert || badge > 0) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .size(7.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(if (alert) colors.danger else colors.info)
+                )
+            }
+        }
+
+        Text(
+            text = label,
+            color = if (selected) colors.textPrimary else colors.textMuted,
+            fontSize = 7.5.sp,
+            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium,
+            maxLines = 1
+        )
+    }
+}
+
+private fun getRailIcon(type: MenuType): ImageVector = when (type) {
+    MenuType.HOME -> Icons.Rounded.Home
+    MenuType.ATTENDANCE -> Icons.Rounded.CalendarToday
+    MenuType.PLAN -> Icons.Rounded.CardMembership
+    MenuType.PAYMENT -> Icons.Rounded.Payments
+    MenuType.TRAINER -> Icons.Rounded.Person
+    MenuType.WORKOUT -> Icons.Rounded.FitnessCenter
+    MenuType.SERVICES -> Icons.Rounded.MoreHoriz
+    else -> Icons.Rounded.MoreHoriz
 }
