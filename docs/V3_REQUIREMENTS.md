@@ -23,3 +23,7 @@ Graphs: use a native Compose chart library such as Vico when compatible with the
 Assets: use layered Compose/vector assets. Keep original member portraits, card crop and thumbnail; optional transparent cutouts only when rights/consent permit. Product/trainer/equipment cutouts may use transparent PNG. Do not bake text into images.
 
 Responsive target: 360, 375, 390, 412dp. Minimum 48dp touch targets. Support font scaling and non-color status communication.
+
+
+## PLATFORM LOCK
+This feature is Android-only. Do NOT create HTML, CSS, JavaScript, web UI, or a separate web implementation. The visual reference must be reconstructed as native Jetpack Compose/Kotlin UI. Use Android resources, Compose Canvas/Brush/graphicsLayer/drawWithCache, Material 3 where appropriate, Coil for images, and native Compose-compatible charting. Do not flatten the reference screenshot into a background image. Match the supplied eight-card reference through real components and theme tokens.
