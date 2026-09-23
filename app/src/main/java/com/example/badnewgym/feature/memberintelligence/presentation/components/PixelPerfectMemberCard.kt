@@ -27,8 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.R
+import com.example.badnewgym.feature.memberintelligence.debug.DebugRuntimeIdentityBadge
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
+import com.example.badnewgym.feature.memberintelligence.design.dimensions.rememberResponsiveGeometry
 import com.example.badnewgym.feature.memberintelligence.design.elevation
 import com.example.badnewgym.feature.memberintelligence.design.motion
 import com.example.badnewgym.feature.memberintelligence.design.shapes
@@ -36,9 +38,20 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.*
 import com.example.badnewgym.feature.memberintelligence.presentation.components.home.ShortcutTriple
 
 /**
- * Production Member Intelligence card.
- * Reference geometry: 0.70 width/height ratio, 54dp rail, 24dp shell,
- * live Compose content and theme-specific material layers.
+ * BAD GYM — Shared Member Intelligence Shell (MI-V5 Foundation).
+ * 
+ * Structurally explicit slots:
+ * 1. [OuterShellSlot] Container with theme background & responsive padding
+ * 2. [DecorativeLayersSlot] Theme ornament layer & botanical/ambient assets
+ * 3. [IntegratedNavigationRailSlot] Left vertical rail with contextual items
+ * 4. [HeaderSlot] Back button, BAD GYM brand pill, subtitle, admin avatar
+ * 5. [EventTimeHeaderSlot] Explicit event pill (+ CHECK-IN) & timestamp
+ * 6. [HeroPortraitAndIdentitySlot] Rectangular portrait, verified badge, motto
+ * 7. [MembershipTierAndStatusSlot] Dual equal-width plan & active status bands
+ * 8. [DecisionMetricsSlot] 3 equal columns: Attendance ring, Payment, Workouts
+ * 9. [PrimaryCtaSlot] High-contrast contextual actionable button
+ * 10. [MenuContentViewportSlot] Fluid viewport for Home vs Detail menus
+ * 11. [DebugRuntimeIdentitySlot] DEBUG-only runtime version marker
  */
 @Composable
 fun PixelPerfectMemberCard(
@@ -57,6 +70,8 @@ fun PixelPerfectMemberCard(
     onCta: (SignalAction) -> Unit = {},
     onBack: () -> Unit = {}
 ) {
+    val responsive = rememberResponsiveGeometry()
+
     BADGymTheme(
         colors = theme.colors(),
         shapes = theme.shapes(),
@@ -65,11 +80,15 @@ fun PixelPerfectMemberCard(
     ) {
         val colors = BADGymTheme.colors
 
+        // 1. Outer Shell Slot
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .background(colors.background)
-                .padding(horizontal = 8.dp, vertical = 6.dp)
+                .padding(
+                    horizontal = responsive.outerPaddingHorizontal,
+                    vertical = 6.dp
+                )
         ) {
             if (snapshot == null) {
                 Box(
@@ -94,8 +113,7 @@ fun PixelPerfectMemberCard(
                     secondarySignals = secondarySignals,
                     cta = cta,
                     theme = theme,
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     onMenuSelected = onMenuSelected,
                     onCta = onCta
                 )
@@ -121,6 +139,7 @@ private fun CardBody(
     onCta: (SignalAction) -> Unit
 ) {
     val colors = BADGymTheme.colors
+    val responsive = rememberResponsiveGeometry()
 
     Box(
         modifier = modifier
@@ -136,6 +155,7 @@ private fun CardBody(
                 RoundedCornerShape(24.dp)
             )
     ) {
+        // 2. Decorative Layers Slot
         ThemeOrnamentLayer(theme = theme, modifier = Modifier.matchParentSize())
 
         if (theme == ThemeId.NATURAL_FRESH) {
@@ -160,29 +180,41 @@ private fun CardBody(
         }
 
         Row(Modifier.fillMaxSize()) {
+            // 3. Integrated Navigation Rail Slot
             IntelligenceRail(
                 menus = menus,
                 activeMenu = activeMenu,
                 onMenuSelected = onMenuSelected,
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier
+                    .width(responsive.railWidth)
+                    .fillMaxHeight()
             )
 
+            // Content Viewport Column
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(
+                        horizontal = responsive.contentPaddingHorizontal,
+                        vertical = 10.dp
+                    ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                // 4. Header Slot
                 CardHeader(theme = theme, onBack = onBack)
+
+                // 5. Event & Time Header Slot
                 currentEvent?.let { EventHeader(event = it, theme = theme) }
 
+                // 6. Hero Portrait and Identity Slot
                 HeroMemberSection(
                     identity = snapshot.identity,
                     theme = theme
                 )
 
+                // 10. Menu Content Viewport Slot
                 AnimatedContent(
                     targetState = activeMenu,
                     transitionSpec = {
@@ -222,6 +254,13 @@ private fun CardBody(
                 CardFooterSection(theme = theme)
             }
         }
+
+        // 11. Debug Runtime Identity Slot (Rendered in Debug builds only)
+        DebugRuntimeIdentityBadge(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 8.dp, bottom = 4.dp)
+        )
     }
 }
 
@@ -240,11 +279,13 @@ private fun HomeContent(
     val membership = snapshot.membership
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        // 7. Membership Tier & Status Bands Slot
         MembershipTierStatus(
             membership = membership,
             theme = theme
         )
 
+        // 8. Decision Metrics Slot (3 equal columns: Attendance, Payment, Workouts)
         CardMetricsGrid(
             attendance = snapshot.attendance,
             payment = snapshot.payment,
@@ -252,6 +293,7 @@ private fun HomeContent(
             theme = theme
         )
 
+        // Supporting contextual signals
         ShortcutTriple(
             trainer = snapshot.trainer?.trainerName ?: "Unassigned",
             workout = snapshot.workout?.currentRoutine ?: "Rest Day",
@@ -262,6 +304,7 @@ private fun HomeContent(
             IntelligenceSignalCard(signal = it, emphasized = false)
         }
 
+        // 9. Primary Contextual CTA Button Slot
         ThemedCtaButton(
             theme = theme,
             onClick = {
