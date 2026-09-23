@@ -1,75 +1,85 @@
 # BAD GYM — Current AI Handoff
 
 STATUS: READY_FOR_EXECUTION
-TASK_ID: MI-V5-MASTER-VISUAL-RECONSTRUCTION-01
+TASK_ID: MI-V5-STAGE-01-VISUAL-FOUNDATION
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity
 BRANCH: member-intelligence-v3
 
-## Mission
+## Stage 1 — Visual Foundation / Forensic Geometry / Asset Inventory
 
-Execute the combined BAD GYM Master UI/UX Reconstruction specification now.
-
-Authoritative documents:
+Read and obey:
+- AGENTS.md
+- .agents/rules/00-badgym-github-loop.md
 - docs/reference/MASTER_UI_UX_RECONSTRUCTION_PROMPT.md
 - docs/reference/MEMBER_INTELLIGENCE_8_THEME_SPEC.md
+- docs/reference/MI_V5_PRODUCTION_ROADMAP.md
 - docs/reference/NATURAL_FRESH_VISUAL_SPEC.md
-- docs/reference/current-device-output.png
 
-The user-supplied reference board contains EIGHT Member Intelligence visual states:
-1 Natural Fresh
-2 Futuristic Neon
-3 Minimal Dark
-4 Glassmorphism
-5 Premium 3D
-6 Vibrant Gradient
-7 Gym Beast Mode
-8 Purple Royal
+### Objective
 
-Treat the board as one shared component architecture + eight theme definitions, NOT eight unrelated screens.
+Do NOT attempt to finish the entire product in this stage.
 
-## Non-negotiable execution order
+Build the production foundation that prevents the previous failure mode of making a few decorative changes while the composition remains wrong.
 
-1. Inspect repo, architecture and current MI implementation.
-2. Read AGENTS.md, .agents/rules/00-badgym-github-loop.md and the two master reference documents.
-3. Analyze current implementation against the reference specifications before coding.
-4. Build/rebuild shared Member Intelligence component geometry first.
-5. Implement the eight theme definitions using semantic design tokens.
-6. Implement asset pipeline requirements: extract/reuse available assets, upscale when required, transparent PNG/vector where appropriate, manifest all assets.
-7. Implement tier x event x member-state composition without duplicating screens.
-8. Implement responsive geometry for 360dp, 375dp, 390dp and 412dp.
-9. Add DEBUG-only runtime identity showing MI-V5 + short Git SHA; it MUST disappear from release builds.
-10. Build locally, install and run on available device/emulator.
-11. Capture real screenshots.
-12. Compare screenshots against the available repository references/specification. Do not call compilation or navigation success visual completion.
-13. Fix CRITICAL discrepancies first, then MAJOR, then MINOR.
-14. Repeat screenshot -> compare -> fix until visually close.
-15. Verify all eight themes and the Natural Fresh home hierarchy.
-16. Update STATUS.md with exact work, commands/results, runtime build identity, screenshot verification and remaining discrepancies.
-17. Commit and push to member-intelligence-v3.
-18. Only set CURRENT_TASK to COMPLETED after genuine verification. If exact reference comparison is blocked because a required reference asset is unavailable locally, set BLOCKED and state that exact blocker instead of claiming success.
+### Execute
 
-## Critical visual rules
+1. Inspect current Member Intelligence code and identify the current screen/component entry points.
+2. Create a concise forensic geometry spec for the reference board, with Natural Fresh as the primary measurable baseline.
+3. Identify current visual mismatches against the existing Natural Fresh specification and current device output.
+4. Inventory all existing MI assets and classify:
+   - raster
+   - transparent overlay
+   - vector
+   - programmatic
+   - portrait
+   - logo/icon
+5. Create/complete an asset manifest with source, dimensions, intended display bounds, scaling mode, transparency and placement.
+6. Establish centralized semantic design tokens for:
+   - dimensions
+   - spacing
+   - typography
+   - colors
+   - surfaces/materials
+   - elevation
+   - motion
+   - responsive breakpoints
+7. Refactor the shared MI shell so that these slots are structurally explicit:
+   - outer shell
+   - header
+   - integrated navigation rail
+   - event/time header
+   - large hero portrait
+   - identity
+   - membership
+   - status
+   - three decision metrics
+   - primary CTA
+   - decorative layers
+   - menu content viewport
+8. Do not redesign business data or invent data.
+9. Add DEBUG-only runtime identity:
+   MI-V5
+   BUILD <short Git SHA>
+   DEBUG
+   It must not render in release builds.
+10. Add the architecture hooks for theme definitions and adaptive tier/event state, but do not duplicate eight screens.
+11. Prepare visual QA scaffolding so later stages can capture the same screen deterministically.
+12. Build and run on the available device/emulator.
+13. Capture at least one real screenshot of the new foundation.
+14. Verify that the runtime marker matches the source commit.
+15. Update STATUS.md with:
+   - exact files changed
+   - build command/result
+   - device/emulator
+   - runtime marker
+   - screenshot location if available
+   - remaining Stage 1 limitations
+16. Commit and push to member-intelligence-v3.
+17. Mark CURRENT_TASK COMPLETED only if the above was genuinely executed. Otherwise mark BLOCKED and document the exact blocker.
 
-- Do not replace custom visual elements with generic Material UI.
-- Do not shrink everything to solve responsiveness.
-- Do not allow intelligence alerts to overpower the reference Home composition.
-- Natural Fresh must retain large rectangular portrait, strong CHECK-IN pill, prominent rail, Gold Plan band, ACTIVE band, three equal metrics, six-bar workout progression, full-width green CTA and botanical framing.
-- Preserve semantic state visibility even when tier/theme colors are decorative.
-- Use one shared Member Intelligence system; do not create eight disconnected screens.
-- Do not invent unavailable production data.
-- Preserve unrelated BAD GYM functionality.
+### Important
 
-## Version truth
+Do NOT add a heavy 3D engine in Stage 1 unless a minimal compatibility check shows it is safe. Stage 7 handles real 3D. Stage 1 should establish the geometry/material architecture first.
 
-The device must visibly prove the running build:
-MI-V5
-BUILD <short-git-sha>
-DEBUG
-
-Use BuildConfig.DEBUG (or equivalent). Production/release must hide this marker.
-
-## Completion gate
-
-A build passing is NOT enough. Completion requires real device/emulator verification and screenshot comparison. No "pixel perfect" claim without actual comparison evidence.
-
+Do NOT mark the whole MI-V5 roadmap complete. This is only Stage 1.
