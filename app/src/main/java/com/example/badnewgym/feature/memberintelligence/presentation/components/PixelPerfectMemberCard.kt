@@ -69,14 +69,12 @@ fun PixelPerfectMemberCard(
             modifier = modifier
                 .fillMaxSize()
                 .background(colors.background)
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp)
         ) {
             if (snapshot == null) {
                 Box(
                     Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(0.70f)
-                        .align(Alignment.TopCenter)
+                        .fillMaxSize()
                         .clip(RoundedCornerShape(24.dp))
                         .background(colors.surface)
                         .border(1.dp, colors.border, RoundedCornerShape(24.dp)),
@@ -97,9 +95,7 @@ fun PixelPerfectMemberCard(
                     cta = cta,
                     theme = theme,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(0.70f)
-                        .align(Alignment.TopCenter),
+                        .fillMaxSize(),
                     onMenuSelected = onMenuSelected,
                     onCta = onCta
                 )
@@ -129,7 +125,7 @@ private fun CardBody(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(Color.Transparent)
+            .background(colors.surface)
             .border(
                 1.dp,
                 colors.border.copy(
@@ -149,8 +145,8 @@ private fun CardBody(
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .width(105.dp)
-                    .height(105.dp)
+                    .width(110.dp)
+                    .height(110.dp)
             )
             Image(
                 painter = painterResource(R.drawable.badgym_leaf_cluster_right),
@@ -158,8 +154,8 @@ private fun CardBody(
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .width(105.dp)
-                    .height(105.dp)
+                    .width(110.dp)
+                    .height(110.dp)
             )
         }
 
@@ -176,8 +172,8 @@ private fun CardBody(
                     .weight(1f)
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 10.dp, vertical = 9.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 CardHeader(theme = theme, onBack = onBack)
                 currentEvent?.let { EventHeader(event = it, theme = theme) }
@@ -243,26 +239,10 @@ private fun HomeContent(
     val colors = BADGymTheme.colors
     val membership = snapshot.membership
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         MembershipTierStatus(
             membership = membership,
-            theme = theme,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(13.dp))
-                .background(colors.surface.copy(alpha = .86f))
-                .border(1.dp, colors.border.copy(alpha = .6f), RoundedCornerShape(13.dp))
-                .padding(horizontal = 10.dp, vertical = 7.dp)
-        )
-
-        StatusPanel(
-            title = if (membership?.isActive == true) "ACTIVE" else "INACTIVE",
-            value = if (membership != null) {
-                membership.daysRemaining.toString() + " Days Left"
-            } else {
-                "No active plan"
-            },
-            positive = membership?.isActive == true
+            theme = theme
         )
 
         CardMetricsGrid(
@@ -279,10 +259,6 @@ private fun HomeContent(
         )
 
         (primarySignal ?: signals.firstOrNull())?.let {
-            IntelligenceSignalCard(signal = it, emphasized = true)
-        }
-
-        secondarySignals.take(2).forEach {
             IntelligenceSignalCard(signal = it, emphasized = false)
         }
 
@@ -298,48 +274,5 @@ private fun HomeContent(
                 }
             }
         )
-    }
-}
-
-@Composable
-private fun StatusPanel(
-    title: String,
-    value: String,
-    positive: Boolean
-) {
-    val colors = BADGymTheme.colors
-    val tint = if (positive) colors.success else colors.danger
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(13.dp))
-            .background(
-                if (positive) colors.successSoft.copy(alpha = .92f)
-                else colors.dangerSoft.copy(alpha = .92f)
-            )
-            .border(1.dp, tint.copy(alpha = .45f), RoundedCornerShape(13.dp))
-            .padding(horizontal = 10.dp, vertical = 7.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            Modifier
-                .size(25.dp)
-                .clip(RoundedCornerShape(50))
-                .background(tint),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = if (positive) "+" else "!",
-                color = Color.White,
-                fontWeight = FontWeight.Black,
-                fontSize = 15.sp
-            )
-        }
-        Spacer(Modifier.width(8.dp))
-        Column {
-            Text(title, color = tint, fontSize = 11.sp, fontWeight = FontWeight.Black)
-            Text(value, color = tint.copy(alpha = .9f), fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
-        }
     }
 }

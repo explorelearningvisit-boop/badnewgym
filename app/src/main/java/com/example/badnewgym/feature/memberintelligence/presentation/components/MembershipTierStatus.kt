@@ -22,44 +22,110 @@ import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.model.MembershipStatus
 
 @Composable
-fun MembershipTierStatus(membership: MembershipStatus?, theme: ThemeId, modifier: Modifier = Modifier) {
+fun MembershipTierStatus(
+    membership: MembershipStatus?,
+    theme: ThemeId,
+    modifier: Modifier = Modifier
+) {
     val colors = BADGymTheme.colors
     val planName = membership?.planName ?: "Gold Plan"
     val planType = membership?.planType ?: "12 Months"
     val daysRemaining = membership?.daysRemaining ?: 48
+    val isActive = membership?.isActive ?: true
 
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                Icons.Rounded.WorkspacePremium, null,
-                tint = when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
-                    ThemeId.PURPLE_ROYAL -> Color(0xFFC084FC)
-                    ThemeId.NATURAL_FRESH -> Color(0xFFD97706)
-                    else -> colors.accent
-                },
-                modifier = Modifier.size(15.dp)
-            )
-            Spacer(Modifier.width(5.dp))
-            Text("$planName • $planType", color = colors.textSecondary, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold)
+        // 1. Gold Plan Band
+        val goldBg = when (theme) {
+            ThemeId.PREMIUM_3D -> Color(0xFF2A200B)
+            ThemeId.NATURAL_FRESH -> Color(0xFFFEF9C3)
+            ThemeId.MINIMAL_DARK -> Color(0xFF1E232B)
+            else -> colors.surfaceMuted
+        }
+        val goldBorder = when (theme) {
+            ThemeId.PREMIUM_3D -> Color(0xFFD4AF37)
+            ThemeId.NATURAL_FRESH -> Color(0xFFFDE047)
+            else -> colors.border
+        }
+        val goldText = when (theme) {
+            ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
+            ThemeId.NATURAL_FRESH -> Color(0xFF854D0E)
+            else -> colors.textPrimary
+        }
+        val goldIcon = when (theme) {
+            ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
+            ThemeId.NATURAL_FRESH -> Color(0xFFCA8A04)
+            else -> colors.accent
         }
 
         Row(
-            modifier = Modifier.clip(RoundedCornerShape(10.dp))
-                .background(colors.successSoft)
-                .border(1.dp, colors.success.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
-                .padding(horizontal = 7.dp, vertical = 4.dp),
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(goldBg)
+                .border(1.dp, goldBorder, RoundedCornerShape(12.dp))
+                .padding(horizontal = 8.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Rounded.CheckCircle, null, tint = colors.success, modifier = Modifier.size(12.dp))
-            Spacer(Modifier.width(3.dp))
+            Icon(
+                Icons.Rounded.WorkspacePremium,
+                contentDescription = "Plan",
+                tint = goldIcon,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(6.dp))
             Column {
-                Text("ACTIVE", color = colors.success, fontSize = 8.5.sp, fontWeight = FontWeight.ExtraBold)
-                Text("$daysRemaining Days Left", color = colors.success.copy(alpha = 0.85f), fontSize = 7.5.sp)
+                Text(
+                    text = planName,
+                    color = goldText,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    text = planType,
+                    color = goldText.copy(alpha = 0.85f),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+
+        // 2. ACTIVE Status Band
+        val activeBg = if (isActive) colors.successSoft.copy(alpha = 0.95f) else colors.dangerSoft.copy(alpha = 0.95f)
+        val activeBorder = if (isActive) colors.success.copy(alpha = 0.5f) else colors.danger.copy(alpha = 0.5f)
+        val activeTint = if (isActive) colors.success else colors.danger
+
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(activeBg)
+                .border(1.dp, activeBorder, RoundedCornerShape(12.dp))
+                .padding(horizontal = 8.dp, vertical = 7.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Rounded.CheckCircle,
+                contentDescription = "Status",
+                tint = activeTint,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(6.dp))
+            Column {
+                Text(
+                    text = if (isActive) "ACTIVE" else "INACTIVE",
+                    color = activeTint,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    text = "$daysRemaining Days Left",
+                    color = activeTint.copy(alpha = 0.9f),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }

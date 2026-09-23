@@ -38,18 +38,15 @@ fun IntelligenceRail(
 
     Column(
         modifier = modifier
-            .width(54.dp)
+            .width(56.dp)
             .fillMaxHeight()
             .clip(RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp))
-            .background(colors.railBackground.copy(alpha = .94f))
-            .padding(vertical = 9.dp, horizontal = 4.dp)
+            .background(colors.railBackground.copy(alpha = .96f))
+            .padding(vertical = 12.dp, horizontal = 4.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        RailIcon(Icons.Rounded.ChevronLeft, "Back", false, colors, {})
-        Spacer(Modifier.height(1.dp))
-
         visibleMenus.forEach { menu ->
             val isActive = activeMenu == menu.id
             val bg by animateColorAsState(
@@ -60,21 +57,21 @@ fun IntelligenceRail(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .clickable { onMenuSelected(menu.id) }
-                    .padding(vertical = 1.dp),
+                    .padding(vertical = 2.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
-                        .size(31.dp)
-                        .clip(RoundedCornerShape(9.dp))
+                        .size(if (isActive) 38.dp else 34.dp)
+                        .clip(RoundedCornerShape(11.dp))
                         .background(bg)
                         .then(
                             if (isActive) Modifier.border(
-                                .7.dp,
-                                colors.border.copy(alpha = .55f),
-                                RoundedCornerShape(9.dp)
+                                1.dp,
+                                colors.border.copy(alpha = .6f),
+                                RoundedCornerShape(11.dp)
                             ) else Modifier
                         ),
                     contentAlignment = Alignment.Center
@@ -83,23 +80,25 @@ fun IntelligenceRail(
                         getRailIcon(menu.id),
                         contentDescription = menu.label,
                         tint = if (isActive) colors.railActiveIcon else colors.railInactiveIcon,
-                        modifier = Modifier.size(17.dp)
+                        modifier = Modifier.size(if (isActive) 20.dp else 18.dp)
                     )
                     if (menu.hasAlert || menu.badgeCount > 0) {
                         Box(
                             Modifier
                                 .align(Alignment.TopEnd)
-                                .size(6.dp)
+                                .offset(x = (-2).dp, y = 2.dp)
+                                .size(7.dp)
                                 .clip(androidx.compose.foundation.shape.CircleShape)
                                 .background(colors.danger)
                         )
                     }
                 }
+                Spacer(Modifier.height(2.dp))
                 Text(
-                    menu.label,
+                    text = menu.label,
                     color = if (isActive) colors.textPrimary else colors.textMuted,
-                    fontSize = 7.5.sp,
-                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+                    fontSize = if (isActive) 8.5.sp else 8.sp,
+                    fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Medium,
                     maxLines = 1
                 )
             }

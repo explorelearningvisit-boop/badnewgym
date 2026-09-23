@@ -2,8 +2,7 @@ package com.example.badnewgym.feature.memberintelligence.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.Icon
@@ -24,29 +23,34 @@ fun MemberPhoto(
     tier: MembershipTier,
     modifier: Modifier = Modifier,
     size: Dp? = null,
+    width: Dp = size ?: 80.dp,
+    height: Dp = size ?: 90.dp,
     showVerified: Boolean = true
 ) {
-    val resolvedSize = size ?: BADGymTheme.dimensions.memberPhotoSize
     val tierColor = ThemeResolver.resolveMemberTierColor(tier, BADGymTheme.colors)
+    val portraitShape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
 
-    Box(modifier = modifier.size(resolvedSize)) {
+    Box(modifier = modifier.size(width = width, height = height)) {
         AvatarImage(
             model = photoUrl,
-            size = resolvedSize,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+            width = width,
+            height = height,
+            shape = portraitShape,
             placeholderTint = BADGymTheme.colors.surfaceMuted,
             modifier = Modifier
-                .clip(BADGymTheme.shapes.avatar)
-                .border(2.dp, tierColor, BADGymTheme.shapes.avatar)
+                .fillMaxSize()
+                .clip(portraitShape)
+                .border(2.dp, tierColor.copy(alpha = 0.85f), portraitShape)
         )
         if (showVerified) {
             Icon(
                 imageVector = Icons.Rounded.Verified,
                 contentDescription = "Verified",
-                tint = Color(0xFF3B82F6),
+                tint = Color(0xFF38BDF8),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .size(18.dp)
+                    .offset(x = 2.dp, y = 2.dp)
+                    .size(20.dp)
                     .background(Color.White, androidx.compose.foundation.shape.CircleShape)
             )
         }

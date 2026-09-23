@@ -42,14 +42,16 @@ fun RemoteOrAssetImage(
 @Composable
 fun AvatarImage(
     model: Any?,
-    size: Dp,
+    size: Dp = 48.dp,
+    width: Dp = size,
+    height: Dp = size,
     modifier: Modifier = Modifier,
-    shape: RoundedCornerShape = RoundedCornerShape(14.dp),
+    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(14.dp),
     placeholderTint: Color = Color(0xFF334155)
 ) {
     Box(
         modifier = modifier
-            .size(size)
+            .size(width = width, height = height)
             .clip(shape)
             .background(placeholderTint),
         contentAlignment = Alignment.Center
@@ -59,7 +61,7 @@ fun AvatarImage(
                 imageVector = Icons.Rounded.Person,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.7f),
-                modifier = Modifier.size(size * 0.45f)
+                modifier = Modifier.size(minOf(width, height) * 0.45f)
             )
         } else {
             RemoteOrAssetImage(

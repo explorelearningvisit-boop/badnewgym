@@ -79,14 +79,14 @@ fun CardHeader(
                         ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
                         else -> colors.textPrimary
                     },
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.4.sp
                 )
                 Text(
-                    theme.subtitle,
+                    theme.subtitle.replace("\n", " • "),
                     color = colors.textSecondary,
-                    fontSize = 7.5.sp,
+                    fontSize = 8.5.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 1
                 )
@@ -99,8 +99,8 @@ fun CardHeader(
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .offset(x = 8.dp)
-                        .size(34.dp)
+                        .padding(end = 4.dp)
+                        .size(30.dp)
                 )
             }
         }
@@ -109,10 +109,10 @@ fun CardHeader(
             Icons.Rounded.NotificationsNone,
             contentDescription = "Notifications",
             tint = colors.textPrimary,
-            modifier = Modifier.size(19.dp)
+            modifier = Modifier.size(20.dp)
         )
 
-        Spacer(Modifier.width(7.dp))
+        Spacer(Modifier.width(8.dp))
 
         Box(
             modifier = Modifier
@@ -122,7 +122,7 @@ fun CardHeader(
                 .border(1.5.dp, colors.border.copy(alpha = .75f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text("A", color = colors.textPrimary, fontSize = 9.sp, fontWeight = FontWeight.Black)
+            Text("A", color = colors.textPrimary, fontSize = 11.sp, fontWeight = FontWeight.Black)
         }
     }
 }

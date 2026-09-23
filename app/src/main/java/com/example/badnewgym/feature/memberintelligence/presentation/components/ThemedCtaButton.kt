@@ -32,8 +32,8 @@ fun ThemedCtaButton(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(44.dp)
-            .clip(RoundedCornerShape(22.dp))
+            .height(48.dp)
+            .clip(RoundedCornerShape(24.dp))
             .background(
                 when (theme) {
                     ThemeId.PREMIUM_3D -> Brush.horizontalGradient(listOf(Color(0xFFFFD700), Color(0xFFE5B842), Color(0xFFB8860B)))
@@ -54,7 +54,7 @@ fun ThemedCtaButton(
                     ThemeId.FUTURISTIC_NEON -> Color(0xFFE0F2FE)
                     else -> Color.White.copy(alpha = 0.3f)
                 },
-                shape = RoundedCornerShape(22.dp)
+                shape = RoundedCornerShape(24.dp)
             )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -66,9 +66,9 @@ fun ThemedCtaButton(
             Text(
                 text = "${theme.ctaText} →",
                 color = if (theme == ThemeId.PREMIUM_3D) Color(0xFF1C1304) else Color.White,
-                fontSize = 12.5.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.3.sp
+                fontSize = 14.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 0.4.sp
             )
         }
     }

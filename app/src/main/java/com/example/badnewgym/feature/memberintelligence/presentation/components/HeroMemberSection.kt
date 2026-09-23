@@ -32,29 +32,50 @@ fun HeroMemberSection(
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             MemberPhoto(
                 photoUrl = identity.photoUrl,
                 tier = identity.tier,
-                size = 76.dp,
+                width = 82.dp,
+                height = 94.dp,
                 showVerified = identity.isVerified
             )
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(identity.name, color = colors.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Black, letterSpacing = (-0.5).sp, maxLines = 1)
-                    Icon(Icons.Rounded.CheckCircle, "Verified", tint = Color(0xFF38BDF8), modifier = Modifier.size(14.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = identity.name,
+                        color = colors.textPrimary,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = (-0.5).sp,
+                        maxLines = 1
+                    )
+                    Icon(
+                        Icons.Rounded.CheckCircle,
+                        contentDescription = "Verified",
+                        tint = Color(0xFF38BDF8),
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
-                Text(identity.code ?: "", color = colors.textSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(2.dp))
                 Text(
-                    theme.motto,
+                    text = identity.code ?: "",
+                    color = colors.textSecondary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = theme.motto,
                     color = colors.mottoColor,
-                    fontSize = 11.5.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     fontStyle = if (theme == ThemeId.NATURAL_FRESH || theme == ThemeId.GLASSMORPHISM || theme == ThemeId.PURPLE_ROYAL || theme == ThemeId.PREMIUM_3D) FontStyle.Italic else FontStyle.Normal,
-                    lineHeight = 14.sp
+                    lineHeight = 16.sp
                 )
             }
         }
