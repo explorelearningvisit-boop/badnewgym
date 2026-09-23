@@ -40,6 +40,9 @@ class OfflineFirstMemberRepositoryImpl(
         }
     }
 
+    override suspend fun getAllMembers(gymId: String): Result<List<Pair<MemberSnapshot, MemberEvent>>> =
+        remote.getAllMembers(gymId)
+
     override fun observeMemberEvents(gymId: String): Flow<MemberEvent> = remote.observeMemberEvents(gymId)
 
     override fun observeMemberUpdates(memberId: String): Flow<MemberSnapshot> = emptyFlow()

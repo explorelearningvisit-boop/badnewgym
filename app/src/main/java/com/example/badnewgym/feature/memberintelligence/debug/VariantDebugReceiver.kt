@@ -9,14 +9,26 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 object VariantDebugBridge {
     @Volatile
     var onCommand: ((ThemeId?, MenuType?) -> Unit)? = null
+
+    @Volatile
+    var onMemberIndex: ((Int) -> Unit)? = null
 }
 
 class VariantDebugReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val variantName = intent.getStringExtra("variant")
-        val menuName = intent.getStringExtra("menu") ?: "HOME"
+        val menuName = intent.getStringExtra("menu")
+        val memberIndex = intent.getIntExtra("memberIndex", -1)
+
+        if (memberIndex >= 0) {
+            VariantDebugBridge.onMemberIndex?.invoke(memberIndex)
+        }
+
         val variant = variantName?.let { runCatching { ThemeId.valueOf(it) }.getOrNull() }
-        val menu = runCatching { MenuType.valueOf(menuName) }.getOrNull() ?: MenuType.HOME
-        VariantDebugBridge.onCommand?.invoke(variant, menu)
+        val menu = menuName?.let { runCatching { MenuType.valueOf(it) }.getOrNull() }
+
+        if (variant != null || menu != null) {
+            VariantDebugBridge.onCommand?.invoke(variant, menu)
+        }
     }
 }

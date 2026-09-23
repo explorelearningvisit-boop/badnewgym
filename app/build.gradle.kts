@@ -18,6 +18,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val gitSha = runCatching {
+            providers.exec {
+                commandLine("git", "rev-parse", "--short=7", "HEAD")
+            }.standardOutput.asText.get().trim()
+        }.getOrElse { "2a1cfbe" }
+        buildConfigField("String", "GIT_SHA", "\"$gitSha\"")
     }
 
     buildTypes {

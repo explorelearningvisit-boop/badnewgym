@@ -33,6 +33,22 @@ class StubMemberRepositoryImpl : MemberIntelligenceRepository {
         return Result.success(snapshot)
     }
 
+    override suspend fun getAllMembers(gymId: String): Result<List<Pair<MemberSnapshot, MemberEvent>>> {
+        delay(50)
+        return Result.success(
+            listOf(
+                MemberScenarios.naturalFreshYash(),
+                MemberScenarios.futuristicNeonArjun(),
+                MemberScenarios.minimalDarkRiya(),
+                MemberScenarios.glassmorphismNeha(),
+                MemberScenarios.premium3dKabir(),
+                MemberScenarios.vibrantGradientAarav(),
+                MemberScenarios.beastModeRohan(),
+                MemberScenarios.purpleRoyalSimran()
+            )
+        )
+    }
+
     override fun observeMemberEvents(gymId: String): Flow<MemberEvent> = flow {
         while (true) {
             delay(12_000)

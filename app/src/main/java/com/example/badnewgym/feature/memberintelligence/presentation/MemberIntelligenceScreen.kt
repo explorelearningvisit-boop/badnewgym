@@ -1,6 +1,8 @@
 package com.example.badnewgym.feature.memberintelligence.presentation
 
 import android.content.IntentFilter
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -8,20 +10,40 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugBridge
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiver
+import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
+import com.example.badnewgym.feature.memberintelligence.design.elevation
+import com.example.badnewgym.feature.memberintelligence.design.motion
+import com.example.badnewgym.feature.memberintelligence.design.shapes
+import com.example.badnewgym.feature.memberintelligence.presentation.components.BadGymBottomBar
+import com.example.badnewgym.feature.memberintelligence.presentation.components.BadGymTopBar
+import com.example.badnewgym.feature.memberintelligence.presentation.components.CompactMemberCarousel
 import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
-
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 
 @Composable
 fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
@@ -36,7 +58,14 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     DisposableEffect(viewModel) {
         VariantDebugBridge.onCommand = { variant, menu ->
             if (variant != null) viewModel.selectTheme(variant)
-            if (menu != null) viewModel.selectMenu(menu)
+            if (menu != null) {
+                viewModel.openMemberDetail()
+                viewModel.selectMenu(menu)
+            }
+        }
+        VariantDebugBridge.onMemberIndex = { index ->
+            viewModel.closeMemberDetail()
+            viewModel.selectMember(index)
         }
         val receiver = VariantDebugReceiver()
         ContextCompat.registerReceiver(
@@ -47,6 +76,7 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
         )
         onDispose {
             VariantDebugBridge.onCommand = null
+            VariantDebugBridge.onMemberIndex = null
             runCatching { context.unregisterReceiver(receiver) }
         }
     }
@@ -54,51 +84,237 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     val success = state as? MemberIntelligenceUiState.Success
     val theme = success?.themeId ?: ThemeId.NATURAL_FRESH
 
+    // System Back Handler
+    BackHandler(enabled = success?.isDetailExpanded == true) {
+        viewModel.closeMemberDetail()
+    }
+
     if (success == null) {
-        PixelPerfectMemberCard(
-            snapshot = null,
-            currentEvent = null,
-            signals = emptyList(),
-            menus = emptyList(),
-            activeMenu = null,
-            theme = theme,
-            onThemeSelected = viewModel::selectTheme,
-            onBack = { backDispatcher?.onBackPressed() },
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color(0xFF16A34A))
+        }
+        return
+    }
+
+    if (success.isDetailExpanded) {
+        // Full-screen rich detail view with navigation rail & menus
+        AnimatedContent(
+            targetState = theme,
+            transitionSpec = {
+                fadeIn(tween(220)) + slideInHorizontally(tween(260)) togetherWith
+                        fadeOut(tween(150)) + slideOutHorizontally(tween(180))
+            },
+            label = "theme-shell",
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+        ) { animatedTheme ->
+            PixelPerfectMemberCard(
+                snapshot = success.snapshot,
+                currentEvent = success.currentEvent,
+                signals = success.signals,
+                menus = success.menus,
+                activeMenu = success.activeMenu,
+                primarySignal = success.primarySignal,
+                secondarySignals = success.secondarySignals,
+                cta = success.cta,
+                theme = animatedTheme,
+                onMenuSelected = viewModel::selectMenu,
+                onThemeSelected = viewModel::selectTheme,
+                onCta = viewModel::executeCta,
+                onBack = { viewModel.closeMemberDetail() },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    } else {
+        // Browse Mode: Compact Member Card Carousel Surface
+        BrowseMemberIntelligenceSurface(
+            success = success,
+            theme = theme,
+            viewModel = viewModel
         )
-        return
     }
+}
 
-    AnimatedContent(
-        targetState = theme,
-        transitionSpec = {
-            fadeIn(tween(220)) + slideInHorizontally(tween(260)) togetherWith
-                fadeOut(tween(150)) + slideOutHorizontally(tween(180))
-        },
-        label = "theme-shell",
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-    ) { animatedTheme ->
-        PixelPerfectMemberCard(
-            snapshot = success.snapshot,
-            currentEvent = success.currentEvent,
-            signals = success.signals,
-            menus = success.menus,
-            activeMenu = success.activeMenu,
-            primarySignal = success.primarySignal,
-            secondarySignals = success.secondarySignals,
-            cta = success.cta,
-            theme = animatedTheme,
-            onMenuSelected = viewModel::selectMenu,
-            onThemeSelected = viewModel::selectTheme,
-            onCta = viewModel::executeCta,
-            onBack = { backDispatcher?.onBackPressed() },
-            modifier = Modifier.fillMaxSize()
-        )
+@Composable
+private fun BrowseMemberIntelligenceSurface(
+    success: MemberIntelligenceUiState.Success,
+    theme: ThemeId,
+    viewModel: MemberIntelligenceViewModel
+) {
+    BADGymTheme(
+        colors = theme.colors(),
+        shapes = theme.shapes(),
+        motion = theme.motion(),
+        elevation = theme.elevation()
+    ) {
+        val colors = BADGymTheme.colors
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.background)
+                .statusBarsPadding()
+                .navigationBarsPadding()
+        ) {
+            // 1. BAD GYM Top App Bar
+            BadGymTopBar(modifier = Modifier.fillMaxWidth())
+
+            // 2. Section Header: Title + Active Members Count
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "MEMBER INTELLIGENCE",
+                        color = colors.textPrimary,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 0.5.sp
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(colors.accent.copy(alpha = 0.15f))
+                            .border(1.dp, colors.accent.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = "${success.members.size} Present",
+                            color = colors.accent,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(2.dp))
+
+                Text(
+                    text = "Live Member Flow • Swipe cards to inspect • Tap for full profile",
+                    color = colors.textSecondary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            // 3. Compact Member Intelligence Carousel (snapping horizontal row with side peek)
+            CompactMemberCarousel(
+                members = success.members,
+                selectedIndex = success.selectedMemberIndex,
+                onMemberSelected = viewModel::selectMember,
+                onMemberClick = { viewModel.openMemberDetail(it) },
+                onCta = viewModel::executeCta,
+                activeTheme = theme,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // 4. Focused Member Quick Summary / Action Banner
+            val selectedMember = success.snapshot
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(colors.surface)
+                    .border(1.dp, colors.border.copy(alpha = 0.6f), RoundedCornerShape(14.dp))
+                    .clickable { viewModel.openMemberDetail() }
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(colors.accent.copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Rounded.Person,
+                                contentDescription = null,
+                                tint = colors.accent,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = selectedMember.identity.name,
+                                    color = colors.textPrimary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    text = "• ${selectedMember.membership?.planName ?: "Plan"}",
+                                    color = colors.textSecondary,
+                                    fontSize = 11.sp
+                                )
+                            }
+                            Text(
+                                text = "Trainer: ${selectedMember.trainer?.trainerName ?: "Unassigned"} • ${selectedMember.workout?.currentRoutine ?: "Routine"}",
+                                color = colors.textMuted,
+                                fontSize = 10.sp,
+                                maxLines = 1
+                            )
+                        }
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "Full Profile",
+                            color = colors.accent,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowForward,
+                            contentDescription = "Open profile",
+                            tint = colors.accent,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            // 5. Standard BAD GYM Bottom Navigation Bar
+            BadGymBottomBar(
+                modifier = Modifier.fillMaxWidth(),
+                onItemClick = { }
+            )
+        }
     }
 }

@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.sp
 import com.example.badnewgym.BuildConfig
 
 const val MI_VERSION_TAG = "MI-V5"
-const val BUILD_GIT_SHA = "374cbe9"
+val BUILD_GIT_SHA: String = BuildConfig.GIT_SHA
 
 /**
  * DEBUG-only runtime identity marker required by Stage 1 specification:
