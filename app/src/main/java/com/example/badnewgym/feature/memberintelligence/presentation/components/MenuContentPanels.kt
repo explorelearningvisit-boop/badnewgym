@@ -18,46 +18,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
-import com.example.badnewgym.feature.memberintelligence.domain.model.IntelligenceSignal
-import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
+import com.example.badnewgym.feature.memberintelligence.domain.model.*
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-/* =========================================================
-   ATTENDANCE PANEL
-   ========================================================= */
 @Composable
 fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
     val colors = BADGymTheme.colors
     val att = snapshot.attendance
-
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Attendance Overview", theme)
+        SectionTitle("Attendance", theme)
 
         InfoCard(theme) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem("This Month", "${att?.visits ?: 16}", colors.textPrimary)
-                StatItem("Target", "${att?.target ?: 26}", colors.textSecondary)
-                StatItem("Streak", "${att?.streakDays ?: 5} days", Color(0xFF16A34A))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                StatItem(att?.periodName ?: "Period", (att?.visits ?: 0).toString(), colors.textPrimary)
+                StatItem("Target", (att?.target ?: 0).toString(), colors.textSecondary)
+                StatItem("Streak", (att?.streakDays ?: 0).toString() + " days", colors.success)
             }
         }
 
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Recent Check-ins", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                listOf(
-                    "Today • 4:03 PM" to "Check-in",
-                    "Yesterday • 6:15 PM" to "Workout",
-                    "2 days ago • 7:40 AM" to "Check-in",
-                    "3 days ago • 5:20 PM" to "Trainer Session"
-                ).forEach { (time, type) ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(time, color = colors.textSecondary, fontSize = 11.sp)
-                        Text(type, color = colors.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("Attendance intelligence", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                KeyValue("Lifetime visits", (att?.lifetimeVisits ?: 0).toString())
+                att?.avgVisitsPerWeek?.let { KeyValue("Average / week", String.format(Locale.getDefault(), "%.1f", it)) }
+                att?.preferredSlot?.let { KeyValue("Preferred slot", it) }
+                att?.lastVisitAt?.let { KeyValue("Last visit", formatDate(it)) }
+            }
+        }
+
+        val events = snapshot.recentEvents.filter {
+            it.eventType == EventType.CHECK_IN || it.eventType == EventType.CHECK_OUT
+        }.sortedByDescending { it.occurredAt }
+
+        if (events.isNotEmpty()) {
+            InfoCard(theme) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Recent gate activity", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    events.take(8).forEach {
+                        KeyValue(it.eventType.displayLabel(), formatDate(it.occurredAt))
                     }
                 }
             }
@@ -65,71 +65,60 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
     }
 }
 
-/* =========================================================
-   PLAN PANEL
-   ========================================================= */
 @Composable
 fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
     val colors = BADGymTheme.colors
     val mem = snapshot.membership
-
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle("Membership Plan", theme)
 
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(mem?.planName ?: "Premium Plan", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text("${(mem?.daysRemaining ?: 365) / 30} Months", color = colors.textSecondary, fontSize = 12.sp)
-                Text("Status: ACTIVE", color = Color(0xFF16A34A), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text(mem?.planName ?: "No active membership", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                mem?.let {
+                    KeyValue("Type", it.planType)
+                    KeyValue("Start", formatDate(it.startDate))
+                    KeyValue("Expiry", formatDate(it.expiryDate))
+                    KeyValue("Days remaining", it.daysRemaining.toString())
+                    KeyValue("Status", if (it.isActive) "ACTIVE" else "EXPIRED")
+                    KeyValue("Renewals", it.renewalCount.toString())
+                }
             }
         }
 
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Plan Benefits", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                listOf(
-                    "Unlimited gym access",
-                    "Personal trainer sessions",
-                    "Nutrition consultation",
-                    "Group classes",
-                    "Locker & towel service"
-                ).forEach {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Rounded.CheckCircle, null, tint = Color(0xFF16A34A), modifier = Modifier.size(14.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(it, color = colors.textSecondary, fontSize = 12.sp)
-                    }
-                }
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("Freeze & lifecycle", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                KeyValue("Freeze allowance", (mem?.freezeAllowanceDays ?: 0).toString() + " days")
+                KeyValue("Freeze used", (mem?.freezeUsedDays ?: 0).toString() + " days")
+                mem?.previousPlanName?.let { KeyValue("Previous plan", it) }
+                snapshot.identity.memberSince.let { KeyValue("Member since", formatDate(it)) }
             }
         }
     }
 }
 
-/* =========================================================
-   PAYMENT PANEL
-   ========================================================= */
 @Composable
 fun PaymentPanel(snapshot: MemberSnapshot, theme: ThemeId, onCtaClick: () -> Unit) {
     val colors = BADGymTheme.colors
     val pay = snapshot.payment
     val due = pay?.totalOutstanding ?: 0.0
-
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Payment Status", theme)
+        SectionTitle("Payment", theme)
 
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = if (due > 0) "₹${due.toInt()}" else "₹0",
-                    color = if (due > 0) Color(0xFFEF4444) else Color(0xFF16A34A),
-                    fontWeight = FontWeight.Bold,
+                    if (due > 0) "₹" + due.toInt() else "₹0",
+                    color = if (due > 0) colors.danger else colors.success,
+                    fontWeight = FontWeight.Black,
                     fontSize = 22.sp
                 )
-                Text(
-                    text = if (due > 0) "Payment Due" else "All Clear",
-                    color = colors.textSecondary,
-                    fontSize = 12.sp
-                )
+                Text(if (due > 0) "Outstanding" else "All Clear", color = colors.textSecondary, fontSize = 11.sp)
+                if (pay?.overdueDays ?: 0 > 0) {
+                    Text("Overdue " + pay!!.overdueDays + " days", color = colors.danger, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+                pay?.dueDate?.let { KeyValue("Due date", formatDate(it)) }
             }
         }
 
@@ -138,19 +127,25 @@ fun PaymentPanel(snapshot: MemberSnapshot, theme: ThemeId, onCtaClick: () -> Uni
         }
 
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Recent Transactions", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                listOf(
-                    "15 Sep • Membership" to "₹4,500",
-                    "01 Aug • Personal Training" to "₹2,000",
-                    "15 Jul • Membership" to "₹4,500"
-                ).forEach { (date, amount) ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(date, color = colors.textSecondary, fontSize = 11.sp)
-                        Text(amount, color = colors.textPrimary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("Payment intelligence", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                pay?.lastPaymentAmount?.let { KeyValue("Last payment", "₹" + it.toInt()) }
+                pay?.lastPaymentDate?.let { KeyValue("Last paid", formatDate(it)) }
+                pay?.lastPaymentMethod?.let { KeyValue("Method", it) }
+                pay?.lifetimePaid?.let { KeyValue("Lifetime paid", "₹" + it.toInt()) }
+            }
+        }
+
+        if (!pay?.history.isNullOrEmpty()) {
+            InfoCard(theme) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Transaction history", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    pay!!.history.sortedByDescending { it.occurredAt }.take(10).forEach {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(formatDate(it.occurredAt), color = colors.textSecondary, fontSize = 10.sp)
+                            Text("₹" + it.amount.toInt(), color = colors.textPrimary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                            Text(it.method, color = colors.success, fontSize = 9.sp)
+                        }
                     }
                 }
             }
@@ -158,69 +153,124 @@ fun PaymentPanel(snapshot: MemberSnapshot, theme: ThemeId, onCtaClick: () -> Uni
     }
 }
 
-/* =========================================================
-   TRAINER PANEL
-   ========================================================= */
 @Composable
 fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
     val colors = BADGymTheme.colors
-
+    val trainer = snapshot.trainer
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Your Trainer", theme)
+        SectionTitle("Trainer", theme)
+
+        if (trainer == null) {
+            InfoCard(theme) {
+                Text("No trainer assigned.", color = colors.textSecondary, fontSize = 12.sp)
+            }
+            return
+        }
 
         InfoCard(theme) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(colors.surfaceMuted),
+                    Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(colors.surfaceMuted),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Rounded.Person, null, tint = colors.accent, modifier = Modifier.size(28.dp))
+                    Icon(Icons.Rounded.Person, null, tint = colors.accent, modifier = Modifier.size(27.dp))
                 }
                 Spacer(Modifier.width(10.dp))
                 Column {
-                    Text("Coach Arjun", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    Text("Strength & Conditioning", color = colors.textSecondary, fontSize = 11.sp)
-                    Text("Next session: Tomorrow 7:00 AM", color = colors.accent, fontSize = 11.sp)
+                    Text(trainer.trainerName, color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    trainer.focus?.let { Text(it, color = colors.textSecondary, fontSize = 10.sp) }
+                    trainer.rating?.let { Text("Rating " + it, color = colors.accent, fontSize = 10.sp) }
                 }
             }
         }
 
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Upcoming Sessions", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                listOf("Tomorrow • 7:00 AM", "Thu • 6:30 PM", "Sat • 8:00 AM").forEach {
-                    Text("• $it", color = colors.textSecondary, fontSize = 12.sp)
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                KeyValue("Sessions used", trainer.sessionsUsed.toString())
+                KeyValue("Sessions remaining", (trainer.sessionsTotal - trainer.sessionsUsed).coerceAtLeast(0).toString())
+                trainer.nextSessionDate?.let { KeyValue("Next session", formatDate(it)) }
+                trainer.lastSessionDate?.let { KeyValue("Last session", formatDate(it)) }
+            }
+        }
+    }
+}
+
+@Composable
+fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+    val colors = BADGymTheme.colors
+    val workout = snapshot.workout
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("Workout", theme)
+        InfoCard(theme) {
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                KeyValue("Current routine", workout?.currentRoutine ?: "Not assigned")
+                workout?.lastWorkoutDate?.let { KeyValue("Last workout", formatDate(it)) }
+                workout?.durationMinutes?.let { KeyValue("Last duration", it.toString() + " min") }
+                workout?.calories?.let { KeyValue("Calories", it.toString() + " kcal") }
+            }
+        }
+    }
+}
+
+@Composable
+fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+    val colors = BADGymTheme.colors
+    val item = snapshot.supplements
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("Supplements", theme)
+        if (item == null || !item.hasHistory) {
+            InfoCard(theme) { Text("No supplement purchase history.", color = colors.textSecondary, fontSize = 12.sp) }
+        } else {
+            InfoCard(theme) {
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text(item.lastPurchaseName ?: "Last supplement", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    item.brand?.let { KeyValue("Brand", it) }
+                    item.lastPurchaseDate?.let { KeyValue("Purchased", formatDate(it)) }
+                    item.lastPurchasePrice?.let { KeyValue("Price", "₹" + it.toInt()) }
                 }
             }
         }
     }
 }
 
-/* =========================================================
-   WORKOUT PANEL
-   ========================================================= */
 @Composable
-fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun NutritionPanel(snapshot: MemberSnapshot, theme: ThemeId) {
     val colors = BADGymTheme.colors
-
+    val item = snapshot.nutrition
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Workouts", theme)
-
+        SectionTitle("Nutrition", theme)
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("This Week", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                listOf(
-                    "Push Day" to "Chest, Shoulders, Triceps",
-                    "Pull Day" to "Back, Biceps",
-                    "Legs" to "Quads, Hamstrings, Calves",
-                    "Core & Cardio" to "Abs + HIIT"
-                ).forEach { (title, muscles) ->
-                    Column {
-                        Text(title, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
-                        Text(muscles, color = colors.textSecondary, fontSize = 11.sp)
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text(
+                    if (item?.isSubscribed == true) "ACTIVE SUBSCRIPTION" else "NOT SUBSCRIBED",
+                    color = if (item?.isSubscribed == true) colors.success else colors.textSecondary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
+                item?.planName?.let { KeyValue("Plan", it) }
+                item?.monthlyPrice?.let { KeyValue("Monthly price", "₹" + it.toInt()) }
+                item?.renewalDate?.let { KeyValue("Renewal", formatDate(it)) }
+            }
+        }
+    }
+}
+
+@Composable
+fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+    val colors = BADGymTheme.colors
+    val services = snapshot.services.orEmpty()
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("Services", theme)
+        if (services.isEmpty()) {
+            InfoCard(theme) { Text("No service history.", color = colors.textSecondary, fontSize = 12.sp) }
+        } else {
+            services.forEach { service ->
+                InfoCard(theme) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(service.serviceName, color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        KeyValue("Status", if (service.isActive) "ACTIVE" else "INACTIVE")
+                        service.price?.let { KeyValue("Price", "₹" + it.toInt()) }
+                        service.expiryDate?.let { KeyValue("Expiry", formatDate(it)) }
                     }
                 }
             }
@@ -228,79 +278,46 @@ fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
     }
 }
 
-/* =========================================================
-   SERVICES / MORE PANEL
-   ========================================================= */
 @Composable
-fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun HistoryPanel(snapshot: MemberSnapshot, theme: ThemeId) {
     val colors = BADGymTheme.colors
-
+    val events = snapshot.recentEvents.sortedByDescending { it.occurredAt }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Services & More", theme)
-
-        listOf(
-            "Nutrition Plan" to Icons.Rounded.Restaurant,
-            "Group Classes" to Icons.Rounded.Groups,
-            "Locker Booking" to Icons.Rounded.Lock,
-            "Progress Photos" to Icons.Rounded.PhotoCamera,
-            "Refer a Friend" to Icons.Rounded.Share,
-            "Settings" to Icons.Rounded.Settings
-        ).forEach { (title, icon) ->
-            InfoCard(theme) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(icon, null, tint = colors.accent, modifier = Modifier.size(20.dp))
-                    Spacer(Modifier.width(10.dp))
-                    Text(title, color = colors.textPrimary, fontWeight = FontWeight.Medium, fontSize = 13.sp)
+        SectionTitle("History", theme)
+        if (events.isEmpty()) {
+            InfoCard(theme) { Text("No recent events.", color = colors.textSecondary, fontSize = 12.sp) }
+        } else {
+            events.take(15).forEach { event ->
+                InfoCard(theme) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column(Modifier.weight(1f)) {
+                            Text(event.eventType.displayLabel(), color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                            Text(event.source.name, color = colors.textSecondary, fontSize = 9.sp)
+                        }
+                        Text(formatDate(event.occurredAt), color = colors.textSecondary, fontSize = 9.sp)
+                    }
                 }
             }
         }
     }
 }
 
-/* =========================================================
-   INSIGHT PANEL
-   ========================================================= */
 @Composable
-fun InsightPanel(
-    snapshot: MemberSnapshot,
-    signals: List<IntelligenceSignal>,
-    theme: ThemeId
-) {
+fun InsightPanel(snapshot: MemberSnapshot, signals: List<IntelligenceSignal>, theme: ThemeId) {
     val colors = BADGymTheme.colors
-
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Member Intelligence Insights", theme)
-
+        SectionTitle("Member Intelligence", theme)
         if (signals.isEmpty()) {
-            InfoCard(theme) {
-                Text(
-                    text = "All systems green. No active anomalies detected.",
-                    color = colors.textSecondary,
-                    fontSize = 12.sp
-                )
-            }
+            InfoCard(theme) { Text("No active intelligence signals.", color = colors.textSecondary, fontSize = 12.sp) }
         } else {
-            for (signal in signals) {
-                IntelligenceSignalCard(
-                    signal = signal,
-                    emphasized = true
-                )
-            }
+            signals.forEach { IntelligenceSignalCard(signal = it, emphasized = true) }
         }
     }
 }
 
-/* =========================================================
-   SHARED HELPERS
-   ========================================================= */
 @Composable
 private fun SectionTitle(text: String, theme: ThemeId) {
-    Text(
-        text = text,
-        color = BADGymTheme.colors.textPrimary,
-        fontWeight = FontWeight.Bold,
-        fontSize = 13.sp
-    )
+    Text(text = text, color = BADGymTheme.colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
 }
 
 @Composable
@@ -342,134 +359,20 @@ private fun InfoCard(theme: ThemeId, content: @Composable ColumnScope.() -> Unit
 }
 
 @Composable
+private fun KeyValue(label: String, value: String) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 10.sp)
+        Text(value, color = BADGymTheme.colors.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
 private fun StatItem(label: String, value: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, color = color, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-        Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 10.sp)
+        Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 9.sp)
     }
 }
 
-
-/* =========================================================
-   SUPPLEMENTS PANEL
-   ========================================================= */
-@Composable
-fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
-    val colors = BADGymTheme.colors
-    val item = snapshot.supplements
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Supplements", theme)
-        if (item == null || !item.hasHistory) {
-            InfoCard(theme) {
-                Text(
-                    "No supplement purchase history.",
-                    color = colors.textSecondary,
-                    fontSize = 12.sp
-                )
-            }
-        } else {
-            InfoCard(theme) {
-                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text(
-                        item.lastPurchaseName ?: "Last supplement",
-                        color = colors.textPrimary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    item.brand?.let {
-                        Text(it, color = colors.textSecondary, fontSize = 11.sp)
-                    }
-                    item.lastPurchasePrice?.let {
-                        Text("₹" + it.toInt(), color = colors.accent, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
-                    }
-                    Text(
-                        "Purchase history is available from the Supplements menu.",
-                        color = colors.textSecondary,
-                        fontSize = 10.sp
-                    )
-                }
-            }
-        }
-    }
-}
-
-/* =========================================================
-   NUTRITION PANEL
-   ========================================================= */
-@Composable
-fun NutritionPanel(snapshot: MemberSnapshot, theme: ThemeId) {
-    val colors = BADGymTheme.colors
-    val item = snapshot.nutrition
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Nutrition", theme)
-        InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(
-                    if (item?.isSubscribed == true) "ACTIVE SUBSCRIPTION" else "NOT SUBSCRIBED",
-                    color = if (item?.isSubscribed == true) colors.success else colors.textSecondary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
-                )
-                item?.planName?.let {
-                    Text(it, color = colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                }
-                item?.monthlyPrice?.let {
-                    Text("₹" + it.toInt() + " / month", color = colors.textSecondary, fontSize = 11.sp)
-                }
-            }
-        }
-    }
-}
-
-/* =========================================================
-   HISTORY PANEL
-   ========================================================= */
-@Composable
-fun HistoryPanel(snapshot: MemberSnapshot, theme: ThemeId) {
-    val colors = BADGymTheme.colors
-    val events = snapshot.recentEvents
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("Member History", theme)
-
-        if (events.isEmpty()) {
-            InfoCard(theme) {
-                Text("No recent events recorded.", color = colors.textSecondary, fontSize = 12.sp)
-            }
-        } else {
-            events.sortedByDescending { it.occurredAt }.take(12).forEach { event ->
-                InfoCard(theme) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                event.eventType.displayLabel(),
-                                color = colors.textPrimary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp
-                            )
-                            Text(
-                                event.source.name,
-                                color = colors.textSecondary,
-                                fontSize = 9.sp
-                            )
-                        }
-                        Text(
-                            java.text.SimpleDateFormat(
-                                "dd MMM • h:mm a",
-                                java.util.Locale.getDefault()
-                            ).format(java.util.Date(event.occurredAt)),
-                            color = colors.textSecondary,
-                            fontSize = 9.sp
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
+private fun formatDate(value: Long): String =
+    SimpleDateFormat("dd MMM • h:mm a", Locale.getDefault()).format(Date(value))
