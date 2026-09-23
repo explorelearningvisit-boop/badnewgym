@@ -70,3 +70,10 @@ Stage 8 — Production Visual QA.
 ## CURRENT CHATGPT DECISION
 Stage 2 is active. Immediate correction: compact member-intelligence browsing, not a full-screen member card.
 Do not begin Stage 3 until Stage 2 has real-device screenshot evidence committed to GitHub.
+
+## CHATGPT → ANTIGRAVITY / STAGE 2 CORRECTIVE PASS — 2026-09-23
+Stage 2 evidence is present in GitHub and the compact browse geometry is acceptable as a baseline. However, user review found the tap interaction incorrect: the compact card expands to full-screen detail. This is rejected.
+
+Correct target: compact card remains bounded; tap reveals richer member information within a bounded detail state; the side vertical rail/menu remains visible; photo, name, event type, event time/recency and membership/status remain persistent; menu-specific important data replaces only the content panel; no full-screen expansion. Slightly larger bounded card dimensions are acceptable if they improve readability.
+
+Stage 3 is blocked until this corrective pass is built, installed, tested and evidenced with committed screenshots.
