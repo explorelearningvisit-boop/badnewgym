@@ -1,64 +1,47 @@
-# BAD GYM Member Intelligence V3 — Agent Contract
+# BAD GYM — Agent Operating Contract
 
-This repository is the source of truth for the new Member Intelligence feature on branch member-intelligence-v3.
+This repository is operated by a coordinated AI development loop:
 
-## Objective
-Build a production-grade Jetpack Compose/Kotlin Member Intelligence experience matching the supplied eight-theme reference image as closely as practical while keeping business logic independent from visual themes.
+ChatGPT = architecture/product/UI reasoning and task author.
+Google Antigravity = primary local Android implementation, build, run, test, and repair agent.
+GitHub = shared source of truth and handoff channel.
 
-## Non-negotiables
-- Do not build a static mockup.
-- Every member-menu item must change the content.
-- Every primary CTA emits a typed intent/action.
-- No fabricated business, health, payment, attendance, or engagement data.
-- Every metric has an explicit period/source.
-- Semantic states override decorative membership-tier colors.
-- Theme is data-driven; do not create eight independent screens.
-- No Supabase service-role key or secrets in source control.
-- Preserve a clean domain/repository boundary.
-- Use fake/demo data only behind a clearly named demo repository.
-- Real repository adapters must be injectable.
-- Offline/loading/error/syncing states are first-class UI states.
-- Accessibility: minimum 48dp touch targets, content descriptions, non-color state communication.
+## Mandatory startup behavior
 
-## Visual direction
-Reference: supplied 8-card BAD GYM Member Intelligence board:
-Natural Fresh, Futuristic Neon, Minimal Dark, Glassmorphism, Premium 3D, Vibrant Gradient, Gym Beast Mode, Purple Royal.
+Before doing implementation work:
+1. Inspect the repository state.
+2. Run `git fetch origin`.
+3. On `member-intelligence-v3`, run `git pull --ff-only origin member-intelligence-v3`.
+4. Read `.agents/rules/00-badgym-github-loop.md`, `CURRENT_TASK.md`, and `STATUS.md`.
+5. Treat `CURRENT_TASK.md` as the authoritative current task from ChatGPT.
+6. Do not begin unrelated work while it contains a READY_FOR_EXECUTION task.
 
-Use one reusable shell:
-Global Theme × Membership Tier × Current Event × Member State.
+## Execution contract
 
-Visual ingredients:
-- rounded 18–24dp surfaces
-- layered surfaces
-- subtle inner highlights
-- selective glow for neon/premium modes
-- theme-specific ornamental backgrounds
-- tasteful depth/shadow
-- compact information hierarchy
-- strong event chip
-- member identity/photo
-- membership badge
-- 3 decision metrics
-- intelligence signal
-- contextual CTA
-- persistent adaptive member rail
+When CURRENT_TASK.md is READY_FOR_EXECUTION:
+- Execute autonomously.
+- Inspect existing architecture before changing it.
+- Preserve unrelated BAD GYM functionality.
+- Run appropriate Android builds/tests.
+- Fix compile/runtime/test failures encountered during the task.
+- Update STATUS.md with changes, verification, remaining issues, and next task.
+- Commit intended changes with a clear conventional commit.
+- Push to `origin member-intelligence-v3`.
+- Mark CURRENT_TASK.md COMPLETED only when actually completed; if blocked, mark BLOCKED and document the exact blocker.
+- Never claim verification passed unless it was actually run.
 
-Avoid decorative graphs without a decision question.
+## Conflict resolution
+If local work conflicts with a remote ChatGPT commit, inspect and preserve intentional local changes; do not blindly discard them. Resolve deliberately and document the resolution in STATUS.md.
 
-## Data contract
-Domain models include:
-MemberSnapshot, MembershipStatus, AttendanceSummary, PaymentSummary, TrainerSummary, WorkoutSummary, SupplementSummary, NutritionSummary, ServiceSummary, MemberEvent, IntelligenceSignal, MenuAvailability, SubscriptionEntitlement.
+## Product rules
+- Existing BAD GYM architecture is the baseline.
+- Do not replace working screens with mockups.
+- Do not delete unrelated features.
+- Member Intelligence is data-driven and production-oriented.
+- Never invent unavailable member data.
+- Semantic states such as overdue, expired, payment failed, or complaint remain recognizable regardless of tier/theme.
+- Keep domain/business logic independent from Compose UI.
+- Never commit secrets or Supabase service-role keys.
 
-## Event contract
-CHECK_IN, CHECK_OUT, PAYMENT, PAYMENT_FAILED, NEW_MEMBER, WALK_IN, RENEWAL, EXPIRED, FREEZE, REACTIVATION, TRAINER_SESSION, WORKOUT, SUPPLEMENT_PURCHASE, NUTRITION, SERVICE_PURCHASE, COMPLAINT, MAINTENANCE.
-
-## Menu contract
-HOME, ATTENDANCE, PLAN, PAYMENT, TRAINER, WORKOUT, SUPPLEMENTS, NUTRITION, SERVICES, HISTORY, INSIGHT.
-
-Use MemberMenuRegistry for conditional availability and entitlement/permission gating.
-
-## Backend direction
-Supabase/Postgres is business source of truth; Room is local cache; Realtime drives live updates; Firebase is for FCM/Crashlytics/optional analytics. Follow current Supabase Kotlin guidance in docs/architecture.
-
-## Build discipline
-Before changing architecture, inspect existing project files and keep unrelated application screens intact. This branch is a replacement Member Intelligence implementation, not a destructive rewrite of the whole product.
+## Completion signal
+A successful implementation ends with code committed, pushed to member-intelligence-v3, STATUS.md updated, CURRENT_TASK.md marked COMPLETED, and remaining limitations explicitly recorded.
