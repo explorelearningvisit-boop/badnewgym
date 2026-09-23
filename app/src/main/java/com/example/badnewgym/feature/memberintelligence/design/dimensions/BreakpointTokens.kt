@@ -23,29 +23,29 @@ data class ResponsiveGeometry(
 object BreakpointTokens {
     val Compact = ResponsiveGeometry(
         breakpoint = ScreenBreakpoint.COMPACT,
-        railWidth = 52.dp,
-        portraitWidth = 72.dp,
-        portraitHeight = 84.dp,
-        outerPaddingHorizontal = 6.dp,
-        contentPaddingHorizontal = 8.dp
+        railWidth = 42.dp,
+        portraitWidth = 80.dp,
+        portraitHeight = 92.dp,
+        outerPaddingHorizontal = 2.dp,
+        contentPaddingHorizontal = 4.dp
     )
 
     val Medium = ResponsiveGeometry(
         breakpoint = ScreenBreakpoint.MEDIUM,
-        railWidth = 58.dp,
-        portraitWidth = 82.dp,
-        portraitHeight = 94.dp,
-        outerPaddingHorizontal = 8.dp,
-        contentPaddingHorizontal = 12.dp
+        railWidth = 46.dp,
+        portraitWidth = 88.dp,
+        portraitHeight = 100.dp,
+        outerPaddingHorizontal = 3.dp,
+        contentPaddingHorizontal = 6.dp
     )
 
     val Expanded = ResponsiveGeometry(
         breakpoint = ScreenBreakpoint.EXPANDED,
-        railWidth = 64.dp,
-        portraitWidth = 90.dp,
-        portraitHeight = 104.dp,
-        outerPaddingHorizontal = 12.dp,
-        contentPaddingHorizontal = 16.dp
+        railWidth = 50.dp,
+        portraitWidth = 96.dp,
+        portraitHeight = 108.dp,
+        outerPaddingHorizontal = 4.dp,
+        contentPaddingHorizontal = 8.dp
     )
 }
 

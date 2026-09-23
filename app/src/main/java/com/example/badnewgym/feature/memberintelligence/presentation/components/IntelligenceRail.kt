@@ -38,14 +38,13 @@ fun IntelligenceRail(
 
     Column(
         modifier = modifier
-            .width(56.dp)
             .fillMaxHeight()
             .clip(RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp))
             .background(colors.railBackground.copy(alpha = .96f))
-            .padding(vertical = 12.dp, horizontal = 4.dp)
+            .padding(vertical = 10.dp, horizontal = 2.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         visibleMenus.forEach { menu ->
             val isActive = activeMenu == menu.id

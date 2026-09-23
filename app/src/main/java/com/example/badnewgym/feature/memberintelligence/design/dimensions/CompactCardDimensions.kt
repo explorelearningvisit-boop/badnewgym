@@ -12,20 +12,20 @@ import androidx.compose.ui.unit.dp
  * Strictly decoupled from the full-screen reference geometry tokens.
  */
 data class CompactCardDimensions(
-    val cardWidth: Dp = 232.dp,
-    val minCardWidth: Dp = 210.dp,
-    val maxCardWidth: Dp = 250.dp,
+    val cardWidth: Dp = 247.dp,
+    val minCardWidth: Dp = 225.dp,
+    val maxCardWidth: Dp = 265.dp,
     val cardHeight: Dp = 356.dp,
-    val detailCardWidth: Dp = 276.dp,
+    val detailCardWidth: Dp = 291.dp,
     val detailCardHeight: Dp = 372.dp,
     val railWidth: Dp = 50.dp,
     val cornerRadius: Dp = 22.dp,
-    val outerHorizontalPadding: Dp = 16.dp,
+    val outerHorizontalPadding: Dp = 14.dp,
     val carouselGap: Dp = 12.dp,
     val innerPaddingHorizontal: Dp = 12.dp,
     val innerPaddingVertical: Dp = 10.dp,
-    val portraitWidth: Dp = 72.dp,
-    val portraitHeight: Dp = 78.dp,
+    val portraitWidth: Dp = 76.dp,
+    val portraitHeight: Dp = 82.dp,
     val portraitRadius: Dp = 12.dp,
     val eventHeaderHeight: Dp = 26.dp,
     val identityHeight: Dp = 78.dp,
@@ -38,43 +38,43 @@ data class CompactCardDimensions(
 
 object CompactCardTokens {
     val Compact = CompactCardDimensions(
-        cardWidth = 224.dp,
+        cardWidth = 239.dp,
         cardHeight = 346.dp,
-        detailCardWidth = 264.dp,
+        detailCardWidth = 279.dp,
         detailCardHeight = 362.dp,
         railWidth = 48.dp,
-        outerHorizontalPadding = 14.dp,
+        outerHorizontalPadding = 12.dp,
         carouselGap = 10.dp,
-        portraitWidth = 66.dp,
-        portraitHeight = 72.dp,
+        portraitWidth = 70.dp,
+        portraitHeight = 76.dp,
         metricsHeight = 58.dp,
         ctaHeight = 36.dp
     )
 
     val Default = CompactCardDimensions(
-        cardWidth = 232.dp,
+        cardWidth = 247.dp,
         cardHeight = 356.dp,
-        detailCardWidth = 276.dp,
+        detailCardWidth = 291.dp,
         detailCardHeight = 372.dp,
         railWidth = 50.dp,
-        outerHorizontalPadding = 16.dp,
+        outerHorizontalPadding = 14.dp,
         carouselGap = 12.dp,
-        portraitWidth = 72.dp,
-        portraitHeight = 78.dp,
+        portraitWidth = 76.dp,
+        portraitHeight = 82.dp,
         metricsHeight = 62.dp,
         ctaHeight = 38.dp
     )
 
     val Expanded = CompactCardDimensions(
-        cardWidth = 246.dp,
+        cardWidth = 261.dp,
         cardHeight = 366.dp,
-        detailCardWidth = 288.dp,
+        detailCardWidth = 303.dp,
         detailCardHeight = 380.dp,
         railWidth = 52.dp,
-        outerHorizontalPadding = 18.dp,
+        outerHorizontalPadding = 16.dp,
         carouselGap = 14.dp,
-        portraitWidth = 78.dp,
-        portraitHeight = 84.dp,
+        portraitWidth = 82.dp,
+        portraitHeight = 88.dp,
         metricsHeight = 66.dp,
         ctaHeight = 40.dp
     )

@@ -39,24 +39,39 @@ fun MembershipTierStatus(
     ) {
         // 1. Gold Plan Band
         val goldBg = when (theme) {
-            ThemeId.PREMIUM_3D -> Color(0xFF2A200B)
+            ThemeId.PREMIUM_3D -> Color(0xFFFEF9C3)
             ThemeId.NATURAL_FRESH -> Color(0xFFFEF9C3)
-            ThemeId.MINIMAL_DARK -> Color(0xFF1E232B)
+            ThemeId.MINIMAL_DARK -> Color(0xFFF1F5F9)
+            ThemeId.FUTURISTIC_NEON -> Color(0x3300E5FF)
+            ThemeId.PURPLE_ROYAL -> Color(0x33C084FC)
+            ThemeId.BEAST_MODE -> Color(0x33FF334B)
             else -> colors.surfaceMuted
         }
         val goldBorder = when (theme) {
-            ThemeId.PREMIUM_3D -> Color(0xFFD4AF37)
+            ThemeId.PREMIUM_3D -> Color(0xFFE5B842)
             ThemeId.NATURAL_FRESH -> Color(0xFFFDE047)
+            ThemeId.MINIMAL_DARK -> Color(0xFFCBD5E1)
+            ThemeId.FUTURISTIC_NEON -> Color(0x8000E5FF)
+            ThemeId.PURPLE_ROYAL -> Color(0x80C084FC)
+            ThemeId.BEAST_MODE -> Color(0x80FF334B)
             else -> colors.border
         }
         val goldText = when (theme) {
-            ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
+            ThemeId.PREMIUM_3D -> Color(0xFF854D0E)
             ThemeId.NATURAL_FRESH -> Color(0xFF854D0E)
+            ThemeId.MINIMAL_DARK -> Color(0xFF0F172A)
+            ThemeId.FUTURISTIC_NEON -> Color(0xFF00E5FF)
+            ThemeId.PURPLE_ROYAL -> Color(0xFFE9D5FF)
+            ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
             else -> colors.textPrimary
         }
         val goldIcon = when (theme) {
-            ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
+            ThemeId.PREMIUM_3D -> Color(0xFFCA8A04)
             ThemeId.NATURAL_FRESH -> Color(0xFFCA8A04)
+            ThemeId.MINIMAL_DARK -> Color(0xFF3B82F6)
+            ThemeId.FUTURISTIC_NEON -> Color(0xFF00E5FF)
+            ThemeId.PURPLE_ROYAL -> Color(0xFFC084FC)
+            ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
             else -> colors.accent
         }
 

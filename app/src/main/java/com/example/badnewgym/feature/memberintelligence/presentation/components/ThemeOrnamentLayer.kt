@@ -16,8 +16,7 @@ import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 
 /**
  * Native Compose reconstruction of the ornamental/background language visible in the
- * eight-card reference. Nothing is a flattened screenshot: every effect is a drawable
- * layer and therefore scales with the card.
+ * eight-card reference. Zero pitch black; rich neumorphic and glassmorphic depth.
  */
 @Composable
 fun ThemeOrnamentLayer(
@@ -45,27 +44,27 @@ fun ThemeOrnamentLayer(
 
             ThemeId.FUTURISTIC_NEON -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF001B34), Color(0xFF02050B))),
+                    Brush.linearGradient(listOf(Color(0xFF1E3A64), Color(0xFF0F1E36))),
                     size = size
                 )
                 neonLine(Offset(0f, size.height * .76f), Offset(size.width, size.height * .46f), c.accent)
                 neonLine(Offset(size.width * .18f, size.height), Offset(size.width * .82f, 0f), c.accent.copy(alpha = .55f))
-                neonLine(Offset(size.width * .48f, size.height), Offset(size.width, size.height * .68f), Color(0xFF7C3AED).copy(alpha = .55f))
+                neonLine(Offset(size.width * .48f, size.height), Offset(size.width, size.height * .68f), Color(0xFF38BDF8).copy(alpha = .55f))
                 for (i in 1..6) {
                     val y = size.height * (i / 7f)
-                    drawLine(c.accent.copy(alpha = .045f), Offset(0f, y), Offset(size.width, y), 1f)
+                    drawLine(c.accent.copy(alpha = .06f), Offset(0f, y), Offset(size.width, y), 1f)
                 }
             }
 
             ThemeId.MINIMAL_DARK -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF20252B), Color(0xFF090B0E))),
+                    Brush.linearGradient(listOf(Color(0xFFF1F5F9), Color(0xFFE2E8F0))),
                     size = size
                 )
-                drawCircle(Color.White.copy(alpha = .025f), size.minDimension * .65f, Offset(size.width * .9f, size.height * .05f))
+                drawCircle(Color.White.copy(alpha = .45f), size.minDimension * .65f, Offset(size.width * .9f, size.height * .05f))
                 for (i in 1..8) {
                     val y = size.height * (i / 9f)
-                    drawLine(Color.White.copy(alpha = .018f), Offset(0f, y), Offset(size.width, y), 1f)
+                    drawLine(Color(0xFFCBD5E1).copy(alpha = .35f), Offset(0f, y), Offset(size.width, y), 1f)
                 }
             }
 
@@ -78,17 +77,17 @@ fun ThemeOrnamentLayer(
                 )
                 drawCircle(Color(0xFF60A5FA).copy(alpha = .25f), size.minDimension * .45f, Offset(size.width * .92f, size.height * .16f))
                 drawCircle(Color(0xFFC084FC).copy(alpha = .18f), size.minDimension * .38f, Offset(size.width * .12f, size.height * .76f))
-                drawCircle(Color.White.copy(alpha = .24f), size.minDimension * .28f, Offset(size.width * .55f, size.height * .50f))
+                drawCircle(Color.White.copy(alpha = .35f), size.minDimension * .28f, Offset(size.width * .55f, size.height * .50f))
             }
 
             ThemeId.PREMIUM_3D -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF3A2A12), Color(0xFF080705))),
+                    Brush.linearGradient(listOf(Color(0xFFFAF6EE), Color(0xFFF0E6D2))),
                     size = size
                 )
                 metallicArc(Offset(size.width * .88f, size.height * .15f), size.minDimension * .50f, c.accent)
-                metallicArc(Offset(size.width * .08f, size.height * .90f), size.minDimension * .34f, Color(0xFF8C6B24))
-                drawCircle(Color(0xFFFFD700).copy(alpha = .07f), size.minDimension * .48f, Offset(size.width * .75f, size.height * .72f))
+                metallicArc(Offset(size.width * .08f, size.height * .90f), size.minDimension * .34f, Color(0xFFD4AF37))
+                drawCircle(Color(0xFFFFD700).copy(alpha = .12f), size.minDimension * .48f, Offset(size.width * .75f, size.height * .72f))
             }
 
             ThemeId.VIBRANT_GRADIENT -> {
@@ -105,7 +104,7 @@ fun ThemeOrnamentLayer(
 
             ThemeId.BEAST_MODE -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF2A0508), Color(0xFF070708))),
+                    Brush.linearGradient(listOf(Color(0xFF4A141D), Color(0xFF2A080E))),
                     size = size
                 )
                 claw(Offset(size.width * .14f, size.height * .88f), c.accent)
@@ -115,12 +114,12 @@ fun ThemeOrnamentLayer(
 
             ThemeId.PURPLE_ROYAL -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF54208B), Color(0xFF11071E))),
+                    Brush.linearGradient(listOf(Color(0xFF3E1A68), Color(0xFF1F0D36))),
                     size = size
                 )
-                drawCircle(Color(0xFFA855F7).copy(alpha = .20f), size.minDimension * .46f, Offset(size.width * .90f, size.height * .12f))
-                drawCircle(Color(0xFFE879F9).copy(alpha = .12f), size.minDimension * .38f, Offset(size.width * .12f, size.height * .78f))
-                diamond(Offset(size.width * .86f, size.height * .82f), size.minDimension * .10f, c.accent.copy(alpha = .24f))
+                drawCircle(Color(0xFFA855F7).copy(alpha = .22f), size.minDimension * .46f, Offset(size.width * .90f, size.height * .12f))
+                drawCircle(Color(0xFFE879F9).copy(alpha = .16f), size.minDimension * .38f, Offset(size.width * .12f, size.height * .78f))
+                diamond(Offset(size.width * .86f, size.height * .82f), size.minDimension * .10f, c.accent.copy(alpha = .28f))
             }
         }
     }

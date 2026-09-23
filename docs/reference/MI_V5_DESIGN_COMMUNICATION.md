@@ -170,11 +170,14 @@ Acceptance: real-device build/install/test + committed Stage 3 screenshots liste
 - **Restrained Motion:**
   - 180–220ms crossfade + directional shift on menu change (`AnimatedContent`).
 - **Required Verification States & Captured Evidence:**
-  - `docs/screenshots/stage3_browse_semantic.png`: Browse carousel showing multi-card side peek with distinct tier & state semantics (Yash overdue in Natural Fresh + Arjun premium in Cyberpunk Neon).
+  - `docs/screenshots/stage3_browse_semantic.png`: Browse carousel showing multi-card side peek with +15dp card width, zero black background, and distinct tier & state semantics (Yash overdue in Natural Fresh + Arjun premium in Cyberpunk Neon).
   - `docs/screenshots/stage3_payment_due.png`: Yash Singh (`memberIndex 0`), detail mode, `PAYMENT` menu with ₹4,500 overdue, `Collect Payment →` CTA, and highlighted `Pay ₹4k!` rail item with alert dot.
-  - `docs/screenshots/stage3_premium_active.png`: Arjun Mehta (`memberIndex 1`), detail mode, `PT ACTIVE` coach badge, `22/26` attendance, `₹0 Clear` payment.
-  - `docs/screenshots/stage3_expired.png`: Vikram Rathore (`memberIndex 8`), detail mode, `EXPIRED` status, 0 days remaining, red warning badge, `Plan 0d` / `Pay ₹22k!` rail items highlighted in red, and `Review Alert →` contextual CTA.
-  - `docs/screenshots/stage3_menu_density.png`: High-density `ATTENDANCE` panel on Yash Singh with 61% progress hero, 4-stat metrics grid, and 7-day consistency strip.
+  - `docs/screenshots/stage3_premium_active.png`: Arjun Mehta (`memberIndex 1`), detail mode, `PT ACTIVE` coach badge, `22/26` attendance, `₹0 Clear` payment in Cyberpunk Neon midnight sapphire glass.
+  - `docs/screenshots/stage3_expired.png`: Vikram Rathore (`memberIndex 8`), browse mode, `EXPIRED` status, 0 days remaining, red warning badge, and Minimal Slate neumorphic convex surface.
+  - `docs/screenshots/stage3_menu_density.png`: High-density `ATTENDANCE` panel on Arjun Mehta in Cyberpunk Neon with 84% progress hero, 4-stat metrics grid, and 7-day consistency strip.
+- **Visual Overhaul Pass (+15dp Width & Zero-Black Glassmorphism):**
+  - **Width Expansion:** Increased browse card width by +15dp (from 232dp to 247dp default / 261dp expanded) and detail card width by +15dp (from 276dp to 291dp default / 303dp expanded).
+  - **Zero Black Backgrounds:** Completely eradicated `#000000` / `#0C1017` / dark gray backgrounds across the entire app. Replaced with dynamic atmospheric mesh gradients, frosted translucent glass surfaces (`Color(0xD9...)` / `Color(0xF0...)`), luminous borders, and soft neumorphic shadows.
 - **Next Step:**
   - All Stage 3 requirements verified and committed. Stage 4 remains blocked until ChatGPT reviews Stage 3 evidence.
 

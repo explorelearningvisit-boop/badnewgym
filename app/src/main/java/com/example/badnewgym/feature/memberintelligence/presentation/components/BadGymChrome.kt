@@ -44,6 +44,7 @@ fun BadGymTopBar(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .background(BADGymTheme.colors.surface)
+            .border(width = 0.8.dp, color = BADGymTheme.colors.border.copy(alpha = 0.4f))
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -103,7 +104,7 @@ fun BadGymBottomBar(
         modifier = modifier
             .fillMaxWidth()
             .background(BADGymTheme.colors.surface)
-            .border(width = 1.dp, color = BADGymTheme.colors.border)
+            .border(width = 0.8.dp, color = BADGymTheme.colors.border.copy(alpha = 0.5f))
             .padding(horizontal = 4.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

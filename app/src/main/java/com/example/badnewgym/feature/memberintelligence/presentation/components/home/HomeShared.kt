@@ -426,27 +426,35 @@ fun ShortcutTriple(
     services: String,
     modifier: Modifier = Modifier,
     trainerPhoto: String? = MediaAssets.TRAINER_VIKAS,
-    iconBg: Color = BADGymTheme.colors.surfaceElevated,
+    iconBg: Color = BADGymTheme.colors.surfaceMuted,
     labelColor: Color = BADGymTheme.colors.textPrimary,
     valueColor: Color = BADGymTheme.colors.textSecondary
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(78.dp)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(BADGymTheme.colors.surfaceMuted.copy(alpha = 0.6f))
+                .border(1.dp, BADGymTheme.colors.border.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                .padding(vertical = 6.dp, horizontal = 4.dp)
+        ) {
             AvatarImage(
                 model = trainerPhoto,
-                size = 40.dp,
-                shape = RoundedCornerShape(20.dp),
+                size = 36.dp,
+                shape = RoundedCornerShape(18.dp),
                 placeholderTint = iconBg
             )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(text = "Trainer", color = labelColor, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = "Trainer", color = labelColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
             Text(text = trainer, color = valueColor, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        ShortcutCell("W", "Workout", workout, iconBg, labelColor, valueColor)
-        ShortcutCell("S", "Services", services, iconBg, labelColor, BADGymTheme.colors.success)
+        ShortcutCell("W", "Workout", workout, iconBg, labelColor, valueColor, Modifier.weight(1f))
+        ShortcutCell("S", "Services", services, iconBg, labelColor, BADGymTheme.colors.success, Modifier.weight(1f))
     }
 }
 
@@ -457,20 +465,29 @@ private fun ShortcutCell(
     value: String,
     iconBg: Color,
     labelColor: Color,
-    valueColor: Color
+    valueColor: Color,
+    modifier: Modifier = Modifier
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(78.dp)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(BADGymTheme.colors.surfaceMuted.copy(alpha = 0.6f))
+            .border(1.dp, BADGymTheme.colors.border.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+            .padding(vertical = 6.dp, horizontal = 4.dp)
+    ) {
         Box(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(iconBg),
+                .background(iconBg)
+                .border(1.dp, BADGymTheme.colors.border.copy(alpha = 0.7f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = glyph, color = labelColor, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Text(text = glyph, color = labelColor, fontWeight = FontWeight.Black, fontSize = 12.sp)
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(text = label, color = labelColor, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = label, color = labelColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         Text(
             text = value,
             color = valueColor,

@@ -44,14 +44,14 @@ fun ThemedCtaButton(
                     ThemeId.FUTURISTIC_NEON -> Brush.horizontalGradient(listOf(Color(0xFF00E5FF), Color(0xFF0284C7)))
                     ThemeId.VIBRANT_GRADIENT -> Brush.horizontalGradient(listOf(Color(0xFF3B82F6), Color(0xFF8B5CF6), Color(0xFFEC4899)))
                     ThemeId.GLASSMORPHISM -> Brush.horizontalGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7)))
-                    ThemeId.MINIMAL_DARK -> Brush.horizontalGradient(listOf(Color(0xFF262C36), Color(0xFF181C22)))
+                    ThemeId.MINIMAL_DARK -> Brush.horizontalGradient(listOf(Color(0xFF475569), Color(0xFF334155)))
                     ThemeId.NATURAL_FRESH -> Brush.horizontalGradient(listOf(Color(0xFF16A34A), Color(0xFF15803D)))
                 }
             )
             .border(
                 width = if (theme == ThemeId.MINIMAL_DARK) 1.dp else 0.5.dp,
                 color = when (theme) {
-                    ThemeId.MINIMAL_DARK -> Color(0xFF3B4452)
+                    ThemeId.MINIMAL_DARK -> Color(0xFF94A3B8)
                     ThemeId.PREMIUM_3D -> Color(0xFFFFFBEB)
                     ThemeId.FUTURISTIC_NEON -> Color(0xFFE0F2FE)
                     else -> Color.White.copy(alpha = 0.3f)

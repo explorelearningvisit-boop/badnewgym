@@ -1,6 +1,7 @@
 package com.example.badnewgym.feature.memberintelligence.debug
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,8 +36,9 @@ fun DebugRuntimeIdentityBadge(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(Color(0xD9000000))
+            .clip(RoundedCornerShape(6.dp))
+            .background(Color(0xD01E293B))
+            .border(1.dp, Color(0x40FFFFFF), RoundedCornerShape(6.dp))
             .padding(horizontal = 6.dp, vertical = 2.dp)
     ) {
         Text(

@@ -207,35 +207,35 @@ private fun MetricTileContainer(
 ) {
     Box(
         modifier = modifier
-            .height(90.dp)
+            .height(94.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(
                 when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xFF1F1B12)
-                    ThemeId.BEAST_MODE -> Color(0xFF1C0609)
-                    ThemeId.PURPLE_ROYAL -> Color(0xFF22113B)
-                    ThemeId.FUTURISTIC_NEON -> Color(0xFF0A1428)
-                    ThemeId.VIBRANT_GRADIENT -> Color(0xFFF8FAFC)
-                    ThemeId.GLASSMORPHISM -> Color(0xB0FFFFFF)
-                    ThemeId.MINIMAL_DARK -> Color(0xFF181C22)
-                    ThemeId.NATURAL_FRESH -> Color(0xFFF6FBF7)
+                    ThemeId.PREMIUM_3D -> Color(0xF8FDFBF7)
+                    ThemeId.BEAST_MODE -> Color(0xE645121A)
+                    ThemeId.PURPLE_ROYAL -> Color(0xEB361B5A)
+                    ThemeId.FUTURISTIC_NEON -> Color(0xD9162C4E)
+                    ThemeId.VIBRANT_GRADIENT -> Color(0xF0FAF5FF)
+                    ThemeId.GLASSMORPHISM -> Color(0xC8FFFFFF)
+                    ThemeId.MINIMAL_DARK -> Color(0xFFF1F5F9)
+                    ThemeId.NATURAL_FRESH -> Color(0xF0F6FBF7)
                 }
             )
             .border(
                 width = 1.dp,
                 color = when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xFF4A3B1D)
-                    ThemeId.BEAST_MODE -> Color(0x66FF1E27)
-                    ThemeId.PURPLE_ROYAL -> Color(0x66A855F7)
-                    ThemeId.FUTURISTIC_NEON -> Color(0x6600E5FF)
-                    ThemeId.VIBRANT_GRADIENT -> Color(0xFFE2E8F0)
-                    ThemeId.GLASSMORPHISM -> Color(0x80FFFFFF)
-                    ThemeId.MINIMAL_DARK -> Color(0xFF28303C)
-                    ThemeId.NATURAL_FRESH -> Color(0xFFD1E7D7)
+                    ThemeId.PREMIUM_3D -> Color(0x99E5B842)
+                    ThemeId.BEAST_MODE -> Color(0x80FF334B)
+                    ThemeId.PURPLE_ROYAL -> Color(0x80C084FC)
+                    ThemeId.FUTURISTIC_NEON -> Color(0x8000E5FF)
+                    ThemeId.VIBRANT_GRADIENT -> Color(0x80FBCFE8)
+                    ThemeId.GLASSMORPHISM -> Color(0xB3FFFFFF)
+                    ThemeId.MINIMAL_DARK -> Color(0xFFCBD5E1)
+                    ThemeId.NATURAL_FRESH -> Color(0x80D1E7D7)
                 },
                 shape = RoundedCornerShape(14.dp)
             )
-            .padding(vertical = 8.dp, horizontal = 4.dp),
+            .padding(vertical = 8.dp, horizontal = 6.dp),
         content = content
     )
 }

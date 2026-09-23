@@ -928,26 +928,26 @@ private fun InfoCard(theme: ThemeId, content: @Composable ColumnScope.() -> Unit
             .clip(RoundedCornerShape(10.dp))
             .background(
                 when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xFF1F1B12)
-                    ThemeId.BEAST_MODE -> Color(0xFF1C0609)
-                    ThemeId.PURPLE_ROYAL -> Color(0xFF22113B)
-                    ThemeId.FUTURISTIC_NEON -> Color(0xFF0A1428)
+                    ThemeId.PREMIUM_3D -> Color(0xFFFAF7F0)
+                    ThemeId.BEAST_MODE -> Color(0xCC4A141D)
+                    ThemeId.PURPLE_ROYAL -> Color(0xCC3B1C64)
+                    ThemeId.FUTURISTIC_NEON -> Color(0xCC162C4E)
                     ThemeId.VIBRANT_GRADIENT -> Color(0xFFF8FAFC)
-                    ThemeId.GLASSMORPHISM -> Color(0xB0FFFFFF)
-                    ThemeId.MINIMAL_DARK -> Color(0xFF181C22)
+                    ThemeId.GLASSMORPHISM -> Color(0xD0FFFFFF)
+                    ThemeId.MINIMAL_DARK -> Color(0xFFF1F5F9)
                     ThemeId.NATURAL_FRESH -> Color(0xFFF6FBF7)
                 }
             )
             .border(
                 0.8.dp,
                 when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xFF4A3B1D)
-                    ThemeId.BEAST_MODE -> Color(0x66FF1E27)
-                    ThemeId.PURPLE_ROYAL -> Color(0x66A855F7)
-                    ThemeId.FUTURISTIC_NEON -> Color(0x6600E5FF)
-                    ThemeId.VIBRANT_GRADIENT -> Color(0xFFE2E8F0)
+                    ThemeId.PREMIUM_3D -> Color(0xFFE5B842)
+                    ThemeId.BEAST_MODE -> Color(0xFFFF334B)
+                    ThemeId.PURPLE_ROYAL -> Color(0xFFC084FC)
+                    ThemeId.FUTURISTIC_NEON -> Color(0xFF00E5FF)
+                    ThemeId.VIBRANT_GRADIENT -> Color(0xFFFBCFE8)
                     ThemeId.GLASSMORPHISM -> Color(0x80FFFFFF)
-                    ThemeId.MINIMAL_DARK -> Color(0xFF28303C)
+                    ThemeId.MINIMAL_DARK -> Color(0xFFCBD5E1)
                     ThemeId.NATURAL_FRESH -> Color(0xFFD1E7D7)
                 },
                 RoundedCornerShape(10.dp)
