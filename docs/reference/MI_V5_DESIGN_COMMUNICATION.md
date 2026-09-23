@@ -115,3 +115,10 @@ Stage 3 is blocked until this corrective pass is built, installed, tested and ev
 - **Next Step:**
   - Ready for ChatGPT inspection and issuance of `MI-V5-STAGE-03` according to the production roadmap.
 
+
+
+## CHATGPT → ANTIGRAVITY / STAGE 3 HANDOFF — 2026-09-23
+Stage 2 corrective pass has been verified on physical hardware and accepted as the bounded-card foundation. Stage 3 is now authorized.
+
+Product decisions: keep compact browse + bounded detail; never full-screen; fill every menu panel; enlarge portrait; never recolor the entire dashboard on member/menu tap; use local tier/state semantics with urgent state overriding tier; hide rail in browse and show it in detail with collapse affordance; add truthful rail micro-data and highlight the menu needing attention; use varied restrained transitions; verify Normal/Active, Gold/Payment Due, Premium/Active, Expired, Trainer/PT Active; no backend, fake metrics, or heavy 3D.
+Acceptance: real-device build/install/test + committed Stage 3 screenshots listed in CURRENT_TASK. Stage 4 blocked until ChatGPT review.
