@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.NotificationsNone
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -24,65 +23,86 @@ import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 
 @Composable
-fun CardHeader(theme: ThemeId, photoUrl: String? = null, modifier: Modifier = Modifier) {
+fun CardHeader(
+    theme: ThemeId,
+    onBack: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     val colors = BADGymTheme.colors
+
     Row(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 1.dp),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(colors.surfaceMuted.copy(alpha = .88f))
+                .border(1.dp, colors.border.copy(alpha = .55f), RoundedCornerShape(10.dp)),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier.size(32.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(theme.brandBrush()),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(theme.brandIcon(), "BAD GYM", tint = Color.White, modifier = Modifier.size(19.dp))
-            }
-            Column {
-                Text(
-                    "BAD GYM",
-                    color = when (theme) {
-                        ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
-                        ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
-                        else -> colors.textPrimary
-                    },
-                    fontSize = 14.sp, fontWeight = FontWeight.Black, letterSpacing = 0.4.sp
-                )
-                Text(
-                    theme.subtitle,
-                    color = colors.textSecondary,
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 2,
-                    lineHeight = 9.sp
-                )
-            }
+            Icon(
+                Icons.Rounded.ChevronLeft,
+                contentDescription = "Back",
+                tint = colors.brandAccent,
+                modifier = Modifier.size(20.dp)
+            )
         }
-        Spacer(Modifier.weight(1f))
+
+        Spacer(Modifier.width(7.dp))
+
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(theme.brandBrush()),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(theme.brandIcon(), "BAD GYM", tint = Color.White, modifier = Modifier.size(19.dp))
+        }
+
+        Spacer(Modifier.width(7.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                "BAD GYM",
+                color = when (theme) {
+                    ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
+                    ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
+                    else -> colors.textPrimary
+                },
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 0.4.sp
+            )
+            Text(
+                theme.subtitle,
+                color = colors.textSecondary,
+                fontSize = 7.5.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1
+            )
+        }
+
         Icon(
             Icons.Rounded.NotificationsNone,
             contentDescription = "Notifications",
             tint = colors.textPrimary,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(19.dp)
         )
-        Spacer(Modifier.width(8.dp))
+
+        Spacer(Modifier.width(7.dp))
+
         Box(
-            modifier = Modifier.size(30.dp)
+            modifier = Modifier
+                .size(30.dp)
                 .clip(CircleShape)
                 .background(Brush.linearGradient(listOf(colors.surfaceElevated, colors.surfaceMuted)))
                 .border(1.5.dp, colors.border.copy(alpha = .75f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                "A",
-                color = colors.textPrimary,
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Black
-            )
+            Text("A", color = colors.textPrimary, fontSize = 9.sp, fontWeight = FontWeight.Black)
         }
     }
 }
