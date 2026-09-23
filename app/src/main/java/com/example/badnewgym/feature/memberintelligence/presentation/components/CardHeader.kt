@@ -3,6 +3,7 @@ package com.example.badnewgym.feature.memberintelligence.presentation.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +44,8 @@ fun CardHeader(
                 .size(30.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(colors.surfaceMuted.copy(alpha = .88f))
-                .border(1.dp, colors.border.copy(alpha = .55f), RoundedCornerShape(10.dp)),
+                .border(1.dp, colors.border.copy(alpha = .55f), RoundedCornerShape(10.dp))
+                .clickable(onClick = onBack),
             contentAlignment = Alignment.Center
         ) {
             Icon(
