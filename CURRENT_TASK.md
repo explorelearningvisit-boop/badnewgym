@@ -179,3 +179,34 @@ Do not start Stage 3 or other roadmap stages.
 Do not add heavy 3D.
 Do not replace the architecture.
 Focus only on the compact member intelligence browse/card experience.
+
+
+## REFERENCE-DRIVEN EXTENSION — MANDATORY
+
+Before implementation, inspect and use:
+- docs/reference/MI_V5_DESIGN_COMMUNICATION.md
+- BAD_GYM_MEMBER_INTELLIGENCE_READY/preview/ALL_8_THEMES_CONTACT_SHEET.png
+
+The 8-theme board is the visual source for the compact card's color relationships, material language, gradients, borders, glows, icon treatment, portrait framing, badges, CTA treatment and decorative assets.
+
+Do not invent a new palette when a corresponding theme treatment exists in the board.
+
+For every visual element decide whether it should be:
+- Material/vector icon
+- SVG/vector drawable
+- transparent PNG/WebP
+- Compose Canvas/programmatic
+- optional isolated 3D/glTF
+
+If an asset from the board is reusable, extract/reconstruct it at production resolution rather than replacing it with a generic approximation.
+
+### Communication requirement
+
+During Stage 2:
+1. Read docs/reference/MI_V5_DESIGN_COMMUNICATION.md before coding.
+2. Record implementation decisions, asset choices, measured geometry, and deviations in that file.
+3. At completion append an Antigravity report containing exact commit SHA, files, device, build result, measured card width/height, screenshot paths and remaining visual deviations.
+4. Commit and push the communication log together with the implementation.
+5. Do not delete or overwrite prior communication history.
+
+ChatGPT will inspect the report and screenshot evidence before Stage 3 is issued.
