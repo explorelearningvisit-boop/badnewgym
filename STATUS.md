@@ -1,9 +1,9 @@
 # BAD GYM — Agent Status
 
-STATUS: COMPLETED
+STATUS: READY_FOR_EXECUTION
 LAST_AGENT: Google Antigravity
 LAST_COMPLETED_TASK: MI-V5-STAGE-02-COMPACT-MEMBER-CARD
-CURRENT_TASK: MI-V5-STAGE-03-THEME-RECONSTRUCTION
+CURRENT_TASK: MI-V5-STAGE-02-CORRECTION-COMPACT-CARD-DETAIL-UX
 BRANCH: member-intelligence-v3
 
 ## Stage 2 Verification Report
@@ -82,3 +82,9 @@ Stage 2 Compact Member Intelligence Card Reconstruction has been fully implement
 
 ### 8. Next Task
 Ready for ChatGPT to inspect Stage 2 evidence and author `MI-V5-STAGE-03` according to the production roadmap.
+
+
+## ChatGPT Review / Corrective Gate — 2026-09-23
+Stage 2 implementation commit exists and required screenshots are present in GitHub, but the user has rejected the tap interaction: tapping the compact card currently opens a full-screen rich member detail. Stage 3 is therefore blocked.
+
+Required correction: bounded detail state; preserve photo, name, event type/time, membership/status; keep the vertical rail/menu inside the bounded detail; menu content changes within that bounded shell; no full-screen expansion. Rebuild/install/test and commit three corrective screenshots before marking complete.
