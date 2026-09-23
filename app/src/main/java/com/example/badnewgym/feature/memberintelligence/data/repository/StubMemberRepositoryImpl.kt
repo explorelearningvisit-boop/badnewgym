@@ -27,6 +27,7 @@ class StubMemberRepositoryImpl : MemberIntelligenceRepository {
             "6", "BG220" -> MemberScenarios.vibrantGradientAarav()
             "7", "BG330" -> MemberScenarios.beastModeRohan()
             "8", "BG502" -> MemberScenarios.purpleRoyalSimran()
+            "9", "BG901" -> MemberScenarios.expiredVikram()
             else -> MemberScenarios.naturalFreshYash()
         }
         snapshots.value = snapshot
@@ -44,7 +45,8 @@ class StubMemberRepositoryImpl : MemberIntelligenceRepository {
                 MemberScenarios.premium3dKabir(),
                 MemberScenarios.vibrantGradientAarav(),
                 MemberScenarios.beastModeRohan(),
-                MemberScenarios.purpleRoyalSimran()
+                MemberScenarios.purpleRoyalSimran(),
+                MemberScenarios.expiredVikram()
             )
         )
     }

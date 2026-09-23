@@ -10,6 +10,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberIdentity
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberIssue
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
+import com.example.badnewgym.feature.memberintelligence.domain.model.MembershipLifecycle
 import com.example.badnewgym.feature.memberintelligence.domain.model.MembershipStatus
 import com.example.badnewgym.feature.memberintelligence.domain.model.MembershipTier
 import com.example.badnewgym.feature.memberintelligence.domain.model.NutritionSummary
@@ -497,6 +498,64 @@ object MemberScenarios {
             issues = emptyList()
         )
         val event = MemberEvent("live_8", "8", "gym1", EventType.TRAINER_SESSION, now, EventSource.TRAINER)
+        return snapshot to event
+    }
+
+    // 9. Vikram Rathore (BG901) - EXPIRED & OVERDUE
+    fun expiredVikram(now: Long = System.currentTimeMillis()): Pair<MemberSnapshot, MemberEvent> {
+        val snapshot = MemberSnapshot(
+            id = "9",
+            gymId = "gym1",
+            identity = MemberIdentity(
+                name = "Vikram Rathore",
+                photoUrl = null,
+                tier = MembershipTier.NORMAL,
+                memberSince = now - DAY * 420,
+                code = "BG901",
+                isVerified = false
+            ),
+            membership = MembershipStatus(
+                planName = "Gold Plan",
+                planType = "12 Months",
+                isActive = false,
+                daysRemaining = 0,
+                startDate = now - DAY * 370,
+                expiryDate = now - DAY * 5,
+                currentCost = 22_000.0,
+                renewalCount = 1,
+                lifecycle = MembershipLifecycle.EXPIRED
+            ),
+            attendance = AttendanceSummary(
+                visits = 18,
+                target = 26,
+                periodName = "Previous Month",
+                lifetimeVisits = 142,
+                streakDays = 0,
+                avgVisitsPerWeek = 2.1,
+                weeklyPattern = listOf(0, 0, 0, 0, 0, 0, 0),
+                lastVisitAt = now - DAY * 5
+            ),
+            payment = PaymentSummary(
+                totalOutstanding = 22000.0,
+                overdueDays = 5,
+                dueDate = now - DAY * 5,
+                lastPaymentAmount = 22000.0,
+                lastPaymentDate = now - DAY * 370,
+                lastPaymentMethod = "UPI",
+                lifetimePaid = 22_000.0,
+                lifecycle = PaymentLifecycle.OVERDUE,
+                breakdown = listOf(PaymentBreakdownLine("Gold Plan Renewal Due", 22000.0)),
+                history = listOf(PaymentTransaction("p9", 22000.0, now - DAY * 370, "UPI", "Plan"))
+            ),
+            trainer = null,
+            workout = WorkoutSummary(now - DAY * 5, "Powerlifting Basics", 50),
+            supplements = SupplementSummary(false, "", 0L, 0.0, "", null),
+            nutrition = NutritionSummary(false, "", 0L, 0.0),
+            services = emptyList(),
+            recentEvents = listOf(MemberEvent("e9", "9", "gym1", EventType.CHECK_IN, now - DAY * 5, EventSource.GATE)),
+            issues = listOf(MemberIssue("i9", "Membership Expired: Renewal Required", IssueSeverity.CRITICAL))
+        )
+        val event = MemberEvent("live_9", "9", "gym1", EventType.CHECK_IN, now - DAY * 5, EventSource.GATE)
         return snapshot to event
     }
 

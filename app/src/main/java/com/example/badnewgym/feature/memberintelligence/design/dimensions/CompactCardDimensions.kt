@@ -24,11 +24,11 @@ data class CompactCardDimensions(
     val carouselGap: Dp = 12.dp,
     val innerPaddingHorizontal: Dp = 12.dp,
     val innerPaddingVertical: Dp = 10.dp,
-    val portraitWidth: Dp = 56.dp,
-    val portraitHeight: Dp = 64.dp,
+    val portraitWidth: Dp = 72.dp,
+    val portraitHeight: Dp = 78.dp,
     val portraitRadius: Dp = 12.dp,
     val eventHeaderHeight: Dp = 26.dp,
-    val identityHeight: Dp = 64.dp,
+    val identityHeight: Dp = 78.dp,
     val membershipStatusHeight: Dp = 32.dp,
     val metricsHeight: Dp = 62.dp,
     val ctaHeight: Dp = 38.dp,
@@ -45,8 +45,8 @@ object CompactCardTokens {
         railWidth = 48.dp,
         outerHorizontalPadding = 14.dp,
         carouselGap = 10.dp,
-        portraitWidth = 52.dp,
-        portraitHeight = 60.dp,
+        portraitWidth = 66.dp,
+        portraitHeight = 72.dp,
         metricsHeight = 58.dp,
         ctaHeight = 36.dp
     )
@@ -59,8 +59,8 @@ object CompactCardTokens {
         railWidth = 50.dp,
         outerHorizontalPadding = 16.dp,
         carouselGap = 12.dp,
-        portraitWidth = 56.dp,
-        portraitHeight = 64.dp,
+        portraitWidth = 72.dp,
+        portraitHeight = 78.dp,
         metricsHeight = 62.dp,
         ctaHeight = 38.dp
     )
@@ -73,8 +73,8 @@ object CompactCardTokens {
         railWidth = 52.dp,
         outerHorizontalPadding = 18.dp,
         carouselGap = 14.dp,
-        portraitWidth = 60.dp,
-        portraitHeight = 68.dp,
+        portraitWidth = 78.dp,
+        portraitHeight = 84.dp,
         metricsHeight = 66.dp,
         ctaHeight = 40.dp
     )

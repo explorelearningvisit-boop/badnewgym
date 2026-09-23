@@ -161,6 +161,7 @@ class MemberIntelligenceViewModel(
         code == "BG220" || id == "6" -> ThemeId.VIBRANT_GRADIENT
         code == "BG330" || id == "7" -> ThemeId.BEAST_MODE
         code == "BG502" || id == "8" -> ThemeId.PURPLE_ROYAL
+        code == "BG901" || id == "9" -> ThemeId.MINIMAL_DARK
         else -> ThemeId.NATURAL_FRESH
     }
 

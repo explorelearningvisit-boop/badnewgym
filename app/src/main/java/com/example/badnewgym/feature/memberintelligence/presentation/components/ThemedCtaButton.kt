@@ -25,9 +25,11 @@ import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 fun ThemedCtaButton(
     theme: ThemeId,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    label: String? = null
 ) {
     val colors = BADGymTheme.colors
+    val displayText = label ?: "${theme.ctaText} →"
 
     Box(
         modifier = modifier
@@ -64,9 +66,9 @@ fun ThemedCtaButton(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "${theme.ctaText} →",
+                text = displayText,
                 color = if (theme == ThemeId.PREMIUM_3D) Color(0xFF1C1304) else Color.White,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.4.sp
             )

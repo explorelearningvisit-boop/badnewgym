@@ -15,6 +15,9 @@ object VariantDebugBridge {
 
     @Volatile
     var onCloseDetail: (() -> Unit)? = null
+
+    @Volatile
+    var onOpenDetail: ((Int?) -> Unit)? = null
 }
 
 class VariantDebugReceiver : BroadcastReceiver() {
@@ -24,12 +27,17 @@ class VariantDebugReceiver : BroadcastReceiver() {
             VariantDebugBridge.onCloseDetail?.invoke()
         }
 
+        val openDetail = intent.getBooleanExtra("openDetail", false)
         val variantName = intent.getStringExtra("variant")
         val menuName = intent.getStringExtra("menu")
         val memberIndex = intent.getIntExtra("memberIndex", -1)
 
         if (memberIndex >= 0) {
             VariantDebugBridge.onMemberIndex?.invoke(memberIndex)
+        }
+
+        if (openDetail) {
+            VariantDebugBridge.onOpenDetail?.invoke(if (memberIndex >= 0) memberIndex else null)
         }
 
         val variant = variantName?.let { runCatching { ThemeId.valueOf(it) }.getOrNull() }

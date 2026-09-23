@@ -71,6 +71,9 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
         VariantDebugBridge.onCloseDetail = {
             viewModel.closeMemberDetail()
         }
+        VariantDebugBridge.onOpenDetail = { index ->
+            viewModel.openMemberDetail(index)
+        }
         val receiver = VariantDebugReceiver()
         ContextCompat.registerReceiver(
             context,
@@ -82,6 +85,7 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             VariantDebugBridge.onCommand = null
             VariantDebugBridge.onMemberIndex = null
             VariantDebugBridge.onCloseDetail = null
+            VariantDebugBridge.onOpenDetail = null
             runCatching { context.unregisterReceiver(receiver) }
         }
     }
@@ -122,18 +126,20 @@ private fun BrowseMemberIntelligenceSurface(
     theme: ThemeId,
     viewModel: MemberIntelligenceViewModel
 ) {
+    // Keep global dashboard styling stable; theme/tier/state styling is local to member card
+    val dashboardTheme = ThemeId.MINIMAL_DARK
     BADGymTheme(
-        colors = theme.colors(),
-        shapes = theme.shapes(),
-        motion = theme.motion(),
-        elevation = theme.elevation()
+        colors = dashboardTheme.colors(),
+        shapes = dashboardTheme.shapes(),
+        motion = dashboardTheme.motion(),
+        elevation = dashboardTheme.elevation()
     ) {
         val colors = BADGymTheme.colors
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colors.background)
+                .background(Color(0xFF0C1017))
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {

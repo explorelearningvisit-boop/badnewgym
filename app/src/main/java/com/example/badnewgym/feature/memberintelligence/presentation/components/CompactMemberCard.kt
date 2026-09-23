@@ -39,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +66,10 @@ import com.example.badnewgym.feature.memberintelligence.design.dimensions.Compac
 import com.example.badnewgym.feature.memberintelligence.design.dimensions.rememberCompactCardDimensions
 import com.example.badnewgym.feature.memberintelligence.design.elevation
 import com.example.badnewgym.feature.memberintelligence.design.motion
+import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberSemanticResolver
+import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberSemanticStyle
+import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberStateVisual
+import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberTierVisual
 import com.example.badnewgym.feature.memberintelligence.design.shapes
 import com.example.badnewgym.feature.memberintelligence.domain.model.*
 import java.text.NumberFormat
@@ -111,6 +116,10 @@ fun CompactMemberCard(
                 theme == ThemeId.MINIMAL_DARK ||
                 theme == ThemeId.PREMIUM_3D
 
+        val semantics = remember(snapshot, currentEvent, theme) {
+            MemberSemanticResolver.resolve(snapshot, currentEvent, theme)
+        }
+
         val cardElevation = if (isSelected) 6.dp else 2.dp
 
         val currentCardWidth by animateDpAsState(
@@ -124,6 +133,17 @@ fun CompactMemberCard(
             label = "compact-card-height"
         )
 
+        val borderColor = when {
+            semantics.isUrgent -> semantics.prominentBorderColor
+            isSelected -> colors.accent
+            else -> colors.border.copy(alpha = if (isDark) 0.85f else 0.65f)
+        }
+        val borderWidth = when {
+            semantics.isUrgent -> 1.8.dp
+            isSelected -> 1.5.dp
+            else -> dimensions.strokeWidth
+        }
+
         Box(
             modifier = modifier
                 .width(currentCardWidth)
@@ -132,8 +152,8 @@ fun CompactMemberCard(
                 .clip(RoundedCornerShape(dimensions.cornerRadius))
                 .background(colors.surface)
                 .border(
-                    width = if (isSelected) 1.5.dp else dimensions.strokeWidth,
-                    color = if (isSelected) colors.accent else colors.border.copy(alpha = if (isDark) 0.85f else 0.65f),
+                    width = borderWidth,
+                    color = borderColor,
                     shape = RoundedCornerShape(dimensions.cornerRadius)
                 )
                 .then(
@@ -182,9 +202,12 @@ fun CompactMemberCard(
                 ) {
                     // Integrated Navigation Rail on the Left
                     BoundedDetailRail(
+                        snapshot = snapshot,
+                        primarySignal = primarySignal,
                         menus = menus,
                         activeMenu = activeMenu,
                         onMenuSelected = onMenuSelected,
+                        onCloseRail = onCloseDetail,
                         railWidth = dimensions.railWidth,
                         modifier = Modifier.fillMaxHeight()
                     )
@@ -208,6 +231,7 @@ fun CompactMemberCard(
                             snapshot = snapshot,
                             currentEvent = currentEvent,
                             theme = theme,
+                            semantics = semantics,
                             onClose = onCloseDetail
                         )
 
@@ -222,8 +246,8 @@ fun CompactMemberCard(
                             AnimatedContent(
                                 targetState = activeMenu,
                                 transitionSpec = {
-                                    slideInHorizontally(tween(180)) + fadeIn(tween(180)) togetherWith
-                                        slideOutHorizontally(tween(140)) + fadeOut(tween(120))
+                                    (slideInHorizontally(tween(200)) + fadeIn(tween(200))) togetherWith
+                                        (slideOutHorizontally(tween(160)) + fadeOut(tween(160)))
                                 },
                                 label = "bounded-detail-menu-content"
                             ) { menu ->
@@ -240,6 +264,7 @@ fun CompactMemberCard(
                                             secondarySignals = secondarySignals,
                                             cta = cta,
                                             theme = theme,
+                                            semantics = semantics,
                                             onCta = onCtaClick
                                         )
                                         MenuType.ATTENDANCE -> AttendancePanel(snapshot, theme)
@@ -291,18 +316,21 @@ fun CompactMemberCard(
                     // Section 1: Event + Time Header
                     CompactEventHeader(event = currentEvent, theme = theme)
 
-                    // Section 2: Hero Identity (Portrait + Name + Code + Motto)
+                    // Section 2: Hero Identity (Portrait + Name + Code + Motto + Tier Badge)
                     CompactHeroIdentity(
                         identity = snapshot.identity,
                         theme = theme,
                         portraitWidth = dimensions.portraitWidth,
-                        portraitHeight = dimensions.portraitHeight
+                        portraitHeight = dimensions.portraitHeight,
+                        semantics = semantics
                     )
 
                     // Section 3: Membership Tier & Status Dual Bands
                     CompactMembershipBands(
                         membership = snapshot.membership,
-                        theme = theme
+                        theme = theme,
+                        semantics = semantics,
+                        payment = snapshot.payment
                     )
 
                     // Section 4: Compact Decision Metrics (Attendance, Payment, Workouts)
@@ -313,22 +341,33 @@ fun CompactMemberCard(
                         theme = theme
                     )
 
-                    // Section 5: Urgent/Actionable Signal banner (if present)
-                    val signalText: String? = primarySignal?.title
-                        ?: secondarySignals.firstOrNull()?.title
-                        ?: snapshot.issues.firstOrNull()?.description
+                    // Section 5: Urgent/Actionable Signal banner
+                    val signalText: String? = if (semantics.isUrgent && semantics.urgentMessage != null) {
+                        semantics.urgentMessage
+                    } else {
+                        primarySignal?.title
+                            ?: secondarySignals.firstOrNull()?.title
+                            ?: snapshot.issues.firstOrNull()?.description
+                    }
 
-                    val isCritical: Boolean = primarySignal?.priority == SignalPriority.P0_CRITICAL ||
-                            snapshot.issues.firstOrNull()?.let {
-                                it.severity == IssueSeverity.HIGH || it.severity == IssueSeverity.CRITICAL
-                            } == true
-
-                    CompactSignalBanner(text = signalText, isCritical = isCritical)
+                    CompactSignalBanner(
+                        text = signalText,
+                        isCritical = semantics.isUrgent,
+                        semantics = semantics
+                    )
 
                     // Section 6: Contextual Primary CTA Button
+                    val ctaLabel = when (semantics.stateVisual) {
+                        MemberStateVisual.EXPIRED -> "Renew Plan Now →"
+                        MemberStateVisual.PAYMENT_OVERDUE, MemberStateVisual.PAYMENT_DUE -> "Collect Payment →"
+                        MemberStateVisual.TRAINER_ACTIVE -> "Coach Check-in →"
+                        else -> null
+                    }
+
                     ThemedCtaButton(
                         theme = theme,
                         onClick = onCtaClick,
+                        label = ctaLabel,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(dimensions.ctaHeight)
@@ -413,7 +452,8 @@ private fun CompactHeroIdentity(
     identity: MemberIdentity,
     theme: ThemeId,
     portraitWidth: Dp,
-    portraitHeight: Dp
+    portraitHeight: Dp,
+    semantics: MemberSemanticStyle
 ) {
     val colors = BADGymTheme.colors
 
@@ -432,8 +472,34 @@ private fun CompactHeroIdentity(
 
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
+            // Tier Badge Chip
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(semantics.tierBgColor)
+                    .border(0.8.dp, semantics.tierBorderColor, RoundedCornerShape(6.dp))
+                    .padding(horizontal = 5.dp, vertical = 1.5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Icon(
+                    imageVector = semantics.tierIcon,
+                    contentDescription = null,
+                    tint = semantics.tierAccentColor,
+                    modifier = Modifier.size(9.dp)
+                )
+                Text(
+                    text = semantics.tierLabel,
+                    color = semantics.tierAccentColor,
+                    fontSize = 7.5.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.3.sp
+                )
+            }
+
+            // Name + Verified Badge
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -441,7 +507,7 @@ private fun CompactHeroIdentity(
                 Text(
                     text = identity.name,
                     color = colors.textPrimary,
-                    fontSize = 14.5.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = (-0.3).sp,
                     maxLines = 1,
@@ -453,7 +519,7 @@ private fun CompactHeroIdentity(
                         Icons.Rounded.CheckCircle,
                         contentDescription = "Verified",
                         tint = Color(0xFF38BDF8),
-                        modifier = Modifier.size(13.dp)
+                        modifier = Modifier.size(12.dp)
                     )
                 }
             }
@@ -461,19 +527,17 @@ private fun CompactHeroIdentity(
             Text(
                 text = identity.code ?: "BG---",
                 color = colors.textSecondary,
-                fontSize = 9.5.sp,
+                fontSize = 9.sp,
                 fontWeight = FontWeight.SemiBold
             )
-
-            Spacer(Modifier.height(1.dp))
 
             Text(
                 text = theme.motto,
                 color = colors.mottoColor,
-                fontSize = 9.5.sp,
+                fontSize = 8.5.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = if (theme == ThemeId.NATURAL_FRESH || theme == ThemeId.GLASSMORPHISM || theme == ThemeId.PURPLE_ROYAL || theme == ThemeId.PREMIUM_3D) FontStyle.Italic else FontStyle.Normal,
-                lineHeight = 12.sp,
+                lineHeight = 11.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -484,105 +548,94 @@ private fun CompactHeroIdentity(
 @Composable
 private fun CompactMembershipBands(
     membership: MembershipStatus?,
-    theme: ThemeId
+    theme: ThemeId,
+    semantics: MemberSemanticStyle,
+    payment: PaymentSummary? = null
 ) {
     val colors = BADGymTheme.colors
     val planName = membership?.planName ?: "Gold Plan"
     val daysRemaining = membership?.daysRemaining ?: 48
-    val isActive = membership?.isActive ?: true
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Plan Band
-        val goldBg = when (theme) {
-            ThemeId.PREMIUM_3D -> Color(0xFF2A200B)
-            ThemeId.NATURAL_FRESH -> Color(0xFFFEF9C3)
-            ThemeId.MINIMAL_DARK -> Color(0xFF1E232B)
-            else -> colors.surfaceMuted
-        }
-        val goldBorder = when (theme) {
-            ThemeId.PREMIUM_3D -> Color(0xFFD4AF37)
-            ThemeId.NATURAL_FRESH -> Color(0xFFFDE047)
-            else -> colors.border
-        }
-        val goldText = when (theme) {
-            ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
-            ThemeId.NATURAL_FRESH -> Color(0xFF854D0E)
-            else -> colors.textPrimary
-        }
-        val goldIcon = when (theme) {
-            ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
-            ThemeId.NATURAL_FRESH -> Color(0xFFCA8A04)
-            else -> colors.accent
-        }
-
         Row(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(8.dp))
-                .background(goldBg)
-                .border(0.8.dp, goldBorder, RoundedCornerShape(8.dp))
+                .background(semantics.tierBgColor)
+                .border(0.8.dp, semantics.tierBorderColor, RoundedCornerShape(8.dp))
                 .padding(horizontal = 6.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                Icons.Rounded.WorkspacePremium,
+                imageVector = semantics.tierIcon,
                 contentDescription = null,
-                tint = goldIcon,
+                tint = semantics.tierAccentColor,
                 modifier = Modifier.size(13.dp)
             )
             Spacer(Modifier.width(4.dp))
             Column {
                 Text(
                     text = planName,
-                    color = goldText,
-                    fontSize = 9.5.sp,
+                    color = semantics.tierAccentColor,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = "${membership?.planType ?: "12M"}",
-                    color = goldText.copy(alpha = 0.8f),
+                    color = semantics.tierAccentColor.copy(alpha = 0.8f),
                     fontSize = 7.5.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
         }
 
-        // Active Status Band
-        val activeBg = if (isActive) colors.successSoft.copy(alpha = 0.95f) else colors.dangerSoft.copy(alpha = 0.95f)
-        val activeBorder = if (isActive) colors.success.copy(alpha = 0.5f) else colors.danger.copy(alpha = 0.5f)
-        val activeTint = if (isActive) colors.success else colors.danger
+        // Active Status Band (Urgent state overrides default styling)
+        val statusSubtext = when (semantics.stateVisual) {
+            MemberStateVisual.EXPIRED -> "0d left • Renew"
+            MemberStateVisual.PAYMENT_OVERDUE -> "${payment?.overdueDays ?: 3}d overdue"
+            MemberStateVisual.PAYMENT_DUE -> "Due Soon"
+            MemberStateVisual.TRAINER_ACTIVE -> "Active Coach"
+            MemberStateVisual.CRITICAL_ALERT -> "Action Needed"
+            MemberStateVisual.FROZEN -> "On Pause"
+            else -> "$daysRemaining d left"
+        }
 
         Row(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(8.dp))
-                .background(activeBg)
-                .border(0.8.dp, activeBorder, RoundedCornerShape(8.dp))
+                .background(semantics.stateBgColor)
+                .border(
+                    width = if (semantics.isUrgent) 1.2.dp else 0.8.dp,
+                    color = semantics.stateBorderColor,
+                    shape = RoundedCornerShape(8.dp)
+                )
                 .padding(horizontal = 6.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                Icons.Rounded.CheckCircle,
+                imageVector = semantics.stateIcon,
                 contentDescription = null,
-                tint = activeTint,
+                tint = semantics.stateAccentColor,
                 modifier = Modifier.size(13.dp)
             )
             Spacer(Modifier.width(4.dp))
             Column {
                 Text(
-                    text = if (isActive) "ACTIVE" else "EXPIRED",
-                    color = activeTint,
-                    fontSize = 9.5.sp,
+                    text = semantics.stateLabel,
+                    color = semantics.stateAccentColor,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "$daysRemaining d left",
-                    color = activeTint.copy(alpha = 0.85f),
+                    text = statusSubtext,
+                    color = semantics.stateAccentColor.copy(alpha = 0.85f),
                     fontSize = 7.5.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -763,36 +816,71 @@ private fun CompactMetricTile(
 @Composable
 private fun CompactSignalBanner(
     text: String?,
-    isCritical: Boolean
+    isCritical: Boolean,
+    semantics: MemberSemanticStyle? = null
 ) {
     if (text.isNullOrBlank()) {
         Spacer(Modifier.height(2.dp))
         return
     }
 
+    val bannerBg = if (semantics != null && semantics.isUrgent) {
+        semantics.stateAccentColor.copy(alpha = 0.14f)
+    } else if (isCritical) {
+        Color(0xFFFEF2F2)
+    } else {
+        Color(0xFFFFFBEB)
+    }
+
+    val bannerBorder = if (semantics != null && semantics.isUrgent) {
+        semantics.stateAccentColor.copy(alpha = 0.45f)
+    } else if (isCritical) {
+        Color(0xFFFCA5A5)
+    } else {
+        Color(0xFFFDE68A)
+    }
+
+    val iconTint = if (semantics != null && semantics.isUrgent) {
+        semantics.stateAccentColor
+    } else if (isCritical) {
+        Color(0xFFDC2626)
+    } else {
+        Color(0xFFD97706)
+    }
+
+    val textColor = if (semantics != null && semantics.isUrgent) {
+        semantics.stateAccentColor
+    } else if (isCritical) {
+        Color(0xFF991B1B)
+    } else {
+        Color(0xFF92400E)
+    }
+
+    val icon = semantics?.stateIcon ?: Icons.Rounded.WarningAmber
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.dp))
-            .background(if (isCritical) Color(0xFFFEF2F2) else Color(0xFFFFFBEB))
+            .background(bannerBg)
             .border(
                 0.8.dp,
-                if (isCritical) Color(0xFFFCA5A5) else Color(0xFFFDE68A),
+                bannerBorder,
                 RoundedCornerShape(6.dp)
             )
             .padding(horizontal = 6.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            Icons.Rounded.WarningAmber,
+            imageVector = icon,
             contentDescription = null,
-            tint = if (isCritical) Color(0xFFDC2626) else Color(0xFFD97706),
+            tint = iconTint,
             modifier = Modifier.size(11.dp)
         )
         Spacer(Modifier.width(4.dp))
         Text(
             text = text,
-            color = if (isCritical) Color(0xFF991B1B) else Color(0xFF92400E),
+            color = textColor,
             fontSize = 8.5.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
@@ -805,12 +893,17 @@ private fun CompactSignalBanner(
 /**
  * Integrated navigation rail for the bounded detail state.
  * Fixed to the left edge of the card, with accessible >=48dp touch targets.
+ * Displays truthful micro-data tags from MemberSnapshot, collapse affordance,
+ * and prominent action-needed alert indicators for critical menus.
  */
 @Composable
 private fun BoundedDetailRail(
+    snapshot: MemberSnapshot,
+    primarySignal: IntelligenceSignal?,
     menus: List<MemberMenu>,
     activeMenu: MenuType,
     onMenuSelected: (MenuType) -> Unit,
+    onCloseRail: () -> Unit,
     railWidth: Dp,
     modifier: Modifier = Modifier
 ) {
@@ -822,7 +915,7 @@ private fun BoundedDetailRail(
             MemberMenu(MenuType.HOME, "Home", 0, isVisible = true, isEnabled = true, isLocked = false),
             MemberMenu(MenuType.ATTENDANCE, "Attend", 10, isVisible = true, isEnabled = true, isLocked = false),
             MemberMenu(MenuType.PLAN, "Plan", 20, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.PAYMENT, "Pay", 30, isVisible = true, isEnabled = true, isLocked = false, hasAlert = true),
+            MemberMenu(MenuType.PAYMENT, "Pay", 30, isVisible = true, isEnabled = true, isLocked = false),
             MemberMenu(MenuType.TRAINER, "Coach", 40, isVisible = true, isEnabled = true, isLocked = false),
             MemberMenu(MenuType.WORKOUT, "Workout", 50, isVisible = true, isEnabled = true, isLocked = false),
             MemberMenu(MenuType.INSIGHT, "Insight", 60, isVisible = true, isEnabled = true, isLocked = false)
@@ -839,72 +932,159 @@ private fun BoundedDetailRail(
                 color = colors.border.copy(alpha = 0.4f),
                 shape = RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp)
             )
-            .padding(vertical = 6.dp, horizontal = 2.dp)
+            .padding(vertical = 4.dp, horizontal = 2.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
+        // Collapse affordance at top of rail
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(colors.surfaceMuted)
+                .border(0.6.dp, colors.border.copy(alpha = 0.5f), CircleShape)
+                .clickable(
+                    role = Role.Button,
+                    onClickLabel = "Collapse detail rail",
+                    onClick = onCloseRail
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                contentDescription = "Collapse detail",
+                tint = colors.textPrimary,
+                modifier = Modifier.size(13.dp)
+            )
+        }
+
+        Spacer(Modifier.height(1.dp))
+
         visibleMenus.forEach { menu ->
             val isActive = activeMenu == menu.id
+            val isActionNeeded = when (menu.id) {
+                MenuType.PAYMENT -> (snapshot.payment?.totalOutstanding ?: 0.0) > 0 ||
+                        (snapshot.payment?.overdueDays ?: 0) > 0 ||
+                        snapshot.payment?.lifecycle == PaymentLifecycle.OVERDUE ||
+                        snapshot.payment?.lifecycle == PaymentLifecycle.DUE
+                MenuType.PLAN -> snapshot.membership?.lifecycle == MembershipLifecycle.EXPIRED ||
+                        (snapshot.membership?.daysRemaining ?: 1) <= 0 ||
+                        snapshot.membership?.isActive == false
+                MenuType.INSIGHT -> primarySignal?.priority == SignalPriority.P0_CRITICAL ||
+                        snapshot.issues.any { it.severity == IssueSeverity.CRITICAL }
+                else -> menu.hasAlert
+            }
+
+            val microData = getRailMicroData(menu.id, snapshot)
+
             val bg by animateColorAsState(
                 if (isActive) colors.railActiveBackground else Color.Transparent,
                 tween(180),
                 label = "bounded-rail-bg"
             )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp) // Minimum 48dp accessibility touch target
-                    .clip(RoundedCornerShape(10.dp))
+                    .heightIn(min = 48.dp) // Minimum 48dp accessibility touch target
+                    .clip(RoundedCornerShape(8.dp))
                     .clickable(
                         role = Role.Tab,
                         onClickLabel = "Select ${menu.label}"
-                    ) { onMenuSelected(menu.id) },
+                    ) { onMenuSelected(menu.id) }
+                    .padding(vertical = 2.dp, horizontal = 1.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Box(
                     modifier = Modifier
-                        .size(if (isActive) 30.dp else 26.dp)
-                        .clip(RoundedCornerShape(8.dp))
+                        .size(if (isActive) 28.dp else 24.dp)
+                        .clip(RoundedCornerShape(7.dp))
                         .background(bg)
                         .then(
-                            if (isActive) Modifier.border(
-                                1.dp,
-                                colors.border.copy(alpha = 0.6f),
-                                RoundedCornerShape(8.dp)
-                            ) else Modifier
+                            if (isActionNeeded) {
+                                Modifier.border(
+                                    1.2.dp,
+                                    Color(0xFFEF4444),
+                                    RoundedCornerShape(7.dp)
+                                )
+                            } else if (isActive) {
+                                Modifier.border(
+                                    1.dp,
+                                    colors.border.copy(alpha = 0.6f),
+                                    RoundedCornerShape(7.dp)
+                                )
+                            } else {
+                                Modifier
+                            }
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = getRailIcon(menu.id),
                         contentDescription = menu.label,
-                        tint = if (isActive) colors.railActiveIcon else colors.railInactiveIcon,
-                        modifier = Modifier.size(if (isActive) 16.dp else 14.dp)
+                        tint = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.railActiveIcon else colors.railInactiveIcon,
+                        modifier = Modifier.size(if (isActive) 15.dp else 13.dp)
                     )
-                    if (menu.hasAlert || menu.badgeCount > 0) {
+                    if (isActionNeeded || menu.hasAlert || menu.badgeCount > 0) {
                         Box(
                             Modifier
                                 .align(Alignment.TopEnd)
-                                .offset(x = (-1).dp, y = 1.dp)
+                                .offset(x = 1.dp, y = (-1).dp)
                                 .size(6.dp)
                                 .clip(CircleShape)
-                                .background(colors.danger)
+                                .background(Color(0xFFEF4444))
                         )
                     }
                 }
+
                 Spacer(Modifier.height(1.dp))
+
                 Text(
                     text = menu.label,
-                    color = if (isActive) colors.textPrimary else colors.textMuted,
-                    fontSize = 7.sp,
+                    color = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.textPrimary else colors.textMuted,
+                    fontSize = 6.8.sp,
                     fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Medium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                if (microData.isNotBlank()) {
+                    Text(
+                        text = microData,
+                        color = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.accent else colors.textSecondary,
+                        fontSize = 6.2.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
+    }
+}
+
+private fun getRailMicroData(menuType: MenuType, snapshot: MemberSnapshot): String {
+    return when (menuType) {
+        MenuType.HOME -> ""
+        MenuType.ATTENDANCE -> snapshot.attendance?.let { "${it.visits}/${it.target ?: 26}" } ?: ""
+        MenuType.PLAN -> snapshot.membership?.let { "${it.daysRemaining}d" } ?: ""
+        MenuType.PAYMENT -> {
+            val due = snapshot.payment?.totalOutstanding ?: 0.0
+            if (due > 0) {
+                if (due >= 1000) "₹${(due / 1000).toInt()}k!" else "₹${due.toInt()}!"
+            } else {
+                "Paid"
+            }
+        }
+        MenuType.TRAINER -> snapshot.trainer?.let { "${it.sessionsTotal - it.sessionsUsed} PT" } ?: ""
+        MenuType.WORKOUT -> snapshot.attendance?.avgVisitsPerWeek?.let { "${it.toInt()}/wk" } ?: "3/wk"
+        MenuType.SUPPLEMENTS -> if (snapshot.supplements?.hasHistory == true) "Active" else "Off"
+        MenuType.NUTRITION -> if (snapshot.nutrition?.isSubscribed == true) "On" else "Off"
+        MenuType.SERVICES -> snapshot.services?.let { "${it.count { s -> s.isActive }} act" } ?: ""
+        MenuType.HISTORY -> "${snapshot.recentEvents.size} ev"
+        MenuType.INSIGHT -> if (snapshot.issues.isNotEmpty()) "${snapshot.issues.size} act" else "AI"
     }
 }
 
@@ -932,6 +1112,7 @@ private fun PersistentDetailHeader(
     snapshot: MemberSnapshot,
     currentEvent: MemberEvent?,
     theme: ThemeId,
+    semantics: MemberSemanticStyle,
     onClose: () -> Unit
 ) {
     val colors = BADGymTheme.colors
@@ -1023,8 +1204,8 @@ private fun PersistentDetailHeader(
             MemberPhoto(
                 photoUrl = snapshot.identity.photoUrl,
                 tier = snapshot.identity.tier,
-                width = 38.dp,
-                height = 44.dp,
+                width = 46.dp,
+                height = 52.dp,
                 showVerified = snapshot.identity.isVerified
             )
 
@@ -1082,7 +1263,9 @@ private fun PersistentDetailHeader(
         // Row 3: Compact Membership Tier & Status
         CompactMembershipBands(
             membership = snapshot.membership,
-            theme = theme
+            theme = theme,
+            semantics = semantics,
+            payment = snapshot.payment
         )
 
         // Subtle divider separating persistent header from menu panel
@@ -1107,6 +1290,7 @@ private fun HomeBoundedContent(
     secondarySignals: List<IntelligenceSignal>,
     cta: SignalAction?,
     theme: ThemeId,
+    semantics: MemberSemanticStyle,
     onCta: () -> Unit
 ) {
     val colors = BADGymTheme.colors
@@ -1124,16 +1308,20 @@ private fun HomeBoundedContent(
         )
 
         // Actionable signal banner
-        val signalText: String? = primarySignal?.title
-            ?: secondarySignals.firstOrNull()?.title
-            ?: snapshot.issues.firstOrNull()?.description
+        val signalText: String? = if (semantics.isUrgent && semantics.urgentMessage != null) {
+            semantics.urgentMessage
+        } else {
+            primarySignal?.title
+                ?: secondarySignals.firstOrNull()?.title
+                ?: snapshot.issues.firstOrNull()?.description
+        }
 
-        val isCritical: Boolean = primarySignal?.priority == SignalPriority.P0_CRITICAL ||
+        val isCritical: Boolean = semantics.isUrgent || primarySignal?.priority == SignalPriority.P0_CRITICAL ||
                 snapshot.issues.firstOrNull()?.let {
                     it.severity == IssueSeverity.HIGH || it.severity == IssueSeverity.CRITICAL
                 } == true
 
-        CompactSignalBanner(text = signalText, isCritical = isCritical)
+        CompactSignalBanner(text = signalText, isCritical = isCritical, semantics = semantics)
 
         // Trainer / Routine Quick Row
         Box(
@@ -1169,8 +1357,16 @@ private fun HomeBoundedContent(
         }
 
         // Contextual CTA Button
+        val ctaLabel = when (semantics.stateVisual) {
+            MemberStateVisual.PAYMENT_OVERDUE, MemberStateVisual.PAYMENT_DUE -> "Collect Payment →"
+            MemberStateVisual.EXPIRED -> "Renew Plan Now →"
+            MemberStateVisual.CRITICAL_ALERT -> "Review Alert →"
+            else -> cta?.label ?: "Open Full Profile"
+        }
+
         ThemedCtaButton(
             theme = theme,
+            label = ctaLabel,
             onClick = onCta,
             modifier = Modifier
                 .fillMaxWidth()
