@@ -348,3 +348,128 @@ private fun StatItem(label: String, value: String, color: Color) {
         Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 10.sp)
     }
 }
+
+
+/* =========================================================
+   SUPPLEMENTS PANEL
+   ========================================================= */
+@Composable
+fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+    val colors = BADGymTheme.colors
+    val item = snapshot.supplements
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("Supplements", theme)
+        if (item == null || !item.hasHistory) {
+            InfoCard(theme) {
+                Text(
+                    "No supplement purchase history.",
+                    color = colors.textSecondary,
+                    fontSize = 12.sp
+                )
+            }
+        } else {
+            InfoCard(theme) {
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text(
+                        item.lastPurchaseName ?: "Last supplement",
+                        color = colors.textPrimary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                    item.brand?.let {
+                        Text(it, color = colors.textSecondary, fontSize = 11.sp)
+                    }
+                    item.lastPurchasePrice?.let {
+                        Text("₹" + it.toInt(), color = colors.accent, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                    }
+                    Text(
+                        "Purchase history is available from the Supplements menu.",
+                        color = colors.textSecondary,
+                        fontSize = 10.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+/* =========================================================
+   NUTRITION PANEL
+   ========================================================= */
+@Composable
+fun NutritionPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+    val colors = BADGymTheme.colors
+    val item = snapshot.nutrition
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("Nutrition", theme)
+        InfoCard(theme) {
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text(
+                    if (item?.isSubscribed == true) "ACTIVE SUBSCRIPTION" else "NOT SUBSCRIBED",
+                    color = if (item?.isSubscribed == true) colors.success else colors.textSecondary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
+                item?.planName?.let {
+                    Text(it, color = colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                }
+                item?.monthlyPrice?.let {
+                    Text("₹" + it.toInt() + " / month", color = colors.textSecondary, fontSize = 11.sp)
+                }
+            }
+        }
+    }
+}
+
+/* =========================================================
+   HISTORY PANEL
+   ========================================================= */
+@Composable
+fun HistoryPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+    val colors = BADGymTheme.colors
+    val events = snapshot.recentEvents
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("Member History", theme)
+
+        if (events.isEmpty()) {
+            InfoCard(theme) {
+                Text("No recent events recorded.", color = colors.textSecondary, fontSize = 12.sp)
+            }
+        } else {
+            events.sortedByDescending { it.occurredAt }.take(12).forEach { event ->
+                InfoCard(theme) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                event.eventType.displayLabel(),
+                                color = colors.textPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp
+                            )
+                            Text(
+                                event.source.name,
+                                color = colors.textSecondary,
+                                fontSize = 9.sp
+                            )
+                        }
+                        Text(
+                            java.text.SimpleDateFormat(
+                                "dd MMM • h:mm a",
+                                java.util.Locale.getDefault()
+                            ).format(java.util.Date(event.occurredAt)),
+                            color = colors.textSecondary,
+                            fontSize = 9.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
