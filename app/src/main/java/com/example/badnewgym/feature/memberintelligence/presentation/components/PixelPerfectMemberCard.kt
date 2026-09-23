@@ -98,10 +98,11 @@ fun PixelPerfectMemberCard(
                         )
                     )
                 )
-                .padding(8.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // 1. Top Theme Selector Strip
@@ -151,7 +152,7 @@ fun PixelPerfectMemberCard(
                         theme = theme,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f),
+                            .aspectRatio(0.70f),
                         onMenuSelected = onMenuSelected,
                         onCta = onCta
                     )
@@ -222,9 +223,17 @@ private fun CardBody(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border.copy(alpha = 0.6f), RoundedCornerShape(24.dp))
+            .background(Color.Transparent)
+            .border(
+                1.dp,
+                colors.border.copy(alpha = if (theme == ThemeId.FUTURISTIC_NEON || theme == ThemeId.BEAST_MODE || theme == ThemeId.PURPLE_ROYAL) .92f else .72f),
+                RoundedCornerShape(24.dp)
+            )
     ) {
+        ThemeOrnamentLayer(
+            theme = theme,
+            modifier = Modifier.matchParentSize()
+        )
         Row(modifier = Modifier.fillMaxSize()) {
             // Left: 54dp Navigation Rail
             IntelligenceRail(
@@ -240,11 +249,14 @@ private fun CardBody(
                     .weight(1f)
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = 11.dp, vertical = 9.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 // Header (BAD GYM Branding + Slogan)
                 CardHeader(theme = theme)
+
+                // Current event + exact time
+                currentEvent?.let { EventHeader(event = it, theme = theme) }
 
                 // Hero Member Info (Verified, ID, Motto, Photo)
                 HeroMemberSection(
