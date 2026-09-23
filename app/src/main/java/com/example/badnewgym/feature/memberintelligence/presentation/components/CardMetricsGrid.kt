@@ -53,7 +53,7 @@ fun CardMetricsGrid(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Attendance",
+                        text = attendance?.periodName?.let { "Attendance • " + it } ?: "Attendance",
                         color = colors.textSecondary,
                         fontSize = 8.5.sp,
                         fontWeight = FontWeight.Medium
