@@ -2,34 +2,36 @@
 
 STATUS: READY_FOR_EXECUTION
 LAST_AGENT: ChatGPT
-LAST_COMMIT: 08e0981eb3a6f402b59a3efae82df6d9ffad2f8e
+LAST_COMMIT: 250e0b76df291b24b08ae6bb0b29a82a8eae6f04
 
 ## Current task
+MI-V5-STAGE-01-VISUAL-FOUNDATION
 
-MI-V5-MASTER-VISUAL-RECONSTRUCTION-01
+## Roadmap
+docs/reference/MI_V5_PRODUCTION_ROADMAP.md
 
 ## Authoritative design documents
-
 - docs/reference/MASTER_UI_UX_RECONSTRUCTION_PROMPT.md
 - docs/reference/MEMBER_INTELLIGENCE_8_THEME_SPEC.md
 - docs/reference/NATURAL_FRESH_VISUAL_SPEC.md
 
-## User reference
+## Stage gate
+This is Stage 1 only. Do not claim the complete MI-V5 roadmap is finished.
 
-The current user message contains the eight-theme BAD GYM Member Intelligence reference board. The repository currently contains the Natural Fresh textual specification and prior device output; the new eight-theme board itself is not yet stored as a binary repository asset through the GitHub text-file connector.
+## Reference limitation
+The eight-theme board is supplied in the current user conversation. The repository does not currently contain that board as a binary reference asset. Do not claim exact pixel/image-diff verification against it unless it is made available to the local agent. Use the detailed theme specification and available repository references; document this limitation.
 
-Antigravity MUST NOT claim exact image-diff completion against an unavailable local reference image. It should use the detailed eight-theme specification and available repository references, and report any missing reference asset as a blocker if exact visual comparison cannot be performed.
+## Required Stage 1 evidence
+- architecture inspection
+- forensic geometry specification
+- asset inventory/manifest
+- shared shell/token foundation
+- DEBUG runtime identity
+- build
+- device/emulator run
+- screenshot
+- STATUS update
+- commit/push
 
-## Required verification
-
-- local Android build
-- real device/emulator install/run
-- DEBUG runtime identity with MI-V5 + short Git SHA
-- screenshot capture
-- visual comparison
-- 360dp / 375dp / 390dp / 412dp responsive verification
-- all eight theme states checked
-- STATUS.md updated with evidence
-- commit pushed to member-intelligence-v3
-
-Do not mark COMPLETED on compile success alone.
+## Next stage
+After Stage 1 is genuinely verified, ChatGPT will inspect the handoff and issue Stage 2. Do not self-declare the whole roadmap complete.
