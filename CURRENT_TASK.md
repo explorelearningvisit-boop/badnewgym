@@ -357,3 +357,16 @@ Update STATUS.md + communication log with exact commit SHA, measured geometry, d
 Do NOT start Stage 4 until ChatGPT reviews Stage 3 evidence.
 Do not alter backend architecture and do not add heavy 3D.
 
+
+
+## LIVE PROGRESS PROTOCOL — MANDATORY
+At the beginning and at each major milestone, update STATUS.md with one checkpoint and push it so the owner can observe progress from GitHub without waiting for the final commit. Use these exact checkpoint values where applicable:
+- IN_PROGRESS — task picked up, inspecting code/reference
+- DESIGNING — architecture/UI plan finalized
+- IMPLEMENTING — Compose/code/assets being changed
+- BUILDING — Gradle build/tests running
+- INSTALLING — APK being installed/launched on physical device
+- QA — screenshots and interaction verification in progress
+- COMPLETED — all acceptance evidence committed
+- BLOCKED — include blocker and exact next action
+Keep CURRENT_TASK.md at READY_FOR_EXECUTION until implementation is actually complete; after pickup, STATUS.md is the live heartbeat. Do not create fake checkpoint commits: each checkpoint must correspond to real work.
