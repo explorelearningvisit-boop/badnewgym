@@ -1,5 +1,6 @@
 package com.example.badnewgym.feature.memberintelligence.presentation.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -16,9 +17,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.badnewgym.R
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 
@@ -64,25 +68,39 @@ fun CardHeader(
 
         Spacer(Modifier.width(7.dp))
 
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                "BAD GYM",
-                color = when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
-                    ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
-                    else -> colors.textPrimary
-                },
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 0.4.sp
-            )
-            Text(
-                theme.subtitle,
-                color = colors.textSecondary,
-                fontSize = 7.5.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1
-            )
+        Box(modifier = Modifier.weight(1f)) {
+            Column {
+                Text(
+                    "BAD GYM",
+                    color = when (theme) {
+                        ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
+                        ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
+                        else -> colors.textPrimary
+                    },
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 0.4.sp
+                )
+                Text(
+                    theme.subtitle,
+                    color = colors.textSecondary,
+                    fontSize = 7.5.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1
+                )
+            }
+
+            if (theme == ThemeId.NATURAL_FRESH) {
+                Image(
+                    painter = painterResource(R.drawable.badgym_leaf_pair_header),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .offset(x = 8.dp)
+                        .size(34.dp)
+                )
+            }
         }
 
         Icon(
