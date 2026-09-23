@@ -19,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
-import com.example.badnewgym.feature.memberintelligence.design.ThemeId
-import com.example.badnewgym.feature.memberintelligence.domain.model.MemberIdentity
+import com.example.badgym.feature.memberintelligence.design.ThemeId
+import com.example.badgym.feature.memberintelligence.domain.model.MemberIdentity
 
 @Composable
 fun HeroMemberSection(
@@ -29,111 +29,32 @@ fun HeroMemberSection(
     modifier: Modifier = Modifier
 ) {
     val colors = BADGymTheme.colors
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        // Top Action Pill (e.g. + CHECK-IN / + WORKOUT / + TRAINER)
-        Row {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        when (theme) {
-                            ThemeId.PREMIUM_3D -> Brush.horizontalGradient(listOf(Color(0xFFE5B842), Color(0xFF926F15)))
-                            ThemeId.BEAST_MODE -> Brush.horizontalGradient(listOf(Color(0xFF00E5FF), Color(0xFF007799)))
-                            ThemeId.PURPLE_ROYAL -> Brush.horizontalGradient(listOf(Color(0xFFA855F7), Color(0xFF7E22CE)))
-                            ThemeId.FUTURISTIC_NEON -> Brush.horizontalGradient(listOf(Color(0xFF00E5FF), Color(0xFF0284C7)))
-                            ThemeId.VIBRANT_GRADIENT -> Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFFEC4899)))
-                            ThemeId.GLASSMORPHISM -> Brush.horizontalGradient(listOf(Color(0xFF22C55E), Color(0xFF16A34A)))
-                            ThemeId.MINIMAL_DARK -> Brush.horizontalGradient(listOf(Color(0xFF262C36), Color(0xFF1F242D)))
-                            ThemeId.NATURAL_FRESH -> Brush.horizontalGradient(listOf(Color(0xFF16A34A), Color(0xFF15803D)))
-                        }
-                    )
-                    .border(
-                        1.dp,
-                        if (theme == ThemeId.MINIMAL_DARK) Color(0xFF3B4452)
-                        else Color.White.copy(alpha = 0.25f),
-                        RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = theme.actionChipText,
-                    color = Color.White,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 1.sp
-                )
-            }
-        }
-
-        // Photo + Name + ID + Motto Section
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Member Photo with Border & Verified Badge
             MemberPhoto(
                 photoUrl = identity.photoUrl,
                 tier = identity.tier,
-                size = 72.dp,
+                size = 76.dp,
                 showVerified = identity.isVerified
             )
-
-            // Name, ID Code and Motto Script
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = identity.name,
-                        color = colors.textPrimary,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = (-0.5).sp
-                    )
-                    Icon(
-                        imageVector = Icons.Rounded.CheckCircle,
-                        contentDescription = "Verified Badge",
-                        tint = Color(0xFF38BDF8),
-                        modifier = Modifier.size(14.dp)
-                    )
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(identity.name, color = colors.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Black, letterSpacing = (-0.5).sp, maxLines = 1)
+                    Icon(Icons.Rounded.CheckCircle, "Verified", tint = Color(0xFF38BDF8), modifier = Modifier.size(14.dp))
                 }
-
+                Text(identity.code ?: "", color = colors.textSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(2.dp))
                 Text(
-                    text = identity.code ?: "",
-                    color = colors.textSecondary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp
-                )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                // Signature Theme Motto
-                Text(
-                    text = theme.motto,
+                    theme.motto,
                     color = colors.mottoColor,
-                    fontSize = when (theme) {
-                        ThemeId.FUTURISTIC_NEON, ThemeId.BEAST_MODE -> 13.sp
-                        ThemeId.PREMIUM_3D -> 12.5.sp
-                        else -> 12.sp
-                    },
-                    fontWeight = when (theme) {
-                        ThemeId.FUTURISTIC_NEON, ThemeId.BEAST_MODE -> FontWeight.Black
-                        ThemeId.MINIMAL_DARK -> FontWeight.Medium
-                        else -> FontWeight.Bold
-                    },
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold,
                     fontStyle = if (theme == ThemeId.NATURAL_FRESH || theme == ThemeId.GLASSMORPHISM || theme == ThemeId.PURPLE_ROYAL || theme == ThemeId.PREMIUM_3D) FontStyle.Italic else FontStyle.Normal,
-                    lineHeight = 15.sp
+                    lineHeight = 14.sp
                 )
             }
         }
