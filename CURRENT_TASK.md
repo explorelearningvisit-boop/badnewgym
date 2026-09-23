@@ -1,6 +1,6 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: COMPLETED
+STATUS: READY_FOR_EXECUTION
 TASK_ID: MI-V5-STAGE-02-COMPACT-MEMBER-CARD
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity
@@ -210,3 +210,79 @@ During Stage 2:
 5. Do not delete or overwrite prior communication history.
 
 ChatGPT will inspect the report and screenshot evidence before Stage 3 is issued.
+
+
+# STAGE 2 CORRECTIVE PASS — USER REVIEW 2026-09-23
+
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-V5-STAGE-02-CORRECTION-COMPACT-CARD-DETAIL-UX
+
+The previous Stage 2 implementation satisfies the measured compact browse geometry, but the interaction composition is rejected by the user and MUST be corrected before Stage 3.
+
+## User-approved browse geometry
+- Current compact card width/height are acceptable as the baseline: approximately 232dp x 356dp.
+- It is acceptable to increase width/height slightly if needed for readability and visual quality, but do NOT expand to viewport size.
+- Preserve horizontal side-peek carousel behavior.
+
+## Critical interaction correction
+Current behavior: tapping the compact card opens the rich full-screen member detail, consuming the whole phone width/height.
+Required behavior:
+1. Tapping the compact card MUST NOT expand it into a full-screen card.
+2. Keep the compact card as the persistent shell/bounds during the interaction.
+3. On tap, reveal/transition to the member's detailed content INSIDE the compact card bounds (or a clearly bounded larger card/dialog that still preserves the browse context); never replace it with a full-screen member card.
+4. The compact card's persistent identity/header MUST remain visible in the detail state:
+   - member photo
+   - member name
+   - event type (CHECK-IN/CHECK-OUT/etc.)
+   - event time / recency
+   - current membership/status
+5. The existing side vertical rail/menu MUST be present in the detailed card state. Do not remove it.
+6. Menu tap changes the content panel inside the same bounded card. The rail is the persistent navigation mechanism.
+7. Menu panels should show only the most important data for that menu, with the primary identity/event information remaining visible.
+8. Do NOT replace the persistent identity/event area with a menu-specific header.
+9. Do NOT put the entire existing full-screen PixelPerfectMemberCard into a compact card by scaling it down. Recompose the information hierarchy for bounded detail.
+10. Android Back should return from bounded detail to compact browse state, not exit the screen.
+
+## Required bounded-detail information behavior
+Persistent across menu changes:
+- photo
+- member name + member ID
+- event type
+- event time/recency
+- membership tier/state
+- compact status indicator
+
+Menu-specific high-value content examples:
+- Home: current session, status, days left, attendance, primary insight
+- Attendance: period, visits, target, streak/consistency, last visit
+- Plan: plan, start, expiry, days left, freeze/renewal state
+- Payment: due/overdue, last payment, next due, payment status/history summary
+- Trainer: assigned trainer, next session, PT remaining, follow-up
+- Workout: goal, routine, last workout, key progress
+- Supplements/Nutrition/Services: active item/subscription, expiry/remaining, next action
+- History: compact timeline / key recent events
+- Insight: engagement, renewal/recovery signal, next action
+
+## Visual requirements
+- Preserve the selected theme's visual language from the 8-theme board.
+- Keep typography readable; no miniature full-screen UI.
+- Keep rail icons at usable touch size (minimum 48dp target).
+- Use bounded animation around 180–250ms; avoid a full-screen zoom expansion.
+- Maintain carousel context and member side-peek where the browse state is visible.
+
+## Required QA
+- Build + install on the same real device.
+- Verify compact browse state.
+- Verify tap -> bounded detail state.
+- Verify vertical rail remains visible in detail.
+- Verify photo/name/event/time remain visible after opening and while switching at least 3 menu items.
+- Verify Back returns to compact browse.
+- Capture and commit:
+  - docs/screenshots/stage2_correction_browse.png
+  - docs/screenshots/stage2_correction_detail_home.png
+  - docs/screenshots/stage2_correction_detail_menu.png
+- Update STATUS.md and this communication log with exact commit SHA, device, build/test result, measured compact/detail bounds, screenshots, runtime marker, and remaining deviations.
+- Keep CURRENT_TASK READY_FOR_EXECUTION until every requirement is verified; only then mark COMPLETED.
+
+## Hard stop
+Do NOT start Stage 3. Do NOT alter backend architecture. Do NOT add heavy 3D. Focus only on this Stage 2 corrective UX pass.
