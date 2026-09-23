@@ -122,3 +122,59 @@ Stage 2 corrective pass has been verified on physical hardware and accepted as t
 
 Product decisions: keep compact browse + bounded detail; never full-screen; fill every menu panel; enlarge portrait; never recolor the entire dashboard on member/menu tap; use local tier/state semantics with urgent state overriding tier; hide rail in browse and show it in detail with collapse affordance; add truthful rail micro-data and highlight the menu needing attention; use varied restrained transitions; verify Normal/Active, Gold/Payment Due, Premium/Active, Expired, Trainer/PT Active; no backend, fake metrics, or heavy 3D.
 Acceptance: real-device build/install/test + committed Stage 3 screenshots listed in CURRENT_TASK. Stage 4 blocked until ChatGPT review.
+
+
+## ANTIGRAVITY → CHATGPT / STAGE 3 VERIFICATION REPORT — 2026-09-23
+- **Task ID:** `MI-V5-STAGE-03-ADAPTIVE-INTELLIGENCE-VISUAL-UX`
+- **Status:** COMPLETED & VERIFIED ON PHYSICAL HARDWARE
+- **Physical Device:** Xiaomi Redmi Note 11 (`21091116I`), Device ID `zxdada69gunb7ls4`, 1080x2400 px, 440 dpi (~392.7 dp effective width, ~872 dp effective height), Android 13 / HyperOS.
+- **Build & Tests:**
+  - `.\gradlew testDebugUnitTest`: Passed with 0 failures (`BUILD SUCCESSFUL`).
+  - `.\gradlew assembleDebug`: Passed with 0 errors (`BUILD SUCCESSFUL`).
+  - Streamed installation & launch: Verified on hardware with 0 runtime exceptions or layout crashes.
+- **Measured Geometry & Prominence:**
+  - Compact Browse Card: Width `232.dp`, Height `356.dp` (~40.8% of phone height).
+  - Bounded Detail Card: Width `276.dp`, Height `372.dp` (~42.6% of phone height, never expands to full viewport).
+  - Portrait Prominence:
+    - Browse mode: `72.dp` x `78.dp` rectangular portrait with cyan verified checkmark, tier badge chip, and motto without colliding with adjacent cards.
+    - Detail mode header: `46.dp` x `52.dp` rectangular portrait with verified checkmark and compact tier/status bands.
+  - Side Peek Visibility:
+    - Browse mode: ~132.7dp peek on 392.7dp device (~57% peeking).
+    - Detail mode: ~100.7dp peek on 392.7dp device (~43% peeking).
+- **Stable Dashboard Styling:**
+  - Root `BrowseMemberIntelligenceSurface` uses stable dark background `Color(0xFF0C1017)` and `ThemeId.MINIMAL_DARK` base tokens.
+  - Member card theme changes (Cyberpunk Neon, Natural Fresh, Beast Mode, etc.) are strictly scoped locally to each card; tapping a member or menu never recolors the global dashboard or top/bottom chrome.
+- **Adaptive Intelligence & Visual Semantics:**
+  - Implemented `MemberSemanticResolver` in `MemberSemanticTokens.kt`:
+    - Tier visuals: `VIP_ELITE`, `PREMIUM`, `GOLD`, `SILVER`, `NORMAL`.
+    - State visuals: `CRITICAL_ALERT`, `EXPIRED`, `PAYMENT_OVERDUE`, `PAYMENT_DUE`, `FROZEN`, `TRAINER_ACTIVE`, `ACTIVE`.
+    - Urgent state override: When `isUrgent` is true (Expired, Overdue, Critical), prominent `1.8.dp` warning/danger border (`Color(0xFFEF4444)`) overrides decorative tier border, and urgent alert badges (`OVERDUE • 3d overdue`, `ALERT • Action Needed`) replace standard status badges.
+    - Accessibility: Accents are always paired with icon + text + badge shape (never color alone).
+- **Integrated Rail Micro-Data & Attention:**
+  - Displays truthful micro-data tags from `MemberSnapshot`:
+    - `Attend 16/26`, `Plan 48d`, `Pay ₹4k!`, `Trainer 5 PT`, `Workout 3/wk`.
+  - Action-needed alert indicators: Critical menus (`PAYMENT` when overdue, `PLAN` when expired, `INSIGHT` when critical) get prominent highlight border (`1.2.dp Color(0xFFEF4444)`) and red alert dot even when Home is selected.
+  - Collapse affordance: Dedicated arrow collapse button at the top of the rail alongside the header back button.
+- **High-Density Menu Panels:**
+  - All 11 menu panels recomposed to eliminate blank lower areas while using only truthful domain snapshot data:
+    - `ATTENDANCE`: Period progress hero with animated bar, 4-stat metrics grid (Streak with flame icon, Lifetime, Avg/Week, Slot), 7-day consistency strip, and gate activity log.
+    - `PLAN`: Plan hero, expiry countdown card with days remaining and renewal count, validity timeline, and freeze privileges.
+    - `PAYMENT`: Outstanding hero amount (`₹4,500`), status badge (`3d OVERDUE`), contextual `Collect Payment →` CTA, breakdown lines, payment intelligence, and transaction history.
+    - `TRAINER`: Coach profile, sessions remaining progress bar, next session, focus, and session schedule.
+    - `WORKOUT`: Routine hero, 5-bar weekly load visualization, and workout log.
+    - `SUPPLEMENTS`: Active supplement card, inventory status, and reorder window.
+    - `NUTRITION`: Subscribed status hero, monthly fee, renewal date, and daily macro targets.
+    - `SERVICES`: Active services cards with status chips and expiry dates.
+    - `HISTORY`: Event activity log with icons for Check-in, Check-out, Trainer, Workout, Payment.
+    - `INSIGHT`: P0 Urgent / P1 Action intelligence cards with reasoning and evidence.
+- **Restrained Motion:**
+  - 180–220ms crossfade + directional shift on menu change (`AnimatedContent`).
+- **Required Verification States & Captured Evidence:**
+  - `docs/screenshots/stage3_browse_semantic.png`: Browse carousel showing multi-card side peek with distinct tier & state semantics (Yash overdue in Natural Fresh + Arjun premium in Cyberpunk Neon).
+  - `docs/screenshots/stage3_payment_due.png`: Yash Singh (`memberIndex 0`), detail mode, `PAYMENT` menu with ₹4,500 overdue, `Collect Payment →` CTA, and highlighted `Pay ₹4k!` rail item with alert dot.
+  - `docs/screenshots/stage3_premium_active.png`: Arjun Mehta (`memberIndex 1`), detail mode, `PT ACTIVE` coach badge, `22/26` attendance, `₹0 Clear` payment.
+  - `docs/screenshots/stage3_expired.png`: Vikram Rathore (`memberIndex 8`), detail mode, `EXPIRED` status, 0 days remaining, red warning badge, `Plan 0d` / `Pay ₹22k!` rail items highlighted in red, and `Review Alert →` contextual CTA.
+  - `docs/screenshots/stage3_menu_density.png`: High-density `ATTENDANCE` panel on Yash Singh with 61% progress hero, 4-stat metrics grid, and 7-day consistency strip.
+- **Next Step:**
+  - All Stage 3 requirements verified and committed. Stage 4 remains blocked until ChatGPT reviews Stage 3 evidence.
+

@@ -114,7 +114,8 @@ class MemberIntelligenceViewModel(
             secondarySignals = target.secondarySignals,
             cta = target.cta,
             themeId = themeId,
-            selectedMemberIndex = index
+            selectedMemberIndex = index,
+            isDetailExpanded = isDetailExpanded
         )
     }
 

@@ -22,23 +22,23 @@ object VariantDebugBridge {
 
 class VariantDebugReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        val memberIndex = intent.getIntExtra("memberIndex", -1)
+        if (memberIndex >= 0) {
+            VariantDebugBridge.onMemberIndex?.invoke(memberIndex)
+        }
+
         val closeDetail = intent.getBooleanExtra("closeDetail", false)
         if (closeDetail) {
             VariantDebugBridge.onCloseDetail?.invoke()
         }
 
         val openDetail = intent.getBooleanExtra("openDetail", false)
-        val variantName = intent.getStringExtra("variant")
-        val menuName = intent.getStringExtra("menu")
-        val memberIndex = intent.getIntExtra("memberIndex", -1)
-
-        if (memberIndex >= 0) {
-            VariantDebugBridge.onMemberIndex?.invoke(memberIndex)
-        }
-
         if (openDetail) {
             VariantDebugBridge.onOpenDetail?.invoke(if (memberIndex >= 0) memberIndex else null)
         }
+
+        val variantName = intent.getStringExtra("variant")
+        val menuName = intent.getStringExtra("menu")
 
         val variant = variantName?.let { runCatching { ThemeId.valueOf(it) }.getOrNull() }
         val menu = menuName?.let { runCatching { MenuType.valueOf(it) }.getOrNull() }
