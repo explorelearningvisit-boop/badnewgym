@@ -1,146 +1,75 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: COMPLETED
-TASK_ID: MI-V4-VISUAL-RECONSTRUCTION-01
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-V5-MASTER-VISUAL-RECONSTRUCTION-01
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity
 BRANCH: member-intelligence-v3
 
 ## Mission
 
-The previous implementation is functionally working but visually fails the supplied BAD GYM Natural Fresh reference. This task is a VISUAL RECONSTRUCTION, not a minor polish pass.
+Execute the combined BAD GYM Master UI/UX Reconstruction specification now.
 
-Reference assets are stored in:
-- docs/reference/member-intelligence-natural-fresh-reference.png
+Authoritative documents:
+- docs/reference/MASTER_UI_UX_RECONSTRUCTION_PROMPT.md
+- docs/reference/MEMBER_INTELLIGENCE_8_THEME_SPEC.md
+- docs/reference/NATURAL_FRESH_VISUAL_SPEC.md
 - docs/reference/current-device-output.png
 
-The reference image is the visual source of truth for the Natural Fresh Home state.
+The user-supplied reference board contains EIGHT Member Intelligence visual states:
+1 Natural Fresh
+2 Futuristic Neon
+3 Minimal Dark
+4 Glassmorphism
+5 Premium 3D
+6 Vibrant Gradient
+7 Gym Beast Mode
+8 Purple Royal
 
-## Critical rule
+Treat the board as one shared component architecture + eight theme definitions, NOT eight unrelated screens.
 
-Do NOT mark this task COMPLETED merely because the app compiles or navigation works.
+## Non-negotiable execution order
 
-Completion requires a real emulator/device screenshot and visual comparison against the reference asset. Iterate until the composition, hierarchy, proportions, spacing, typography, surfaces, imagery, rail, and decorative layers are convincingly aligned.
+1. Inspect repo, architecture and current MI implementation.
+2. Read AGENTS.md, .agents/rules/00-badgym-github-loop.md and the two master reference documents.
+3. Analyze current implementation against the reference specifications before coding.
+4. Build/rebuild shared Member Intelligence component geometry first.
+5. Implement the eight theme definitions using semantic design tokens.
+6. Implement asset pipeline requirements: extract/reuse available assets, upscale when required, transparent PNG/vector where appropriate, manifest all assets.
+7. Implement tier x event x member-state composition without duplicating screens.
+8. Implement responsive geometry for 360dp, 375dp, 390dp and 412dp.
+9. Add DEBUG-only runtime identity showing MI-V5 + short Git SHA; it MUST disappear from release builds.
+10. Build locally, install and run on available device/emulator.
+11. Capture real screenshots.
+12. Compare screenshots against the available repository references/specification. Do not call compilation or navigation success visual completion.
+13. Fix CRITICAL discrepancies first, then MAJOR, then MINOR.
+14. Repeat screenshot -> compare -> fix until visually close.
+15. Verify all eight themes and the Natural Fresh home hierarchy.
+16. Update STATUS.md with exact work, commands/results, runtime build identity, screenshot verification and remaining discrepancies.
+17. Commit and push to member-intelligence-v3.
+18. Only set CURRENT_TASK to COMPLETED after genuine verification. If exact reference comparison is blocked because a required reference asset is unavailable locally, set BLOCKED and state that exact blocker instead of claiming success.
 
-## Stage 1 — Analyze before coding
+## Critical visual rules
 
-Compare reference vs current implementation and document concrete mismatches in STATUS.md.
+- Do not replace custom visual elements with generic Material UI.
+- Do not shrink everything to solve responsiveness.
+- Do not allow intelligence alerts to overpower the reference Home composition.
+- Natural Fresh must retain large rectangular portrait, strong CHECK-IN pill, prominent rail, Gold Plan band, ACTIVE band, three equal metrics, six-bar workout progression, full-width green CTA and botanical framing.
+- Preserve semantic state visibility even when tier/theme colors are decorative.
+- Use one shared Member Intelligence system; do not create eight disconnected screens.
+- Do not invent unavailable production data.
+- Preserve unrelated BAD GYM functionality.
 
-The current device screenshot is known to have these major problems:
-- card composition is too small/short vertically and leaves a large empty area below;
-- hero portrait is too small and circular instead of the large rounded rectangular portrait in the reference;
-- member identity is compressed beside/around a tiny avatar instead of a strong two-column hero;
-- CHECK-IN event pill is too small and visually weak;
-- event time hierarchy is weaker than reference;
-- Home rail active state is too small; reference uses a prominent green rounded active tile;
-- rail proportions/icons/labels do not match reference hierarchy;
-- Gold Plan surface is too small and not the strong gold/champagne band;
-- ACTIVE surface is too compact;
-- metric cards need the reference proportions and visual treatment;
-- workout visualization must be a six-bar progression style, not an arbitrary count;
-- the primary green Collect Payment CTA must be a prominent full-width action;
-- intelligence cards currently appear too early/large and push the intended reference composition down;
-- leaf/botanical composition is sparse and incorrectly placed;
-- typography scale and weight are too small;
-- back/header chrome differs from reference and currently has duplicated/competing back affordances;
-- the card should visually occupy the usable mobile viewport like the reference, without a huge blank region.
+## Version truth
 
-## Stage 2 — Rebuild Natural Fresh Home composition
+The device must visibly prove the running build:
+MI-V5
+BUILD <short-git-sha>
+DEBUG
 
-Reconstruct the Home state around this hierarchy:
+Use BuildConfig.DEBUG (or equivalent). Production/release must hide this marker.
 
-1. Outer premium rounded card/shell with pale mint/white background and subtle green glass depth.
-2. Header:
-   - back button
-   - BAD GYM leaf logo
-   - BAD GYM
-   - "Healthy People • Happier Lives"
-   - notification icon
-   - member/avatar control
-3. Main content panel:
-   - large CHECK-IN pill with icon
-   - 4:03 PM / Just now hierarchy
-   - large rounded rectangular member portrait
-   - Yash Singh + verification badge
-   - BG204
-   - "Good Fitness Brighter You" decorative/brand message
-   - botanical leaves integrated around hero
-4. Gold Plan band:
-   - crown/gold icon
-   - Gold Plan
-   - 12 Months
-5. ACTIVE band:
-   - green circular status icon
-   - ACTIVE
-   - 48 Days Left
-6. Three equal metric cards:
-   - 16/26 Attendance + 61% ring
-   - ₹4,500 Payment Due + 3 days
-   - 12 Workouts + six-bar progression
-7. Full-width green "Collect Payment →" CTA.
-8. Bottom botanical framing and "Small Steps Big Results" decorative message.
-9. Rail remains vertically integrated at the left with Home prominently active.
+## Completion gate
 
-Gold Plan + ACTIVE must remain common/visible in the Home state.
+A build passing is NOT enough. Completion requires real device/emulator verification and screenshot comparison. No "pixel perfect" claim without actual comparison evidence.
 
-## Stage 3 — Responsive geometry
-
-Target real device sizes:
-- 360dp
-- 375dp
-- 390dp
-- 412dp
-
-Do not solve responsiveness by simply shrinking everything.
-
-Use adaptive layout:
-- portrait hero becomes smaller only when required;
-- rail remains usable;
-- text remains legible;
-- CTA remains >=48dp touch target;
-- content remains scrollable when required;
-- no large dead blank region.
-
-## Stage 4 — Interaction
-
-Verify every rail item opens its actual data panel:
-Home, Attendance, Plan, Payment, Trainer, Workout, Supplements, Nutrition, Services, History, Insight.
-
-Menu transitions should be horizontal and approximately 180–250ms.
-
-Preserve scroll state where practical.
-
-## Stage 5 — Visual QA gate
-
-After implementation:
-1. build locally;
-2. install/run on available device;
-3. capture a screenshot;
-4. compare it against docs/reference/member-intelligence-natural-fresh-reference.png;
-5. fix visible discrepancies;
-6. repeat until the reference hierarchy is closely reproduced.
-
-Do NOT use the phrase "pixel perfect" unless screenshot comparison was actually performed.
-
-## Stage 6 — Code quality
-
-Keep:
-- existing domain models;
-- existing repository interfaces;
-- theme token system;
-- semantic state colors;
-- adaptive menu architecture.
-
-Do not delete unrelated BAD GYM functionality.
-
-Avoid hardcoded business data outside preview/debug data.
-
-## Completion
-
-Only after local screenshot QA:
-- update STATUS.md with exact comparison result;
-- commit all changes;
-- push to member-intelligence-v3;
-- set this task STATUS to COMPLETED.
-
-If blocked, set STATUS to BLOCKED and document the exact blocker.
