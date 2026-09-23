@@ -3,8 +3,10 @@ package com.example.badnewgym.feature.memberintelligence.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.NotificationsNone
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -26,12 +28,16 @@ fun CardHeader(theme: ThemeId, photoUrl: String? = null, modifier: Modifier = Mo
     val colors = BADGymTheme.colors
     Row(
         modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 1.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
             Box(
-                modifier = Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(theme.brandBrush()),
+                modifier = Modifier.size(32.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(theme.brandBrush()),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(theme.brandIcon(), "BAD GYM", tint = Color.White, modifier = Modifier.size(19.dp))
@@ -39,19 +45,44 @@ fun CardHeader(theme: ThemeId, photoUrl: String? = null, modifier: Modifier = Mo
             Column {
                 Text(
                     "BAD GYM",
-                    color = if (theme == ThemeId.PREMIUM_3D) Color(0xFFFFD700) else if (theme == ThemeId.BEAST_MODE) Color(0xFFFF4D5E) else colors.textPrimary,
+                    color = when (theme) {
+                        ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
+                        ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
+                        else -> colors.textPrimary
+                    },
                     fontSize = 14.sp, fontWeight = FontWeight.Black, letterSpacing = 0.4.sp
                 )
-                Text(theme.subtitle, color = colors.textSecondary, fontSize = 8.5.sp, fontWeight = FontWeight.Medium, maxLines = 2, lineHeight = 10.sp)
+                Text(
+                    theme.subtitle,
+                    color = colors.textSecondary,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 2,
+                    lineHeight = 9.sp
+                )
             }
         }
+        Spacer(Modifier.weight(1f))
+        Icon(
+            Icons.Rounded.NotificationsNone,
+            contentDescription = "Notifications",
+            tint = colors.textPrimary,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(Modifier.width(8.dp))
         Box(
-            modifier = Modifier.clip(RoundedCornerShape(12.dp))
-                .background(colors.surfaceMuted.copy(alpha = if (theme.isDark) 0.85f else 0.92f))
-                .border(1.dp, colors.border.copy(alpha = 0.55f), RoundedCornerShape(12.dp))
-                .padding(horizontal = 9.dp, vertical = 5.dp)
+            modifier = Modifier.size(30.dp)
+                .clip(CircleShape)
+                .background(Brush.linearGradient(listOf(colors.surfaceElevated, colors.surfaceMuted)))
+                .border(1.5.dp, colors.border.copy(alpha = .75f), CircleShape),
+            contentAlignment = Alignment.Center
         ) {
-            Text(theme.headerTag, color = colors.textSecondary, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, lineHeight = 9.sp)
+            Text(
+                "A",
+                color = colors.textPrimary,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Black
+            )
         }
     }
 }
