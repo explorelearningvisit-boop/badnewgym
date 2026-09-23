@@ -1,9 +1,9 @@
 # BAD GYM — Agent Status
 
-STATUS: COMPLETED
+STATUS: READY_FOR_EXECUTION
 LAST_AGENT: Google Antigravity
 LAST_COMPLETED_TASK: MI-V5-STAGE-02-CORRECTION-COMPACT-CARD-DETAIL-UX
-CURRENT_TASK: MI-V5-STAGE-02-CORRECTION-COMPACT-CARD-DETAIL-UX
+CURRENT_TASK: MI-V5-STAGE-03-ADAPTIVE-INTELLIGENCE-VISUAL-UX
 BRANCH: member-intelligence-v3
 
 ## Stage 2 Corrective Pass Verification Report
@@ -79,3 +79,11 @@ The Stage 2 Corrective Pass for Compact Member Intelligence Card & Bounded Detai
 
 ### 7. Next Task
 Ready for ChatGPT to inspect Stage 2 corrective evidence and issue `MI-V5-STAGE-03` according to the production roadmap.
+
+
+## Stage 3 Handoff — Adaptive Intelligence + Visual UX
+Stage 2 corrective pass is complete on physical hardware. Stage 3 is READY_FOR_EXECUTION.
+Scope: menu density, larger portrait treatment, local tier/state semantics, rail micro-data and action highlighting, stable dashboard background, menu-specific information representations, varied restrained motion.
+Hard constraints: no full-screen expansion, no fake metrics, no backend integration, no heavy 3D.
+Required screenshots: stage3_browse_semantic.png, stage3_payment_due.png, stage3_premium_active.png, stage3_expired.png, stage3_menu_density.png.
+Stage 4 remains blocked until ChatGPT reviews Stage 3 evidence.
