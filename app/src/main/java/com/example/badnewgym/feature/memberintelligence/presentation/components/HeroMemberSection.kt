@@ -19,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
-import com.example.badgym.feature.memberintelligence.design.ThemeId
-import com.example.badgym.feature.memberintelligence.domain.model.MemberIdentity
+import com.example.badnewgym.feature.memberintelligence.design.ThemeId
+import com.example.badnewgym.feature.memberintelligence.domain.model.MemberIdentity
 
 @Composable
 fun HeroMemberSection(
