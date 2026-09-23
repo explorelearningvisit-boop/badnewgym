@@ -8,17 +8,29 @@ $branch = [string]$config.branch
 function Log([string]$m) { Add-Content -LiteralPath $logPath -Value "$(Get-Date -Format o) $m" }
 function SaveState($sha,$task,$result) { @{remoteSha=$sha;taskId=$task;result=$result;updatedAt=(Get-Date).ToString("o")} | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8 }
 Set-Location $repoRoot
+$agyPath = Join-Path $env:LOCALAPPDATA "agy\bin"
+if ((Test-Path $agyPath) -and ($env:PATH -notlike "*$agyPath*")) {
+  $env:PATH = "$agyPath;$env:PATH"
+}
 Log "Bridge started: $repoRoot / $branch"
 while ($true) {
   try {
     $dirty = @(git status --porcelain)
     if ($dirty.Count -gt 0) { Log "Dirty checkout; waiting."; if ($Once) { break }; Start-Sleep -Seconds ([int]$config.pollSeconds); continue }
-    git fetch origin $branch 2>&1 | ForEach-Object { Log "$_" }
+    
+    $ErrorActionPreference = "Continue"
+    $fetchOut = git fetch origin $branch 2>&1
+    $ErrorActionPreference = "Stop"
+    foreach ($line in $fetchOut) { Log "$line" }
     if ($LASTEXITCODE -ne 0) { if ($Once) { break }; Start-Sleep -Seconds ([int]$config.pollSeconds); continue }
+    
     $remoteSha = (git rev-parse "origin/$branch").Trim()
     $localSha = (git rev-parse "HEAD").Trim()
     if ($remoteSha -ne $localSha) {
-      git pull --ff-only origin $branch 2>&1 | ForEach-Object { Log "$_" }
+      $ErrorActionPreference = "Continue"
+      $pullOut = git pull --ff-only origin $branch 2>&1
+      $ErrorActionPreference = "Stop"
+      foreach ($line in $pullOut) { Log "$line" }
       if ($LASTEXITCODE -ne 0) { Log "Fast-forward pull failed."; if ($Once) { break }; Start-Sleep -Seconds ([int]$config.pollSeconds); continue }
     }
     $taskText = Get-Content (Join-Path $repoRoot "CURRENT_TASK.md") -Raw
@@ -43,7 +55,10 @@ Never force-push or erase local work. Do the implementation, not merely an expla
     Log "Launching Antigravity for $taskId"
     $args = @("-p",$prompt,"--output-format","json","--print-timeout","$([int]$config.maxAgentMinutes)m","--effort",[string]$config.effort)
     if (-not [string]::IsNullOrWhiteSpace([string]$config.model)) { $args += @("--model",[string]$config.model) }
-    & ([string]$config.antigravityCommand) @args 2>&1 | ForEach-Object { Log "$_" }
+    $ErrorActionPreference = "Continue"
+    $agyOut = & ([string]$config.antigravityCommand) @args 2>&1
+    $ErrorActionPreference = "Stop"
+    foreach ($line in $agyOut) { Log "$line" }
     $exitCode = $LASTEXITCODE
     SaveState $remoteSha $taskId "AGENT_EXIT_$exitCode"
     Log "Antigravity exited $exitCode."

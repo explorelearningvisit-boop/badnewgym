@@ -3,6 +3,10 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $bridge = Join-Path $repoRoot "tools\badgym-agent-bridge\Start-BADGYMAgentBridge.ps1"
 $taskName = "BAD GYM Agent Bridge"
 
+$agyPath = Join-Path $env:LOCALAPPDATA "agy\bin"
+if ((Test-Path $agyPath) -and ($env:PATH -notlike "*$agyPath*")) {
+  $env:PATH = "$agyPath;$env:PATH"
+}
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw "Git is not installed or not on PATH." }
 if (-not (Get-Command agy -ErrorAction SilentlyContinue)) {
   Write-Host "Install Antigravity CLI first: irm https://antigravity.google/cli/install.ps1 | iex"
