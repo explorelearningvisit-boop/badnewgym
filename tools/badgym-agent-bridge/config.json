@@ -1,0 +1,8 @@
+{
+  "branch": "member-intelligence-v3",
+  "pollSeconds": 20,
+  "maxAgentMinutes": 90,
+  "antigravityCommand": "agy",
+  "model": "",
+  "effort": "high"
+}
