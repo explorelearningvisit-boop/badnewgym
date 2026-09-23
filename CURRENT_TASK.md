@@ -1,7 +1,7 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: COMPLETED
-TASK_ID: MI-V5-STAGE-02-CORRECTION-COMPACT-CARD-DETAIL-UX
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-V5-STAGE-03-ADAPTIVE-INTELLIGENCE-VISUAL-UX
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity
 BRANCH: member-intelligence-v3
@@ -284,5 +284,76 @@ Menu-specific high-value content examples:
 - Update STATUS.md and this communication log with exact commit SHA, device, build/test result, measured compact/detail bounds, screenshots, runtime marker, and remaining deviations.
 - Keep CURRENT_TASK READY_FOR_EXECUTION until every requirement is verified; only then mark COMPLETED.
 
-## Hard stop
-Do NOT start Stage 3. Do NOT alter backend architecture. Do NOT add heavy 3D. Focus only on this Stage 2 corrective UX pass.
+
+## STAGE 3 — ADAPTIVE INTELLIGENCE + VISUAL UX PASS — USER REVIEW 2026-09-23
+
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-V5-STAGE-03-ADAPTIVE-INTELLIGENCE-VISUAL-UX
+
+Stage 2 corrective pass is complete and verified. Implement this next pass on the existing bounded-card architecture.
+
+### 1) Layout and accessibility
+- Keep browse around 232dp x 356dp and bounded detail around 276dp x 372dp; responsive slight increase is allowed only for readability.
+- Never expand to full-screen.
+- Every menu must use the available bounded content area; eliminate large blank lower regions.
+- Increase portrait prominence: target roughly 72–92dp wide where geometry permits, with moderate height, clear face/shoulders and no collision.
+- Keep global dashboard/background colors stable. Tapping member/menu must NOT recolor the whole dashboard; theme/tier/state styling is local to the member card and its surfaces.
+
+### 2) Tier + state visual semantics
+Implement data-driven local visual semantics so users can recognize a member before reading:
+- NORMAL, SILVER, GOLD, PREMIUM, VIP/ELITE use distinct but theme-compatible accents/materials.
+- ACTIVE, PAYMENT_DUE/OVERDUE, EXPIRED, FROZEN, NEW/WALK-IN, TRAINER/PT ACTIVE, COMPLAINT/SAFETY/CRITICAL have distinct semantic treatments.
+- Urgent semantic state overrides decorative tier styling.
+- Never use color alone: pair accent with text/icon/badge/shape.
+- Preserve all 8 themes; semantic overlays resolve inside the selected theme.
+
+### 3) Rail behavior + micro-data
+- Compact browse: hide vertical rail.
+- Bounded detail: rail visible by default, with a compact/collapse affordance.
+- Rail items may show truthful micro-data from available member data: Attendance 15/30; Payment ₹4.5k due or PAID ₹500; Trainer 2 PT; Workout 3/wk; Supplements ₹1.2k; Nutrition 18 d; Services 2 active; Plan 48 d; History 3 new; Insight Action.
+- Critical/action-needed menu gets strongest local highlight even if Home remains selected. Active menu also has clear selection. Quiet menus stay quiet.
+- Home remains default panel.
+
+### 4) Menu-specific information density
+Recompose each menu to fill the bounded panel intelligently; do not use generic text lists:
+- HOME: KPI mini-grid + primary intelligence + next action + context row.
+- ATTENDANCE: period progress + streak/consistency + recent visit timeline/heat strip.
+- PLAN: plan hero + expiry countdown + freeze/renewal status + timeline.
+- PAYMENT: due/paid state + amount + due date + last transaction + compact history + CTA.
+- TRAINER: trainer identity + next session + PT remaining + progress/follow-up.
+- WORKOUT: goal + weekly frequency + last workout + compact progression visualization.
+- SUPPLEMENTS: product image/name + quantity/amount + purchase/expiry/reorder state.
+- NUTRITION: subscription + plan + expiry + meal/log status + next action.
+- SERVICES: active services + remaining/expiry + purchase state.
+- HISTORY: compact chronological event timeline + category chips.
+- INSIGHT: primary insight + evidence/source + next operational action.
+Use charts only when they answer a decision. No fake metrics.
+
+### 5) Motion
+Replace identical slide-only transitions with a restrained mix:
+- menu change: 180–220ms crossfade + directional shift
+- number/count morph for key changing values
+- local ring/bar entrance animation
+- subtle rail indicator movement
+- micro-badge pulse only for new/critical events
+- no continuous auto-animation; respect reduced motion.
+
+### 6) Required verification states
+Verify visually on the same real device:
+- Normal + Active
+- Gold + Payment Due
+- Premium + Active
+- Expired
+- Trainer/PT Active
+
+### 7) QA evidence
+Build, install, test, and capture:
+- docs/screenshots/stage3_browse_semantic.png
+- docs/screenshots/stage3_payment_due.png
+- docs/screenshots/stage3_premium_active.png
+- docs/screenshots/stage3_expired.png
+- docs/screenshots/stage3_menu_density.png
+Update STATUS.md + communication log with exact commit SHA, measured geometry, device/build/test results, menu coverage, runtime marker, and remaining deviations.
+Do NOT start Stage 4 until ChatGPT reviews Stage 3 evidence.
+Do not alter backend architecture and do not add heavy 3D.
+
