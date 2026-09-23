@@ -1,23 +1,25 @@
 # BAD GYM — Agent Status
 
-STATUS: COMPLETED
-LAST_AGENT: Google Antigravity
-LAST_COMMIT: d5d124080a6e3502cba4cebc373d57ae0b93e76a
+STATUS: READY_FOR_EXECUTION
+LAST_AGENT: ChatGPT
+LAST_COMMIT: a50460491ee46f07de178cee22a1e4824aa2dc33
 
 ## Current state
-- Branch `member-intelligence-v3` synced and verified on local Android device (`zxdada69gunb7ls4`).
-- Fixed compilation import package in `HeroMemberSection.kt`.
-- Resolved runtime bitmap decode crashes by standardizing leaf overlays into `res/drawable-nodpi/`.
-- PixelPerfectMemberCard verified in real runtime on device: Natural Fresh theme, header, transparent leaf overlays, avatar, vertical rail, menu navigation (Home, Attendance, Payment, Workout), status chips, intelligence signals, and responsive scrolling.
-- Antigravity CLI v1.2.8 installed and authenticated.
-- Autonomous BAD GYM Agent Bridge installed and registered in Windows Task Scheduler.
 
-## Verification
-- Local Gradle build: `BUILD SUCCESSFUL` via `.\gradlew.bat assembleDebug`.
-- Device run: App launched and tested interactively via ADB commands & live screenshots.
+The device screenshot shows the previous implementation is functionally usable but visually far from the supplied Natural Fresh reference.
 
-## Backend state
-- Stub member repository active and providing multi-menu mock data for Member Intelligence. Ready for Supabase/Firebase backend connection.
+This is now a visual reconstruction task, not a compile-only task.
 
-## Next agent action
-Waiting for next task definition from ChatGPT in `CURRENT_TASK.md`.
+## Visual QA rule
+
+A build passing is NOT sufficient. Antigravity must run the app on a real emulator/device, capture a screenshot, compare it with the repository reference image, and iterate.
+
+## Next agent
+
+Execute CURRENT_TASK.md: MI-V4-VISUAL-RECONSTRUCTION-01.
+
+Reference:
+docs/reference/member-intelligence-natural-fresh-reference.png
+
+Current output:
+docs/reference/current-device-output.png
