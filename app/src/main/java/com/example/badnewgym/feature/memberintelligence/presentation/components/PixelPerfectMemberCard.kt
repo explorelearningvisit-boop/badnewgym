@@ -54,7 +54,8 @@ fun PixelPerfectMemberCard(
     cta: SignalAction? = null,
     onMenuSelected: (MenuType) -> Unit = {},
     onThemeSelected: (ThemeId) -> Unit = {},
-    onCta: (SignalAction) -> Unit = {}
+    onCta: (SignalAction) -> Unit = {},
+    onBack: () -> Unit = {}
 ) {
     BADGymTheme(
         colors = theme.colors(),
@@ -85,6 +86,7 @@ fun PixelPerfectMemberCard(
                 }
             } else {
                 CardBody(
+                    onBack = onBack,
                     snapshot = snapshot,
                     currentEvent = currentEvent,
                     signals = signals,
@@ -108,6 +110,7 @@ fun PixelPerfectMemberCard(
 
 @Composable
 private fun CardBody(
+    onBack: () -> Unit,
     snapshot: MemberSnapshot,
     currentEvent: MemberEvent?,
     signals: List<IntelligenceSignal>,
@@ -176,7 +179,7 @@ private fun CardBody(
                     .padding(horizontal = 10.dp, vertical = 9.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CardHeader(theme = theme)
+                CardHeader(theme = theme, onBack = onBack)
                 currentEvent?.let { EventHeader(event = it, theme = theme) }
 
                 HeroMemberSection(
