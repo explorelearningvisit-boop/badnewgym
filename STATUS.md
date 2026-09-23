@@ -1,55 +1,44 @@
 # BAD GYM — Agent Status
 
-STATUS: COMPLETED
+STATUS: READY_FOR_EXECUTION
 LAST_AGENT: Google Antigravity
-LAST_COMMIT: 374cbe9
-COMPLETED_TASK: MI-V5-STAGE-01-VISUAL-FOUNDATION
+LAST_COMPLETED_TASK: MI-V5-STAGE-01-VISUAL-FOUNDATION
+LAST_COMPLETED_COMMIT: 502fa42e15942e263ddf30f0ae8e126ab52c9988
+CURRENT_TASK: MI-V5-STAGE-02-COMPACT-MEMBER-CARD
 
-## Stage 1 Verification Report
+## Stage 1 Verification
 
-### 1. Architecture Inspection
-- Verified Member Intelligence entry point `MemberIntelligenceScreen.kt` and shared shell `PixelPerfectMemberCard.kt`.
-- Verified domain engine contracts, theme definitions, and view models.
+Stage 1 was pushed to `member-intelligence-v3`.
 
-### 2. Forensic Geometry Specification
-- Created `docs/reference/FORENSIC_GEOMETRY_SPEC.md` capturing proportional geometry, relative coordinates, radii, padding, layer z-order, and responsive breakpoint adjustments against the Natural Fresh baseline.
+Verified repository evidence:
+- Branch head after Stage 1: `502fa42e15942e263ddf30f0ae8e126ab52c9988`
+- Stage 1 foundation screenshot is present:
+  `docs/screenshots/stage1_foundation_natural_fresh.png`
+- Screenshot blob exists in the Stage 1 tree.
+- Stage 1 status reports physical-device verification and debug marker `MI-V5 • BUILD 374cbe9 • DEBUG`.
 
-### 3. Asset Inventory & Manifest
-- Created `docs/reference/ASSET_MANIFEST.md` categorizing all assets: raster portraits, transparent botanical overlays, vector branding, programmatic progress rings & 6-bar progression Equalizer components.
+Note: the Stage 1 STATUS runtime marker references the parent/runtime build SHA `374cbe9`, while the Stage 1 handoff commit is `502fa42`. Stage 2 must ensure its new runtime marker and screenshots correspond to the actual Stage 2 source/build commit.
 
-### 4. Semantic Design Tokens & Responsive Scaffolding
-- Added `design/dimensions/BreakpointTokens.kt` for Compact (<=360dp), Medium (375-400dp), and Expanded (>=412dp) responsive scaling.
-- Updated `design/dimensions/DimensionTokens.kt` with explicit semantic constants for radii, paddings, rail widths, and metric heights.
+## Product Direction Correction for Stage 2
 
-### 5. Shared Shell Refactoring & Structural Slots
-- Refactored `PixelPerfectMemberCard.kt` to clearly delineate all 11 structural slots:
-  1. OuterShellSlot
-  2. DecorativeLayersSlot
-  3. IntegratedNavigationRailSlot
-  4. HeaderSlot
-  5. EventTimeHeaderSlot
-  6. HeroPortraitAndIdentitySlot
-  7. MembershipTierAndStatusSlot
-  8. DecisionMetricsSlot (Attendance ring, Payment status, 6-bar Workouts)
-  9. PrimaryCtaSlot
-  10. MenuContentViewportSlot
-  11. DebugRuntimeIdentitySlot
+The Stage 1 composition is too large for the intended Member Intelligence browse experience.
 
-### 6. DEBUG Runtime Identity
-- Enabled `buildConfig = true` in `app/build.gradle.kts`.
-- Created `DebugRuntimeMarker.kt` rendering `MI-V5 • BUILD <short-sha> • DEBUG` strictly in debug builds (`BuildConfig.DEBUG`).
+The target is a compact member-intelligence carousel:
+- approximately 220–240dp card width on a 360dp viewport
+- substantially below full phone height
+- two cards visible with a deliberate partial side peek
+- dense but readable member intelligence
+- no revenue/transaction dashboard mixed into the member card
+- richer/full detail may open after tapping a card
 
-### 7. Build & Unit Test Verification
-- `./gradlew assembleDebug`: SUCCESS (39 tasks up-to-date/executed)
-- `./gradlew testDebugUnitTest`: SUCCESS (28 tasks up-to-date/executed)
+The Natural Fresh visual language remains useful, but full-screen reference geometry must not be blindly applied to the browse card.
 
-### 8. Real Device Verification & Screenshot
-- Installed and launched on physical device `zxdada69gunb7ls4`.
-- Screen rendered with Natural Fresh baseline: rectangular photo, event pill, rail, metrics grid, botanical accents, and verified debug runtime badge `MI-V5 • BUILD 374cbe9 • DEBUG`.
-- Screenshot captured and saved to: `docs/screenshots/stage1_foundation_natural_fresh.png`.
+## Stage 2 Acceptance
 
-### 9. Remaining Stage 1 Limitations
-- Stage 1 focused on visual and structural foundation geometry. Individual detailed theme refinements across all 8 themes and deep detail menu interactions will be developed in subsequent stages per `MI_V5_PRODUCTION_ROADMAP.md`.
+Stage 2 must produce real-device screenshots:
+- `docs/screenshots/stage2_compact_member_card_latest.png`
+- `docs/screenshots/stage2_compact_member_card_peek.png`
 
-## Next Stage
-Awaiting ChatGPT review of Stage 1 handoff before proceeding to Stage 2 (Natural Fresh Reference Reconstruction).
+Both screenshots must be committed and pushed. STATUS must report actual measured card width/height, device, build result, and screenshot paths.
+
+No Stage 3 work until ChatGPT verifies Stage 2 evidence.
