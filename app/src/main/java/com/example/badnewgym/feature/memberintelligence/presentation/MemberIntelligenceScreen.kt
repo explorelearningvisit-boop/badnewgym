@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.core.content.ContextCompat
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugBridge
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiver
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     LaunchedEffect(Unit) {
         viewModel.loadMemberData("BG204", "gym1")
@@ -61,6 +63,7 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             activeMenu = null,
             theme = theme,
             onThemeSelected = viewModel::selectTheme,
+            onBack = { backDispatcher?.onBackPressed() },
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
@@ -94,6 +97,7 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             onMenuSelected = viewModel::selectMenu,
             onThemeSelected = viewModel::selectTheme,
             onCta = viewModel::executeCta,
+            onBack = { backDispatcher?.onBackPressed() },
             modifier = Modifier.fillMaxSize()
         )
     }
