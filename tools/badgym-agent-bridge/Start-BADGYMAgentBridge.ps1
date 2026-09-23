@@ -53,7 +53,7 @@ Commit intended changes and push to origin member-intelligence-v3.
 Never force-push or erase local work. Do the implementation, not merely an explanation.
 "@
     Log "Launching Antigravity for $taskId"
-    $args = @("-p",$prompt,"--output-format","json","--print-timeout","$([int]$config.maxAgentMinutes)m","--effort",[string]$config.effort)
+    $args = @("-p",$prompt,"--output-format","json","--print-timeout","$([int]$config.maxAgentMinutes)m","--effort",[string]$config.effort,"--dangerously-skip-permissions")
     if (-not [string]::IsNullOrWhiteSpace([string]$config.model)) { $args += @("--model",[string]$config.model) }
     $ErrorActionPreference = "Continue"
     $agyOut = & ([string]$config.antigravityCommand) @args 2>&1
