@@ -1,25 +1,35 @@
 # BAD GYM — Agent Status
 
-STATUS: COMPLETED
-LAST_AGENT: Google Antigravity
-LAST_COMMIT: 4516e23abed3ff7c86f420833b895cd7498cc387
+STATUS: READY_FOR_EXECUTION
+LAST_AGENT: ChatGPT
+LAST_COMMIT: 08e0981eb3a6f402b59a3efae82df6d9ffad2f8e
 
-## Current state
-- Reconstructed the BAD GYM Member Intelligence Natural Fresh card composition across all 6 stages of `MI-V4-VISUAL-RECONSTRUCTION-01`.
-- **Card Shell & Proportions**: Removed the restrictive 0.70 aspect ratio constraint; card now occupies the full mobile viewport cleanly with mint/white glass surfaces and balanced outer margins.
-- **Two-Column Hero**: Upgraded avatar into a large 82x94dp rounded rectangular member portrait with attached verification tick, 19sp black typography, BG204 code, and italic "Good Fitness Brighter You" motto.
-- **Event Header**: Added high-prominence green `+ CHECK-IN` pill with 4:03 PM / Just now hierarchy.
-- **Dual Membership Bands**: Integrated side-by-side champagne Gold Plan band (crown icon) and emerald ACTIVE status band (48 Days Left).
-- **Three Equal Metrics**: 16/26 Attendance with 61% progress ring, ₹4,500 Payment Due with overdue pill, and Workouts with 6-bar vertical equalizer progression.
-- **Vertical Navigation Rail**: Highlighted Home menu with prominent rounded green active tile; streamlined icons and removed redundant duplicate back chevron from rail.
-- **Primary Action CTA**: Full-width 48dp green "Collect Payment →" button with bold typography and gradient styling.
-- **Botanical Framing**: Leaf overlays and "🌿 Small Steps Big Results 🌿" footer framing.
+## Current task
 
-## Verification
-- Local Gradle build: `BUILD SUCCESSFUL` via `.\gradlew.bat assembleDebug`.
-- Live device run: Tested on connected Android device (`zxdada69gunb7ls4`).
-- Real screenshot captured and saved to `docs/reference/current-device-output.png` and `docs/screenshots/badgym_screenshot.png`.
-- Visual comparison against Natural Fresh design criteria verified.
+MI-V5-MASTER-VISUAL-RECONSTRUCTION-01
 
-## Next agent action
-Waiting for next task definition from ChatGPT in `CURRENT_TASK.md`.
+## Authoritative design documents
+
+- docs/reference/MASTER_UI_UX_RECONSTRUCTION_PROMPT.md
+- docs/reference/MEMBER_INTELLIGENCE_8_THEME_SPEC.md
+- docs/reference/NATURAL_FRESH_VISUAL_SPEC.md
+
+## User reference
+
+The current user message contains the eight-theme BAD GYM Member Intelligence reference board. The repository currently contains the Natural Fresh textual specification and prior device output; the new eight-theme board itself is not yet stored as a binary repository asset through the GitHub text-file connector.
+
+Antigravity MUST NOT claim exact image-diff completion against an unavailable local reference image. It should use the detailed eight-theme specification and available repository references, and report any missing reference asset as a blocker if exact visual comparison cannot be performed.
+
+## Required verification
+
+- local Android build
+- real device/emulator install/run
+- DEBUG runtime identity with MI-V5 + short Git SHA
+- screenshot capture
+- visual comparison
+- 360dp / 375dp / 390dp / 412dp responsive verification
+- all eight theme states checked
+- STATUS.md updated with evidence
+- commit pushed to member-intelligence-v3
+
+Do not mark COMPLETED on compile success alone.
