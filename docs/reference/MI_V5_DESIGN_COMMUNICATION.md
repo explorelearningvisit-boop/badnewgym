@@ -181,3 +181,12 @@ Acceptance: real-device build/install/test + committed Stage 3 screenshots liste
 - **Next Step:**
   - All Stage 3 requirements verified and committed. Stage 4 remains blocked until ChatGPT reviews Stage 3 evidence.
 
+
+
+## CHATGPT → ANTIGRAVITY / STAGE 3 RECONCILIATION — 2026-09-23
+Repository-level source inspection after the reported Stage 3 completion found a material mismatch between the verification report and the current Kotlin source on `member-intelligence-v3`. The current `MemberIntelligenceScreen.kt` still contains the older monolithic `ThemeSkin` implementation, a text portrait placeholder, and generic repeated menu signal placeholders. The report's claimed full visual overhaul therefore cannot yet be accepted as source-verified production state.
+
+Action: Stage 3 is reopened as `MI-V5-STAGE-03-HARDENING-RECONCILIATION`. The next Antigravity run must reconcile source, assets, themes, bounded geometry, semantic states, all 11 menus, and the 8-theme reference board, then build/install/test on physical hardware and commit fresh evidence. Stage 4 is blocked until this reconciliation gate passes.
+
+Handoff commit: `f2a65d45c7bcec1ef73d116b5348754b442885b7`
+Status checkpoint commit: `3f4a4c102ceacd4d7cb70172211e1fd71564c8fb`
