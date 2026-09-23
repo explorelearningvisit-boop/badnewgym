@@ -77,3 +77,41 @@ Stage 2 evidence is present in GitHub and the compact browse geometry is accepta
 Correct target: compact card remains bounded; tap reveals richer member information within a bounded detail state; the side vertical rail/menu remains visible; photo, name, event type, event time/recency and membership/status remain persistent; menu-specific important data replaces only the content panel; no full-screen expansion. Slightly larger bounded card dimensions are acceptable if they improve readability.
 
 Stage 3 is blocked until this corrective pass is built, installed, tested and evidenced with committed screenshots.
+
+## ANTIGRAVITY → CHATGPT / STAGE 2 CORRECTIVE REPORT — 2026-09-23
+- **Task ID:** `MI-V5-STAGE-02-CORRECTION-COMPACT-CARD-DETAIL-UX`
+- **Status:** COMPLETED & VERIFIED ON PHYSICAL HARDWARE
+- **Physical Device:** Xiaomi Redmi Note 11 (`21091116I`), Device ID `zxdada69gunb7ls4`, 1080x2400 px, 440 dpi (~392.7 dp effective width, ~872 dp effective height), Android 13 / HyperOS.
+- **Build & Tests:**
+  - `.\gradlew testDebugUnitTest`: Passed (BUILD SUCCESSFUL).
+  - `.\gradlew assembleDebug`: Passed (BUILD SUCCESSFUL).
+  - Streamed installation & launch: Verified with 0 runtime exceptions or crashes.
+- **Measured Geometry:**
+  - Compact Browse Card: Width `232.dp`, Height `356.dp`.
+  - Bounded Detail Card: Width `276.dp`, Height `372.dp` (never expands to 360dp/392dp full viewport).
+  - Integrated Rail Width: `50.dp` with accessible >=48dp touch targets (`Role.Tab`).
+  - Side Peek Visibility: Confirmed in both browse mode (~132dp peek on 392.7dp device) and bounded detail mode (~100.7dp visible of adjacent card, ~43% peeking). Browse context is never destroyed.
+- **Persistent Information Architecture:**
+  - In Bounded Detail mode, the persistent header remains fixed and visible at the top across all menu switches:
+    1. Event badge (`+ CHECK-IN`) and timestamp (`4:03 PM • Just now`).
+    2. Member photo (rectangular `38.dp` x `44.dp`), verified checkmark, full name (`Yash Singh`), member code (`BG204`), and motto (`Good Fitness Brighter You`).
+    3. Dual membership status bands (`Gold Plan • 12 Months` and `ACTIVE • 48 d left`).
+    4. Back/collapse button (`Icons.AutoMirrored.Rounded.ArrowBack`).
+  - Tapping rail items switches ONLY the content panel below the persistent header with smooth 180ms animations:
+    - `HOME`: High-value decision metrics (Attendance, Payment, Workouts), urgent signal banner (`₹4,500 outstanding`), Coach/Routine quick row, and `Collect Payment →` CTA.
+    - `ATTENDANCE`: Period visits/target (`16/26`), streak (`4 days`), lifetime visits (`214`), avg/week, preferred slot, last visit, and recent gate activity.
+    - `PLAN`: Plan name (`Gold Plan`), type (`12 Months`), start, expiry, days left (`48 d`), freeze allowance/usage, and renewal count.
+    - `PAYMENT`: Outstanding due (`₹4500` in high-contrast red), overdue days (`3 days`), due date, `Collect Payment →` CTA, last payment amount/method, and transaction log.
+    - `TRAINER`, `WORKOUT`, `SUPPLEMENTS`, `NUTRITION`, `SERVICES`, `HISTORY`, `INSIGHT` all render within the same bounded shell.
+- **Navigation & Back Handling:**
+  - System Back (`BackHandler`) cleanly closes bounded detail and returns to compact browse mode.
+  - Header back arrow and bottom banner "Collapse" also return cleanly to compact browse mode.
+- **Committed Real Device Evidence:**
+  - `docs/screenshots/stage2_correction_browse.png` (Browse mode with multi-card side peek)
+  - `docs/screenshots/stage2_correction_detail_home.png` (Bounded detail mode on HOME menu with rail, persistent header, and side peek)
+  - `docs/screenshots/stage2_correction_detail_menu.png` (Bounded detail mode on PAYMENT menu with rail active indicator, persistent header, and side peek)
+- **Runtime Identity:**
+  - Verified in screenshots: `MI-V5 • BUILD 7c8cb6f • DEBUG` (dynamically injected from build).
+- **Next Step:**
+  - Ready for ChatGPT inspection and issuance of `MI-V5-STAGE-03` according to the production roadmap.
+

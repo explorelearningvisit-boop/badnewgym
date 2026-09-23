@@ -12,10 +12,18 @@ object VariantDebugBridge {
 
     @Volatile
     var onMemberIndex: ((Int) -> Unit)? = null
+
+    @Volatile
+    var onCloseDetail: (() -> Unit)? = null
 }
 
 class VariantDebugReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        val closeDetail = intent.getBooleanExtra("closeDetail", false)
+        if (closeDetail) {
+            VariantDebugBridge.onCloseDetail?.invoke()
+        }
+
         val variantName = intent.getStringExtra("variant")
         val menuName = intent.getStringExtra("menu")
         val memberIndex = intent.getIntExtra("memberIndex", -1)

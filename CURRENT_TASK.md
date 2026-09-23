@@ -1,7 +1,7 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: READY_FOR_EXECUTION
-TASK_ID: MI-V5-STAGE-02-COMPACT-MEMBER-CARD
+STATUS: COMPLETED
+TASK_ID: MI-V5-STAGE-02-CORRECTION-COMPACT-CARD-DETAIL-UX
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity
 BRANCH: member-intelligence-v3
@@ -214,7 +214,7 @@ ChatGPT will inspect the report and screenshot evidence before Stage 3 is issued
 
 # STAGE 2 CORRECTIVE PASS — USER REVIEW 2026-09-23
 
-STATUS: READY_FOR_EXECUTION
+STATUS: COMPLETED
 TASK_ID: MI-V5-STAGE-02-CORRECTION-COMPACT-CARD-DETAIL-UX
 
 The previous Stage 2 implementation satisfies the measured compact browse geometry, but the interaction composition is rejected by the user and MUST be corrected before Stage 3.

@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -67,6 +68,9 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             viewModel.closeMemberDetail()
             viewModel.selectMember(index)
         }
+        VariantDebugBridge.onCloseDetail = {
+            viewModel.closeMemberDetail()
+        }
         val receiver = VariantDebugReceiver()
         ContextCompat.registerReceiver(
             context,
@@ -77,6 +81,7 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
         onDispose {
             VariantDebugBridge.onCommand = null
             VariantDebugBridge.onMemberIndex = null
+            VariantDebugBridge.onCloseDetail = null
             runCatching { context.unregisterReceiver(receiver) }
         }
     }
@@ -102,45 +107,13 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
         return
     }
 
-    if (success.isDetailExpanded) {
-        // Full-screen rich detail view with navigation rail & menus
-        AnimatedContent(
-            targetState = theme,
-            transitionSpec = {
-                fadeIn(tween(220)) + slideInHorizontally(tween(260)) togetherWith
-                        fadeOut(tween(150)) + slideOutHorizontally(tween(180))
-            },
-            label = "theme-shell",
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
-        ) { animatedTheme ->
-            PixelPerfectMemberCard(
-                snapshot = success.snapshot,
-                currentEvent = success.currentEvent,
-                signals = success.signals,
-                menus = success.menus,
-                activeMenu = success.activeMenu,
-                primarySignal = success.primarySignal,
-                secondarySignals = success.secondarySignals,
-                cta = success.cta,
-                theme = animatedTheme,
-                onMenuSelected = viewModel::selectMenu,
-                onThemeSelected = viewModel::selectTheme,
-                onCta = viewModel::executeCta,
-                onBack = { viewModel.closeMemberDetail() },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    } else {
-        // Browse Mode: Compact Member Card Carousel Surface
-        BrowseMemberIntelligenceSurface(
-            success = success,
-            theme = theme,
-            viewModel = viewModel
-        )
-    }
+    // Root Surface is always the browse surface with carousel context;
+    // Bounded detail state lives inside the compact card bounds.
+    BrowseMemberIntelligenceSurface(
+        success = success,
+        theme = theme,
+        viewModel = viewModel
+    )
 }
 
 @Composable
@@ -205,7 +178,10 @@ private fun BrowseMemberIntelligenceSurface(
                 Spacer(Modifier.height(2.dp))
 
                 Text(
-                    text = "Live Member Flow • Swipe cards to inspect • Tap for full profile",
+                    text = if (success.isDetailExpanded)
+                        "Bounded Detail Mode • Select menu from side rail • Back to browse"
+                    else
+                        "Live Member Flow • Swipe cards to inspect • Tap card for details",
                     color = colors.textSecondary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium
@@ -214,7 +190,7 @@ private fun BrowseMemberIntelligenceSurface(
 
             Spacer(Modifier.height(4.dp))
 
-            // 3. Compact Member Intelligence Carousel (snapping horizontal row with side peek)
+            // 3. Compact Member Intelligence Carousel (snapping horizontal row with side peek & bounded detail)
             CompactMemberCarousel(
                 members = success.members,
                 selectedIndex = success.selectedMemberIndex,
@@ -222,6 +198,11 @@ private fun BrowseMemberIntelligenceSurface(
                 onMemberClick = { viewModel.openMemberDetail(it) },
                 onCta = viewModel::executeCta,
                 activeTheme = theme,
+                isDetailExpanded = success.isDetailExpanded,
+                activeMenu = success.activeMenu,
+                menus = success.menus,
+                onMenuSelected = viewModel::selectMenu,
+                onCloseDetail = viewModel::closeMemberDetail,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -236,7 +217,13 @@ private fun BrowseMemberIntelligenceSurface(
                     .clip(RoundedCornerShape(14.dp))
                     .background(colors.surface)
                     .border(1.dp, colors.border.copy(alpha = 0.6f), RoundedCornerShape(14.dp))
-                    .clickable { viewModel.openMemberDetail() }
+                    .clickable {
+                        if (success.isDetailExpanded) {
+                            viewModel.closeMemberDetail()
+                        } else {
+                            viewModel.openMemberDetail()
+                        }
+                    }
                     .padding(horizontal = 12.dp, vertical = 10.dp)
             ) {
                 Row(
@@ -280,7 +267,10 @@ private fun BrowseMemberIntelligenceSurface(
                                 )
                             }
                             Text(
-                                text = "Trainer: ${selectedMember.trainer?.trainerName ?: "Unassigned"} • ${selectedMember.workout?.currentRoutine ?: "Routine"}",
+                                text = if (success.isDetailExpanded)
+                                    "Tap to collapse detail • Back returns to carousel"
+                                else
+                                    "Trainer: ${selectedMember.trainer?.trainerName ?: "Unassigned"} • ${selectedMember.workout?.currentRoutine ?: "Routine"}",
                                 color = colors.textMuted,
                                 fontSize = 10.sp,
                                 maxLines = 1
@@ -293,14 +283,14 @@ private fun BrowseMemberIntelligenceSurface(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = "Full Profile",
+                            text = if (success.isDetailExpanded) "Collapse" else "Inspect Detail",
                             color = colors.accent,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Icon(
-                            Icons.AutoMirrored.Rounded.ArrowForward,
-                            contentDescription = "Open profile",
+                            imageVector = if (success.isDetailExpanded) Icons.Rounded.Close else Icons.AutoMirrored.Rounded.ArrowForward,
+                            contentDescription = if (success.isDetailExpanded) "Collapse profile" else "Open profile",
                             tint = colors.accent,
                             modifier = Modifier.size(14.dp)
                         )

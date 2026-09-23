@@ -1,5 +1,6 @@
 package com.example.badnewgym.feature.memberintelligence.presentation.components
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -15,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.design.dimensions.CompactCardDimensions
 import com.example.badnewgym.feature.memberintelligence.design.dimensions.rememberCompactCardDimensions
+import com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu
+import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.domain.model.SignalAction
 import com.example.badnewgym.feature.memberintelligence.presentation.MemberCardItem
 
@@ -22,7 +25,8 @@ import com.example.badnewgym.feature.memberintelligence.presentation.MemberCardI
  * BAD GYM Stage 2 — Compact Member Card Horizontal Carousel.
  *
  * Provides smooth snapping, side-peeking of adjacent cards, and subtle selection elevation.
- * Card width remains constant at ~220-240dp without expanding to fill viewport.
+ * Card width remains constant at ~220-240dp in browse mode and ~276dp in bounded detail mode,
+ * without expanding to fill viewport.
  */
 @Composable
 fun CompactMemberCarousel(
@@ -33,6 +37,11 @@ fun CompactMemberCarousel(
     onCta: (SignalAction) -> Unit,
     modifier: Modifier = Modifier,
     activeTheme: ThemeId? = null,
+    isDetailExpanded: Boolean = false,
+    activeMenu: MenuType = MenuType.HOME,
+    menus: List<MemberMenu> = emptyList(),
+    onMenuSelected: (MenuType) -> Unit = {},
+    onCloseDetail: () -> Unit = {},
     dimensions: CompactCardDimensions = rememberCompactCardDimensions()
 ) {
     val listState = rememberLazyListState()
@@ -64,6 +73,12 @@ fun CompactMemberCarousel(
         }
     }
 
+    val rowHeight by animateDpAsState(
+        targetValue = if (isDetailExpanded) dimensions.detailCardHeight + 16.dp else dimensions.cardHeight + 16.dp,
+        animationSpec = tween(durationMillis = 220),
+        label = "carousel-height"
+    )
+
     LazyRow(
         state = listState,
         flingBehavior = flingBehavior,
@@ -72,13 +87,14 @@ fun CompactMemberCarousel(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .height(dimensions.cardHeight + 16.dp)
+            .height(rowHeight)
     ) {
         itemsIndexed(
             items = members,
             key = { _, item -> item.snapshot.id }
         ) { index, item ->
             val isSelected = index == selectedIndex
+            val isCardDetail = isSelected && isDetailExpanded
             val scale by animateFloatAsState(
                 targetValue = if (isSelected) 1.0f else 0.96f,
                 animationSpec = tween(durationMillis = 200),
@@ -104,9 +120,18 @@ fun CompactMemberCarousel(
                     cta = item.cta,
                     dimensions = dimensions,
                     isSelected = isSelected,
+                    isDetail = isCardDetail,
+                    menus = menus,
+                    activeMenu = activeMenu,
+                    onMenuSelected = onMenuSelected,
+                    onCloseDetail = onCloseDetail,
                     onClick = {
-                        onMemberSelected(index)
-                        onMemberClick(index)
+                        if (!isDetailExpanded) {
+                            onMemberSelected(index)
+                            onMemberClick(index)
+                        } else if (index != selectedIndex) {
+                            onMemberSelected(index)
+                        }
                     },
                     onCtaClick = {
                         item.cta?.let(onCta) ?: onMemberClick(index)
