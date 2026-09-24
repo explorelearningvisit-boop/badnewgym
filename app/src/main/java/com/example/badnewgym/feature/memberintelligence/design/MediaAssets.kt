@@ -9,6 +9,7 @@ object MediaAssets {
     const val MEMBER_AARAV = "file:///android_asset/media/member_aarav.jpg"
     const val MEMBER_ROHAN = "file:///android_asset/media/member_rohan.jpg"
     const val MEMBER_SIMRAN = "file:///android_asset/media/member_simran.jpg"
+    const val MEMBER_VIKRAM = "file:///android_asset/media/member_kabir.jpg"
     const val ADMIN_AVATAR = "file:///android_asset/media/admin_avatar.jpg"
     const val TRAINER_VIKAS = "file:///android_asset/media/trainer_vikas.jpg"
     const val WHEY_PRODUCT = "file:///android_asset/media/whey_product.jpg"

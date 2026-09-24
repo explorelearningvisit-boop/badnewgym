@@ -508,7 +508,7 @@ object MemberScenarios {
             gymId = "gym1",
             identity = MemberIdentity(
                 name = "Vikram Rathore",
-                photoUrl = null,
+                photoUrl = MediaAssets.MEMBER_VIKRAM,
                 tier = MembershipTier.NORMAL,
                 memberSince = now - DAY * 420,
                 code = "BG901",

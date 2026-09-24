@@ -126,45 +126,23 @@ private fun BrowseMemberIntelligenceSurface(
     theme: ThemeId,
     viewModel: MemberIntelligenceViewModel
 ) {
+    // The outer dashboard maintains a stable, executive dark foundation (#0C1017)
+    // while individual member cards within the carousel apply their own local theme skins.
+    val dashboardTheme = ThemeId.MINIMAL_DARK
+    val dashboardBackground = Color(0xFF0C1017)
+
     BADGymTheme(
-        colors = theme.colors(),
-        shapes = theme.shapes(),
-        motion = theme.motion(),
-        elevation = theme.elevation()
+        colors = dashboardTheme.colors(),
+        shapes = dashboardTheme.shapes(),
+        motion = dashboardTheme.motion(),
+        elevation = dashboardTheme.elevation()
     ) {
         val colors = BADGymTheme.colors
-
-        val backgroundBrush = when (theme) {
-            ThemeId.NATURAL_FRESH -> androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(Color(0xFFE8F5EC), Color(0xFFF2FAF5), Color(0xFFDCEFE3))
-            )
-            ThemeId.FUTURISTIC_NEON -> androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(Color(0xFF0E1E38), Color(0xFF132A4D), Color(0xFF193761))
-            )
-            ThemeId.MINIMAL_DARK -> androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(Color(0xFFE2E8F0), Color(0xFFEDF2F7), Color(0xFFCBD5E1))
-            )
-            ThemeId.GLASSMORPHISM -> androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(Color(0xFFD9E8F8), Color(0xFFEBF3FC), Color(0xFFCFE2F5))
-            )
-            ThemeId.PREMIUM_3D -> androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(Color(0xFFF5EFE6), Color(0xFFFAF6F0), Color(0xFFECE3D4))
-            )
-            ThemeId.VIBRANT_GRADIENT -> androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(Color(0xFFFCE7F3), Color(0xFFF3E8FF), Color(0xFFE0E7FF))
-            )
-            ThemeId.BEAST_MODE -> androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(Color(0xFF3B1017), Color(0xFF4D1720), Color(0xFF2E0B11))
-            )
-            ThemeId.PURPLE_ROYAL -> androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(Color(0xFF2D144E), Color(0xFF3B1C64), Color(0xFF220C3C))
-            )
-        }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundBrush)
+                .background(dashboardBackground)
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
@@ -184,7 +162,7 @@ private fun BrowseMemberIntelligenceSurface(
                 ) {
                     Text(
                         text = "MEMBER INTELLIGENCE",
-                        color = colors.textPrimary,
+                        color = Color.White,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 0.5.sp
@@ -193,13 +171,13 @@ private fun BrowseMemberIntelligenceSurface(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(colors.accent.copy(alpha = 0.15f))
-                            .border(1.dp, colors.accent.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                            .background(Color(0xFF16A34A).copy(alpha = 0.2f))
+                            .border(1.dp, Color(0xFF16A34A).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = "${success.members.size} Present",
-                            color = colors.accent,
+                            color = Color(0xFF4ADE80),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -213,7 +191,7 @@ private fun BrowseMemberIntelligenceSurface(
                         "Bounded Detail Mode • Select menu from side rail • Back to browse"
                     else
                         "Live Member Flow • Swipe cards to inspect • Tap card for details",
-                    color = colors.textSecondary,
+                    color = Color(0xFF94A3B8),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -246,8 +224,8 @@ private fun BrowseMemberIntelligenceSurface(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(colors.surface)
-                    .border(1.dp, colors.border.copy(alpha = 0.6f), RoundedCornerShape(14.dp))
+                    .background(Color(0xFF161F2E))
+                    .border(1.dp, Color(0xFF334155).copy(alpha = 0.6f), RoundedCornerShape(14.dp))
                     .clickable {
                         if (success.isDetailExpanded) {
                             viewModel.closeMemberDetail()
@@ -267,33 +245,27 @@ private fun BrowseMemberIntelligenceSurface(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(colors.accent.copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Rounded.Person,
-                                contentDescription = null,
-                                tint = colors.accent,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
+                        com.example.badnewgym.feature.memberintelligence.presentation.components.MemberPhoto(
+                            photoUrl = selectedMember.identity.photoUrl,
+                            tier = selectedMember.identity.tier,
+                            width = 34.dp,
+                            height = 34.dp,
+                            showVerified = false,
+                            memberName = selectedMember.identity.name
+                        )
 
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = selectedMember.identity.name,
-                                    color = colors.textPrimary,
+                                    color = Color.White,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(Modifier.width(4.dp))
                                 Text(
                                     text = "• ${selectedMember.membership?.planName ?: "Plan"}",
-                                    color = colors.textSecondary,
+                                    color = Color(0xFF94A3B8),
                                     fontSize = 11.sp
                                 )
                             }
@@ -302,7 +274,7 @@ private fun BrowseMemberIntelligenceSurface(
                                     "Tap to collapse detail • Back returns to carousel"
                                 else
                                     "Trainer: ${selectedMember.trainer?.trainerName ?: "Unassigned"} • ${selectedMember.workout?.currentRoutine ?: "Routine"}",
-                                color = colors.textMuted,
+                                color = Color(0xFF64748B),
                                 fontSize = 10.sp,
                                 maxLines = 1
                             )
@@ -315,14 +287,14 @@ private fun BrowseMemberIntelligenceSurface(
                     ) {
                         Text(
                             text = if (success.isDetailExpanded) "Collapse" else "Inspect Detail",
-                            color = colors.accent,
+                            color = Color(0xFF38BDF8),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Icon(
                             imageVector = if (success.isDetailExpanded) Icons.Rounded.Close else Icons.AutoMirrored.Rounded.ArrowForward,
                             contentDescription = if (success.isDetailExpanded) "Collapse profile" else "Open profile",
-                            tint = colors.accent,
+                            tint = Color(0xFF38BDF8),
                             modifier = Modifier.size(14.dp)
                         )
                     }

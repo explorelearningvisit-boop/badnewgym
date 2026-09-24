@@ -25,14 +25,25 @@ fun RemoteOrAssetImage(
     model: Any?,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    contentScale: ContentScale = ContentScale.Crop
+    contentScale: ContentScale = ContentScale.Crop,
+    fallbackModel: Any? = null
 ) {
     val context = LocalContext.current
-    AsyncImage(
-        model = ImageRequest.Builder(context)
-            .data(model)
+    val effectiveModel = model?.takeIf { it !is String || it.isNotBlank() } ?: fallbackModel
+    val imageRequest = androidx.compose.runtime.remember(effectiveModel, fallbackModel) {
+        ImageRequest.Builder(context)
+            .data(effectiveModel)
+            .apply {
+                (fallbackModel as? Int)?.let {
+                    error(it)
+                    fallback(it)
+                }
+            }
             .crossfade(true)
-            .build(),
+            .build()
+    }
+    AsyncImage(
+        model = imageRequest,
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = contentScale
@@ -47,7 +58,8 @@ fun AvatarImage(
     height: Dp = size,
     modifier: Modifier = Modifier,
     shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(14.dp),
-    placeholderTint: Color = Color(0xFF334155)
+    placeholderTint: Color = Color(0xFF334155),
+    fallbackModel: Any? = null
 ) {
     Box(
         modifier = modifier
@@ -56,7 +68,8 @@ fun AvatarImage(
             .background(placeholderTint),
         contentAlignment = Alignment.Center
     ) {
-        if (model == null || (model is String && model.isBlank())) {
+        val effectiveModel = model?.takeIf { it !is String || it.isNotBlank() } ?: fallbackModel
+        if (effectiveModel == null) {
             Icon(
                 imageVector = Icons.Rounded.Person,
                 contentDescription = null,
@@ -65,7 +78,8 @@ fun AvatarImage(
             )
         } else {
             RemoteOrAssetImage(
-                model = model,
+                model = effectiveModel,
+                fallbackModel = fallbackModel,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize()
             )

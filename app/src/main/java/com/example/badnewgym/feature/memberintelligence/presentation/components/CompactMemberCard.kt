@@ -467,7 +467,8 @@ private fun CompactHeroIdentity(
             tier = identity.tier,
             width = portraitWidth,
             height = portraitHeight,
-            showVerified = identity.isVerified
+            showVerified = identity.isVerified,
+            memberName = identity.name
         )
 
         Column(
@@ -1211,7 +1212,8 @@ private fun PersistentDetailHeader(
                 tier = snapshot.identity.tier,
                 width = 46.dp,
                 height = 52.dp,
-                showVerified = snapshot.identity.isVerified
+                showVerified = snapshot.identity.isVerified,
+                memberName = snapshot.identity.name
             )
 
             Column(
