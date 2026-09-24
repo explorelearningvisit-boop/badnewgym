@@ -43,8 +43,8 @@ while ($true) {
     if ($state -and $state.remoteSha -eq $remoteSha -and $state.taskId -eq $taskId) { if ($Once) { break }; Start-Sleep -Seconds ([int]$config.pollSeconds); continue }
     SaveState $remoteSha $taskId "RUNNING"
     $prompt = @"
-Read AGENTS.md, .agents/rules/00-badgym-github-loop.md, CURRENT_TASK.md and STATUS.md.
-Execute the current READY_FOR_EXECUTION BAD GYM task autonomously. Inspect architecture first.
+Read AGENTS.md, .agents/rules/00-badgym-github-loop.md, CURRENT_TASK.md, STATUS.md, HANDOFF_STRATEGY.md, HANDOFF_STATUS.md, and docs/reference/MI_V5_DESIGN_COMMUNICATION.md before implementation. Treat CURRENT_TASK.md as the executable authorization, HANDOFF_STRATEGY.md as execution strategy, HANDOFF_STATUS.md as the current handoff state, and the design communication log as the visual/product source of truth.
+Execute the current READY_FOR_EXECUTION BAD GYM task immediately and autonomously. Inspect architecture and existing assets first.
 Run Android builds/tests and fix failures where practical. Do not wait for GitHub Actions.
 Preserve unrelated work. Never invent data.
 Update STATUS.md with exact changes, verification, remaining issues and next task.
