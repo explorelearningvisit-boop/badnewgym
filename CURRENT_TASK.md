@@ -1,154 +1,38 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: COMPLETED
-TASK_ID: MI-V5-STAGE-04-EIGHT-THEME-ENGINE-REFERENCE-FIDELITY
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-V5-STAGE-04-REVIEW-FIX-AND-EVIDENCE-GATE
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity
 BRANCH: member-intelligence-v3
 
-## Authorization
+## Mission
+Do not start Stage 5. Re-open Stage 4 as a verification/fix pass and make the repository satisfy the Stage 4 acceptance gate exactly.
 
-Stage 3 Hardening/Reconciliation has now been completed by Antigravity and verified on the physical Xiaomi device. The repository source has also been reconciled: the previously reported placeholder/monolithic implementation is gone; the current MemberIntelligenceScreen.kt contains the centralized 8-theme engine and expanded implementation, and fresh reconciled screenshots are committed.
+The previous Stage 4 commit is:
+64adafde8c39a451eeb579fcbc5e8703189c0d2a
+"feat: implement stage 4 eight theme engine and reference fidelity"
 
-Proceed to Stage 4.
+I have verified from GitHub that this commit is the branch HEAD and that it changed the actual production files:
+- app/src/main/java/com/example/badnewgym/feature/memberintelligence/design/colors/ColorTokens.kt
+- app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCard.kt
+- app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/ThemeOrnamentLayer.kt
+and added physical screenshots.
 
-## Stage 4 objective
+## Required first reads
+Read, in this order:
+1. AGENTS.md
+2. .agents/rules/00-badgym-github-loop.md
+3. CURRENT_TASK.md
+4. STATUS.md
+5. HANDOFF_STRATEGY.md
+6. HANDOFF_STATUS.md
+7. docs/reference/MI_V5_DESIGN_COMMUNICATION.md
 
-Build the production-grade Eight Theme Engine and reference-fidelity layer on top of the existing bounded Member Intelligence architecture.
+Then inspect the current branch source and screenshot evidence before editing.
 
-The 8 canonical visual themes are:
-1. Natural Fresh
-2. Futuristic Neon
-3. Minimal Dark
-4. Glassmorphism
-5. Premium 3D
-6. Vibrant Gradient
-7. Gym Beast Mode
-8. Purple Royal
-
-The uploaded/reference contact sheet in:
-BAD_GYM_MEMBER_INTELLIGENCE_READY/preview/ALL_8_THEMES_CONTACT_SHEET.png
-is the canonical visual source for theme relationships.
-
-## Preserve these non-negotiables
-
-- Compact browse card; never full-screen.
-- Bounded detail; preserve browse context and side peek.
-- Persistent photo/name/member ID/event/time/tier/state in detail.
-- Vertical rail in detail only.
-- All 11 menus remain available.
-- No revenue dashboard inside the member card.
-- No backend integration in Stage 4.
-- No heavy continuous 3D.
-- No fake business metrics.
-- No generic Material-3 skin replacing the reference language.
-- Important state must never be represented by color alone.
-- Global dashboard/background must not unexpectedly recolor when a member/theme/menu changes.
-
-## Stage 4 work
-
-### A. Theme architecture
-Create/strengthen a clean centralized theme model:
-- ThemeDefinition
-- Surface/material tokens
-- typography emphasis
-- gradients
-- borders/highlights
-- glow/shadow
-- CTA
-- portrait treatment
-- decorative assets
-- semantic state overlay
-- tier decoration
-- motion parameters
-
-Theme selection must be data-driven and composable.
-
-### B. Reference fidelity
-For each theme, explicitly reconstruct the visual language from the reference board:
-- Natural Fresh: mint/white glass + botanical leaves
-- Futuristic Neon: midnight sapphire + cyan/neon glow
-- Minimal Dark: restrained executive slate/charcoal language
-- Glassmorphism: icy translucent glass + cool gradients
-- Premium 3D: metallic gold + premium depth
-- Vibrant Gradient: periwinkle/lilac/pink/blue gradients
-- Gym Beast Mode: aggressive red/black gym energy
-- Purple Royal: deep violet/lilac premium treatment
-
-Do not make the eight themes differ only by accent color.
-
-### C. Assets
-Inventory current repository assets before creating anything.
-Use:
-- SVG/vector for crisp UI geometry
-- transparent PNG/WebP for decorative artwork
-- Compose Canvas for rings, bars, gradients and simple glows
-- isolated 3D only if it materially improves Premium 3D / Beast / Royal treatment
-
-Create or refine lightweight production assets where the reference board requires them:
-- botanical clusters
-- glass highlights
-- premium metallic ornaments
-- theme-specific glows/sparks
-- tier icons/badges
-- verification/event accents
-- CTA ornaments
-- portrait framing overlays
-
-Avoid oversized raster files. Document dimensions, format and intended use.
-
-### D. Semantic × theme matrix
-Verify all critical semantic states inside every theme:
-- ACTIVE
-- PAYMENT_DUE
-- PAYMENT_OVERDUE
-- EXPIRED
-- FROZEN
-- NEW/WALK-IN
-- TRAINER/PT_ACTIVE
-- CRITICAL
-
-Urgent states override decorative tier styling without destroying theme identity.
-
-### E. Tier × theme matrix
-Verify:
-- NORMAL
-- SILVER
-- GOLD
-- PREMIUM
-- VIP/ELITE
-
-Tier styling must remain recognizable but subordinate to critical operational states.
-
-### F. Motion
-Theme-aware but restrained:
-- 150–250ms theme transition
-- 180–220ms menu transition
-- local ring/bar entrance
-- subtle rail indicator
-- badge pulse only for new/critical
-- reduced-motion support
-
-No infinite decorative animation.
-
-### G. Visual QA
-Use the same physical device:
-- build
-- install
-- launch
-- verify no crash/layout exception
-- verify browse + bounded detail
-- verify all 11 menus
-- verify all 8 themes
-- verify at least 5 semantic states
-- verify side peek
-- verify Back
-- verify actual portraits
-- verify global dashboard remains stable
-
-### H. Required screenshot evidence
-
-Create fresh physical-device screenshots:
+## Known gate discrepancy to resolve
+The Stage 4 task specified these exact screenshot paths:
 - docs/screenshots/stage4_natural_fresh.png
 - docs/screenshots/stage4_futuristic_neon.png
 - docs/screenshots/stage4_minimal_dark.png
@@ -160,43 +44,55 @@ Create fresh physical-device screenshots:
 - docs/screenshots/stage4_semantic_matrix.png
 - docs/screenshots/stage4_menu_matrix.png
 
-### I. Documentation
+The current commit instead contains files named stage4_theme_* plus individual semantic/menu files. Fix this evidence mismatch. Prefer renaming/copying the already captured physical screenshots to the exact required filenames when they correspond to the same evidence. If any required matrix screenshot is not actually a valid physical-device capture, capture it on the physical device now. Do not fabricate evidence.
 
-Update STATUS.md with:
-- exact implementation commit SHA
-- device/build/test
-- measured geometry
-- all 8 themes verified
-- semantic states verified
-- menu coverage
-- screenshot paths
-- runtime marker
-- remaining deviations
+## Visual/source review
+Verify and fix, if needed:
+- centralized ThemeId/ThemeResolver/ColorTokens architecture is actually used by the production card;
+- all 8 themes are materially distinct, not only accent-color swaps;
+- Minimal Dark is true charcoal/slate, not light slate;
+- Glassmorphism has translucent/atmospheric depth;
+- Premium 3D has metallic/depth treatment without heavy continuous 3D;
+- Natural Fresh has botanical language;
+- Neon has sapphire/cyan glow;
+- Vibrant Gradient has multi-hue gradient language;
+- Beast Mode has aggressive red/athletic language;
+- Purple Royal has violet/lilac depth;
+- semantic states override decoration where urgent;
+- tier styling remains subordinate to critical states;
+- all 11 menus remain implemented and bounded;
+- browse card/detail dimensions and side peek remain intact;
+- actual portraits remain used;
+- global dashboard does not unexpectedly recolor;
+- no fake metrics or backend claims;
+- no infinite decorative animation.
 
-Append a Stage 4 implementation report to:
-docs/reference/MI_V5_DESIGN_COMMUNICATION.md
+Do not rewrite working architecture merely for cosmetic reasons. Make the smallest production-quality changes necessary.
 
-Do not mark COMPLETE from Gradle success alone.
+## Physical QA
+Use the same Xiaomi physical device if available. Build, test, install, launch, and verify:
+- browse
+- bounded detail
+- Back
+- all 8 themes
+- at least 5 semantic states
+- all 11 menus
+- side peek
+- actual portraits
+- no crash/layout exception
 
-## Acceptance gate
+Run the relevant unit tests and assembleDebug. Fix any failures.
 
-Stage 4 is complete only when:
-1. all 8 themes are visibly distinct and reference-faithful
-2. theme engine is centralized/data-driven
-3. assets are production-ready and optimized
-4. semantic state overlays work in all themes
-5. tier decorations work in all themes
-6. all 11 menus remain bounded and readable
-7. physical-device build/install/runtime passes
-8. all required screenshots are committed
-9. STATUS and communication log contain exact evidence
+## Evidence and documentation
+After verification/fixes:
+1. Commit exact required Stage 4 screenshot filenames.
+2. Update STATUS.md with exact final implementation commit SHA, device/build/test results, geometry, 8-theme coverage, semantic coverage, 11-menu coverage, exact screenshot paths, runtime marker, and remaining deviations.
+3. Append a Stage 4 review/fix report to docs/reference/MI_V5_DESIGN_COMMUNICATION.md.
+4. Update HANDOFF_STATUS.md so it no longer contradicts the final state.
+5. Commit and push to member-intelligence-v3.
+6. Only then set CURRENT_TASK.md to STATUS: COMPLETED.
 
-Do not start Stage 5 until ChatGPT reviews Stage 4 screenshot evidence.
+## Completion rule
+Do NOT claim completion from Gradle success alone. The task is complete only when the evidence paths, source architecture, visual coverage, physical QA, and documentation all agree.
 
-## Live progress protocol
-
-At real milestones update STATUS.md:
-IN_PROGRESS → DESIGNING → IMPLEMENTING → BUILDING → INSTALLING → QA → COMPLETED
-or BLOCKED with exact blocker/action.
-
-CURRENT_TASK.md remains READY_FOR_EXECUTION until completion.
+Use Gemini 3.1 Pro High with high effort for this pass. Execute immediately; do not wait for another turn.
