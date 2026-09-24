@@ -58,13 +58,13 @@ fun ThemeOrnamentLayer(
 
             ThemeId.MINIMAL_DARK -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFFF1F5F9), Color(0xFFE2E8F0))),
+                    Brush.linearGradient(listOf(Color(0xFF0E1C1F), Color(0xFF050A0F))),
                     size = size
                 )
-                drawCircle(Color.White.copy(alpha = .45f), size.minDimension * .65f, Offset(size.width * .9f, size.height * .05f))
+                drawCircle(Color.White.copy(alpha = .05f), size.minDimension * .65f, Offset(size.width * .9f, size.height * .05f))
                 for (i in 1..8) {
                     val y = size.height * (i / 9f)
-                    drawLine(Color(0xFFCBD5E1).copy(alpha = .35f), Offset(0f, y), Offset(size.width, y), 1f)
+                    drawLine(Color(0xFF334155).copy(alpha = .35f), Offset(0f, y), Offset(size.width, y), 1f)
                 }
             }
 

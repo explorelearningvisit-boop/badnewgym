@@ -783,30 +783,8 @@ private fun CompactMetricTile(
         modifier = modifier
             .height(58.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(
-                when (theme) {
-                    ThemeId.NATURAL_FRESH -> Color(0xFFF6FBF7)
-                    ThemeId.MINIMAL_DARK -> Color(0xFFF1F5F9)
-                    ThemeId.PREMIUM_3D -> Color(0xFFFAF7F0)
-                    ThemeId.BEAST_MODE -> Color(0xCC4A141D)
-                    ThemeId.PURPLE_ROYAL -> Color(0xCC3B1C64)
-                    ThemeId.FUTURISTIC_NEON -> Color(0xCC162C4E)
-                    else -> colors.surfaceMuted
-                }
-            )
-            .border(
-                0.8.dp,
-                when (theme) {
-                    ThemeId.NATURAL_FRESH -> Color(0xFFD1E7D7)
-                    ThemeId.MINIMAL_DARK -> Color(0xFFCBD5E1)
-                    ThemeId.PREMIUM_3D -> Color(0xFFE5B842)
-                    ThemeId.BEAST_MODE -> Color(0xFFFF334B)
-                    ThemeId.PURPLE_ROYAL -> Color(0xFFC084FC)
-                    ThemeId.FUTURISTIC_NEON -> Color(0xFF00E5FF)
-                    else -> colors.border.copy(alpha = 0.5f)
-                },
-                RoundedCornerShape(8.dp)
-            )
+            .background(colors.surfaceMuted)
+            .border(0.8.dp, colors.border.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
             .padding(vertical = 4.dp, horizontal = 2.dp),
         contentAlignment = Alignment.Center
     ) {

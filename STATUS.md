@@ -3,9 +3,50 @@
 STATUS: COMPLETED
 CHECKPOINT: COMPLETED
 LAST_AGENT: Google Antigravity
-LAST_COMPLETED_TASK: MI-V5-STAGE-03-HARDENING-RECONCILIATION
-CURRENT_TASK: MI-V5-STAGE-03-HARDENING-RECONCILIATION (Completed & Verified on Hardware)
+LAST_COMPLETED_TASK: MI-V5-STAGE-04-EIGHT-THEME-ENGINE-REFERENCE-FIDELITY
+CURRENT_TASK: MI-V5-STAGE-04-EIGHT-THEME-ENGINE-REFERENCE-FIDELITY (Completed & Verified on Hardware)
 BRANCH: member-intelligence-v3
+
+## Stage 4 Eight Theme Engine & Reference Fidelity Verification Report
+
+The Stage 4 task has been fully implemented and verified on physical hardware (`Xiaomi 21091116I`). The visual language for all 8 canonical themes has been precisely reconstructed from the reference board, without flattening to a unified color/tint approach.
+
+### 1. Thematic Reconstructions & Fidelity
+- **Minimal Dark:** Reconstructed to true deep charcoal/slate (`#050A0F` to `#0E1C1F`), departing from the previous incorrect light slate. The ornament layer now uses subtle dark borders and a 5% opacity highlight sphere.
+- **CompactMetricTile Update:** Replaced hardcoded legacy hex codes in `CompactMetricTile` with `colors.surfaceMuted` and `colors.border` to dynamically respect the selected `ThemeId`'s `ColorTokens`, eliminating remnants of monolithic color hardcoding.
+- **Glassmorphism:** Rendered with distinct 3-stop translucent gradients and intersecting transparent orbs (`Color(0xFF60A5FA).copy(alpha = .25f)`).
+- **Premium 3D:** Metallic arc ornaments maintained on premium backdrops.
+- **Other Themes:** Futuristic Neon, Vibrant Gradient, Beast Mode, Purple Royal, and Natural Fresh verified.
+
+### 2. Semantic Integrity
+- Semantic state (Active/Payment Due/Expired) overrides theme ornamentation where necessary (e.g., using `1.8.dp Color(0xFFEF4444)` for `isUrgent`).
+- Badges and verified indicators remain legible across all 8 palettes.
+
+### 3. Build & Runtime Execution
+- **Unit Tests:** `.\gradlew testDebugUnitTest` passed (`BUILD SUCCESSFUL`).
+- **Assemble Debug:** `.\gradlew assembleDebug` passed (`BUILD SUCCESSFUL`).
+- **APK Install:** Streamed installation to device successful.
+- **Runtime Execution:** Activity `com.example.badnewgym/.MainActivity` launched cleanly with zero crashes.
+
+### 4. Committed Real Device Screenshots
+1. `docs/screenshots/stage4_theme_NATURAL_FRESH.png`
+2. `docs/screenshots/stage4_theme_FUTURISTIC_NEON.png`
+3. `docs/screenshots/stage4_theme_MINIMAL_DARK.png`
+4. `docs/screenshots/stage4_theme_GLASSMORPHISM.png`
+5. `docs/screenshots/stage4_theme_PREMIUM_3D.png`
+6. `docs/screenshots/stage4_theme_VIBRANT_GRADIENT.png`
+7. `docs/screenshots/stage4_theme_BEAST_MODE.png`
+8. `docs/screenshots/stage4_theme_PURPLE_ROYAL.png`
+9. `docs/screenshots/stage4_semantic_yash_overdue.png`
+10. `docs/screenshots/stage4_semantic_arjun_premium.png`
+11. `docs/screenshots/stage4_semantic_vikram_expired.png`
+12. `docs/screenshots/stage4_menu_payment.png`
+13. `docs/screenshots/stage4_menu_plan.png`
+
+### 5. Next Steps
+- Stage 4 complete and verified. Awaiting review from ChatGPT.
+
+---
 
 ## Stage 3 Hardening Reconciliation & Photorealistic Asset Verification Report
 
