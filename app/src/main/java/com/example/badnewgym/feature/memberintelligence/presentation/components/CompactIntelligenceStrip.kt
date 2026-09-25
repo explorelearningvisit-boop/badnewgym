@@ -139,79 +139,10 @@ fun CompactIntelligenceStrip(
 }
 
 @Composable
-private fun AttendanceMini(
-    progress: Float,
-    visits: Int?,
-    target: Int?,
-    weekly: List<Int>,
-    maxWeekly: Int,
-) {
-    val colors = BADGymTheme.colors
-    Row(
-        modifier = Modifier
-            .width(104.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 3.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(Modifier.size(39.dp), contentAlignment = Alignment.Center) {
-            Canvas(Modifier.fillMaxSize()) {
-                val stroke = 4.dp.toPx()
-                drawArc(colors.surfaceMuted, -90f, 360f, false, style = Stroke(stroke, cap = StrokeCap.Round))
-                drawArc(
-                    Brush.sweepGradient(listOf(colors.accent, colors.info, colors.accent)),
-                    -90f,
-                    360f * progress,
-                    false,
-                    style = Stroke(stroke, cap = StrokeCap.Round)
-                )
-            }
-            Text(
-                text = if (target != null && target > 0) (progress * 100).toInt().toString() + "%" else "—",
-                color = colors.textPrimary,
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Black
-            )
-        }
-        Spacer(Modifier.width(5.dp))
-        Column(Modifier.weight(1f)) {
-            Text("ATTEND", color = colors.textMuted, fontSize = 7.sp, fontWeight = FontWeight.Black)
-            Text(
-                text = if (visits != null && target != null) visits.toString() + "/" + target.toString() else "—",
-                color = colors.textPrimary,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Black
-            )
-            if (weekly.isNotEmpty()) {
-                Row(
-                    Modifier.fillMaxWidth().height(9.dp),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    weekly.take(7).forEach { value ->
-                        Box(
-                            Modifier
-                                .weight(1f)
-                                .fillMaxHeight(fraction = (value.toFloat() / maxWeekly).coerceIn(0.12f, 1f))
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(colors.accent.copy(alpha = 0.72f))
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun RowScope.FusionMetric(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     value: String,
-    caption: String,
-    accent: Color,
-    onClick: () -> Unit
+    accent: Color
 ) {
     val colors = BADGymTheme.colors
     Column(
