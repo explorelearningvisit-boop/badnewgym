@@ -1,239 +1,314 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: COMPLETED
-TASK_ID: MI-V5-DISTANCE-READABILITY-FINAL-PRODUCTION
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-V6-MEMBER-INTELLIGENCE-UX-THEME-REBUILD
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity
 BRANCH: member-intelligence-v3
 
 ## Mission
 
-Make Member Intelligence production-ready for a gym owner who places the phone on a desk at arm's length or farther away and observes the rotating live member cards without touching the screen.
+Rework the existing Member Intelligence card visual system based on the user's latest design review.
 
-This is NOT a small cosmetic tweak. Treat this as the final distance-readability design pass for the existing Stage 4/MI-V5 card architecture.
+The previous distance-readability implementation is technically complete, but the user is NOT satisfied with the visual result. The problem is not primarily card size anymore. The current 8-theme system feels like eight unrelated color skins, with weak material/color relationships and several ugly opposing-color combinations.
 
-Do not start unrelated features or backend work.
+Treat this as a UX/design-system correction, not a cosmetic recolor.
 
-## Product behavior
+Do not redesign the whole application. Focus on Member Intelligence browse/detail cards and their 8-theme visual system.
 
-The Member Intelligence browse carousel is the primary live observation surface.
+## Product problem to solve
 
-Cards should automatically slide/rotate one member/event at a time as already supported by the existing carousel. The owner should be able to understand, from a distance:
+Member Intelligence is a gym owner's live operational observation surface.
 
-1. who the member is;
-2. what just happened;
-3. when it happened;
-4. membership/tier/state;
-5. the most important decision signal;
-6. the primary action/status.
+The owner may glance at a phone on a desk without touching it. In one glance the card must communicate:
 
-The owner should NOT need to touch the phone just to read basic activity.
+EVENT → MEMBER → TIME → STATE → DECISION SIGNAL → ACTION
 
-## Geometry — IMPORTANT
+The card is NOT a poster, mini-dashboard, or theme showcase.
 
-The user explicitly prefers the CURRENT BOUNDED DETAIL DESIGN as the new default browse design.
+It should feel like one premium BAD GYM product with eight coherent material personalities.
 
-Current verified detail:
-- 312dp × 406dp
+## Core design decision
 
-Make that approximately the DEFAULT browse card size:
-- DEFAULT browse target: 312dp × 406dp
+Keep the 8 themes, but stop treating them as independent palettes.
 
-Then make the tapped/expanded bounded detail state approximately 8–10% larger while preserving the same width/height ratio:
-- EXPANDED detail target: approximately 340dp × 443dp
+All eight themes must share:
+1. the same information architecture;
+2. the same semantic hierarchy;
+3. the same neutral/text system logic;
+4. the same component geometry;
+5. the same state semantics;
+6. the same contrast rules.
 
-Keep both bounded. Never use full-screen card presentation.
+Themes may change material, atmosphere, accent, texture, glow and decorative treatment — NOT the meaning or readability of information.
 
-Preserve a visible adjacent-card side peek on the target Xiaomi Redmi Note 11 / ~392.7dp effective width. If exact 340dp creates insufficient peek in a specific layout, tune carousel padding/gap/rail treatment rather than shrinking the readability target below the requested default.
+A user should immediately recognize every card as BAD GYM even when the theme changes.
 
-Remove the old visual distinction where the compact browse card feels materially smaller than the preferred detail card.
+## Theme design direction
 
-Use centralized geometry tokens. Do not hardcode scattered dimensions.
+Build each theme around a coherent 4-layer system:
+A. Canvas/background
+B. Card/surface material
+C. Brand accent
+D. Semantic state colors
 
-## Distance readability — PRIMARY REQUIREMENT
+Do NOT use accent colors as arbitrary body text.
 
-The current text is still too small for the user's observation distance.
+Do NOT create red-on-red, cyan-on-cyan, gold-on-gold, pink-on-pink or purple-on-purple informational text.
 
-Increase typography substantially and deliberately.
+Semantic colors must remain independent from decorative theme accents.
 
-Target minimums, subject to actual layout fit:
-- Member name: 18sp or larger
-- Member code: 12–13sp
-- Event label: 13–14sp
-- Event time: 13–14sp
-- Tier/status: 12–13sp
-- Metric values: 15–17sp
-- Metric labels: 11–12sp
-- Primary signal: 13–14sp
-- Signal supporting text: 11–12sp
-- CTA: 13–14sp
-- Detail menu labels: 11–13sp
-- Detail menu micro-data: 10–11sp minimum
-- Important menu headings/values: 13–16sp
+Natural Fresh:
+- pale mint/ivory surface
+- deep botanical green text
+- restrained emerald accent
+- soft organic depth
+- wellness, clean, trustworthy
 
-Do NOT blindly scale every text element. Preserve hierarchy, line limits, and spacing. Remove decorative micro-copy if necessary rather than shrinking important information.
+Futuristic Neon:
+- deep blue/navy glass surface
+- near-white primary text
+- cyan as accent/glow only
+- dark navy secondary text where used on bright cyan surfaces
+- high-tech, energetic
 
-Portraits must also remain visibly large:
-- browse portrait approximately 96–104dp wide where layout permits;
-- expanded/detail portrait approximately 104–112dp wide where layout permits.
+Minimal Dark:
+- charcoal/slate surface
+- near-white primary text
+- muted silver accent
+- very restrained decoration
+- calm, focused
 
-All touch targets remain >=48dp.
+Glassmorphism:
+- light frosted blue/lavender surface
+- deep navy text
+- cool blue accent
+- translucent layers with visible separation
+- elegant, airy
 
-## DEFAULT vs EXPANDED UX
+Premium 3D:
+- ivory/champagne surface
+- deep espresso/charcoal text
+- restrained metallic gold accent
+- gold should never become low-contrast body copy
+- luxury, premium, mature
 
-Default:
-- large, immediately readable member card;
-- same visual language as the currently preferred bounded detail card;
-- no menu rail required in the browse state;
-- event + member identity + membership/status + key metrics + signal + CTA remain visible.
+Vibrant Gradient:
+- controlled soft indigo/rose/ice gradient
+- deep indigo primary text
+- one dominant accent at a time
+- avoid rainbow/noisy UI
+- youthful, dynamic
 
-Tap:
-- bounded expansion only;
-- card grows approximately 8–10% in the same aspect ratio;
+Gym Beast Mode:
+- deep graphite/crimson material
+- white/near-white primary text
+- crimson/red reserved for state/accent/border/glow
+- no red body copy on red surfaces
+- powerful, athletic
+
+Purple Royal:
+- deep amethyst/plum surface
+- white/lavender primary text
+- purple accent/glow
+- restrained luxury
+- no purple-on-purple informational text
+
+## Semantic state vs theme
+
+Critical/payment/expired/safety states must remain visually obvious in every theme.
+
+Use semantic tokens:
+- critical = red family
+- warning = amber
+- success = green
+- info = blue/cyan
+
+Resolve their foreground against the actual state surface.
+
+Example red critical banner:
+- red/pale-red surface
+- deep red/charcoal or white foreground based on actual contrast
+- never red text on red surface
+
+The semantic state must not destroy the theme.
+
+## Contrast implementation
+
+Replace the current simplistic luminance threshold approach with actual WCAG-style contrast reasoning.
+
+Implement a centralized resolver with:
+- relative luminance
+- contrast ratio
+- minimum target for normal body text: 4.5:1
+- large/bold text target: 3:1 minimum
+- candidate foreground selection
+- safe fallback to neutral foreground
+- semantic foreground helpers for accent/state surfaces
+
+Do not rely on a single luminance threshold as the only rule.
+
+Audit all direct text colors in Member Intelligence components and remove/replace hardcoded same-hue informational colors where they bypass the resolver.
+
+## Card hierarchy
+
+Default browse remains approximately 312dp × 406dp.
+Expanded bounded detail remains approximately 340dp × 443dp.
+
+Do not increase density just because the card is large.
+
+Visual priority:
+1. EVENT
+2. MEMBER NAME
+3. TIME
+4. MEMBERSHIP / STATE
+5. PRIMARY SIGNAL
+6. KEY METRICS
+7. CTA
+
+Remove or visually demote decorative copy that competes with these.
+
+## Browse card
+
+Browse state:
+- no menu rail;
+- large portrait;
+- event and time immediately visible;
+- member name dominant;
+- membership/state readable;
+- one primary intelligence signal;
+- compact key metrics;
+- one clear CTA;
+- adjacent card peek remains visible;
+- automatic carousel remains.
+
+Do not make every region colorful.
+
+Prefer 1 dominant accent + neutral structure.
+
+## Detail card
+
+Expanded bounded detail:
+- approximately 340 × 443;
+- same theme language;
 - menu rail appears;
-- menu text is also larger and distance-readable;
-- no global screen zoom;
-- no full-screen takeover.
+- persistent identity/event/state header;
+- menu content changes only below header;
+- all 11 menus remain:
+  Home, Attendance, Plan, Payment, Trainer, Workout, Supplements, Nutrition, Services, History, Insight.
 
-Back:
-- returns to the large default browse card.
+Menu panels must look like part of the same theme, not separately colored mini-apps.
 
-## COLOR / CONTRAST — ALL 8 THEMES
+## Menu visual correction
 
-The user reports that several themes currently become difficult to read because accent/card colors and text colors collapse into the same hue, especially red-on-red in Gym Beast Mode.
+Current implementation contains per-theme hardcoded InfoCard surfaces/borders and multiple raw status colors.
 
-Fix this systematically, not with one-off overrides.
+Refactor these toward semantic/theme tokens.
 
-Create/use a centralized contrast-aware semantic foreground resolver.
+A menu panel should use:
+- theme surface/elevated surface;
+- theme border;
+- semantic status accent only where necessary;
+- resolved text foreground.
 
-Rules:
-- Never use an accent color as body text on a surface where contrast is insufficient.
-- Never use red/crimson text on a red/crimson surface when a neutral high-contrast foreground is required.
-- Critical states may retain red as border, icon, badge, glow or surface accent, but primary readable text should resolve to an appropriate high-contrast foreground.
-- Light surfaces -> deep neutral/semantic text.
-- Dark surfaces -> near-white/very-light text.
-- Saturated accent surfaces -> white or very-dark text based on actual contrast.
-- Gold/yellow surfaces -> dark charcoal/brown foreground.
-- Cyan/blue surfaces -> very dark navy or white depending on luminance.
-- Purple surfaces -> white/lavender with sufficient contrast.
-- Pink/red surfaces -> white or very-dark neutral based on luminance.
-- Semantic meaning (critical/success/warning/info) must remain visible without sacrificing readability.
-- Preserve the identity of all 8 themes; do not flatten them into one generic palette.
+Do not create a new random color for each menu.
 
-Use WCAG-style contrast reasoning as a design constraint. Prefer a centralized resolver/token system so future themes cannot reintroduce the same defect.
+## Material behavior
 
-Required theme audit:
-1. Natural Fresh
-2. Futuristic Neon
-3. Minimal Dark
-4. Glassmorphism
-5. Premium 3D
-6. Vibrant Gradient
-7. Gym Beast Mode
-8. Purple Royal
+Use restrained material behavior:
+- Natural: soft matte/frosted
+- Neon: dark glass + cyan edge light
+- Minimal: matte slate
+- Glass: translucent frost
+- Premium: ivory + subtle metallic edge
+- Vibrant: soft gradient atmosphere
+- Beast: graphite + crimson energy edge
+- Purple: amethyst glass
 
-## VISUAL HIERARCHY
+No excessive glow.
+No rainbow gradients.
+No decorative elements behind important text.
+No black text on dark themes.
+No white text on light themes unless contrast is proven.
 
-Distance hierarchy must be:
+## UX psychology
 
-EVENT → MEMBER NAME → TIME → MEMBERSHIP/STATE → PRIMARY SIGNAL → KEY METRICS → CTA
+The owner should answer these questions in under one second:
+1. Who is this?
+2. What just happened?
+3. Is there a problem?
+4. What needs attention?
+5. What should I do?
 
-The card should be understandable in approximately one glance.
+If decoration competes with these answers, reduce decoration.
 
-Do not add more business data just because the card is larger.
+A payment-due member should visually feel urgent without turning the entire card into a red poster.
 
-Do not use decorative charts that compete with the member/event information.
+A normal active member should feel calm and healthy.
 
-## MENU READABILITY
+An expired member should be unmistakable but still belong to the selected theme.
 
-All 11 existing menus remain intact:
-Home, Attendance, Plan, Payment, Trainer, Workout, Supplements, Nutrition, Services, History, Insight.
+## Testing requirements
 
-Every menu must receive the larger typography treatment.
+Add/extend unit tests for:
+- contrast ratio calculation;
+- white/black candidate selection;
+- light/dark theme surfaces;
+- red critical surface;
+- gold premium surface;
+- cyan neon surface;
+- purple surface;
+- glass light surface.
 
-Avoid 7–8sp informational text except genuinely nonessential metadata. The current rail can retain compact labels only where unavoidable, but the actual menu content must be comfortably readable from the user's stated distance.
+Run:
+- testDebugUnitTest
+- assembleDebug
 
-Preserve bounded scrolling inside menu content.
+If Xiaomi Redmi Note 11 is connected:
+- install debug APK
+- launch
+- inspect default browse
+- inspect bounded detail
+- inspect all 8 themes
+- inspect all 11 menus
+- specifically inspect Beast Mode red/white
+- inspect Premium gold/charcoal
+- inspect Neon cyan/white/navy
+- inspect Purple white/lavender
+- inspect Glass deep navy
+- inspect Natural green/deep botanical
 
-## CAROUSEL / LIVE OBSERVATION
-
-Preserve:
-- horizontal carousel;
-- adjacent card visibility;
-- automatic member/event rotation already present;
-- restrained motion;
-- no accidental vertical page takeover;
-- no touch required for basic observation.
-
-Do not introduce a new backend or fake live data.
-
-## ACCESSIBILITY
-
-Use:
-- minimum 48dp touch targets;
-- strong text/background contrast;
-- stable text hierarchy;
-- no information conveyed only by color;
-- content descriptions for member/event semantics;
-- avoid tiny text for important information.
-
-## PRODUCTION QA — REQUIRED
-
-On Xiaomi Redmi Note 11 if connected:
-
-1. testDebugUnitTest
-2. assembleDebug
-3. install debug APK
-4. launch
-5. verify default browse geometry
-6. verify expanded geometry
-7. verify readable typography at arm's-length / desk observation distance
-8. verify side peek
-9. verify Back
-10. verify automatic carousel/live observation behavior
-11. smoke-test all 8 themes
-12. smoke-test all 11 menus
-13. specifically inspect Gym Beast Mode red/white contrast
-14. inspect Premium 3D gold contrast
-15. inspect Futuristic Neon cyan contrast
-16. inspect Purple Royal contrast
-17. inspect Glassmorphism light-surface contrast
-18. verify no AndroidRuntime crash/layout exception
-
-Capture fresh evidence:
-- docs/screenshots/stage4_distance_readability_browse.png
-- docs/screenshots/stage4_distance_readability_detail.png
-- docs/screenshots/stage4_distance_theme_matrix.png
+Capture:
+- docs/screenshots/stage5_theme_ux_browse.png
+- docs/screenshots/stage5_theme_ux_detail.png
+- docs/screenshots/stage5_theme_ux_matrix.png
 
 ## Acceptance gate
 
-Do NOT mark this task COMPLETED until:
-- code is implemented;
+Do not mark complete until:
+- the 8 themes visually read as one BAD GYM design system;
+- each theme has a coherent material/color relationship;
+- no obvious same-hue text/surface failures remain;
+- semantic states remain clear;
+- browse/detail hierarchy is clear from a distance;
+- all 11 menus remain intact;
 - tests pass;
 - build passes;
-- APK installs;
-- runtime is verified on the physical Xiaomi when available;
-- default card is approximately 312 × 406dp;
-- expanded card is approximately 340 × 443dp or a measured equivalent preserving the same ratio;
-- typography is visibly larger;
-- menu content typography is visibly larger;
-- all 8 themes remain distinct;
-- contrast defects are corrected;
-- screenshots are committed;
-- STATUS.md and HANDOFF_STATUS.md are updated with measured results;
-- design communication log is updated;
+- physical runtime is verified when device is available;
+- fresh screenshots are committed;
+- STATUS.md is updated with measured results;
+- HANDOFF_STATUS.md records exact implementation and deviations;
+- design communication log is appended;
 - commit is pushed to member-intelligence-v3.
-
-If physical device verification is genuinely unavailable, document that exact limitation and do not falsely claim physical acceptance.
 
 ## Git rules
 
 Never force-push.
-Never erase unrelated local work.
-Never reset/discard dirty work.
+Never reset/discard unrelated work.
 Commit only intended changes.
 Push to origin member-intelligence-v3.
 
 ## Model
 
-Use Gemini 3.1 Pro High with high effort. Execute immediately.
+Use Gemini 3.1 Pro High with high effort.
+Execute immediately.
