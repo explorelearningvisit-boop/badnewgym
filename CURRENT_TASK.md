@@ -84,3 +84,35 @@ Next verification: GitHub Actions `assembleDebug`, then physical Redmi runtime s
 - Completion gate: do not call Member Intelligence production-ready until the full supported taxonomy is reachable in the QA gallery and build/tests/device evidence are committed with the exact SHA.
 - Previous latest verification commit before this packet: `d7d65cff3aff7e45f216f55c9e12aefb167b8b2c`.
 - Packet commit: `985d4990bd98bf44c031adce579859c1dbf4a984`.
+
+
+## REMOTE SYNC MANIFEST — 2026-09-25
+
+**Purpose:** This section is the GitHub handoff contract for Antigravity. Do not assume that a commit count equals a file count. Pull the entire `origin/member-intelligence-v3` ref and verify the resulting HEAD SHA before running.
+
+**Remote HEAD:** `ac3545396b6d4fb53fb1ad525f2004ad03f370d3`
+
+### Latest 3 commits currently above the previous local state
+1. `e5e653cbd519a4957a51a24bddb0ad904ea5e063` — advanced event-first card renderer
+   - ADDED: `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/AdvancedEventMemberCard.kt`
+2. `902cd522b4fed770a6e612dffe7e2d11890eb97e` — browse surface uses advanced event card
+   - MODIFIED: `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCarousel.kt`
+3. `ac3545396b6d4fb53fb1ad525f2004ad03f370d3` — simplify workspace background
+   - MODIFIED: `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/MemberIntelligenceScreen.kt`
+
+**Expected file delta for these 3 commits:** 3 unique files (1 added + 2 modified).
+
+### What each file does
+- `AdvancedEventMemberCard.kt`: event-specific light card renderer; Walk-in/Trial, Freeze, Ban, Payment, Trainer, Workout, Service and operations/issue variants; one primary CTA; truthful-data-only attendance pulse (requires 7+ pattern values).
+- `CompactMemberCarousel.kt`: browse mode now renders the advanced event card; expanded/detail mode retains the existing detail card and interaction flow.
+- `MemberIntelligenceScreen.kt`: removes the noisy workspace vertical gradient and uses the active light background directly.
+
+### Pull/verify contract for Antigravity
+1. `git fetch origin`
+2. `git pull --ff-only origin member-intelligence-v3`
+3. Confirm HEAD exactly equals `ac3545396b6d4fb53fb1ad525f2004ad03f370d3` (or a later explicitly documented commit).
+4. Confirm the three paths above are present at the pulled HEAD.
+5. Run build/tests before reporting success. Do not report a partial pull as complete.
+6. Push any runtime/build corrections back to `member-intelligence-v3` with an exact SHA and list of changed files.
+
+**Important:** GitHub commit count and changed-file count are different. The authoritative check is the HEAD SHA + changed-file list, not the number shown by the IDE alone.
