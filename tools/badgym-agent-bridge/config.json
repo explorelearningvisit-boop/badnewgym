@@ -5,5 +5,8 @@
   "antigravityCommand": "agy",
   "model": "gemini-3.1-pro-high",
   "effort": "high",
-  "skipPermissions": true
+  "skipPermissions": true,
+  "enabled": false,
+  "mode": "manual_gui_only",
+  "reason": "Autonomous/headless AGY execution disabled by user; run Antigravity visibly in GUI."
 }
