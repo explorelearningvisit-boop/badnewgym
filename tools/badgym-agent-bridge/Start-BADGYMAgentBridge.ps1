@@ -80,6 +80,10 @@ function WaitForNextCycle {
 
 Set-Location $repoRoot
 
+# Autonomous AGY execution is permanently disabled. Use the Antigravity GUI directly.
+Write-Host "BAD GYM autonomous AGY bridge is DISABLED. Use Google Antigravity GUI directly."
+exit 0
+
 $agyPath = Join-Path $env:LOCALAPPDATA "agy\bin"
 if ((Test-Path $agyPath) -and ($env:PATH -notlike "*$agyPath*")) {
   $env:PATH = "$agyPath;$env:PATH"
