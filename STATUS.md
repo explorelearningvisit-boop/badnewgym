@@ -18,3 +18,14 @@ Latest implementation base: 010ea3a5a25fd4ed459d6bbb2b28116c27427538
 - temporal/on-demand backend preserved
 
 Autonomous/headless bridge remains DISABLED.
+
+
+## Stage 7.6 — Compact Fusion Card
+
+Implemented directly by ChatGPT on `member-intelligence-v3`.
+
+- Fixed card geometry preserved.
+- Added compact visual fusion strip for attendance/PT/workout/payment.
+- Removed remaining demo metric fallbacks in the compact card.
+- Preserved bounded menu viewport and on-demand temporal architecture.
+- Device verification pending; GitHub Actions must be checked after the latest commit.
