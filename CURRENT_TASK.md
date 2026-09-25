@@ -1,9 +1,9 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: PAUSED_MANUAL
+STATUS: READY_FOR_EXECUTION
 TASK_ID: MI-V6-MEMBER-INTELLIGENCE-UX-THEME-REBUILD
 AUTHOR: ChatGPT
-EXECUTOR: Manual Google Antigravity GUI only
+EXECUTOR: Google Antigravity GUI only — visible execution
 BRANCH: member-intelligence-v3
 
 ## Mission
@@ -308,7 +308,28 @@ Never reset/discard unrelated work.
 Commit only intended changes.
 Push to origin member-intelligence-v3.
 
+## Collaboration requirements
+
+This task is part of the bidirectional ChatGPT ↔ Antigravity workflow.
+
+Before coding, read:
+- AI_COLLABORATION_PROTOCOL.md
+- AI_COLLABORATION_LOG.md
+- MODEL_PERFORMANCE_LOG.md
+- USER_FEEDBACK.md
+- ENGINEERING_SKILLS.md
+
+During execution, preserve the distinction between:
+- ChatGPT's product/design/engineering reasoning;
+- Antigravity's repository/runtime findings;
+- Gemini model implementation reasoning;
+- objective verification evidence;
+- explicit user acceptance/rejection.
+
+At completion, write the complete reasoning and evidence packet into CHATGPT_HANDOFF.md and append the task entry to AI_COLLABORATION_LOG.md and MODEL_PERFORMANCE_LOG.md.
+
 ## Model
 
-Use Gemini 3.1 Pro High with high effort.
-Execution is intentionally paused for autonomous/headless bridge execution. Open the project in Google Antigravity and run this task visibly in the GUI.
+Use Gemini 3.1 Pro High with high effort when available, but choose a different available model/configuration if task evidence shows it is more appropriate. Record the actual model/configuration and why.
+
+Execution must remain visible in the Google Antigravity GUI. Do not use the disabled autonomous/headless bridge.
