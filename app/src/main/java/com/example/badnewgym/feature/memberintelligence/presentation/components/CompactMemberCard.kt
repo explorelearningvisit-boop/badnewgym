@@ -238,6 +238,7 @@ fun CompactMemberCard(
                             onAttendanceClick = { onMenuSelected(MenuType.ATTENDANCE) },
                             onTrainerClick = { onMenuSelected(MenuType.TRAINER) },
                             onWorkoutClick = { onMenuSelected(MenuType.WORKOUT) },
+                            onPaymentClick = { onMenuSelected(MenuType.PAYMENT) },
                             modifier = Modifier.padding(top = 2.dp)
                         )
 
