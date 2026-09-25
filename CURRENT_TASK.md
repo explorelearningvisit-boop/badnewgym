@@ -44,3 +44,28 @@ Visible repository inspection, production Kotlin/Compose implementation, tests, 
 - Visual-first; minimize prose and reading load.
 - No heavy chart dependency without justification.
 - No force-push/reset/discard.
+
+
+## Additional user-directed design requirement
+
+Reference direction: the generated 8-theme Member Intelligence concept image supplied in the current task.
+
+Implementation must be SEQUENTIAL LAYER-BY-LAYER, not a single giant redesign:
+L0 geometry/canvas → L1 background/material → L2 border/shape → L3 photo/identity → L4 event/state → L5 visual KPIs/analytics → L6 CTA → L7 typography → L8 visual assets → L9 menu/rail → L10 menu-specific visual content → L11 motion/depth → L12 8-theme matrix.
+
+Start with ONE card, Natural Fresh, and prove it on-device before generalizing.
+
+The reference image is inspiration, not a bitmap UI background. Use practical Compose-native/vector/lightweight assets, real MemberSnapshot data, responsive tokens and accessible semantics.
+
+User explicitly rejects black/dark-black user-facing card backgrounds. The redesigned themes must use premium light/soft alternatives while preserving the theme personality.
+
+Acceptance emphasis:
+- empty-shell geometry first;
+- then background only;
+- then each layer in sequence;
+- no hidden/clipped essential content;
+- visual-first analytics;
+- no fake data;
+- no giant raster UI;
+- no tiny text;
+- verify each layer before advancing.
