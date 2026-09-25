@@ -280,3 +280,4 @@ The next task should describe only the delta from the previous state whenever po
 Full read once → compact checkpoint → targeted delta reads → update checkpoint.
 
 Context caching must never override fresh user requirements or actual repository changes.
+\n\n## 13. Context manifest and command semantics\n\nUse CONTEXT_MANIFEST.md to decide what must be read and what can be reused. Use AI_SYNC_STATE.md as the compact synchronization ledger and AI_COMMAND_RULES.md for short command semantics. These files exist to prevent repeated full-context reads during long sessions.\n\nA short command is not permission to expand scope. Repeated commands are idempotent: inspect the checkpoint and Git state before doing work again.\n
