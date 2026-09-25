@@ -1,39 +1,29 @@
 # BAD GYM — AI Command Rules
 
-## Short commands
+These commands are permanent shorthand for MASTER_AI_EXECUTION_CONTRACT.md.
 
-The following user commands have defined meanings:
+## Pull and Run
+Run: SYNC → CONTEXT → STATE → EXECUTE → VERIFY → DOCUMENT → COMMIT → PUSH → REMOTE VERIFY.
 
-### Pull and Run
-Synchronize safely, load incremental context, execute CURRENT_TASK visibly, verify, document, commit, and push.
+A successful git pull or “Already up to date” is only the SYNC phase. Continue with the remaining phases.
 
-### Stop
-Pause the current execution safely. Save SESSION_CONTEXT.md with the exact continuation point. Do not discard work.
+## Stop
+Pause safely, save the exact continuation point in SESSION_CONTEXT.md, preserve work, and do not discard changes.
 
-### Resume
-Validate Git state and SESSION_CONTEXT.md, then continue from the checkpoint. Do not restart the entire analysis unless context is stale.
+## Resume
+Validate branch/HEAD/worktree/task, load SESSION_CONTEXT.md, and continue from the saved checkpoint.
 
-### Status
-Report the current task, checkpoint, Git state, current action, blockers, verification state, and next action. Do not modify product code.
+## Status
+Report current task, state, branch, HEAD, checkpoint, blockers, verification and next action. Do not modify product code.
 
-### Review
-Perform a review of the current implementation against the task and evidence. Do not make changes unless the user explicitly asks to fix findings.
+## Review
+Review implementation against task and evidence. Do not fix findings unless explicitly authorized.
 
-### Recheck
-Repeat only the relevant verification that is currently missing or suspect. Do not rerun the entire pipeline without reason.
+## Recheck
+Run only the missing or suspect verification.
 
-## Command safety
-
-If a short command is ambiguous in the current state, use the current task/checkpoint to resolve it. If it would change scope, ask for explicit authorization.
-
-Never interpret a short command as permission to:
-- force-push;
-- reset/discard work;
-- delete unrelated changes;
-- create hidden/background agents;
-- invent a new product feature;
-- bypass required verification.
+## Safety
+No short command authorizes force-push, reset/discard, deletion of unrelated work, hidden/background agents, detached runners, invented product scope, or bypassing verification.
 
 ## Idempotency
-
-Repeating the same command after a successful checkpoint should not duplicate commits, duplicate migrations, duplicate assets, or duplicate work. First inspect the checkpoint and Git state.
+Inspect Git state and checkpoint before doing work. Repeating a command must not duplicate implementation or create duplicate commits.
