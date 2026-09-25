@@ -1,20 +1,45 @@
 # BAD GYM — HANDOFF STATUS
 
-STATUS: COMPLETED
+STATUS: READY_FOR_EXECUTION
 BRANCH: member-intelligence-v3
-LAST_COMPLETED_TASK: MI-V5-CARD-READABILITY-GEOMETRY-FIX
+CURRENT AUTHORIZATION: MI-V5-DISTANCE-READABILITY-FINAL-PRODUCTION
 EXECUTOR: Google Antigravity on the user's laptop
 
-## Summary of Results
-- **Task Executed:** `MI-V5-CARD-READABILITY-GEOMETRY-FIX`
-- **Root Cause & Fix:** Addressed internal font/portrait shrink defect in bounded detail mode by scaling up `CompactCardDimensions` by ~10% (Browse `270dp × 389dp`, Detail `312dp × 406dp`, Detail Portrait `56dp × 62dp`, Name `14.5sp`/`14sp`, Metrics `11.5sp`).
-- **Physical Device Acceptance:**
-  - Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`): Verified with zero exceptions.
-  - Gradle Tests: `.\gradlew.bat testDebugUnitTest` PASSED.
-  - Gradle Build: `.\gradlew.bat assembleDebug` PASSED.
-  - Screenshots Captured & Committed:
-    - `docs/screenshots/stage4_card_readability_browse.png`
-    - `docs/screenshots/stage4_card_readability_detail.png`
+## User-approved direction
 
-## Next Gate
-Ready for ChatGPT review. Stage 5 remains blocked.
+The currently preferred bounded detail card is now the desired DEFAULT browse card.
+
+Target:
+- Default browse: ~312dp × 406dp
+- Expanded detail: ~340dp × 443dp
+- Same aspect ratio
+- Bounded, never full-screen
+- Visible adjacent-card side peek
+
+The owner will place the phone on a desk and observe member activity from a distance. The card therefore prioritizes glanceable typography and high contrast over dense information.
+
+## Required visual hierarchy
+
+EVENT → MEMBER NAME → TIME → MEMBERSHIP/STATE → PRIMARY SIGNAL → KEY METRICS → CTA
+
+Important text must be substantially larger than the previous implementation.
+
+## Contrast requirement
+
+Audit all 8 themes with centralized semantic contrast resolution. Accent colors must not become unreadable text on same-hue surfaces. Critical red states may use red accents, but primary text must remain high contrast.
+
+## Required reads
+
+- AGENTS.md
+- .agents/rules/00-badgym-github-loop.md
+- CURRENT_TASK.md
+- STATUS.md
+- HANDOFF_STRATEGY.md
+- HANDOFF_STATUS.md
+- docs/reference/MI_V5_DESIGN_COMMUNICATION.md
+
+## Execution
+
+Use Gemini 3.1 Pro High with high effort.
+Implement, test, build, install, physically verify where possible, capture evidence, commit and push.
+Only then mark CURRENT_TASK.md COMPLETED.
