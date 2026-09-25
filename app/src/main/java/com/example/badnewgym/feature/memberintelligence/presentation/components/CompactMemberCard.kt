@@ -1358,8 +1358,9 @@ private fun HomeBoundedContent(
 ) {
     val colors = BADGymTheme.colors
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Home owns the large ring + bar chart. The persistent menu strip already
+        // carries compact context, so do not repeat the same KPIs below it.
         HomeEnergyPanel(snapshot, theme, { onNavigate(MenuType.ATTENDANCE) }, { onNavigate(MenuType.WORKOUT) })
-        CompactMetricsGrid(snapshot.attendance, snapshot.trainer, snapshot.workout, theme, { onNavigate(MenuType.ATTENDANCE) }, { onNavigate(MenuType.TRAINER) }, { onNavigate(MenuType.WORKOUT) })
 
         val signalText: String? = if (semantics.isUrgent && semantics.urgentMessage != null) semantics.urgentMessage
         else primarySignal?.title ?: secondarySignals.firstOrNull()?.title ?: snapshot.issues.firstOrNull()?.description
@@ -1395,7 +1396,16 @@ private fun HomeBoundedContent(
         }
 
         val ctaLabel = resolveDynamicCtaLabel(snapshot, semantics, cta)
-        Button(onClick = onCta, modifier = Modifier.fillMaxWidth().height(42.dp)) { Text(ctaLabel, fontWeight = FontWeight.Black) }
+        androidx.compose.material3.Button(
+            onClick = onCta,
+            modifier = Modifier.fillMaxWidth().height(42.dp),
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                containerColor = colors.accent,
+                contentColor = colors.textOnAccent
+            )
+        ) {
+            Text(ctaLabel, fontWeight = FontWeight.Black)
+        }
     }
 }
 
