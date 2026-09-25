@@ -284,3 +284,20 @@ Context caching must never override fresh user requirements or actual repository
 
 ## Permanent master contract
 MASTER_AI_EXECUTION_CONTRACT.md is the top-level operational contract for this repository. This document remains the collaboration-detail layer. If wording conflicts, the master contract wins. Pull and Run is an all-in-one workflow; Git synchronization alone is never completion; execution remains visible; idempotency, evidence-first verification, checkpointing, safe Git behavior, documentation, commit/push and remote verification are mandatory.
+
+
+## Permanent capability-based work split
+
+The collaboration protocol now includes a permanent two-lane model defined in CHATGPT_AGY_PARALLEL_WORK_PROTOCOL.md.
+
+ChatGPT owns product/design/architecture/task/acceptance/verification planning and post-push review.
+
+Antigravity owns visible implementation, tests, builds, runtime/device verification, screenshots, documentation, commit and push.
+
+This is a capability split, not an artificial code-volume split. GitHub is the merge boundary. Only one agent may actively write production source for the current task.
+
+Every CURRENT_TASK must declare:
+- ChatGPT lane;
+- Antigravity lane;
+- merge/review gate.
+
