@@ -27,3 +27,12 @@ No short command authorizes force-push, reset/discard, deletion of unrelated wor
 
 ## Idempotency
 Inspect Git state and checkpoint before doing work. Repeating a command must not duplicate implementation or create duplicate commits.
+
+## Parallel Work
+
+- ChatGPT = plan/design/architecture/acceptance/review.
+- Antigravity = visible implementation/test/build/device/evidence/commit/push.
+- GitHub = durable merge boundary.
+- Production source has one active writer at a time.
+- Every new task must record the work split and merge gate.
+- "Parallel" means independent preparation can overlap; implementation itself remains single-writer.
