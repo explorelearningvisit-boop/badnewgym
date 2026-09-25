@@ -24,3 +24,13 @@ When the user says Pull and Run, execute the complete all-in-one workflow in the
 - Git evidence outranks stale documentation.
 - User feedback outranks model preference.
 - Verification outranks confidence.
+
+## Permanent parallel work rule
+
+Before execution, read CHATGPT_AGY_PARALLEL_WORK_PROTOCOL.md.
+
+ChatGPT may prepare task/design/architecture/test artifacts while Antigravity is idle or preparing to execute. Antigravity is the single writer for production implementation during the execution phase.
+
+The merge boundary is the authorized Git branch after Antigravity verification and push. ChatGPT then reviews the remote SHA/evidence and either accepts the state or writes a corrective task.
+
+Never interpret "parallel" as permission for two agents to edit the same production source simultaneously.
