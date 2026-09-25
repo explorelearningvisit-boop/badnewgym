@@ -1,26 +1,28 @@
 # BAD GYM — Agent Status
 
-STATUS: COMPLETED
-CHECKPOINT: MI-V5-CARD-READABILITY-GEOMETRY-FIX
-LAST_AGENT: Google Antigravity
+STATUS: READY_FOR_EXECUTION
+CHECKPOINT: MI-V5-DISTANCE-READABILITY-FINAL-PRODUCTION
+LAST_AGENT: ChatGPT
 LAST_COMPLETED_TASK: MI-V5-CARD-READABILITY-GEOMETRY-FIX
-CURRENT_TASK: NONE (WAITING_FOR_CHATGPT_REVIEW)
+CURRENT_TASK: MI-V5-DISTANCE-READABILITY-FINAL-PRODUCTION
 BRANCH: member-intelligence-v3
 
-## Summary of Completed Work
-- **Card Readability & Geometry Correction:** Increased compact browse card dimensions by ~10% (`270dp × 389dp` default from `247dp × 356dp`) while preserving aspect ratio (`0.694`) and adjacent-card side peek (~80.7dp peek on 392.7dp Xiaomi Redmi Note 11).
-- **Internal Content & Detail Mode Readability:**
-  - Resolved user-observed defect where internal typography and portrait previously shrank when entering detail mode.
-  - Detail persistent header portrait enlarged to `56dp × 62dp` (token-driven via `CompactCardDimensions`).
-  - Typography scaled up across browse and detail modes (Name `14.5sp`/`14sp` Black, Event badges `10sp`/`9.5sp`, Metrics `11.5sp`, CTA `40dp`/`38dp`).
-  - Side navigation rail touch targets preserved at >= 48dp with enhanced `7.5sp` typography and `16dp` icons.
-- **Physical Device QA (Xiaomi Redmi Note 11 `zxdada69gunb7ls4`):**
-  - Unit tests: `.\gradlew.bat testDebugUnitTest` PASSED (`BUILD SUCCESSFUL`).
-  - Build: `.\gradlew.bat assembleDebug` PASSED (`BUILD SUCCESSFUL`).
-  - Install & Runtime: Verified on device with 0 crashes. Smoke-tested all 8 themes and 11 menus.
-  - Evidence committed:
-    - `docs/screenshots/stage4_card_readability_browse.png`
-    - `docs/screenshots/stage4_card_readability_detail.png`
+## Authorization
 
-## Next Step
-Waiting for ChatGPT review of physical device evidence. Stage 5 remains blocked until authorization.
+The previous geometry correction is accepted, but user review found the card and menu typography still too small for desk-distance observation.
+
+This task is authorized as the final production readability/contrast pass before Stage 5.
+
+## Required outcome
+
+Use the currently preferred bounded detail composition as the new default browse card:
+- default approximately 312dp × 406dp;
+- expanded approximately 340dp × 443dp with the same aspect ratio.
+
+Increase important typography and portrait scale for distance readability. Increase menu typography. Introduce centralized contrast-aware foreground resolution across all 8 themes, with special attention to saturated red/accent surfaces.
+
+## Acceptance
+
+Physical Xiaomi verification when available, unit tests, debug build, APK install/runtime verification, fresh screenshots, 8-theme contrast audit, 11-menu readability audit, documentation, commit and push.
+
+Stage 5 remains blocked until this task passes.
