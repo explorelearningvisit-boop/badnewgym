@@ -238,7 +238,7 @@ object EventCardCatalog {
 object EventCardRouter {
     fun route(event: MemberEvent, snapshot: MemberSnapshot): EventCardSpec {
         if (event.eventType == EventType.CHECK_IN) {
-            val paymentOverdue = snapshot.issues.any { it.title.contains("overdue", ignoreCase = true) } ||
+            val paymentOverdue = snapshot.issues.any { it.description.contains("overdue", ignoreCase = true) } ||
                 snapshot.recentEvents.any { it.eventType == EventType.PAYMENT_OVERDUE }
             if (paymentOverdue) return EventCardCatalog.forEvent(EventType.PAYMENT_OVERDUE)
 
