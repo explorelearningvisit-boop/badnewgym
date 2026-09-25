@@ -62,9 +62,9 @@ fun AttendancePanel(
     val subMenus = listOf("Pattern", "Calendar", "Timing", "Live", "Forecast")
 
     val att = snapshot.attendance
-    val visits = att?.visits ?: 16
-    val target = (att?.target ?: 26).coerceAtLeast(1)
-    val progress = (visits.toFloat() / target).coerceIn(0f, 1f)
+    val visits = att?.visits
+    val target = att?.target?.coerceAtLeast(1)
+    val progress = if (visits != null && target != null) (visits.toFloat() / target).coerceIn(0f, 1f) else 0f
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle("ATTENDANCE & ACCESS INTELLIGENCE", theme)
@@ -86,7 +86,7 @@ fun AttendancePanel(
                 TemporalGranularity.YEAR
             ),
             isLive = selectedSubMenu == "Live",
-            eventCount = visits,
+            eventCount = visits ?: 0,
             onRangeChange = onRangeChange
         )
 
@@ -140,23 +140,23 @@ fun AttendancePanel(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                KpiChip("$visits", "Visits", colors.accent)
-                                KpiChip("$target", "Target", colors.textSecondary)
-                                KpiChip("${att?.streakDays ?: 4}d", "Streak", colors.success)
+                                KpiChip(visits?.toString() ?: "—", "Visits", colors.accent)
+                                KpiChip(target?.toString() ?: "—", "Target", colors.textSecondary)
+                                KpiChip(att?.streakDays?.let { "${it}d" } ?: "—", "Streak", colors.success)
                             }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Icon(Icons.Rounded.Schedule, null, tint = colors.textMuted, modifier = Modifier.size(12.dp))
-                                Text("Peak: 07:30 - 08:45 AM • Avg: 68m", color = colors.textMuted, fontSize = 11.sp)
+                                Text(listOfNotNull(att?.preferredSlot?.let { "Peak: $it" }, att?.avgVisitsPerWeek?.let { "Avg ${"%.1f".format(Locale.getDefault(), it)}/wk" }).joinToString(" • ").ifBlank { "Timing not recorded" }, color = colors.textMuted, fontSize = 11.sp)
                             }
                         }
                     }
                 }
 
                 // 7-Day Consistency Strip
-                val weeklyPattern = att?.weeklyPattern ?: listOf(1, 1, 0, 1, 1, 0, 1)
+                val weeklyPattern = att?.weeklyPattern.orEmpty()
                 val dayLabels = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
                 InfoCard(theme) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -313,9 +313,9 @@ fun PaymentPanel(
     val subMenus = listOf("Audit", "Timeline", "Recurring", "Dues", "Forecast")
 
     val pay = snapshot.payment
-    val lifetime = pay?.lifetimePaid ?: 45000.0
-    val totalDue = pay?.totalOutstanding ?: 0.0
-    val isOverdue = totalDue > 0
+    val lifetime = pay?.lifetimePaid
+    val totalDue = pay?.totalOutstanding
+    val isOverdue = totalDue != null && totalDue > 0
     val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -358,7 +358,7 @@ fun PaymentPanel(
                             letterSpacing = 0.5.sp
                         )
                         Text(
-                            text = if (isOverdue) formatter.format(totalDue) else formatter.format(lifetime),
+                            text = if (isOverdue) formatter.format(totalDue) else lifetime?.let { formatter.format(it) } ?: "—",
                             color = if (isOverdue) colors.danger else colors.accent,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Black
@@ -380,15 +380,15 @@ fun PaymentPanel(
                 ) {
                     Column {
                         Text("Paid Lifetime", color = colors.textMuted, fontSize = 10.sp)
-                        Text(formatter.format(lifetime), color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                        Text(lifetime?.let { formatter.format(it) } ?: "—", color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Cycle Status", color = colors.textMuted, fontSize = 10.sp)
-                        Text(pay?.lifecycle?.name ?: "PAID", color = if (isOverdue) colors.danger else colors.success, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                        Text(pay?.lifecycle?.name ?: "NOT RECORDED", color = if (isOverdue) colors.danger else colors.success, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text("Due Date", color = colors.textMuted, fontSize = 10.sp)
-                        Text(pay?.dueDate?.let { formatDate(it) } ?: "30 Sep 2026", color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                        Text(pay?.dueDate?.let { formatDate(it) } ?: "—", color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -514,8 +514,8 @@ fun WorkoutPanel(
     val subMenus = listOf("Today", "Program", "Sessions", "Progress", "Muscles", "PRs")
 
     val wo = snapshot.workout
-    val completed = 4
-    val target = 5
+    val workoutEvents = snapshot.recentEvents.filter { it.eventType == EventType.WORKOUT }
+    val completed = workoutEvents.size
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle("WORKOUT & TRAINING INTELLIGENCE", theme)
@@ -547,14 +547,14 @@ fun WorkoutPanel(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(wo?.currentRoutine ?: "Hypertrophy Push-Pull-Legs", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                        Text("Phase: Strength & Volume Accumulation", color = colors.textMuted, fontSize = 11.sp)
+                        Text(wo?.currentRoutine ?: "Routine not recorded", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                        Text(wo?.lastWorkoutDate?.let { "Last session: ${it.let(::formatDate)}" } ?: "Last session not recorded", color = colors.textMuted, fontSize = 11.sp)
                     }
-                    BadgeChip("${completed}/$target Wk", colors.accent)
+                    BadgeChip(if (completed > 0) "$completed logged" else "No sessions", colors.accent)
                 }
 
                 LinearProgressIndicator(
-                    progress = { (completed.toFloat() / target).coerceIn(0f, 1f) },
+                    progress = { if (completed > 0) 1f else 0f },
                     modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
                     color = colors.accent,
                     trackColor = colors.surfaceMuted,
@@ -804,12 +804,12 @@ fun PlanPanel(
 ) {
     val colors = BADGymTheme.colors
     val mem = snapshot.membership
-    val planName = mem?.planName ?: "General Fitness Plan"
+    val planName = mem?.planName ?: "Plan not recorded"
     val tierName = snapshot.identity.tier.name
-    val isActive = mem?.isActive ?: true
+    val isActive = mem?.isActive
     val startDate = mem?.startDate ?: snapshot.identity.memberSince
-    val daysRemaining = mem?.daysRemaining ?: 45
-    val expiryDate = mem?.expiryDate ?: (System.currentTimeMillis() + 45L * 86400000L)
+    val daysRemaining = mem?.daysRemaining
+    val expiryDate = mem?.expiryDate
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle("MEMBERSHIP & PLAN INTELLIGENCE", theme)
@@ -870,40 +870,25 @@ fun TrainerPanel(
         InfoCard(theme) {
             if (tr != null) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
                             Text(tr.trainerName, color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Text("Specialty: Hypertrophy & Biomechanics", color = colors.textMuted, fontSize = 11.5.sp)
+                            Text(tr.focus ?: "Training focus not recorded", color = colors.textMuted, fontSize = 11.5.sp)
                         }
-                        BadgeChip("${tr.sessionsTotal - tr.sessionsUsed} Left", colors.accent)
+                        BadgeChip("${(tr.sessionsTotal - tr.sessionsUsed).coerceAtLeast(0)} left", colors.accent)
                     }
-
                     HorizontalDivider(color = colors.divider)
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text("Total Sessions", color = colors.textMuted, fontSize = 10.sp)
-                            Text("${tr.sessionsTotal}", color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Completed", color = colors.textMuted, fontSize = 10.sp)
-                            Text("${tr.sessionsUsed}", color = colors.success, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text("Next Session", color = colors.textMuted, fontSize = 10.sp)
-                            Text(tr.nextSessionDate?.let { formatDate(it) } ?: "Tomorrow 6PM", color = colors.accent, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
-                        }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column { Text("Completed", color = colors.textMuted, fontSize = 10.sp); Text("${tr.sessionsUsed}/${tr.sessionsTotal}", color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) { Text("Next", color = colors.textMuted, fontSize = 10.sp); Text(tr.nextSessionDate?.let { formatDate(it) } ?: "Not scheduled", color = colors.accent, fontSize = 11.5.sp, fontWeight = FontWeight.Bold) }
+                        Column(horizontalAlignment = Alignment.End) { Text("Rating", color = colors.textMuted, fontSize = 10.sp); Text(tr.rating?.toString() ?: "—", color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) }
                     }
                 }
-            } else {
-                Text("No active Personal Trainer assigned.", color = colors.textMuted, fontSize = 12.sp)
+            } else Text("No active Personal Trainer assigned.", color = colors.textMuted, fontSize = 12.sp)
+        }
+        if (tr != null) {
+            androidx.compose.material3.Button(onClick = onActionClick, modifier = Modifier.fillMaxWidth().height(42.dp), colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = colors.accent, contentColor = colors.textOnAccent)) {
+                Text("Schedule Session →", fontWeight = FontWeight.Black)
             }
         }
     }
@@ -932,22 +917,16 @@ fun NutritionPanel(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(nut?.planName ?: "High-Protein Clean Bulk", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                        Text("Target: 2,650 kcal / day", color = colors.textMuted, fontSize = 11.sp)
+                        Text(nut?.planName ?: "Nutrition plan not recorded", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                        Text(nut?.renewalDate?.let { "Renews ${it.let(::formatDate)}" } ?: "Renewal not recorded", color = colors.textMuted, fontSize = 11.sp)
                     }
-                    BadgeChip("ON TRACK", colors.success)
+                    BadgeChip(if (nut?.isSubscribed == true) "ACTIVE" else "NOT ACTIVE", if (nut?.isSubscribed == true) colors.success else colors.textMuted)
                 }
 
                 HorizontalDivider(color = colors.divider)
 
                 // Macros Row (Protein, Carbs, Fats)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    MacroChip("Protein", "180g", "Target: 175g", colors.accent)
-                    MacroChip("Carbs", "280g", "Target: 300g", colors.textSecondary)
-                    MacroChip("Fats", "65g", "Target: 70g", colors.textMuted)
+                Text("Macro targets appear here when nutrition tracking is connected.", color = colors.textMuted, fontSize = 10.5.sp)
                 }
             }
         }
@@ -969,15 +948,14 @@ fun SupplementsPanel(
         SectionTitle("SUPPLEMENTS & STACK INTELLIGENCE", theme)
 
         InfoCard(theme) {
+            val sup = snapshot.supplements
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Daily Protocol", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                SupplementRow("Whey Isolate (Gold Standard)", "1 Scoop Post-Workout (30g)")
-                SupplementRow("Creatine Monohydrate", "5g Daily Morning")
-                SupplementRow("Omega-3 & Multivitamins", "1 Capsule with Lunch")
+                Text(sup?.lastPurchaseName ?: "No supplement history", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text(listOfNotNull(sup?.brand, sup?.lastPurchaseDate?.let { formatDate(it) }).joinToString(" • ").ifBlank { "Purchase history not recorded" }, color = colors.textMuted, fontSize = 11.sp)
+                sup?.lastPurchasePrice?.let { Text(formatterForUi(it), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold) }
             }
         }
-
-        PromotionBanner("Supplements Store Offer: 15% OFF on Whey Refill", "PROMOTION", theme)
+        snapshot.promotion?.let { PromotionBanner(it, theme) }
     }
 }
 
@@ -996,10 +974,12 @@ fun ServicesPanel(
         SectionTitle("FACILITIES & VALUE-ADDED SERVICES", theme)
 
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                ServiceRow("Locker Rental (#42)", "Active until 31 Dec 2026", colors.success)
-                ServiceRow("Steam & Sauna Access", "Unlimited (Included in Elite)", colors.accent)
-                ServiceRow("Physio Assessment", "1 Complimentary Session Pending", colors.textMuted)
+            val services = snapshot.services.orEmpty()
+            if (services.isEmpty()) Text("No services recorded.", color = colors.textMuted, fontSize = 12.sp)
+            else Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                services.take(5).forEach { service ->
+                    ServiceRow(service.serviceName, if (service.isActive) service.expiryDate?.let { "Active until ${it.let(::formatDate)}" } ?: "Active" else "Expired / inactive", if (service.isActive) colors.success else colors.danger)
+                }
             }
         }
     }
@@ -1296,7 +1276,7 @@ fun HomeTrendCard(
 ) {
     val colors = BADGymTheme.colors
     val att = snapshot.attendance
-    val weeklyPattern = att?.weeklyPattern ?: listOf(1, 1, 0, 1, 1, 0, 1)
+    val weeklyPattern = att?.weeklyPattern.orEmpty()
     val dayLabels = listOf("M", "T", "W", "T", "F", "S", "S")
 
     InfoCard(
@@ -1358,6 +1338,11 @@ fun HomeTrendCard(
         }
     }
 }
+
+@Composable
+private fun EmptyStateRow(message: String) { Text(message, color = BADGymTheme.colors.textMuted, fontSize = 11.sp, modifier = Modifier.padding(vertical = 8.dp)) }
+
+private fun formatterForUi(value: Double): String = NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(value)
 
 private fun formatDate(millis: Long): String =
     SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(millis))
