@@ -83,14 +83,14 @@ private fun MiniKpi(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(
-                if (danger) Color(0xFF7F1D1D) else BADGymTheme.colors.surfaceElevated
-            )
-            .padding(horizontal = 6.dp, vertical = 8.dp)
+            if (danger) BADGymTheme.colors.dangerSoft else BADGymTheme.colors.surfaceElevated
+        )
+        .padding(horizontal = 6.dp, vertical = 8.dp)
     ) {
         Text(label, color = accent, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
         Spacer(modifier = Modifier.height(2.dp))
-        Text(value, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-        Text(sub, color = Color(0xFF94A3B8), fontSize = 12.sp, maxLines = 1)
+        Text(value, color = if(danger) BADGymTheme.colors.danger else BADGymTheme.colors.textPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        Text(sub, color = if(danger) BADGymTheme.colors.danger.copy(alpha=0.8f) else BADGymTheme.colors.textSecondary, fontSize = 12.sp, maxLines = 1)
     }
 }
 

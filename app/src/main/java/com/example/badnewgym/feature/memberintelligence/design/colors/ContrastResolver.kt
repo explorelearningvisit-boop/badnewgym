@@ -6,34 +6,60 @@ import androidx.compose.ui.graphics.luminance
 object ContrastResolver {
 
     /**
+     * Calculates the WCAG contrast ratio between two colors.
+     * Ratio ranges from 1.0 (no contrast) to 21.0 (maximum contrast).
+     */
+    fun calculateContrastRatio(foreground: Color, background: Color): Float {
+        val l1 = foreground.luminance()
+        val l2 = background.luminance()
+        val lighter = maxOf(l1, l2)
+        val darker = minOf(l1, l2)
+        return (lighter + 0.05f) / (darker + 0.05f)
+    }
+
+    /**
      * Determines whether white or black text should be used on top of a given background color
-     * to ensure sufficient contrast.
+     * to ensure sufficient contrast (target > 4.5:1).
      */
     fun contentColorFor(backgroundColor: Color): Color {
-        return if (backgroundColor.luminance() > 0.4f) {
-            Color.Black
-        } else {
-            Color.White
-        }
+        val whiteContrast = calculateContrastRatio(Color.White, backgroundColor)
+        val blackContrast = calculateContrastRatio(Color.Black, backgroundColor)
+        return if (whiteContrast >= blackContrast) Color.White else Color.Black
     }
 
     fun resolvePrimaryText(surfaceColor: Color, themeColors: BADGymColors): Color {
-        val lum = surfaceColor.luminance()
-        return if (lum > 0.4f) {
-            // Light surface, prefer dark text
-            if (themeColors.textPrimary.luminance() < 0.4f) themeColors.textPrimary else Color(0xFF1B2A20)
-        } else {
-            // Dark surface, prefer light text
-            if (themeColors.textPrimary.luminance() > 0.4f) themeColors.textPrimary else Color.White
+        val primaryContrast = calculateContrastRatio(themeColors.textPrimary, surfaceColor)
+        // Target: 4.5:1 for normal body text
+        if (primaryContrast >= 4.5f) {
+            return themeColors.textPrimary
         }
+        
+        // Fallback to absolute white or black if theme color fails contrast
+        return contentColorFor(surfaceColor)
     }
 
     fun resolveSecondaryText(surfaceColor: Color, themeColors: BADGymColors): Color {
-        val lum = surfaceColor.luminance()
-        return if (lum > 0.4f) {
-            if (themeColors.textSecondary.luminance() < 0.4f) themeColors.textSecondary else Color(0xFF4B6354)
-        } else {
-            if (themeColors.textSecondary.luminance() > 0.4f) themeColors.textSecondary else Color(0xFF94A3B8)
+        val secondaryContrast = calculateContrastRatio(themeColors.textSecondary, surfaceColor)
+        // Target: 4.5:1 for normal body text
+        if (secondaryContrast >= 4.5f) {
+            return themeColors.textSecondary
         }
+        
+        // If secondary fails, try primary
+        val primaryContrast = calculateContrastRatio(themeColors.textPrimary, surfaceColor)
+        if (primaryContrast >= 4.5f) {
+            return themeColors.textPrimary.copy(alpha = 0.8f) // Muted primary as secondary
+        }
+
+        // Fallback to absolute white/black muted
+        return contentColorFor(surfaceColor).copy(alpha = 0.8f)
+    }
+    
+    fun resolveTextOnAccent(accentColor: Color, themeColors: BADGymColors): Color {
+        val themeContrast = calculateContrastRatio(themeColors.textOnAccent, accentColor)
+        if (themeContrast >= 4.5f) {
+            return themeColors.textOnAccent
+        }
+        return contentColorFor(accentColor)
     }
 }

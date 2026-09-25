@@ -67,16 +67,7 @@ fun CardMetricsGrid(
                     CircularProgressIndicator(
                         progress = { (attendancePercent / 100f).coerceIn(0f, 1f) },
                         modifier = Modifier.fillMaxSize(),
-                        color = when (theme) {
-                            ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
-                            ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
-                            ThemeId.PURPLE_ROYAL -> Color(0xFFC084FC)
-                            ThemeId.FUTURISTIC_NEON -> Color(0xFF00E5FF)
-                            ThemeId.VIBRANT_GRADIENT -> Color(0xFF10B981)
-                            ThemeId.GLASSMORPHISM -> Color(0xFF0284C7)
-                            ThemeId.MINIMAL_DARK -> Color(0xFFCBD5E1)
-                            ThemeId.NATURAL_FRESH -> Color(0xFF16A34A)
-                        },
+                        color = colors.accent,
                         strokeWidth = 4.dp,
                         trackColor = colors.surfaceMuted
                     )
@@ -108,7 +99,7 @@ fun CardMetricsGrid(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = formattedAmount,
-                        color = if (isOverdue) Color(0xFFDC2626) else colors.textPrimary,
+                        color = if (isOverdue) colors.danger else colors.textPrimary,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Black
                     )
@@ -123,17 +114,13 @@ fun CardMetricsGrid(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (isOverdue) Color(0xFFFEE2E2)
-                            else if (theme == ThemeId.MINIMAL_DARK || theme == ThemeId.PREMIUM_3D || theme == ThemeId.BEAST_MODE || theme == ThemeId.PURPLE_ROYAL) Color(0xFF064E3B)
-                            else Color(0xFFDCFCE7)
-                        )
+                        .background(if (isOverdue) colors.dangerSoft else colors.successSoft)
                         .padding(horizontal = 8.dp, vertical = 3.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = if (isOverdue) "$overdueDays days" else "All Clear",
-                        color = if (isOverdue) Color(0xFFDC2626) else Color(0xFF16A34A),
+                        color = if (isOverdue) colors.danger else colors.success,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -173,16 +160,7 @@ fun CardMetricsGrid(
                     verticalAlignment = Alignment.Bottom
                 ) {
                     val barHeights = listOf(0.35f, 0.55f, 0.8f, 1.0f, 0.65f, 0.9f)
-                    val barColor = when (theme) {
-                        ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
-                        ThemeId.BEAST_MODE -> Color(0xFFFF1E27)
-                        ThemeId.PURPLE_ROYAL -> Color(0xFFA855F7)
-                        ThemeId.FUTURISTIC_NEON -> Color(0xFF00E5FF)
-                        ThemeId.VIBRANT_GRADIENT -> Color(0xFF38BDF8)
-                        ThemeId.GLASSMORPHISM -> Color(0xFF0284C7)
-                        ThemeId.MINIMAL_DARK -> Color(0xFF9CA3AF)
-                        ThemeId.NATURAL_FRESH -> Color(0xFF16A34A)
-                    }
+                    val barColor = colors.accent
 
                     barHeights.forEach { h ->
                         Box(
@@ -205,34 +183,15 @@ private fun MetricTileContainer(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val colors = BADGymTheme.colors
     Box(
         modifier = modifier
             .height(94.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(
-                when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xF8FDFBF7)
-                    ThemeId.BEAST_MODE -> Color(0xE645121A)
-                    ThemeId.PURPLE_ROYAL -> Color(0xEB361B5A)
-                    ThemeId.FUTURISTIC_NEON -> Color(0xD9162C4E)
-                    ThemeId.VIBRANT_GRADIENT -> Color(0xF0FAF5FF)
-                    ThemeId.GLASSMORPHISM -> Color(0xC8FFFFFF)
-                    ThemeId.MINIMAL_DARK -> Color(0xFFF1F5F9)
-                    ThemeId.NATURAL_FRESH -> Color(0xF0F6FBF7)
-                }
-            )
+            .background(colors.surface)
             .border(
                 width = 1.dp,
-                color = when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0x99E5B842)
-                    ThemeId.BEAST_MODE -> Color(0x80FF334B)
-                    ThemeId.PURPLE_ROYAL -> Color(0x80C084FC)
-                    ThemeId.FUTURISTIC_NEON -> Color(0x8000E5FF)
-                    ThemeId.VIBRANT_GRADIENT -> Color(0x80FBCFE8)
-                    ThemeId.GLASSMORPHISM -> Color(0xB3FFFFFF)
-                    ThemeId.MINIMAL_DARK -> Color(0xFFCBD5E1)
-                    ThemeId.NATURAL_FRESH -> Color(0x80D1E7D7)
-                },
+                color = colors.border,
                 shape = RoundedCornerShape(14.dp)
             )
             .padding(vertical = 8.dp, horizontal = 6.dp),

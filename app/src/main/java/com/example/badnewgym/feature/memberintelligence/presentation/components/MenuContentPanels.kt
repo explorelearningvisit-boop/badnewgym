@@ -174,7 +174,7 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                                     Icon(
                                         Icons.Rounded.Check,
                                         contentDescription = null,
-                                        tint = Color.White,
+                                        tint = colors.textOnAccent,
                                         modifier = Modifier.size(11.dp)
                                     )
                                 }
@@ -268,12 +268,12 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(if (isExpired) Color(0xFFFEE2E2) else Color(0xFFDCFCE7))
+                            .background(if (isExpired) colors.dangerSoft else colors.successSoft)
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = if (isExpired) "EXPIRED" else "ACTIVE",
-                            color = if (isExpired) Color(0xFFDC2626) else Color(0xFF16A34A),
+                            color = if (isExpired) colors.danger else colors.success,
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -296,7 +296,7 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         Text("Days Remaining", color = colors.textMuted, fontSize = 12.sp)
                         Text(
                             text = if (isExpired) "0 Days" else "$daysRemaining Days",
-                            color = if (isExpired) Color(0xFFDC2626) else colors.accent,
+                            color = if (isExpired) colors.danger else colors.accent,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Black
                         )
@@ -381,12 +381,12 @@ fun PaymentPanel(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(if (isOverdue) Color(0xFFFEE2E2) else Color(0xFFDCFCE7))
+                            .background(if (isOverdue) colors.dangerSoft else colors.successSoft)
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = if (isOverdue) "${overdueDays}d OVERDUE" else "PAID IN FULL",
-                            color = if (isOverdue) Color(0xFFDC2626) else Color(0xFF16A34A),
+                            color = if (isOverdue) colors.danger else colors.success,
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Black
                         )
@@ -395,7 +395,7 @@ fun PaymentPanel(
 
                 Text(
                     text = formattedDue,
-                    color = if (isOverdue) Color(0xFFDC2626) else colors.textPrimary,
+                    color = if (isOverdue) colors.danger else colors.textPrimary,
                     fontWeight = FontWeight.Black,
                     fontSize = 22.sp
                 )
@@ -403,7 +403,7 @@ fun PaymentPanel(
                 pay?.dueDate?.let {
                     Text(
                         text = "Due on: ${formatDate(it)}",
-                        color = if (isOverdue) Color(0xFFEF4444) else colors.textMuted,
+                        color = if (isOverdue) colors.danger else colors.textMuted,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -516,10 +516,10 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFFFEF3C7))
+                                .background(colors.warningSoft)
                                 .padding(horizontal = 4.dp, vertical = 1.dp)
                         ) {
-                            Text("★ 4.9", color = Color(0xFFD97706), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                            Text("★ 4.9", color = colors.warning, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     trainer.focus?.let {
@@ -724,12 +724,12 @@ fun NutritionPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(if (item?.isSubscribed == true) Color(0xFFDCFCE7) else Color(0xFFF1F5F9))
+                            .background(if (item?.isSubscribed == true) colors.successSoft else colors.surfaceMuted)
                             .padding(horizontal = 5.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = if (item?.isSubscribed == true) "SUBSCRIBED" else "INACTIVE",
-                            color = if (item?.isSubscribed == true) Color(0xFF16A34A) else Color(0xFF64748B),
+                            color = if (item?.isSubscribed == true) colors.success else colors.textMuted,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -777,12 +777,12 @@ fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(if (service.isActive) Color(0xFFDCFCE7) else Color(0xFFF1F5F9))
+                                    .background(if (service.isActive) colors.successSoft else colors.surfaceMuted)
                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                             ) {
                                 Text(
                                     text = if (service.isActive) "ACTIVE" else "EXPIRED",
-                                    color = if (service.isActive) Color(0xFF16A34A) else Color(0xFF64748B),
+                                    color = if (service.isActive) colors.success else colors.textMuted,
                                     fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -874,7 +874,7 @@ fun InsightPanel(
                         ) {
                             Text(
                                 text = sig.title,
-                                color = if (isP0) Color(0xFFDC2626) else colors.textPrimary,
+                                color = if (isP0) colors.danger else colors.textPrimary,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 maxLines = 1,
@@ -884,12 +884,12 @@ fun InsightPanel(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(if (isP0) Color(0xFFFEE2E2) else Color(0xFFFEF3C7))
+                                    .background(if (isP0) colors.dangerSoft else colors.warningSoft)
                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                             ) {
                                 Text(
                                     text = if (isP0) "P0 URGENT" else "P1 ACTION",
-                                    color = if (isP0) Color(0xFFDC2626) else Color(0xFFD97706),
+                                    color = if (isP0) colors.danger else colors.warning,
                                     fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Black
                                 )
@@ -926,32 +926,8 @@ private fun InfoCard(theme: ThemeId, content: @Composable ColumnScope.() -> Unit
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(
-                when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xFFFAF7F0)
-                    ThemeId.BEAST_MODE -> Color(0xCC4A141D)
-                    ThemeId.PURPLE_ROYAL -> Color(0xCC3B1C64)
-                    ThemeId.FUTURISTIC_NEON -> Color(0xCC162C4E)
-                    ThemeId.VIBRANT_GRADIENT -> Color(0xFFF8FAFC)
-                    ThemeId.GLASSMORPHISM -> Color(0xD0FFFFFF)
-                    ThemeId.MINIMAL_DARK -> Color(0xFFF1F5F9)
-                    ThemeId.NATURAL_FRESH -> Color(0xFFF6FBF7)
-                }
-            )
-            .border(
-                0.8.dp,
-                when (theme) {
-                    ThemeId.PREMIUM_3D -> Color(0xFFE5B842)
-                    ThemeId.BEAST_MODE -> Color(0xFFFF334B)
-                    ThemeId.PURPLE_ROYAL -> Color(0xFFC084FC)
-                    ThemeId.FUTURISTIC_NEON -> Color(0xFF00E5FF)
-                    ThemeId.VIBRANT_GRADIENT -> Color(0xFFFBCFE8)
-                    ThemeId.GLASSMORPHISM -> Color(0x80FFFFFF)
-                    ThemeId.MINIMAL_DARK -> Color(0xFFCBD5E1)
-                    ThemeId.NATURAL_FRESH -> Color(0xFFD1E7D7)
-                },
-                RoundedCornerShape(10.dp)
-            )
+            .background(colors.surfaceElevated)
+            .border(0.8.dp, colors.border, RoundedCornerShape(10.dp))
             .padding(8.dp),
         content = content
     )

@@ -33,7 +33,7 @@ fun ThemeOrnamentLayer(
                     center = Offset(size.width * .88f, size.height * .42f)
                 )
                 drawCircle(
-                    Brush.radialGradient(listOf(Color(0xFF52B788).copy(alpha = .12f), Color.Transparent)),
+                    Brush.radialGradient(listOf(c.success.copy(alpha = .12f), Color.Transparent)),
                     radius = size.minDimension * .34f,
                     center = Offset(size.width * .12f, size.height * .78f)
                 )
@@ -44,12 +44,12 @@ fun ThemeOrnamentLayer(
 
             ThemeId.FUTURISTIC_NEON -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF1E3A64), Color(0xFF0F1E36))),
+                    Brush.linearGradient(listOf(c.surfaceElevated, c.background)),
                     size = size
                 )
                 neonLine(Offset(0f, size.height * .76f), Offset(size.width, size.height * .46f), c.accent)
                 neonLine(Offset(size.width * .18f, size.height), Offset(size.width * .82f, 0f), c.accent.copy(alpha = .55f))
-                neonLine(Offset(size.width * .48f, size.height), Offset(size.width, size.height * .68f), Color(0xFF38BDF8).copy(alpha = .55f))
+                neonLine(Offset(size.width * .48f, size.height), Offset(size.width, size.height * .68f), c.info.copy(alpha = .55f))
                 for (i in 1..6) {
                     val y = size.height * (i / 7f)
                     drawLine(c.accent.copy(alpha = .06f), Offset(0f, y), Offset(size.width, y), 1f)
@@ -58,53 +58,53 @@ fun ThemeOrnamentLayer(
 
             ThemeId.MINIMAL_DARK -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF0E1C1F), Color(0xFF050A0F))),
+                    Brush.linearGradient(listOf(c.surface, c.background)),
                     size = size
                 )
-                drawCircle(Color.White.copy(alpha = .05f), size.minDimension * .65f, Offset(size.width * .9f, size.height * .05f))
+                drawCircle(c.textPrimary.copy(alpha = .05f), size.minDimension * .65f, Offset(size.width * .9f, size.height * .05f))
                 for (i in 1..8) {
                     val y = size.height * (i / 9f)
-                    drawLine(Color(0xFF334155).copy(alpha = .35f), Offset(0f, y), Offset(size.width, y), 1f)
+                    drawLine(c.border.copy(alpha = .35f), Offset(0f, y), Offset(size.width, y), 1f)
                 }
             }
 
             ThemeId.GLASSMORPHISM -> {
                 drawRect(
                     Brush.linearGradient(
-                        listOf(Color(0xFFEAF3FF), Color(0xFFD8E4FF), Color(0xFFF4E9FF))
+                        listOf(c.surface, c.surfaceMuted, c.background)
                     ),
                     size = size
                 )
-                drawCircle(Color(0xFF60A5FA).copy(alpha = .25f), size.minDimension * .45f, Offset(size.width * .92f, size.height * .16f))
-                drawCircle(Color(0xFFC084FC).copy(alpha = .18f), size.minDimension * .38f, Offset(size.width * .12f, size.height * .76f))
-                drawCircle(Color.White.copy(alpha = .35f), size.minDimension * .28f, Offset(size.width * .55f, size.height * .50f))
+                drawCircle(c.info.copy(alpha = .25f), size.minDimension * .45f, Offset(size.width * .92f, size.height * .16f))
+                drawCircle(c.vip.copy(alpha = .18f), size.minDimension * .38f, Offset(size.width * .12f, size.height * .76f))
+                drawCircle(c.textPrimary.copy(alpha = .35f), size.minDimension * .28f, Offset(size.width * .55f, size.height * .50f))
             }
 
             ThemeId.PREMIUM_3D -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFFFAF6EE), Color(0xFFF0E6D2))),
+                    Brush.linearGradient(listOf(c.background, c.surfaceMuted)),
                     size = size
                 )
                 metallicArc(Offset(size.width * .88f, size.height * .15f), size.minDimension * .50f, c.accent)
-                metallicArc(Offset(size.width * .08f, size.height * .90f), size.minDimension * .34f, Color(0xFFD4AF37))
-                drawCircle(Color(0xFFFFD700).copy(alpha = .12f), size.minDimension * .48f, Offset(size.width * .75f, size.height * .72f))
+                metallicArc(Offset(size.width * .08f, size.height * .90f), size.minDimension * .34f, c.accent)
+                drawCircle(c.vip.copy(alpha = .12f), size.minDimension * .48f, Offset(size.width * .75f, size.height * .72f))
             }
 
             ThemeId.VIBRANT_GRADIENT -> {
                 drawRect(
                     Brush.linearGradient(
-                        colors = listOf(Color(0xFFFDF4FF), Color(0xFFE0E7FF), Color(0xFFFFE4E6), Color(0xFFFEF3C7))
+                        colors = listOf(c.background, c.surface, c.surfaceMuted, c.vipSoft)
                     ),
                     size = size
                 )
-                drawCircle(Color(0xFFEC4899).copy(alpha = .16f), size.minDimension * .42f, Offset(size.width * .08f, size.height * .08f))
-                drawCircle(Color(0xFF3B82F6).copy(alpha = .14f), size.minDimension * .46f, Offset(size.width * .94f, size.height * .46f))
-                drawCircle(Color(0xFFF59E0B).copy(alpha = .12f), size.minDimension * .40f, Offset(size.width * .25f, size.height * .94f))
+                drawCircle(c.accent.copy(alpha = .16f), size.minDimension * .42f, Offset(size.width * .08f, size.height * .08f))
+                drawCircle(c.info.copy(alpha = .14f), size.minDimension * .46f, Offset(size.width * .94f, size.height * .46f))
+                drawCircle(c.warning.copy(alpha = .12f), size.minDimension * .40f, Offset(size.width * .25f, size.height * .94f))
             }
 
             ThemeId.BEAST_MODE -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF4A141D), Color(0xFF2A080E))),
+                    Brush.linearGradient(listOf(c.surface, c.background)),
                     size = size
                 )
                 claw(Offset(size.width * .14f, size.height * .88f), c.accent)
@@ -114,11 +114,11 @@ fun ThemeOrnamentLayer(
 
             ThemeId.PURPLE_ROYAL -> {
                 drawRect(
-                    Brush.linearGradient(listOf(Color(0xFF3E1A68), Color(0xFF1F0D36))),
+                    Brush.linearGradient(listOf(c.surface, c.background)),
                     size = size
                 )
-                drawCircle(Color(0xFFA855F7).copy(alpha = .22f), size.minDimension * .46f, Offset(size.width * .90f, size.height * .12f))
-                drawCircle(Color(0xFFE879F9).copy(alpha = .16f), size.minDimension * .38f, Offset(size.width * .12f, size.height * .78f))
+                drawCircle(c.accent.copy(alpha = .22f), size.minDimension * .46f, Offset(size.width * .90f, size.height * .12f))
+                drawCircle(c.vip.copy(alpha = .16f), size.minDimension * .38f, Offset(size.width * .12f, size.height * .78f))
                 diamond(Offset(size.width * .86f, size.height * .82f), size.minDimension * .10f, c.accent.copy(alpha = .28f))
             }
         }
@@ -210,5 +210,5 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.diamond(
         close()
     }
     drawPath(path, color)
-    drawPath(path, Color.White.copy(alpha = .18f), style = Stroke(width = 1.2f))
+    drawPath(path, color.copy(alpha = .18f), style = Stroke(width = 1.2f))
 }

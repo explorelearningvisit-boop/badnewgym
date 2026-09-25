@@ -134,12 +134,12 @@ fun CheckInHeader(
                     modifier = Modifier
                         .size(6.dp)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(BADGymTheme.colors.surfaceElevated)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "CHECK-IN",
-                    color = Color.White,
+                    color = BADGymTheme.colors.textOnAccent,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
@@ -188,7 +188,7 @@ fun MemberHero(
                 Icon(
                     imageVector = Icons.Rounded.Verified,
                     contentDescription = null,
-                    tint = Color(0xFF3B82F6),
+                    tint = BADGymTheme.colors.info,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -508,7 +508,8 @@ fun AlertBanner(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFF7F1D1D))
+            .background(BADGymTheme.colors.dangerSoft)
+            .border(1.dp, BADGymTheme.colors.danger.copy(alpha=0.3f), RoundedCornerShape(8.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -516,17 +517,17 @@ fun AlertBanner(
             modifier = Modifier
                 .size(22.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFEF4444)),
+                .background(BADGymTheme.colors.danger),
             contentAlignment = Alignment.Center
         ) {
-            Text("!", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text("!", color = BADGymTheme.colors.textOnAccent, fontWeight = FontWeight.Bold, fontSize = 15.sp)
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Text(text = subtitle, color = Color(0xFFFCA5A5), fontSize = 13.sp)
+            Text(text = title, color = BADGymTheme.colors.danger, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = subtitle, color = BADGymTheme.colors.danger.copy(alpha=0.8f), fontSize = 13.sp)
         }
-        Text("›", color = Color.White, fontWeight = FontWeight.Bold)
+        Text("›", color = BADGymTheme.colors.danger, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -630,7 +631,7 @@ fun PromoBanner(
                 .background(BADGymTheme.colors.danger)
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            Text(text = badge, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Text(text = badge, color = BADGymTheme.colors.textOnAccent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

@@ -58,7 +58,7 @@ fun HeroMemberSection(
                     Icon(
                         Icons.Rounded.CheckCircle,
                         contentDescription = "Verified",
-                        tint = Color(0xFF38BDF8),
+                        tint = colors.info,
                         modifier = Modifier.size(16.dp)
                     )
                 }

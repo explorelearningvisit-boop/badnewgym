@@ -58,7 +58,7 @@ fun AvatarImage(
     height: Dp = size,
     modifier: Modifier = Modifier,
     shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(14.dp),
-    placeholderTint: Color = Color(0xFF334155),
+    placeholderTint: Color = com.example.badnewgym.feature.memberintelligence.design.BADGymTheme.colors.surfaceMuted,
     fallbackModel: Any? = null
 ) {
     Box(
@@ -73,7 +73,7 @@ fun AvatarImage(
             Icon(
                 imageVector = Icons.Rounded.Person,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.7f),
+                tint = com.example.badnewgym.feature.memberintelligence.design.BADGymTheme.colors.textPrimary.copy(alpha = 0.7f),
                 modifier = Modifier.size(minOf(width, height) * 0.45f)
             )
         } else {

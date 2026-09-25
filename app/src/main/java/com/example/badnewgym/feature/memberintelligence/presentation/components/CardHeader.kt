@@ -62,10 +62,10 @@ fun CardHeader(
             modifier = Modifier
                 .size(32.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(theme.brandBrush()),
+                .background(Brush.linearGradient(colors.ctaGradient)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(theme.brandIcon(), "BAD GYM", tint = Color.White, modifier = Modifier.size(19.dp))
+            Icon(theme.brandIcon(), "BAD GYM", tint = com.example.badnewgym.feature.memberintelligence.design.colors.ContrastResolver.contentColorFor(colors.ctaGradient.first()), modifier = Modifier.size(19.dp))
         }
 
         Spacer(Modifier.width(7.dp))
@@ -74,11 +74,7 @@ fun CardHeader(
             Column {
                 Text(
                     "BAD GYM",
-                    color = when (theme) {
-                        ThemeId.PREMIUM_3D -> Color(0xFFFFD700)
-                        ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
-                        else -> colors.textPrimary
-                    },
+                    color = colors.brandAccent,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.4.sp
@@ -127,16 +123,6 @@ fun CardHeader(
     }
 }
 
-private fun ThemeId.brandBrush(): Brush = when (this) {
-    ThemeId.NATURAL_FRESH -> Brush.linearGradient(listOf(Color(0xFF22C55E), Color(0xFF15803D)))
-    ThemeId.FUTURISTIC_NEON -> Brush.linearGradient(listOf(Color(0xFF00E5FF), Color(0xFF0369A1)))
-    ThemeId.MINIMAL_DARK -> Brush.linearGradient(listOf(Color(0xFF4B5563), Color(0xFF1F2937)))
-    ThemeId.GLASSMORPHISM -> Brush.linearGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7)))
-    ThemeId.PREMIUM_3D -> Brush.linearGradient(listOf(Color(0xFFE5B842), Color(0xFF926F15)))
-    ThemeId.VIBRANT_GRADIENT -> Brush.linearGradient(listOf(Color(0xFFF97316), Color(0xFFEC4899)))
-    ThemeId.BEAST_MODE -> Brush.linearGradient(listOf(Color(0xFFFF1E27), Color(0xFF660000)))
-    ThemeId.PURPLE_ROYAL -> Brush.linearGradient(listOf(Color(0xFFA855F7), Color(0xFF4C1D95)))
-}
 
 private fun ThemeId.brandIcon(): ImageVector = when (this) {
     ThemeId.NATURAL_FRESH -> Icons.Rounded.Eco

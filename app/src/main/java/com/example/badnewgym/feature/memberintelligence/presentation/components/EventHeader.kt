@@ -33,10 +33,10 @@ fun EventHeader(event: MemberEvent, theme: ThemeId, modifier: Modifier = Modifie
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(14.dp))
-                .background(if (isNatural) Color(0xFF16A34A) else eventColor)
+                .background(if (isNatural) BADGymTheme.colors.success else eventColor)
                 .border(
                     1.dp,
-                    if (isNatural) Color(0xFF15803D) else eventColor.copy(alpha = 0.8f),
+                    if (isNatural) BADGymTheme.colors.success.copy(alpha = 0.8f) else eventColor.copy(alpha = 0.8f),
                     RoundedCornerShape(14.dp)
                 )
                 .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -44,7 +44,7 @@ fun EventHeader(event: MemberEvent, theme: ThemeId, modifier: Modifier = Modifie
         ) {
             Text(
                 text = "+ " + event.eventType.displayLabel(),
-                color = Color.White,
+                color = BADGymTheme.colors.textOnAccent,
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.5.sp

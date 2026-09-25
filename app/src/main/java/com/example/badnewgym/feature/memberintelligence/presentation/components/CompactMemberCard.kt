@@ -407,7 +407,7 @@ private fun CompactEventHeader(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
-                .background(if (isNatural) Color(0xFF16A34A) else eventColor)
+                .background(eventColor)
                 .padding(horizontal = 8.dp, vertical = 3.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -415,12 +415,12 @@ private fun CompactEventHeader(
                 modifier = Modifier
                     .size(5.dp)
                     .clip(CircleShape)
-                    .background(Color.White)
+                    .background(BADGymTheme.colors.textOnAccent)
             )
             Spacer(Modifier.width(4.dp))
             Text(
                 text = "+ " + eventType.displayLabel(),
-                color = Color.White,
+                color = BADGymTheme.colors.textOnAccent,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.3.sp
@@ -520,7 +520,7 @@ private fun CompactHeroIdentity(
                     Icon(
                         Icons.Rounded.CheckCircle,
                         contentDescription = "Verified",
-                        tint = Color(0xFF38BDF8),
+                        tint = colors.vip,
                         modifier = Modifier.size(13.dp)
                     )
                 }
@@ -677,7 +677,7 @@ private fun CompactMetricsGrid(
                 CircularProgressIndicator(
                     progress = { (attendancePercent / 100f).coerceIn(0f, 1f) },
                     modifier = Modifier.fillMaxSize(),
-                    color = if (theme == ThemeId.NATURAL_FRESH) Color(0xFF16A34A) else colors.accent,
+                    color = colors.accent,
                     strokeWidth = 2.5.dp,
                     trackColor = colors.surfaceMuted
                 )
@@ -708,7 +708,7 @@ private fun CompactMetricsGrid(
         CompactMetricTile(theme = theme, modifier = Modifier.weight(1f)) {
             Text(
                 text = formattedAmount,
-                color = if (isOverdue) Color(0xFFDC2626) else colors.textPrimary,
+                color = if (isOverdue) colors.danger else colors.textPrimary,
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black,
                 maxLines = 1,
@@ -717,12 +717,12 @@ private fun CompactMetricsGrid(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(4.dp))
-                    .background(if (isOverdue) Color(0xFFFEE2E2) else Color(0xFFDCFCE7))
+                    .background(if (isOverdue) colors.dangerSoft else colors.successSoft)
                     .padding(horizontal = 4.dp, vertical = 1.dp)
             ) {
                 Text(
                     text = if (isOverdue) "$overdueDays d due" else "Clear",
-                    color = if (isOverdue) Color(0xFFDC2626) else Color(0xFF16A34A),
+                    color = if (isOverdue) colors.danger else colors.success,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -752,7 +752,7 @@ private fun CompactMetricsGrid(
                 verticalAlignment = Alignment.Bottom
             ) {
                 val barHeights = listOf(0.4f, 0.7f, 1.0f, 0.65f, 0.9f)
-                val barColor = if (theme == ThemeId.NATURAL_FRESH) Color(0xFF16A34A) else colors.accent
+                val barColor = colors.accent
                 barHeights.forEach { h ->
                     Box(
                         modifier = Modifier
@@ -809,36 +809,37 @@ private fun CompactSignalBanner(
         return
     }
 
+    val colors = BADGymTheme.colors
     val bannerBg = if (semantics != null && semantics.isUrgent) {
         semantics.stateAccentColor.copy(alpha = 0.14f)
     } else if (isCritical) {
-        Color(0xFFFEF2F2)
+        colors.dangerSoft
     } else {
-        Color(0xFFFFFBEB)
+        colors.warningSoft
     }
 
     val bannerBorder = if (semantics != null && semantics.isUrgent) {
         semantics.stateAccentColor.copy(alpha = 0.45f)
     } else if (isCritical) {
-        Color(0xFFFCA5A5)
+        colors.danger.copy(alpha = 0.4f)
     } else {
-        Color(0xFFFDE68A)
+        colors.warning.copy(alpha = 0.4f)
     }
 
     val iconTint = if (semantics != null && semantics.isUrgent) {
         semantics.stateAccentColor
     } else if (isCritical) {
-        Color(0xFFDC2626)
+        colors.danger
     } else {
-        Color(0xFFD97706)
+        colors.warning
     }
 
     val textColor = if (semantics != null && semantics.isUrgent) {
         semantics.stateAccentColor
     } else if (isCritical) {
-        Color(0xFF991B1B)
+        colors.danger
     } else {
-        Color(0xFF92400E)
+        colors.warning
     }
 
     val icon = semantics?.stateIcon ?: Icons.Rounded.WarningAmber
@@ -991,7 +992,7 @@ private fun BoundedDetailRail(
                             if (isActionNeeded) {
                                 Modifier.border(
                                     1.2.dp,
-                                    Color(0xFFEF4444),
+                                    colors.danger,
                                     RoundedCornerShape(7.dp)
                                 )
                             } else if (isActive) {
@@ -1009,7 +1010,7 @@ private fun BoundedDetailRail(
                     Icon(
                         imageVector = getRailIcon(menu.id),
                         contentDescription = menu.label,
-                        tint = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.railActiveIcon else colors.railInactiveIcon,
+                        tint = if (isActionNeeded) colors.danger else if (isActive) colors.railActiveIcon else colors.railInactiveIcon,
                         modifier = Modifier.size(if (isActive) 16.dp else 14.dp)
                     )
                     if (isActionNeeded || menu.hasAlert || menu.badgeCount > 0) {
@@ -1019,7 +1020,7 @@ private fun BoundedDetailRail(
                                 .offset(x = 1.dp, y = (-1).dp)
                                 .size(6.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFEF4444))
+                                .background(colors.danger)
                         )
                     }
                 }
@@ -1028,7 +1029,7 @@ private fun BoundedDetailRail(
 
                 Text(
                     text = menu.label,
-                    color = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.textPrimary else colors.textMuted,
+                    color = if (isActionNeeded) colors.danger else if (isActive) colors.textPrimary else colors.textMuted,
                     fontSize = 11.5.sp,
                     fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Medium,
                     maxLines = 1,
@@ -1038,7 +1039,7 @@ private fun BoundedDetailRail(
                 if (microData.isNotBlank()) {
                     Text(
                         text = microData,
-                        color = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.accent else colors.textSecondary,
+                        color = if (isActionNeeded) colors.danger else if (isActive) colors.accent else colors.textSecondary,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -1120,7 +1121,7 @@ private fun PersistentDetailHeader(
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
-                    .background(if (isNatural) Color(0xFF16A34A) else eventColor)
+                    .background(if (isNatural) colors.success else eventColor)
                     .padding(horizontal = 7.dp, vertical = 2.5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -1128,12 +1129,12 @@ private fun PersistentDetailHeader(
                     modifier = Modifier
                         .size(4.5.dp)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(BADGymTheme.colors.textOnAccent)
                 )
                 Spacer(Modifier.width(3.5.dp))
                 Text(
                     text = "+ " + eventType.displayLabel(),
-                    color = Color.White,
+                    color = BADGymTheme.colors.textOnAccent,
                     fontSize = 13.5.sp,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 0.2.sp
@@ -1218,7 +1219,7 @@ private fun PersistentDetailHeader(
                         Icon(
                             Icons.Rounded.CheckCircle,
                             contentDescription = "Verified",
-                            tint = Color(0xFF38BDF8),
+                            tint = colors.info,
                             modifier = Modifier.size(12.dp)
                         )
                     }

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
+import com.example.badnewgym.feature.memberintelligence.design.colors.ContrastResolver
 
 @Composable
 fun ThemedCtaButton(
@@ -36,26 +37,10 @@ fun ThemedCtaButton(
             .fillMaxWidth()
             .height(48.dp)
             .clip(RoundedCornerShape(24.dp))
-            .background(
-                when (theme) {
-                    ThemeId.PREMIUM_3D -> Brush.horizontalGradient(listOf(Color(0xFFFFD700), Color(0xFFE5B842), Color(0xFFB8860B)))
-                    ThemeId.BEAST_MODE -> Brush.horizontalGradient(listOf(Color(0xFFFF1E27), Color(0xFFCC0000)))
-                    ThemeId.PURPLE_ROYAL -> Brush.horizontalGradient(listOf(Color(0xFFA855F7), Color(0xFF7E22CE)))
-                    ThemeId.FUTURISTIC_NEON -> Brush.horizontalGradient(listOf(Color(0xFF00E5FF), Color(0xFF0284C7)))
-                    ThemeId.VIBRANT_GRADIENT -> Brush.horizontalGradient(listOf(Color(0xFF3B82F6), Color(0xFF8B5CF6), Color(0xFFEC4899)))
-                    ThemeId.GLASSMORPHISM -> Brush.horizontalGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7)))
-                    ThemeId.MINIMAL_DARK -> Brush.horizontalGradient(listOf(Color(0xFF475569), Color(0xFF334155)))
-                    ThemeId.NATURAL_FRESH -> Brush.horizontalGradient(listOf(Color(0xFF16A34A), Color(0xFF15803D)))
-                }
-            )
+            .background(Brush.horizontalGradient(colors.ctaGradient))
             .border(
-                width = if (theme == ThemeId.MINIMAL_DARK) 1.dp else 0.5.dp,
-                color = when (theme) {
-                    ThemeId.MINIMAL_DARK -> Color(0xFF94A3B8)
-                    ThemeId.PREMIUM_3D -> Color(0xFFFFFBEB)
-                    ThemeId.FUTURISTIC_NEON -> Color(0xFFE0F2FE)
-                    else -> Color.White.copy(alpha = 0.3f)
-                },
+                width = 0.5.dp,
+                color = colors.textOnAccent.copy(alpha = 0.3f),
                 shape = RoundedCornerShape(24.dp)
             )
             .clickable(onClick = onClick),
@@ -67,7 +52,7 @@ fun ThemedCtaButton(
         ) {
             Text(
                 text = displayText,
-                color = if (theme == ThemeId.PREMIUM_3D) Color(0xFF1C1304) else Color.White,
+                color = ContrastResolver.contentColorFor(colors.ctaGradient.first()),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.4.sp

@@ -66,12 +66,12 @@ fun MemberPhoto(
             Icon(
                 imageVector = Icons.Rounded.Verified,
                 contentDescription = "Verified",
-                tint = Color(0xFF38BDF8),
+                tint = BADGymTheme.colors.info,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .offset(x = 2.dp, y = 2.dp)
                     .size(20.dp)
-                    .background(Color.White, androidx.compose.foundation.shape.CircleShape)
+                    .background(BADGymTheme.colors.surfaceElevated, androidx.compose.foundation.shape.CircleShape)
             )
         }
     }
