@@ -1,36 +1,21 @@
 # BAD GYM — Active Session Context
 
-This file is a compact working-memory checkpoint, not a duplicate of repository documentation.
-
-## Session
-- TASK_ID: MI-V6-MEMBER-INTELLIGENCE-UX-THEME-REBUILD
+- TASK_ID: PROTOCOL-ALL-IN-ONE-PULL-RUN-RECONCILIATION
 - BRANCH: member-intelligence-v3
-- CONTEXT_VERSION: 2
+- CONTEXT_VERSION: 3
 - STATUS: READY_FOR_EXECUTION
-- Last checkpoint: incremental collaboration protocol expanded
-- Last completed action: added context manifest, sync state, short-command rules, incremental invalidation, conflict handling, and expanded design/engineering skills
-- Current action: awaiting visible Antigravity Pull and Run
-- Next action: Pull and Run; validate HEAD/worktree; read checkpoint plus required context; execute authorized task visibly
-- Stop point: before MI-V6 implementation
+- Protocol: MASTER_AI_EXECUTION_CONTRACT.md v1.0
+- Execution: visible Google Antigravity GUI only
+- Autonomous/headless bridge: disabled
 
-## Reuse policy
-On resume, validate branch, HEAD, task ID, and working-tree state. Reuse this checkpoint when valid. Read only changed/relevant files. Do not reread unchanged large files or all protocol documents after every short command.
+## Current checkpoint
+Install/reconcile the permanent all-in-one Pull and Run contract. Do not implement new product scope.
 
-## Current decisions
-- GitHub is the durable ChatGPT ↔ Antigravity intermediary.
-- ChatGPT writes authorization/reasoning/acceptance criteria.
-- Antigravity executes visibly and writes evidence/reasoning back.
-- Autonomous/headless AGY bridge remains disabled.
-- Pull and Run is the short execution trigger.
-- Stop is a pause, not a reset.
-- Incremental delta communication is preferred over repeated full context.
-- Fresh user requirements and actual repository changes always invalidate stale assumptions.
+## Known reconciliation issue
+MI-V6 documentation became inconsistent: CURRENT_TASK/STATUS reported completion while CHATGPT_HANDOFF/SESSION_CONTEXT/HANDOFF_STATUS remained stale. Reconcile this from Git evidence without duplicating MI-V6.
 
-## Current MI-V6 scope
-Rebuild Member Intelligence 8-theme material/semantic system; preserve shared hierarchy, browse/detail geometry, carousel, and all 11 menus; implement real contrast-ratio resolution; perform visual/device verification; document and push.
+## Reuse
+On subsequent commands validate branch, HEAD, worktree, task and relevant file SHAs. Reuse this checkpoint when valid and read only deltas.
 
-## Evidence
-No MI-V6 implementation evidence yet.
-
-## Next ChatGPT checkpoint
-After Antigravity pushes, read the new handoff and only the deltas from this checkpoint before authoring the next task.
+## Stop/Resume
+Stop saves the exact continuation point here. Resume validates and continues from it.
