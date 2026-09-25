@@ -66,6 +66,7 @@ import com.example.badnewgym.feature.memberintelligence.design.dimensions.Compac
 import com.example.badnewgym.feature.memberintelligence.design.dimensions.rememberCompactCardDimensions
 import com.example.badnewgym.feature.memberintelligence.design.elevation
 import com.example.badnewgym.feature.memberintelligence.design.motion
+import com.example.badnewgym.feature.memberintelligence.design.motion.contentDepthSeparation
 import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberSemanticResolver
 import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberSemanticStyle
 import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberStateVisual
@@ -101,6 +102,8 @@ fun CompactMemberCard(
     onClick: () -> Unit = {},
     onCtaClick: () -> Unit = {},
     onCloseDetail: () -> Unit = {},
+    /** Stage 7: pass reduced-motion preference from the carousel host. */
+    isReducedMotion: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     BADGymTheme(
@@ -238,11 +241,12 @@ fun CompactMemberCard(
 
                         Spacer(Modifier.height(3.dp))
 
-                        // 2. Menu Content Panel Viewport
+                        // 2. Menu Content Panel Viewport (Stage 7: subtle depth sep from header)
                         Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth()
+                                .contentDepthSeparation(isReducedMotion)
                         ) {
                             AnimatedContent(
                                 targetState = activeMenu,
