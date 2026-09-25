@@ -1,36 +1,50 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: COMPLETED
-TASK_ID: MI-STAGE-7.2-FINAL-PRODUCTION-INTELLIGENCE
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-STAGE-7.3-MEMBER-INTELLIGENCE-REBUILD
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity GUI only — visible Pull and Run
 BRANCH: member-intelligence-v3
-PREVIOUS VERIFIED IMPLEMENTATION: 0c6c1d2e74a2d05cbfcd9b59695c24204bed1ded
+BASE: 85e3e8ceef449d8725b01cad51f3676a38b46727
+PACKET: docs/reference/STAGE_7_3_MEMBER_INTELLIGENCE_REBUILD.md
 
 ## Mission
-Finalize Member Intelligence as a practical light-only production visual intelligence system. Remove duplicated/redundant metrics, enlarge important information, make Home interactive, make the rail semantically intelligent, make the bottom CTA contextual, isolate promotions and ensure every visual has explicit meaning.
-
-## Authoritative packet
-docs/reference/STAGE_7_2_FINAL_PRODUCTION_INTELLIGENCE_PACKET.md
-
-## Visual direction
-Latest generated concept board is visual inspiration only. Use white/ivory/pastel light material personalities. No black/dark-black user-facing themes.
-
-## Required sequence
-L0 geometry → L1 material → L2 shape → L3 identity → L4 state → L5 unique analytics → L6 CTA → L7 typography → L8 assets → L9 rail → L10 menu content → L11 motion → L12 theme matrix → L13 interaction/accessibility → L14 final verification.
+Rebuild Member Intelligence as a real owner-facing intelligence workspace, not a compact poster. The current runtime screenshots show clipping, weak information hierarchy, insufficient past/present/future analysis, shallow menu content, hard-coded/demo-like values, weak sub-navigation, and theme treatment that does not match the latest light-only direction.
 
 ## Non-negotiables
-- No Stage 8.
-- No fake data.
-- No unexplained chart/color.
-- No duplicate primary metrics.
-- No tiny text used to force-fit content.
-- Every interactive-looking control must perform a real action or navigate to a real flow.
+- Light operational UI only. No black/dark-black user-facing backgrounds.
+- Do not merely recolor the current implementation.
+- Replace fixed-height clipping with content-driven/adaptive scrolling.
+- Large readable event headings.
+- Long member names must wrap safely.
+- Every primary menu must expose meaningful past/present/future information.
+- Add meaningful sub-menus where they materially change the information view.
+- Event-driven default menu: Payment event opens Payment; late check-in opens Attendance; PT event opens Trainer; workout opens Workout; generic member opens Home.
+- Payment remains highlighted while in Payment context; do not randomly auto-switch during active reading.
+- Use a typed event model and temporal/analytics presentation model.
+- Every visual must have explicit metric/state/period semantics.
+- AI insights must be evidence-backed; no fabricated predictions.
+- No fake demo numbers/dates/transactions in production path.
+- Promotions are isolated and clearly labeled.
+- One contextual primary CTA per menu.
+- Real media only when repository/storage supports it; otherwise omit/unavailable state.
 - Preserve existing domain/repository/navigation boundaries.
-- Preserve Stage 6 and Stage 7 behavior.
-- No giant bitmap UI background.
-- No black/dark-black user-facing theme.
-- Promotions are clearly labeled and never obscure operational intelligence.
+- Preserve Stage 7 motion/depth behavior, but subordinate motion to readability.
+- Do not start Stage 8.
 
-## Acceptance
-11 menus + More, all visible interactions, 8 light themes, responsive reasoning, device runtime, no clipping, semantic rail badges, contextual bottom actions, promotion isolation, accessibility, tests, build, screenshots, docs, commit/push and exact remote SHA.
+## Required menu coverage
+Home, Attendance, Plan, Payment, Trainer, Workout, Supplements, Nutrition, Services, History, Insight, More.
+
+## Required verification
+- unit tests for menu mapping, badges, CTA state, temporal grouping, insight evidence;
+- testDebugUnitTest;
+- assembleDebug;
+- Xiaomi Redmi Note 11 runtime when available;
+- screenshots proving all menus, Payment default-open, late check-in default-open, long name, media, promotion, and light theme matrix;
+- exact SHA, branch and evidence in final handoff.
+
+## Execution sequence
+INSPECT → REBUILD DATA/IA CONTRACT → IMPLEMENT → TEST → BUILD → RUNTIME → SCREENSHOTS → DOCUMENT → COMMIT → PUSH → REPORT EXACT SHA.
+
+FINAL COMMAND:
+Pull and Run MI-STAGE-7.3-MEMBER-INTELLIGENCE-REBUILD. Do not start Stage 8.
