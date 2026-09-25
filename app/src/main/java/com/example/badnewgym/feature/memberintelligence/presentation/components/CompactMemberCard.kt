@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import com.example.badnewgym.R
 import com.example.badnewgym.feature.memberintelligence.debug.DebugRuntimeIdentityBadge
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
+import com.example.badnewgym.feature.memberintelligence.presentation.components.CompactIntelligenceStrip
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.design.colors.ThemeResolver
 import com.example.badnewgym.feature.memberintelligence.design.dimensions.CompactCardDimensions
@@ -230,6 +231,14 @@ fun CompactMemberCard(
                             dimensions = dimensions,
                             onClose = onCloseDetail,
                             onIdentityClick = onClick
+                        )
+
+                        CompactIntelligenceStrip(
+                            snapshot = snapshot,
+                            onAttendanceClick = { onMenuSelected(MenuType.ATTENDANCE) },
+                            onTrainerClick = { onMenuSelected(MenuType.TRAINER) },
+                            onWorkoutClick = { onMenuSelected(MenuType.WORKOUT) },
+                            modifier = Modifier.padding(top = 2.dp)
                         )
 
                         Spacer(Modifier.height(3.dp))
@@ -606,8 +615,8 @@ private fun CompactMembershipBands(
     payment: PaymentSummary? = null,
     onClick: () -> Unit = {}
 ) {
-    val planName = membership?.planName ?: "Gold Plan"
-    val daysRemaining = membership?.daysRemaining ?: 48
+    val planName = membership?.planName ?: "Plan not recorded"
+    val daysRemaining = membership?.daysRemaining
 
     Row(
         modifier = Modifier
@@ -652,8 +661,8 @@ private fun CompactMembershipBands(
 
         // Active Status Band (Urgent state overrides default styling)
         val statusSubtext = when (semantics.stateVisual) {
-            MemberStateVisual.EXPIRED -> "0d left • Renew"
-            MemberStateVisual.PAYMENT_OVERDUE -> "${payment?.overdueDays ?: 3}d overdue"
+            MemberStateVisual.EXPIRED -> if (daysRemaining != null) "${daysRemaining}d left • Renew" else "Renew required"
+            MemberStateVisual.PAYMENT_OVERDUE -> payment?.overdueDays?.let { "${it}d overdue" } ?: "Overdue"
             MemberStateVisual.PAYMENT_DUE -> "Due Soon"
             MemberStateVisual.TRAINER_ACTIVE -> "Active Coach"
             MemberStateVisual.CRITICAL_ALERT -> "Action Needed"
@@ -720,9 +729,9 @@ private fun CompactMetricsGrid(
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // Tile 1: Attendance
-        val visits = attendance?.visits ?: 16
-        val target = attendance?.target ?: 26
-        val attendancePercent = if (target > 0) ((visits.toFloat() / target) * 100).toInt() else 0
+        val visits = attendance?.visits
+        val target = attendance?.target
+        val attendancePercent = if (visits != null && target != null && target > 0) ((visits.toFloat() / target) * 100).toInt() else null
         CompactMetricTile(
             theme = theme,
             modifier = Modifier
@@ -730,7 +739,7 @@ private fun CompactMetricsGrid(
                 .clickable(onClick = onAttendanceClick)
         ) {
             Text(
-                text = "$visits/$target",
+                text = if (visits != null && target != null) "$visits/$target" else "—",
                 color = colors.textPrimary,
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black
@@ -740,14 +749,14 @@ private fun CompactMetricsGrid(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    progress = { (attendancePercent / 100f).coerceIn(0f, 1f) },
+                    progress = { ((attendancePercent ?: 0) / 100f).coerceIn(0f, 1f) },
                     modifier = Modifier.fillMaxSize(),
                     color = colors.accent,
                     strokeWidth = 2.5.dp,
                     trackColor = colors.surfaceMuted
                 )
                 Text(
-                    text = "$attendancePercent%",
+                    text = attendancePercent?.let { "$it%" } ?: "—",
                     color = colors.textPrimary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
@@ -762,7 +771,7 @@ private fun CompactMetricsGrid(
         }
 
         // Tile 2: Sessions (PT / Coach)
-        val sessionsLeft = if (trainer != null) (trainer.sessionsTotal - trainer.sessionsUsed).coerceAtLeast(0) else 8
+        val sessionsLeft = trainer?.let { (it.sessionsTotal - it.sessionsUsed).coerceAtLeast(0) }
         CompactMetricTile(
             theme = theme,
             modifier = Modifier
@@ -770,7 +779,7 @@ private fun CompactMetricsGrid(
                 .clickable(onClick = onSessionsClick)
         ) {
             Text(
-                text = "$sessionsLeft Left",
+                text = sessionsLeft?.let { "$it Left" } ?: "—",
                 color = colors.accent,
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black,
@@ -784,7 +793,7 @@ private fun CompactMetricsGrid(
                     .padding(horizontal = 4.dp, vertical = 1.dp)
             ) {
                 Text(
-                    text = trainer?.trainerName?.take(7) ?: "Coach",
+                    text = trainer?.trainerName?.take(7) ?: "Not recorded",
                     color = colors.accent,
                     fontSize = 11.5.sp,
                     fontWeight = FontWeight.Bold
@@ -799,7 +808,7 @@ private fun CompactMetricsGrid(
         }
 
         // Tile 3: Workouts
-        val duration = workout?.durationMinutes ?: 52
+        val duration = workout?.durationMinutes
         CompactMetricTile(
             theme = theme,
             modifier = Modifier
@@ -807,7 +816,7 @@ private fun CompactMetricsGrid(
                 .clickable(onClick = onWorkoutsClick)
         ) {
             Text(
-                text = "${duration}m",
+                text = duration?.let { "${it}m" } ?: "—",
                 color = colors.textPrimary,
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black
@@ -1265,10 +1274,11 @@ private fun PersistentDetailHeader(
                     Text(
                         text = snapshot.identity.name,
                         color = colors.textPrimary,
-                        fontSize = 18.sp,
+                        fontSize = 16.5.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = (-0.2).sp,
-                        maxLines = 1,
+                        lineHeight = 18.sp,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
                     )
