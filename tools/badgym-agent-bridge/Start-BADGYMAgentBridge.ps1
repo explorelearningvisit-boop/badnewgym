@@ -3,7 +3,8 @@ param([switch]$Once)
 $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $config = Get-Content (Join-Path $PSScriptRoot "config.json") -Raw | ConvertFrom-Json
-$statePath = Join-Path $PSScriptRoot ".bridge-state.json"
+$statePath = Join-Path $PSScriptRoot "agent-state.json"
+$eventsPath = Join-Path $PSScriptRoot "agent-events.jsonl"
 $logPath = Join-Path $PSScriptRoot "bridge.log"
 $branch = [string]$config.branch
 
@@ -13,13 +14,47 @@ function Log([string]$m) {
   Write-Host $line
 }
 
-function SaveState($sha,$task,$result) {
-  @{
-    remoteSha=$sha
-    taskId=$task
-    result=$result
-    updatedAt=(Get-Date).ToString("o")
-  } | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
+function Write-Event([string]$status, [string]$phase, [string]$msg) {
+  $evt = @{
+    timestamp = (Get-Date).ToString("o")
+    status = $status
+    task = $global:currentTaskId
+    model = $config.model
+    effort = $config.effort
+    phase = $phase
+    message = $msg
+    pid = $global:agyPid
+    heartbeat = $true
+  }
+  $evtJson = $evt | ConvertTo-Json -Compress
+  Add-Content -LiteralPath $eventsPath -Value $evtJson
+  
+  # Console friendly output
+  $time = (Get-Date).ToString("HH:mm:ss")
+  Write-Host "[$time] $status | $phase | $msg"
+}
+
+function Save-AgentState([string]$status, [string]$phase, [string]$msg) {
+  $elapsed = 0
+  if ($global:taskStartTime) {
+    $elapsed = [math]::Round(((Get-Date) - $global:taskStartTime).TotalSeconds)
+  }
+  
+  $state = @{
+    status = $status
+    task = $global:currentTaskId
+    branch = $branch
+    model = $config.model
+    effort = $config.effort
+    pid = $global:agyPid
+    startTime = if ($global:taskStartTime) { $global:taskStartTime.ToString("o") } else { $null }
+    elapsedSeconds = $elapsed
+    phase = $phase
+    message = $msg
+    lastEventTime = (Get-Date).ToString("o")
+  }
+  $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
+  Write-Event $status $phase $msg
 }
 
 function WaitForNextCycle {
@@ -37,39 +72,37 @@ if ((Test-Path $agyPath) -and ($env:PATH -notlike "*$agyPath*")) {
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " BAD GYM LIVE AGENT BRIDGE"
+Write-Host " BAD GYM LIVE AGENT BRIDGE & SUPERVISOR"
 Write-Host " Branch : $branch"
 Write-Host " Repo   : $repoRoot"
-Write-Host " Mode   : GitHub -> Pull -> READY task -> AGY -> Push"
+Write-Host " Dashboard : Run 'python -m http.server 8080' in tools/badgym-agent-bridge"
 Write-Host "============================================================"
 Write-Host ""
 
-Log "Bridge started."
-Write-Host ""
-Write-Host "============================================================"
-Write-Host " BAD GYM AUTONOMOUS BRIDGE: LIVE"
-Write-Host " Current authorized task will be auto-picked from GitHub."
-Write-Host "============================================================"
-Write-Host ""
+Log "Bridge & Supervisor started."
+Save-AgentState "WAITING" "INIT" "Starting supervisor"
+
+$global:currentTaskId = "UNKNOWN"
+$global:agyPid = $null
+$global:taskStartTime = $null
 
 while ($true) {
   try {
     $dirty = @(git status --porcelain)
     if ($dirty.Count -gt 0) {
-      Log "WAIT: local checkout is dirty. No pull or agent launch will occur."
+      Save-AgentState "BLOCKED" "PRE-FLIGHT" "Local checkout is dirty"
       if (-not (WaitForNextCycle)) { break }
       continue
     }
 
-    Log "SYNC: fetching origin/$branch ..."
+    Save-AgentState "SYNCING" "GIT" "Fetching origin/$branch"
     $ErrorActionPreference = "Continue"
     $fetchOut = git fetch origin $branch 2>&1
     $fetchExit = $LASTEXITCODE
     $ErrorActionPreference = "Stop"
-    foreach ($line in $fetchOut) { Log "git: $line" }
 
     if ($fetchExit -ne 0) {
-      Log "ERROR: git fetch failed with exit code $fetchExit."
+      Save-AgentState "NETWORK ERROR" "GIT" "Fetch failed: exit code $fetchExit"
       if (-not (WaitForNextCycle)) { break }
       continue
     }
@@ -78,28 +111,23 @@ while ($true) {
     $localSha = (git rev-parse "HEAD").Trim()
 
     if ($remoteSha -ne $localSha) {
-      Log "SYNC: GitHub changed ($localSha -> $remoteSha). Pulling fast-forward ..."
+      Save-AgentState "SYNCING" "GIT" "Pulling fast-forward"
       $ErrorActionPreference = "Continue"
       $pullOut = git pull --ff-only origin $branch 2>&1
       $pullExit = $LASTEXITCODE
       $ErrorActionPreference = "Stop"
-      foreach ($line in $pullOut) { Log "git: $line" }
 
       if ($pullExit -ne 0) {
-        Log "ERROR: fast-forward pull failed with exit code $pullExit."
+        Save-AgentState "NETWORK ERROR" "GIT" "Fast-forward failed: exit code $pullExit"
         if (-not (WaitForNextCycle)) { break }
         continue
       }
-
       $localSha = (git rev-parse "HEAD").Trim()
-      Log "SYNC: local HEAD is now $localSha."
-    } else {
-      Log "SYNC: GitHub and laptop are aligned at $localSha."
     }
 
     $taskPath = Join-Path $repoRoot "CURRENT_TASK.md"
     if (-not (Test-Path $taskPath)) {
-      Log "ERROR: CURRENT_TASK.md is missing."
+      Save-AgentState "BLOCKED" "PRE-FLIGHT" "CURRENT_TASK.md missing"
       if (-not (WaitForNextCycle)) { break }
       continue
     }
@@ -108,23 +136,32 @@ while ($true) {
     $sm = [regex]::Match($taskText,"(?im)^STATUS:\s*([A-Z_]+)")
     $tm = [regex]::Match($taskText,"(?im)^TASK_ID:\s*(.+)$")
     $taskStatus = if ($sm.Success) { $sm.Groups[1].Value.Trim() } else { "" }
-    $taskId = if ($tm.Success) { $tm.Groups[1].Value.Trim() } else { "UNKNOWN" }
-
-    Log "TASK: $taskId / STATUS=$taskStatus"
+    $global:currentTaskId = if ($tm.Success) { $tm.Groups[1].Value.Trim() } else { "UNKNOWN" }
 
     if ($taskStatus -ne "READY_FOR_EXECUTION") {
+      Save-AgentState "WAITING" "IDLE" "Task status is $taskStatus"
       if (-not (WaitForNextCycle)) { break }
       continue
     }
 
-    $state = if (Test-Path $statePath) { Get-Content $statePath -Raw | ConvertFrom-Json } else { $null }
-    if ($state -and $state.remoteSha -eq $remoteSha -and $state.taskId -eq $taskId -and $state.result -eq "SUCCESS") {
-      Log "TASK: already completed for this remote SHA/task. Waiting for the next GitHub change."
+    # Check if we already finished this SHA
+    $bridgeState = Join-Path $PSScriptRoot ".bridge-state.json"
+    $state = if (Test-Path $bridgeState) { Get-Content $bridgeState -Raw | ConvertFrom-Json } else { $null }
+    if ($state -and $state.remoteSha -eq $remoteSha -and $state.taskId -eq $global:currentTaskId -and $state.result -eq "SUCCESS") {
+      Save-AgentState "WAITING" "IDLE" "Task already completed for this SHA"
       if (-not (WaitForNextCycle)) { break }
       continue
     }
 
-    SaveState $remoteSha $taskId "RUNNING"
+    # Mark as running
+    @{
+      remoteSha=$remoteSha
+      taskId=$global:currentTaskId
+      result="RUNNING"
+      updatedAt=(Get-Date).ToString("o")
+    } | ConvertTo-Json | Set-Content -LiteralPath $bridgeState -Encoding UTF8
+
+    $global:taskStartTime = Get-Date
 
     $prompt = @"
 You are the autonomous Google Antigravity executor for the BAD GYM repository.
@@ -139,33 +176,14 @@ HANDOFF_STATUS.md
 docs/reference/MI_V5_DESIGN_COMMUNICATION.md
 
 CURRENT_TASK.md is the executable authorization.
-Do not invent a different task.
-Do not start Stage 5 while the current task says Stage 5 is blocked.
-Inspect the existing implementation and evidence before editing.
-
 Execute the current READY_FOR_EXECUTION task completely and autonomously.
-Implement the actual production code; do not merely explain it.
-Run the requested Android unit tests/build/install/runtime checks and fix failures where practical.
-Use the physical device when available.
-Update STATUS.md with exact implementation, verification, measured results, remaining issues and next task.
-Update HANDOFF_STATUS.md and append the required dated design communication entry.
+Run the requested Android unit tests/build/install/runtime checks.
+Update STATUS.md with exact implementation, verification.
+Update HANDOFF_STATUS.md.
 Only after the acceptance gate passes, set CURRENT_TASK.md STATUS to COMPLETED.
-If genuinely blocked, set STATUS/BLOCKED with the exact blocker and stop without pretending completion.
-Preserve unrelated work.
-Never force-push.
+If genuinely blocked, set STATUS/BLOCKED.
 Commit the intended changes and push to origin member-intelligence-v3.
 "@
-
-    Log "AGY HEADLESS: autonomous pickup confirmed for $taskId."
-Log "AGY: launching task $taskId with live stream output."
-Write-Host ""
-Write-Host ">>> AGY HEADLESS MODE: RUNNING"
-Write-Host ">>> AUTO-PICKED TASK: $taskId"
-Write-Host ">>> MODEL: $([string]$config.model)"
-Write-Host ">>> EFFORT: $([string]$config.effort)"
-Write-Host ">>> LIVE STREAM: ENABLED"
-Write-Host ""
-    Log "AGY: model=$([string]$config.model), effort=$([string]$config.effort), timeout=$([int]$config.maxAgentMinutes)m"
 
     $args = @(
       "-p", $prompt,
@@ -173,40 +191,99 @@ Write-Host ""
       "--print-timeout", "$([int]$config.maxAgentMinutes)m",
       "--effort", [string]$config.effort
     )
-
     if (-not [string]::IsNullOrWhiteSpace([string]$config.model)) {
       $args += @("--model", [string]$config.model)
     }
-
     if ([bool]$config.skipPermissions) {
       $args += "--dangerously-skip-permissions"
-      Log "AGY: autonomous permission mode enabled by config."
     }
+
+    Save-AgentState "RUNNING" "STARTING" "Launching AGY process"
 
     $ErrorActionPreference = "Continue"
-    & ([string]$config.antigravityCommand) @args 2>&1 | ForEach-Object {
-      $line = [string]$_
-      Add-Content -LiteralPath $logPath -Value "$(Get-Date -Format o) AGY $line"
-      Write-Host "AGY> $line"
+    
+    # Launch AGY and capture stream-json
+    $processInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $processInfo.FileName = [string]$config.antigravityCommand
+    $processInfo.Arguments = $args -join " "
+    $processInfo.RedirectStandardOutput = $true
+    $processInfo.RedirectStandardError = $true
+    $processInfo.UseShellExecute = $false
+    $processInfo.CreateNoWindow = $true
+    $processInfo.WorkingDirectory = $repoRoot
+    
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $processInfo
+    $process.Start() | Out-Null
+    
+    $global:agyPid = $process.Id
+    Save-AgentState "RUNNING" "EXECUTION" "AGY process started (PID: $($process.Id))"
+
+    $lastHeartbeat = Get-Date
+    
+    while (-not $process.HasExited) {
+      if ($process.StandardOutput.EndOfStream -and $process.StandardError.EndOfStream) {
+        $staleTime = (Get-Date) - $lastHeartbeat
+        if ($staleTime.TotalMinutes -gt 5) {
+          Save-AgentState "POSSIBLY STUCK" "EXECUTION" "No output for over 5 minutes"
+        }
+        Start-Sleep -Milliseconds 500
+        continue
+      }
+      
+      $lastHeartbeat = Get-Date
+      if (-not $process.StandardOutput.EndOfStream) {
+        $line = $process.StandardOutput.ReadLine()
+        # Basic parsing for phase updates
+        $phase = "EXECUTION"
+        if ($line -match "testDebugUnitTest") { $phase = "ANDROID_TEST" }
+        elseif ($line -match "assembleDebug") { $phase = "BUILD" }
+        elseif ($line -match "adb install") { $phase = "DEVICE_QA" }
+        elseif ($line -match "git commit") { $phase = "COMMIT" }
+        elseif ($line -match "git push") { $phase = "PUSH" }
+        
+        Save-AgentState "RUNNING" $phase "AGY> $($line.Substring(0, [math]::Min($line.Length, 150)))"
+        Add-Content -LiteralPath $logPath -Value "$(Get-Date -Format o) AGY_OUT $line"
+      }
+      
+      if (-not $process.StandardError.EndOfStream) {
+        $line = $process.StandardError.ReadLine()
+        Save-AgentState "RUNNING" "EXECUTION" "AGY_ERR> $($line.Substring(0, [math]::Min($line.Length, 150)))"
+        Add-Content -LiteralPath $logPath -Value "$(Get-Date -Format o) AGY_ERR $line"
+      }
     }
-    $exitCode = $LASTEXITCODE
+    
+    $exitCode = $process.ExitCode
     $ErrorActionPreference = "Stop"
 
-    Log "AGY: process exited with code $exitCode."
-
     if ($exitCode -eq 0) {
-      SaveState $remoteSha $taskId "SUCCESS"
+      Save-AgentState "COMPLETED" "FINISH" "Task successfully completed."
+      @{
+        remoteSha=$remoteSha
+        taskId=$global:currentTaskId
+        result="SUCCESS"
+        updatedAt=(Get-Date).ToString("o")
+      } | ConvertTo-Json | Set-Content -LiteralPath $bridgeState -Encoding UTF8
     } else {
-      SaveState $remoteSha $taskId "AGENT_EXIT_$exitCode"
+      Save-AgentState "AGY EXITED" "CRASH" "AGY exited with code $exitCode"
+      @{
+        remoteSha=$remoteSha
+        taskId=$global:currentTaskId
+        result="AGENT_EXIT_$exitCode"
+        updatedAt=(Get-Date).ToString("o")
+      } | ConvertTo-Json | Set-Content -LiteralPath $bridgeState -Encoding UTF8
     }
+
+    $global:agyPid = $null
+    $global:taskStartTime = $null
 
     if ($Once) { break }
 
-    Log "SYNC: next poll in $([int]$config.pollSeconds)s."
+    Save-AgentState "WAITING" "IDLE" "Waiting for next cycle"
     Start-Sleep -Seconds ([int]$config.pollSeconds)
   }
   catch {
-    Log "BRIDGE EXCEPTION: $($_.Exception.Message)"
+    Save-AgentState "BLOCKED" "EXCEPTION" "Supervisor error: $($_.Exception.Message)"
     if ($Once) { break }
     Start-Sleep -Seconds ([int]$config.pollSeconds)
   }
