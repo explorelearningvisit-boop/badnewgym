@@ -1,8 +1,9 @@
 {
   "branch": "member-intelligence-v3",
-  "pollSeconds": 10,
+  "pollSeconds": 5,
   "maxAgentMinutes": 120,
   "antigravityCommand": "agy",
   "model": "gemini-3.1-pro-high",
-  "effort": "high"
+  "effort": "high",
+  "skipPermissions": true
 }
