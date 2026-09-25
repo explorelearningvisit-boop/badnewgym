@@ -1,48 +1,20 @@
 # ChatGPT Handoff
 
-Maintained by Antigravity after each authorized implementation task.
-
-## Current collaboration state
-
-The bidirectional collaboration protocol is active.
-
-- ChatGPT is the reasoning/task-authoring side.
-- Antigravity is the visible GUI execution side.
-- Gemini model/configuration choices must be recorded.
-- GitHub is the durable intermediary.
-- User command: **Pull and Run**.
-- Autonomous/headless bridge execution remains disabled.
+## Collaboration contract
+The durable ChatGPT ↔ Antigravity contract is defined by MASTER_AI_EXECUTION_CONTRACT.md plus CURRENT_TASK.md, ANTIGRAVITY_PULL_AND_RUN.md, AI_COMMAND_RULES.md, AI_SYNC_STATE.md and SESSION_CONTEXT.md.
 
 ## Current task
+TASK_ID: PROTOCOL-ALL-IN-ONE-PULL-RUN-RECONCILIATION
+STATUS: READY_FOR_EXECUTION
 
-TASK_ID: MI-V6-MEMBER-INTELLIGENCE-UX-THEME-REBUILD
-STATUS: Awaiting visible Antigravity execution.
+## Purpose
+Reconcile the collaboration protocol so one Pull and Run command performs the complete visible lifecycle instead of stopping after Git synchronization.
 
-## What ChatGPT currently believes
+## Important rule
+“Already up to date” means only that Git synchronization found no new remote commits. Antigravity must continue through context loading, task-state detection, authorized execution/reconciliation, verification, documentation, commit/push and remote verification.
 
-The MI-V5 distance/readability work improved sizing but did not solve the deeper design-system problem. The 8 themes currently behave too much like independent color skins. Some menu/component colors bypass semantic theme logic and create visually conflicting or same-hue combinations.
+## MI-V6 reconciliation note
+The repository contains an MI-V6 implementation commit. Existing documentation is inconsistent about whether visible execution evidence was captured. Antigravity must inspect Git history, changed files and available evidence rather than assume either completion or non-completion.
 
-The next implementation must solve this as a shared design-system/material problem, not by adding more colors.
-
-## What Antigravity must report back
-
-After execution, replace/update this section with:
-- actual starting state;
-- root cause found in code;
-- implementation;
-- why the implementation differs or agrees with ChatGPT's proposal;
-- model/configuration used;
-- files changed;
-- tests/build/runtime/device evidence;
-- screenshots;
-- measured results;
-- failures/deviations;
-- unresolved risks;
-- exact commit SHA;
-- recommended next task.
-
-## Next-context rule
-
-ChatGPT must read this file together with CURRENT_TASK.md, STATUS.md, HANDOFF_STATUS.md, AI_COLLABORATION_LOG.md, MODEL_PERFORMANCE_LOG.md, USER_FEEDBACK.md, and the relevant code before creating the next task.
-
-Do not rely on memory of an invisible agent conversation when the repository can contain the durable evidence.
+## Required output
+Record actual starting state, reconciliation findings, protocol changes, MI-V6 evidence findings, model/configuration, verification, exact final SHA, remaining limitations and next state.
