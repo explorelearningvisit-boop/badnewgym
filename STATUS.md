@@ -1,13 +1,14 @@
 # BAD GYM — Current Status
 
-MI-V6-MEMBER-INTELLIGENCE-UX-THEME-REBUILD is COMPLETED.
+PROTOCOL-ALL-IN-ONE-PULL-RUN-RECONCILIATION is READY_FOR_EXECUTION.
 
-Implementation Details:
-- Redesigned the 8-theme visual system to use a cohesive material/color relationship.
-- Replaced unsafe hardcoded menu colors and legacy Color(0xFF...) calls with BADGymTheme.colors tokens across all components.
-- Implemented actual contrast-ratio resolution (WCAG 4.5:1) in `ContrastResolver`.
-- Verified browse/detail hierarchy.
-- Successfully built and tested on connected physical device.
-- Captured fresh theme evidence in docs/screenshots.
+Permanent contract:
+- MASTER_AI_EXECUTION_CONTRACT.md v1.0
+- Pull and Run is an all-in-one visible workflow.
+- Autonomous/headless bridge remains disabled.
+- Git synchronization alone never terminates Pull and Run.
+- Completed tasks are reconciled/verified rather than blindly rerun.
 
-Next executor action: Pending next task from ChatGPT.
+Previous MI-V6 code exists on member-intelligence-v3 and must be treated as repository evidence during reconciliation.
+
+Next executor action: Pull and Run in visible Google Antigravity GUI.
