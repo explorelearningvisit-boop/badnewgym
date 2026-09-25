@@ -6,9 +6,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * BAD GYM Stage 2 — Compact Member Card Geometry Tokens.
+ * BAD GYM Stage 7.1 — Compact Member Card Geometry Tokens.
  *
  * Dedicated geometry token set for the compact member card carousel browse surface.
+ * Heights adjusted +20dp (Stage 7.1) to prevent content clipping in all 11 menu panels.
  * Strictly decoupled from the full-screen reference geometry tokens.
  */
 data class CompactCardDimensions(
@@ -41,9 +42,9 @@ data class CompactCardDimensions(
 object CompactCardTokens {
     val Compact = CompactCardDimensions(
         cardWidth = 296.dp,
-        cardHeight = 390.dp,
+        cardHeight = 410.dp,
         detailCardWidth = 320.dp,
-        detailCardHeight = 420.dp,
+        detailCardHeight = 440.dp,
         railWidth = 50.dp,
         outerHorizontalPadding = 8.dp,
         carouselGap = 8.dp,
@@ -57,9 +58,9 @@ object CompactCardTokens {
 
     val Default = CompactCardDimensions(
         cardWidth = 312.dp,
-        cardHeight = 406.dp,
+        cardHeight = 426.dp,
         detailCardWidth = 340.dp,
-        detailCardHeight = 443.dp,
+        detailCardHeight = 463.dp,
         railWidth = 56.dp,
         outerHorizontalPadding = 12.dp,
         carouselGap = 12.dp,
@@ -73,9 +74,9 @@ object CompactCardTokens {
 
     val Expanded = CompactCardDimensions(
         cardWidth = 328.dp,
-        cardHeight = 422.dp,
+        cardHeight = 442.dp,
         detailCardWidth = 360.dp,
-        detailCardHeight = 460.dp,
+        detailCardHeight = 480.dp,
         railWidth = 60.dp,
         outerHorizontalPadding = 16.dp,
         carouselGap = 16.dp,
