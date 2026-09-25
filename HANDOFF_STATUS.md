@@ -1,21 +1,18 @@
 # BAD GYM — HANDOFF STATUS
 
-STATUS: COMPLETED
+STATUS: READY_FOR_EXECUTION
 BRANCH: member-intelligence-v3
-CURRENT AUTHORIZATION: PROTOCOL-ALL-IN-ONE-PULL-RUN-RECONCILIATION
+CURRENT AUTHORIZATION: MI-STAGE-6-DEEP-MENUS-PRODUCTION
 EXECUTOR: Google Antigravity GUI — visible execution
 
 ## Goal
-Install one permanent deterministic Pull and Run workflow and reconcile stale collaboration state.
+Complete Member Intelligence deep-menu navigation and production states without disturbing the MI-V6 theme system.
 
-## Non-negotiables
-- visible GUI execution only;
-- no hidden/background agents;
-- no force-push/reset/discard;
-- Git/code/evidence outrank stale prose;
-- “already up to date” is not completion;
-- completed tasks are not rerun blindly;
-- verification + documentation + commit + push are mandatory.
+## Scope
+Home + Attendance + Plan + Payment + Trainer + Workout + Supplements + Nutrition + Services + History + Insight.
 
-## Completion packet
-Record starting/ending SHA, changed files, model/configuration, verification, limitations, exact commit SHA and next state.
+## Gate
+Functional menus, meaningful state handling, transitions/back navigation, 8-theme regression, tests/build/runtime/screenshots, documentation, commit and push.
+
+## Safety
+No fake backend data, no parallel navigation architecture, no hidden agents, no force-push/reset/discard, no unrelated Stage 7/8 work.
