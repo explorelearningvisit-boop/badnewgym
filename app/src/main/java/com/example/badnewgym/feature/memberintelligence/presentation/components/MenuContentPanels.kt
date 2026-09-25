@@ -635,37 +635,17 @@ fun PlanPanel(
         SectionTitle("MEMBERSHIP & PLAN INTELLIGENCE", theme)
 
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(planName, color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text("$tierName Plan Tier", color = colors.textMuted, fontSize = 11.5.sp)
-                    }
-                    BadgeChip(if (isActive == true) "ACTIVE" else if (isActive == false) "EXPIRED" else "NOT RECORDED", if (isActive == true) colors.success else if (isActive == false) colors.danger else colors.textMuted)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text("Start Date", color = colors.textMuted, fontSize = 10.sp)
+                    Text(formatDate(startDate), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 }
-
-                HorizontalDivider(color = colors.divider)
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text("Start Date", color = colors.textMuted, fontSize = 10.sp)
-                        Text(formatDate(startDate), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Days Remaining", color = colors.textMuted, fontSize = 10.sp)
-                        Text(daysRemaining?.let { "$it days" } ?: "—", color = if (daysRemaining != null && daysRemaining < 7) colors.danger else colors.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text("End Date", color = colors.textMuted, fontSize = 10.sp)
-                        Text(expiryDate?.let { formatDate(it) } ?: "—", color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text("End Date", color = colors.textMuted, fontSize = 10.sp)
+                    Text(expiryDate?.let { formatDate(it) } ?: "—", color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -711,6 +691,7 @@ fun TrainerPanel(
                 Text("Schedule Session →", fontWeight = FontWeight.Black)
             }
         }
+        Spacer(Modifier.height(16.dp))
     }
 }
 

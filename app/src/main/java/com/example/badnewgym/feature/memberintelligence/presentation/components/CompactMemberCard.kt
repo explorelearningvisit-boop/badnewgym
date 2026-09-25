@@ -1409,6 +1409,7 @@ private fun HomeBoundedContent(
         ) {
             Text(ctaLabel, fontWeight = FontWeight.Black)
         }
+        Spacer(Modifier.height(16.dp))
     }
 }
 
