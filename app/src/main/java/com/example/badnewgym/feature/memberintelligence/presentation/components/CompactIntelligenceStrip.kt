@@ -27,7 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
+import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
+import com.example.badnewgym.feature.memberintelligence.domain.model.IssueSeverity
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
+import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 
 /**
  * Stage 7.6 — Compact Fusion Strip.
@@ -154,7 +157,6 @@ private fun RowScope.FusionMetric(
     ) {
         Text(title, color = accent, fontSize = 6.5.sp, fontWeight = FontWeight.Black, maxLines = 1)
         Text(value, color = colors.textPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.Black, maxLines = 1)
-        Text(caption, color = colors.textMuted, fontSize = 6.5.sp, fontWeight = FontWeight.Medium, maxLines = 1)
     }
 }
 

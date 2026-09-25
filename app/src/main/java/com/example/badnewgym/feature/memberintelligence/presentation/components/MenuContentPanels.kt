@@ -747,7 +747,6 @@ fun NutritionPanel(
 
                 // Macros Row (Protein, Carbs, Fats)
                 Text("Macro targets appear here when nutrition tracking is connected.", color = colors.textMuted, fontSize = 10.5.sp)
-                }
             }
         }
     }
