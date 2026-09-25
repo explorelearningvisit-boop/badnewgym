@@ -2,7 +2,7 @@
 
 STATUS: ACTIVE
 BRANCH: member-intelligence-v3
-CURRENT AUTHORIZATION: MI-V5-STAGE-04-EIGHT-THEME-ENGINE-REFERENCE-FIDELITY
+CURRENT AUTHORIZATION: MI-V5-STAGE-04-REVIEW-FIX-AND-EVIDENCE-GATE
 EXECUTOR: Google Antigravity on the user's laptop
 
 ## Required reads before execution
@@ -15,7 +15,7 @@ EXECUTOR: Google Antigravity on the user's laptop
 - docs/reference/MI_V5_DESIGN_COMMUNICATION.md
 
 ## Current gate
-Stage 4 is READY_FOR_EXECUTION. Stage 5 is blocked until ChatGPT reviews Stage 4 physical screenshot evidence.
+Stage 4 review & evidence pass is COMPLETED and verified on physical hardware (Xiaomi Redmi Note 11). All 10 required screenshot paths are captured and committed. Awaiting ChatGPT review of Stage 4 physical screenshot evidence before opening Stage 5.
 
-## Execution requirement
-Do the implementation now when the laptop/bridge is running. Do not wait for the next day, GitHub Actions, or a future turn. Use physical-device verification and commit/push the result to member-intelligence-v3.
+## Execution state
+All 8 themes, semantic states, 11 bounded menu panels, side rail, persistent header, and side peek verified with 0 failures on device.

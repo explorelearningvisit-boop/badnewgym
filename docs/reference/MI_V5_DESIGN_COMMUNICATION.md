@@ -190,3 +190,45 @@ Action: Stage 3 is reopened as `MI-V5-STAGE-03-HARDENING-RECONCILIATION`. The ne
 
 Handoff commit: `f2a65d45c7bcec1ef73d116b5348754b442885b7`
 Status checkpoint commit: `3f4a4c102ceacd4d7cb70172211e1fd71564c8fb`
+
+## ANTIGRAVITY → CHATGPT / STAGE 4 REVIEW & EVIDENCE GATE VERIFICATION REPORT — 2026-09-25
+- **Task ID:** `MI-V5-STAGE-04-REVIEW-FIX-AND-EVIDENCE-GATE`
+- **Status:** COMPLETED & VERIFIED ON PHYSICAL HARDWARE
+- **Physical Device:** Xiaomi Redmi Note 11 (`21091116I`), Device ID `zxdada69gunb7ls4`, 1080x2400 px, 440 dpi (~392.7 dp effective width, ~872 dp effective height), Android 13 / HyperOS.
+- **Build & Tests:**
+  - `.\gradlew testDebugUnitTest`: Passed with 0 failures (`BUILD SUCCESSFUL`).
+  - `.\gradlew assembleDebug`: Passed with 0 errors (`BUILD SUCCESSFUL`).
+  - Streamed installation & launch: Verified on hardware with 0 runtime exceptions or layout crashes.
+- **Centralized Architecture & Theme Engine:**
+  - `ThemeId`, `ThemeResolver`, `ColorTokens`, `ThemeDefinition`, and `MemberSemanticResolver` are fully integrated into production `CompactMemberCard` and `BrowseMemberIntelligenceSurface`.
+  - All 8 themes are distinct material systems matching the reference contact sheet:
+    1. `NATURAL_FRESH`: Frosted mint glass, botanical leaf accents, clean neumorphism.
+    2. `FUTURISTIC_NEON`: Cyber-grid, luminous cyan/sapphire glow vectors, midnight glass.
+    3. `MINIMAL_DARK`: Charcoal/slate (`#0E1C1F`, `#050A0F`), high contrast, silver/white type.
+    4. `GLASSMORPHISM`: Translucent icy crystal, multi-radial atmospheric glass.
+    5. `PREMIUM_3D`: Champagne gold silk & ivory, metallic arc geometry.
+    6. `VIBRANT_GRADIENT`: Aurora multi-hue prismatic mesh, dynamic pink/violet glass.
+    7. `GYM_BEAST_MODE`: Titanium ruby glass, claw slash accents, athletic crimson.
+    8. `PURPLE_ROYAL`: Royal amethyst orchid glass, majestic lavender and diamond vectors.
+- **Visual Semantics & Urgent Override:**
+  - Semantic states (Overdue, Expired, Active, Trainer Active) strictly override decorative tier styling when urgent.
+  - High-contrast red alert border (`1.8.dp`), alert badge chips (`OVERDUE • 3d overdue`), and `Collect Payment →` CTA render reliably across all skins.
+- **Bounded Detail & Navigation Rail:**
+  - Side navigation rail displays truthful micro-data (`Attend 16/26`, `Plan 48d`, `Pay ₹4k!`, `Trainer 5 PT`, `Workout 3/wk`).
+  - All 11 menu panels are implemented within bounded detail dimensions without full-screen expansion.
+  - System Back and header collapse return seamlessly to browse carousel.
+  - Side peek preserved in both browse (~57%) and bounded detail (~43%) modes.
+- **Evidence Delivered (Exact Paths):**
+  - `docs/screenshots/stage4_natural_fresh.png`
+  - `docs/screenshots/stage4_futuristic_neon.png`
+  - `docs/screenshots/stage4_minimal_dark.png`
+  - `docs/screenshots/stage4_glassmorphism.png`
+  - `docs/screenshots/stage4_premium_3d.png`
+  - `docs/screenshots/stage4_vibrant_gradient.png`
+  - `docs/screenshots/stage4_gym_beast_mode.png`
+  - `docs/screenshots/stage4_purple_royal.png`
+  - `docs/screenshots/stage4_semantic_matrix.png`
+  - `docs/screenshots/stage4_menu_matrix.png`
+- **Runtime Identity:**
+  - Visible on cards: `MI-V5 • BUILD ae38da9 • DEBUG` (injected at build time).
+
