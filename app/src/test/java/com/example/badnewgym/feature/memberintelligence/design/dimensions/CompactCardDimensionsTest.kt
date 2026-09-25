@@ -16,50 +16,50 @@ class CompactCardDimensionsTest {
         val defaultTokens = CompactCardTokens.Default
 
         // Browse card ~10% increase baseline
-        assertEquals(270.dp, defaultTokens.cardWidth)
-        assertEquals(389.dp, defaultTokens.cardHeight)
+        assertEquals(312.dp, defaultTokens.cardWidth)
+        assertEquals(406.dp, defaultTokens.cardHeight)
 
         // Bounded detail card
-        assertEquals(312.dp, defaultTokens.detailCardWidth)
-        assertEquals(406.dp, defaultTokens.detailCardHeight)
+        assertEquals(340.dp, defaultTokens.detailCardWidth)
+        assertEquals(443.dp, defaultTokens.detailCardHeight)
 
         // Portrait dimensions
-        assertEquals(84.dp, defaultTokens.portraitWidth)
-        assertEquals(90.dp, defaultTokens.portraitHeight)
-        assertEquals(56.dp, defaultTokens.detailPortraitWidth)
-        assertEquals(62.dp, defaultTokens.detailPortraitHeight)
+        assertEquals(100.dp, defaultTokens.portraitWidth)
+        assertEquals(106.dp, defaultTokens.portraitHeight)
+        assertEquals(108.dp, defaultTokens.detailPortraitWidth)
+        assertEquals(114.dp, defaultTokens.detailPortraitHeight)
 
         // Metrics & CTA
-        assertEquals(66.dp, defaultTokens.metricsHeight)
-        assertEquals(40.dp, defaultTokens.ctaHeight)
+        assertEquals(72.dp, defaultTokens.metricsHeight)
+        assertEquals(44.dp, defaultTokens.ctaHeight)
     }
 
     @Test
     fun expandedTokens_matchTargetGeometryDirection() {
         val expandedTokens = CompactCardTokens.Expanded
 
-        assertEquals(286.dp, expandedTokens.cardWidth)
-        assertEquals(401.dp, expandedTokens.cardHeight)
-        assertEquals(326.dp, expandedTokens.detailCardWidth)
-        assertEquals(418.dp, expandedTokens.detailCardHeight)
-        assertEquals(88.dp, expandedTokens.portraitWidth)
-        assertEquals(96.dp, expandedTokens.portraitHeight)
-        assertEquals(60.dp, expandedTokens.detailPortraitWidth)
-        assertEquals(66.dp, expandedTokens.detailPortraitHeight)
+        assertEquals(328.dp, expandedTokens.cardWidth)
+        assertEquals(422.dp, expandedTokens.cardHeight)
+        assertEquals(360.dp, expandedTokens.detailCardWidth)
+        assertEquals(460.dp, expandedTokens.detailCardHeight)
+        assertEquals(104.dp, expandedTokens.portraitWidth)
+        assertEquals(110.dp, expandedTokens.portraitHeight)
+        assertEquals(112.dp, expandedTokens.detailPortraitWidth)
+        assertEquals(118.dp, expandedTokens.detailPortraitHeight)
     }
 
     @Test
     fun compactTokens_matchTargetGeometryDirection() {
         val compactTokens = CompactCardTokens.Compact
 
-        assertEquals(258.dp, compactTokens.cardWidth)
-        assertEquals(374.dp, compactTokens.cardHeight)
-        assertEquals(298.dp, compactTokens.detailCardWidth)
-        assertEquals(390.dp, compactTokens.detailCardHeight)
-        assertEquals(78.dp, compactTokens.portraitWidth)
-        assertEquals(84.dp, compactTokens.portraitHeight)
-        assertEquals(52.dp, compactTokens.detailPortraitWidth)
-        assertEquals(58.dp, compactTokens.detailPortraitHeight)
+        assertEquals(296.dp, compactTokens.cardWidth)
+        assertEquals(390.dp, compactTokens.cardHeight)
+        assertEquals(320.dp, compactTokens.detailCardWidth)
+        assertEquals(420.dp, compactTokens.detailCardHeight)
+        assertEquals(96.dp, compactTokens.portraitWidth)
+        assertEquals(102.dp, compactTokens.portraitHeight)
+        assertEquals(104.dp, compactTokens.detailPortraitWidth)
+        assertEquals(110.dp, compactTokens.detailPortraitHeight)
     }
 
     @Test
