@@ -1,16 +1,18 @@
 # BAD GYM — Current Status
 
-MI-STAGE-6-DEEP-MENUS-PRODUCTION is COMPLETED.
+MI-STAGE-7-DEPTH-MOTION-LAYER is READY_FOR_EXECUTION.
 
 Previous:
-- Stage 6 — Deep menus and production interaction states.
-- MI-V6 theme/material/contrast reconciliation: completed and verified in repository evidence.
-- Permanent Pull and Run protocol: installed and reconciled.
+- Stage 6 — Deep menus and production interaction states: completed.
+- MI-V6 theme/material/contrast reconciliation: completed.
+- Permanent Pull and Run contract: installed.
+- Permanent capability-based ChatGPT ↔ Antigravity work split: installed.
 - Autonomous/headless bridge: disabled.
 
 Current:
-- Fixed test failure due to new card dimensions.
-- Built debug APK, tests passed.
-- Screenshots captured on Xiaomi Redmi Note 11 device.
+- Stage 7 — Progressive 2.5D depth + motion layer.
+- ChatGPT lane: specification/task packet prepared.
+- Antigravity lane: awaiting visible Pull and Run execution.
 
-Next executor action: Stage 7 or next defined task.
+Next executor action:
+- User opens Google Antigravity and runs Pull and Run.
