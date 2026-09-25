@@ -28,4 +28,6 @@ Implemented directly by ChatGPT on `member-intelligence-v3`.
 - Added compact visual fusion strip for attendance/PT/workout/payment.
 - Removed remaining demo metric fallbacks in the compact card.
 - Preserved bounded menu viewport and on-demand temporal architecture.
-- Device verification pending; GitHub Actions must be checked after the latest commit.
+- Local verification completed: `./gradlew testDebugUnitTest assembleDebug` passed (46 actionable tasks, build successful).
+- Physical device verification: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`). Compact fusion card, compact intelligence strip, badges, and actionable states rendered cleanly.
+
