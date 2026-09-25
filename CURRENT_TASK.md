@@ -73,3 +73,14 @@ Next verification: GitHub Actions `assembleDebug`, then physical Redmi runtime s
 - Inspect scroll and CTA visibility on every representative card.
 - Build/test/device verification required before claiming completion.
 - Antigravity remains execution owner for visible UI integration and runtime evidence.
+
+
+## CURRENT — Stage 7.9 Complete Fixture Coverage + Production Readiness
+- Specification: `docs/reference/AGY_STAGE_7_9_FIXTURE_COVERAGE_PRODUCTION_READINESS.md`
+- Execution owner: Google Antigravity.
+- Mission: create a deterministic fixture universe for EVERY supported EventType/card variant so the entire Member Intelligence system can be tested, not just the currently visible 9 cards.
+- Required: typed synthetic raw event data, member snapshots, attendance/payment/trainer/workout/service/plan/operations datasets, fixture-only media/assets, QA gallery, NOW/PAST/FUTURE coverage, edge cases, routing/card-kind tests, Compose/UI coverage, build/lint/device verification and evidence.
+- Fixture data must be explicitly synthetic/demo-only and must flow through the same renderer/mapping path as production data. Never fabricate real member/biometric/payment/evidence records.
+- Completion gate: do not call Member Intelligence production-ready until the full supported taxonomy is reachable in the QA gallery and build/tests/device evidence are committed with the exact SHA.
+- Previous latest verification commit before this packet: `d7d65cff3aff7e45f216f55c9e12aefb167b8b2c`.
+- Packet commit: `985d4990bd98bf44c031adce579859c1dbf4a984`.
