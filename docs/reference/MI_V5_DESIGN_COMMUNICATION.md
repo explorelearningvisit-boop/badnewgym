@@ -291,3 +291,26 @@ New product direction:
 - validate the complete 8-theme / 11-menu surface on the Xiaomi device when available.
 
 This task supersedes the previous card-size baseline but does not change the underlying Member Intelligence architecture or backend behavior.
+
+
+## CHATGPT → ANTIGRAVITY / STAGE 5 UX + THEME REBUILD — 2026-09-25
+
+User visual review after MI-V5: distance readability is improved, but the 8-theme system is rejected as a visual system. The user specifically reports that the themes do not have coherent color combinations and that individual cards/menus contain opposing or ugly colors.
+
+Design decision: the eight themes are eight MATERIAL PERSONALITIES of one BAD GYM product, not eight unrelated palettes. Preserve shared geometry, information architecture, semantic meaning and typography. Theme changes only material, atmosphere, accent and decoration.
+
+The design objective is glanceable operational intelligence: EVENT → MEMBER → TIME → STATE → PRIMARY SIGNAL → ACTION. Decoration must never compete with those answers.
+
+Critical implementation requirement: replace the current luminance-threshold-only contrast logic with WCAG-style contrast ratio resolution and audit direct hardcoded colors in Member Intelligence menu/component code. Theme-specific menu surfaces should derive from centralized theme tokens rather than independent per-menu colors.
+
+Theme intent:
+- Natural Fresh: pale mint/ivory + deep botanical green + restrained emerald.
+- Futuristic Neon: navy glass + near-white + cyan edge/glow.
+- Minimal Dark: charcoal/slate + near-white + silver.
+- Glassmorphism: frosted ice/lavender + deep navy + cool blue.
+- Premium 3D: ivory/champagne + espresso + restrained gold.
+- Vibrant Gradient: soft indigo/rose/ice + deep indigo + one dominant accent.
+- Gym Beast Mode: graphite/crimson + white + crimson accent only.
+- Purple Royal: amethyst/plum + white/lavender + purple accent.
+
+Antigravity must implement, test, install and visually verify. Build success alone is not acceptance.
