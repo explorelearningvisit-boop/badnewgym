@@ -222,3 +222,117 @@ Required screenshots:
 - docs/screenshots/stage7_1_theme_matrix.png
 
 Acceptance requires actual implementation, tests, build, runtime/evidence, documentation, commit, push and remote SHA verification.
+
+
+## Layer-by-layer implementation contract — REQUIRED SEQUENCE
+
+The reference image is a visual direction, not a literal pixel asset to blindly reproduce. Implementation must be practical on a real Android device and use real domain data.
+
+### Master sequence
+
+Implement and verify one layer before moving to the next:
+
+**L0 — Geometry / canvas**
+- Start from an empty card shell.
+- Establish responsive width/height, safe insets, corner radius, internal grid and clipping.
+- Target the +20dp height adjustment from this packet.
+- Prove that the empty shell itself fits 360/375/390/412dp reasoning.
+
+**L1 — Background / material only**
+- Remove all content temporarily.
+- Implement only the card background/material.
+- Match the reference mood using Compose-native gradients, translucent surfaces, subtle texture/vector ornaments and elevation.
+- No text, photos, buttons, charts or menu icons at this stage.
+- Do NOT use a bitmap screenshot as the entire card background.
+- Keep assets lightweight and scalable.
+- Natural Fresh is the first reference theme to implement.
+- Black/dark-black backgrounds are explicitly prohibited for the user-facing redesign. Replace dark reference variants with premium light/soft alternatives.
+- Suggested palette direction: ivory/mist white + fresh emerald/mint + soft aqua + restrained warm lime; exact values must be theme-tokenized.
+
+**L2 — Border / shape / edge treatment**
+- Add corner radius, inner edge, subtle highlight, border and depth response.
+- Border must remain readable without becoming a glowing outline everywhere.
+- Theme material, not arbitrary decoration, controls the edge.
+
+**L3 — Identity / photo layer**
+- Add member photo, verification badge and identity block.
+- Photo must remain undistorted, legible and stable under Stage 7 parallax.
+- Use actual snapshot photo data; fallback avatar/vector when unavailable.
+- Do not hardcode the example person's identity from the reference image.
+
+**L4 — Event / state layer**
+- Add event badge, timestamp, membership state and semantic status.
+- Semantic state colors remain independent of the theme accent.
+- Meaning must be understandable with icon + label + shape, not color alone.
+
+**L5 — Visual KPI / analytics layer**
+- Add only real-data visuals: attendance ring, payment status, plan progress, workout/session mini chart, etc.
+- Use reusable Compose primitives.
+- Prefer compact visual encodings over KeyValue text rows.
+- No fabricated values to make the card look like the reference.
+
+**L6 — CTA / action layer**
+- Add exactly one dominant contextual CTA on the browse card.
+- Use a production touch target and pressed state.
+- CTA must remain visible at the bottom and never be clipped.
+- Label must derive from actual state/action.
+
+**L7 — Typography layer**
+- Add brand/member/title typography after geometry and visuals are stable.
+- Use hierarchy: event → member → time/state → decision signal → action.
+- Keep secondary text short.
+- No decorative handwritten text unless it is implemented as a scalable vector/typographic asset and does not reduce accessibility.
+- Never use accent color as arbitrary body text.
+
+**L8 — Decorative visual asset layer**
+- Add restrained botanical/vector/gradient ornaments only where they improve recognition.
+- Decorative assets must stay behind information and never compete with KPI/chart content.
+- Prefer vector/Canvas or small local assets over huge raster images.
+- All 8 themes receive their own material personality without changing information architecture.
+
+**L9 — Menu / rail layer**
+- Add the 11-menu navigation only after the card content is stable.
+- Menu icons are icon-first, label-second.
+- Selected state uses shape/elevation/indicator + semantic/accent color; never color alone.
+- Menu rail must not consume so much width that content becomes cramped.
+
+**L10 — Menu-specific visual content**
+- Implement each menu one by one, in this order:
+  Home → Attendance → Plan → Payment → Trainer → Workout → Supplements → Nutrition → Services → History → Insight.
+- For each menu: empty state → visual summary → supporting detail → CTA (if applicable).
+- Verify no clipping before proceeding to the next menu.
+- Reuse visual primitives; do not create 11 unrelated mini design systems.
+
+**L11 — Motion / depth integration**
+- Re-enable Stage 7 depth/parallax/press behavior after static composition is correct.
+- Reduced-motion behavior must preserve meaning.
+- Do not use motion to hide or reveal essential information.
+
+**L12 — Theme matrix**
+- Once Natural Fresh is production-stable, adapt the same structure to all 8 themes:
+  Natural Fresh, Futuristic Neon, Minimal Slate, Glass/Frost, Premium Ivory, Vibrant Gradient, Beast Mode (lightened; no black), Purple Royal.
+- Do not literally reproduce the dark/black reference themes.
+- All themes must remain readable and practical.
+
+### Layer gate
+
+Antigravity must record in its completion packet:
+- which layer was implemented;
+- files changed;
+- test/build result;
+- screenshot/evidence;
+- any deviation;
+- why the next layer is safe to start.
+
+If a layer fails visual/runtime verification, stop at that layer and fix it before proceeding.
+
+## Practicality rules
+
+- Reference image is inspiration for composition/material, not a requirement to use every decorative element.
+- Real Android layout constraints take precedence over image fidelity.
+- No giant bitmap background containing UI text.
+- No rasterized text where normal Compose text is appropriate.
+- No fake charts or invented data.
+- No tiny text to squeeze more content into the card.
+- No dark/black background for the redesigned user-facing themes.
+- No new chart/navigation framework unless a concrete limitation requires it.
