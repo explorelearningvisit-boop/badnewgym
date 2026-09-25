@@ -1,9 +1,9 @@
 # BAD GYM — AI Sync State
 
 ## Current
-- Task: MI-STAGE-7-DEPTH-MOTION-LAYER
+- Task: MI-STAGE-7.1-VISUAL-DATA-REDESIGN
 - Branch: member-intelligence-v3
-- State: COMPLETED
+- State: AUTHORIZED
 - Protocol: MASTER_AI_EXECUTION_CONTRACT.md v1.0
 - Parallel work: CHATGPT_AGY_PARALLEL_WORK_PROTOCOL.md v1.0
 - Execution: Google Antigravity GUI only
@@ -13,11 +13,11 @@
 - CURRENT_TASK.md is executable authorization.
 - Git HEAD/worktree is code truth.
 - SESSION_CONTEXT.md is incremental checkpoint.
-- ChatGPT owns plan/design/architecture/review artifacts.
+- ChatGPT owns product/design/architecture/acceptance/review artifacts.
 - Antigravity owns visible implementation/test/build/device verification/commit/push.
 - Production source is not edited simultaneously by both agents.
 - GitHub is the merge boundary and durable shared memory.
 - Never infer completion from prose alone.
-- “Already up to date” never ends Pull and Run.
+- Pull and Run continues beyond Git sync through execution, verification, documentation, commit/push and remote verification.
 - No hidden/background execution.
 - No force-push/reset/discard.
