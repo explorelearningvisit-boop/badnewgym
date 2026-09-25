@@ -232,6 +232,7 @@ fun CompactMemberCard(
                             currentEvent = currentEvent,
                             theme = theme,
                             semantics = semantics,
+                            dimensions = dimensions,
                             onClose = onCloseDetail
                         )
 
@@ -407,7 +408,7 @@ private fun CompactEventHeader(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .background(if (isNatural) Color(0xFF16A34A) else eventColor)
-                .padding(horizontal = 7.dp, vertical = 3.dp),
+                .padding(horizontal = 8.dp, vertical = 3.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -420,7 +421,7 @@ private fun CompactEventHeader(
             Text(
                 text = "+ " + eventType.displayLabel(),
                 color = Color.White,
-                fontSize = 9.5.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.3.sp
             )
@@ -434,13 +435,13 @@ private fun CompactEventHeader(
             Text(
                 text = theme.timeText,
                 color = colors.textPrimary,
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = "• ${theme.timeRelative}",
                 color = colors.textMuted,
-                fontSize = 8.5.sp,
+                fontSize = 9.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -459,7 +460,7 @@ private fun CompactHeroIdentity(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         MemberPhoto(
@@ -473,7 +474,7 @@ private fun CompactHeroIdentity(
 
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(2.5.dp)
         ) {
             // Tier Badge Chip
             Row(
@@ -481,20 +482,20 @@ private fun CompactHeroIdentity(
                     .clip(RoundedCornerShape(6.dp))
                     .background(semantics.tierBgColor)
                     .border(0.8.dp, semantics.tierBorderColor, RoundedCornerShape(6.dp))
-                    .padding(horizontal = 5.dp, vertical = 1.5.dp),
+                    .padding(horizontal = 6.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                horizontalArrangement = Arrangement.spacedBy(3.5.dp)
             ) {
                 Icon(
                     imageVector = semantics.tierIcon,
                     contentDescription = null,
                     tint = semantics.tierAccentColor,
-                    modifier = Modifier.size(9.dp)
+                    modifier = Modifier.size(10.dp)
                 )
                 Text(
                     text = semantics.tierLabel,
                     color = semantics.tierAccentColor,
-                    fontSize = 7.5.sp,
+                    fontSize = 8.sp,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 0.3.sp
                 )
@@ -508,7 +509,7 @@ private fun CompactHeroIdentity(
                 Text(
                     text = identity.name,
                     color = colors.textPrimary,
-                    fontSize = 14.sp,
+                    fontSize = 14.5.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = (-0.3).sp,
                     maxLines = 1,
@@ -520,7 +521,7 @@ private fun CompactHeroIdentity(
                         Icons.Rounded.CheckCircle,
                         contentDescription = "Verified",
                         tint = Color(0xFF38BDF8),
-                        modifier = Modifier.size(12.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
@@ -528,17 +529,17 @@ private fun CompactHeroIdentity(
             Text(
                 text = identity.code ?: "BG---",
                 color = colors.textSecondary,
-                fontSize = 9.sp,
+                fontSize = 9.5.sp,
                 fontWeight = FontWeight.SemiBold
             )
 
             Text(
                 text = theme.motto,
                 color = colors.mottoColor,
-                fontSize = 8.5.sp,
+                fontSize = 9.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = if (theme == ThemeId.NATURAL_FRESH || theme == ThemeId.GLASSMORPHISM || theme == ThemeId.PURPLE_ROYAL || theme == ThemeId.PREMIUM_3D) FontStyle.Italic else FontStyle.Normal,
-                lineHeight = 11.sp,
+                lineHeight = 12.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -568,7 +569,7 @@ private fun CompactMembershipBands(
                 .clip(RoundedCornerShape(8.dp))
                 .background(semantics.tierBgColor)
                 .border(0.8.dp, semantics.tierBorderColor, RoundedCornerShape(8.dp))
-                .padding(horizontal = 6.dp, vertical = 4.dp),
+                .padding(horizontal = 6.dp, vertical = 4.5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -582,7 +583,7 @@ private fun CompactMembershipBands(
                 Text(
                     text = planName,
                     color = semantics.tierAccentColor,
-                    fontSize = 9.sp,
+                    fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -590,7 +591,7 @@ private fun CompactMembershipBands(
                 Text(
                     text = "${membership?.planType ?: "12M"}",
                     color = semantics.tierAccentColor.copy(alpha = 0.8f),
-                    fontSize = 7.5.sp,
+                    fontSize = 8.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -617,7 +618,7 @@ private fun CompactMembershipBands(
                     color = semantics.stateBorderColor,
                     shape = RoundedCornerShape(8.dp)
                 )
-                .padding(horizontal = 6.dp, vertical = 4.dp),
+                .padding(horizontal = 6.dp, vertical = 4.5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -631,13 +632,13 @@ private fun CompactMembershipBands(
                 Text(
                     text = semantics.stateLabel,
                     color = semantics.stateAccentColor,
-                    fontSize = 9.sp,
+                    fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = statusSubtext,
                     color = semantics.stateAccentColor.copy(alpha = 0.85f),
-                    fontSize = 7.5.sp,
+                    fontSize = 8.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -666,11 +667,11 @@ private fun CompactMetricsGrid(
             Text(
                 text = "$visits/$target",
                 color = colors.textPrimary,
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Black
             )
             Box(
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(26.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
@@ -683,14 +684,14 @@ private fun CompactMetricsGrid(
                 Text(
                     text = "$attendancePercent%",
                     color = colors.textPrimary,
-                    fontSize = 6.5.sp,
+                    fontSize = 7.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Text(
                 text = "Attendance",
                 color = colors.textSecondary,
-                fontSize = 7.5.sp,
+                fontSize = 8.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -708,7 +709,7 @@ private fun CompactMetricsGrid(
             Text(
                 text = formattedAmount,
                 color = if (isOverdue) Color(0xFFDC2626) else colors.textPrimary,
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Black,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -722,14 +723,14 @@ private fun CompactMetricsGrid(
                 Text(
                     text = if (isOverdue) "$overdueDays d due" else "Clear",
                     color = if (isOverdue) Color(0xFFDC2626) else Color(0xFF16A34A),
-                    fontSize = 7.5.sp,
+                    fontSize = 8.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Text(
                 text = "Payment",
                 color = colors.textSecondary,
-                fontSize = 7.5.sp,
+                fontSize = 8.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -740,12 +741,12 @@ private fun CompactMetricsGrid(
             Text(
                 text = "$countDisplay",
                 color = colors.textPrimary,
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Black
             )
             Row(
                 modifier = Modifier
-                    .height(16.dp)
+                    .height(18.dp)
                     .padding(horizontal = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(1.5.dp),
                 verticalAlignment = Alignment.Bottom
@@ -765,7 +766,7 @@ private fun CompactMetricsGrid(
             Text(
                 text = "Workouts",
                 color = colors.textSecondary,
-                fontSize = 7.5.sp,
+                fontSize = 8.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -781,7 +782,7 @@ private fun CompactMetricTile(
     val colors = BADGymTheme.colors
     Box(
         modifier = modifier
-            .height(58.dp)
+            .height(62.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(colors.surfaceMuted)
             .border(0.8.dp, colors.border.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
@@ -859,13 +860,13 @@ private fun CompactSignalBanner(
             imageVector = icon,
             contentDescription = null,
             tint = iconTint,
-            modifier = Modifier.size(11.dp)
+            modifier = Modifier.size(12.dp)
         )
         Spacer(Modifier.width(4.dp))
         Text(
             text = text,
             color = textColor,
-            fontSize = 8.5.sp,
+            fontSize = 9.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -983,7 +984,7 @@ private fun BoundedDetailRail(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(if (isActive) 28.dp else 24.dp)
+                        .size(if (isActive) 30.dp else 26.dp)
                         .clip(RoundedCornerShape(7.dp))
                         .background(bg)
                         .then(
@@ -1009,7 +1010,7 @@ private fun BoundedDetailRail(
                         imageVector = getRailIcon(menu.id),
                         contentDescription = menu.label,
                         tint = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.railActiveIcon else colors.railInactiveIcon,
-                        modifier = Modifier.size(if (isActive) 15.dp else 13.dp)
+                        modifier = Modifier.size(if (isActive) 16.dp else 14.dp)
                     )
                     if (isActionNeeded || menu.hasAlert || menu.badgeCount > 0) {
                         Box(
@@ -1023,12 +1024,12 @@ private fun BoundedDetailRail(
                     }
                 }
 
-                Spacer(Modifier.height(1.dp))
+                Spacer(Modifier.height(1.5.dp))
 
                 Text(
                     text = menu.label,
                     color = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.textPrimary else colors.textMuted,
-                    fontSize = 6.8.sp,
+                    fontSize = 7.5.sp,
                     fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Medium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1038,7 +1039,7 @@ private fun BoundedDetailRail(
                     Text(
                         text = microData,
                         color = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.accent else colors.textSecondary,
-                        fontSize = 6.2.sp,
+                        fontSize = 7.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -1097,6 +1098,7 @@ private fun PersistentDetailHeader(
     currentEvent: MemberEvent?,
     theme: ThemeId,
     semantics: MemberSemanticStyle,
+    dimensions: CompactCardDimensions,
     onClose: () -> Unit
 ) {
     val colors = BADGymTheme.colors
@@ -1106,7 +1108,7 @@ private fun PersistentDetailHeader(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         // Row 1: Event + Timestamp + Close / Collapse Button
         Row(
@@ -1119,20 +1121,20 @@ private fun PersistentDetailHeader(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .background(if (isNatural) Color(0xFF16A34A) else eventColor)
-                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                    .padding(horizontal = 7.dp, vertical = 2.5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(4.dp)
+                        .size(4.5.dp)
                         .clip(CircleShape)
                         .background(Color.White)
                 )
-                Spacer(Modifier.width(3.dp))
+                Spacer(Modifier.width(3.5.dp))
                 Text(
                     text = "+ " + eventType.displayLabel(),
                     color = Color.White,
-                    fontSize = 8.5.sp,
+                    fontSize = 9.5.sp,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 0.2.sp
                 )
@@ -1146,13 +1148,13 @@ private fun PersistentDetailHeader(
                 Text(
                     text = theme.timeText,
                     color = colors.textPrimary,
-                    fontSize = 9.5.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "• ${theme.timeRelative}",
                     color = colors.textMuted,
-                    fontSize = 7.5.sp,
+                    fontSize = 8.5.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -1160,7 +1162,7 @@ private fun PersistentDetailHeader(
             // Back / Close icon button
             Box(
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(26.dp)
                     .clip(CircleShape)
                     .background(colors.surfaceMuted)
                     .border(0.6.dp, colors.border.copy(alpha = 0.5f), CircleShape)
@@ -1174,7 +1176,7 @@ private fun PersistentDetailHeader(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                     contentDescription = "Collapse detail",
                     tint = colors.textPrimary,
-                    modifier = Modifier.size(12.dp)
+                    modifier = Modifier.size(14.dp)
                 )
             }
         }
@@ -1182,14 +1184,14 @@ private fun PersistentDetailHeader(
         // Row 2: Hero Identity (Photo + Name + Code + Motto)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             MemberPhoto(
                 photoUrl = snapshot.identity.photoUrl,
                 tier = snapshot.identity.tier,
-                width = 46.dp,
-                height = 52.dp,
+                width = dimensions.detailPortraitWidth,
+                height = dimensions.detailPortraitHeight,
                 showVerified = snapshot.identity.isVerified,
                 memberName = snapshot.identity.name
             )
@@ -1200,12 +1202,12 @@ private fun PersistentDetailHeader(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
                         text = snapshot.identity.name,
                         color = colors.textPrimary,
-                        fontSize = 12.5.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = (-0.2).sp,
                         maxLines = 1,
@@ -1217,7 +1219,7 @@ private fun PersistentDetailHeader(
                             Icons.Rounded.CheckCircle,
                             contentDescription = "Verified",
                             tint = Color(0xFF38BDF8),
-                            modifier = Modifier.size(11.dp)
+                            modifier = Modifier.size(12.dp)
                         )
                     }
                 }
@@ -1229,13 +1231,13 @@ private fun PersistentDetailHeader(
                     Text(
                         text = snapshot.identity.code ?: "BG---",
                         color = colors.textSecondary,
-                        fontSize = 8.5.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "• ${theme.motto.replace("\n", " ")}",
                         color = colors.mottoColor,
-                        fontSize = 8.sp,
+                        fontSize = 8.5.sp,
                         fontWeight = FontWeight.Bold,
                         fontStyle = FontStyle.Italic,
                         maxLines = 1,
@@ -1325,7 +1327,7 @@ private fun HomeBoundedContent(
                 Text(
                     text = "Coach: ${snapshot.trainer?.trainerName ?: "Unassigned"}",
                     color = colors.textSecondary,
-                    fontSize = 8.5.sp,
+                    fontSize = 9.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -1333,7 +1335,7 @@ private fun HomeBoundedContent(
                 Text(
                     text = "Routine: ${snapshot.workout?.currentRoutine ?: "Routine"}",
                     color = colors.textPrimary,
-                    fontSize = 8.5.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1355,7 +1357,7 @@ private fun HomeBoundedContent(
             onClick = onCta,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(34.dp)
+                .height(38.dp)
         )
     }
 }

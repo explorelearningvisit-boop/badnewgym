@@ -1,25 +1,20 @@
 # BAD GYM — HANDOFF STATUS
 
-STATUS: READY_FOR_EXECUTION
+STATUS: COMPLETED
 BRANCH: member-intelligence-v3
-CURRENT AUTHORIZATION: MI-V5-CARD-READABILITY-GEOMETRY-FIX
+LAST_COMPLETED_TASK: MI-V5-CARD-READABILITY-GEOMETRY-FIX
 EXECUTOR: Google Antigravity on the user's laptop
 
-## Required reads
-- AGENTS.md
-- .agents/rules/00-badgym-github-loop.md
-- CURRENT_TASK.md
-- STATUS.md
-- HANDOFF_STRATEGY.md
-- HANDOFF_STATUS.md
-- docs/reference/MI_V5_DESIGN_COMMUNICATION.md
+## Summary of Results
+- **Task Executed:** `MI-V5-CARD-READABILITY-GEOMETRY-FIX`
+- **Root Cause & Fix:** Addressed internal font/portrait shrink defect in bounded detail mode by scaling up `CompactCardDimensions` by ~10% (Browse `270dp × 389dp`, Detail `312dp × 406dp`, Detail Portrait `56dp × 62dp`, Name `14.5sp`/`14sp`, Metrics `11.5sp`).
+- **Physical Device Acceptance:**
+  - Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`): Verified with zero exceptions.
+  - Gradle Tests: `.\gradlew.bat testDebugUnitTest` PASSED.
+  - Gradle Build: `.\gradlew.bat assembleDebug` PASSED.
+  - Screenshots Captured & Committed:
+    - `docs/screenshots/stage4_card_readability_browse.png`
+    - `docs/screenshots/stage4_card_readability_detail.png`
 
-## Gate
-Stage 4 review/evidence was completed. Stage 5 remains blocked.
-The current authorized work is a focused card readability/geometry correction.
-
-## User requirement
-The outer card may grow on tap, but its internal text and portrait must not become smaller. Increase browse geometry approximately 10% (about 270dp × 389dp from 247dp × 356dp) and scale internal content tokens upward accordingly. Keep detail bounded and preserve side peek.
-
-## Execution
-Use Gemini 3.1 Pro High with high effort. Execute immediately.
+## Next Gate
+Ready for ChatGPT review. Stage 5 remains blocked.

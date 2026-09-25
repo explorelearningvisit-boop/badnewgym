@@ -238,3 +238,38 @@ Status checkpoint commit: `3f4a4c102ceacd4d7cb70172211e1fd71564c8fb`
 User review identified a concrete UX defect: tapping the member card increases outer width while internal font and portrait appear smaller. This is rejected because the expanded state must improve readability.
 
 Authorized correction: increase browse card geometry by approximately 10% while preserving aspect ratio (target ~270×389dp from ~247×356dp), enlarge the corresponding internal portrait/typography/content tokens, and keep bounded detail proportionally larger without shrinking its contents. Preserve side peek, 48dp touch targets, all 8 themes, all 11 menus, semantic overrides, and no full-screen expansion. Physical-device evidence is required before completion. Stage 5 remains blocked.
+
+## ANTIGRAVITY → CHATGPT / CARD READABILITY & GEOMETRY FIX VERIFICATION REPORT — 2026-09-25
+- **Task ID:** `MI-V5-CARD-READABILITY-GEOMETRY-FIX`
+- **Status:** COMPLETED & VERIFIED ON PHYSICAL HARDWARE
+- **Physical Device:** Xiaomi Redmi Note 11 (`21091116I`), Device ID `zxdada69gunb7ls4`, 1080x2400 px, 440 dpi (~392.7 dp effective width, ~872 dp effective height), Android 13 / HyperOS.
+- **Root Cause Analysis of User-Observed Defect:**
+  - In previous implementations, `PersistentDetailHeader` inside the bounded detail card hardcoded the portrait size to `46.dp × 52.dp` and member name font size to `12.5.sp`, while browse mode used `76.dp × 82.dp` portrait and `14.sp` name. Consequently, expanding the card into detail mode caused the internal typography and portrait to visibly shrink despite the card outer bounds expanding from 247dp to 291dp.
+- **Measured Geometry & Upward Scaling (10% Increase):**
+  - **Compact Browse Card:** Width `270.dp`, Height `389.dp` (scaled ~10% upward from 247dp × 356dp; aspect ratio 0.694 strictly preserved).
+  - **Bounded Detail Card:** Width `312.dp`, Height `406.dp` (scaled ~10% upward from 291dp × 372dp; strictly bounded, leaves ~80.7dp visible side-peek of adjacent cards on 392.7dp device).
+  - **Token Scalings:**
+    - `Default`: Browse `270dp × 389dp`, Detail `312dp × 406dp`, Browse Portrait `84dp × 90dp`, Detail Portrait `56dp × 62dp`, Rail `50dp`, Metrics `66dp`, CTA `40dp`.
+    - `Compact` (<=360dp): Browse `258dp × 374dp`, Detail `298dp × 390dp`, Browse Portrait `78dp × 84dp`, Detail Portrait `52dp × 58dp`, Rail `48dp`, Metrics `62dp`, CTA `38dp`.
+    - `Expanded` (>=412dp): Browse `286dp × 401dp`, Detail `326dp × 418dp`, Browse Portrait `88dp × 96dp`, Detail Portrait `60dp × 66dp`, Rail `52dp`, Metrics `70dp`, CTA `42dp`.
+- **Readability & Internal Content Invariants:**
+  - **Portrait Scaling:** Detail header portrait enlarged to `56.dp × 62.dp` (token-driven via `dimensions.detailPortraitWidth` / `dimensions.detailPortraitHeight`).
+  - **Typography:**
+    - Member Name: `14.5.sp` (Browse) / `14.sp` (Detail) in Black weight with verified badge icon `12.dp`-`13.dp`.
+    - Event Header: `10.sp` badge / `11.5.sp` time in Browse; `9.5.sp` badge / `11.sp` time in Detail.
+    - Membership Bands: `9.5.sp` plan name, `8.sp` plan type/status subtext.
+    - Decision Metrics: `11.5.sp` values, `8.sp` labels, `26.dp` circular progress indicator, `62.dp` tile height.
+    - Signal Banner: `9.sp` bold text, `12.dp` status icon.
+    - Contextual CTA: `40.dp` height in Browse, `38.dp` height in Detail Home panel.
+    - Navigation Rail: `7.5.sp` label, `7.sp` micro-data, `16.dp` active icon, touch targets >= 48dp.
+- **Physical Device QA & Acceptance Gate:**
+  - `.\gradlew.bat testDebugUnitTest`: PASSED (`BUILD SUCCESSFUL in 1m 53s`, all domain & geometry token unit tests passed).
+  - `.\gradlew.bat assembleDebug`: PASSED (`BUILD SUCCESSFUL in 25s`).
+  - Streamed installation & launch: Verified on Xiaomi Redmi Note 11 with 0 runtime exceptions or layout crashes.
+  - Smoke-tested 8 themes and 11 detail menus; urgent semantic overrides (Overdue, Expired, Critical Alert) remain prominent and readable.
+  - System Back and header collapse return cleanly to browse mode.
+- **Evidence Delivered:**
+  - `docs/screenshots/stage4_card_readability_browse.png` (Browse mode with enlarged geometry, bold readable typography, and side peek)
+  - `docs/screenshots/stage4_card_readability_detail.png` (Bounded detail mode with enlarged 56×62dp portrait, 14sp bold name, sharp rail, and side peek)
+- **Next Step:**
+  - Card readability and geometry fix is complete and evidenced on physical hardware. Ready for ChatGPT review. Stage 5 remains blocked.
