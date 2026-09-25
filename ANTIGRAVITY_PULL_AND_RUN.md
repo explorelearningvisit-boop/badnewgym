@@ -115,3 +115,8 @@ The final visible message should summarize:
 - recommended next task.
 
 The repository is the communication channel. ChatGPT will read the pushed artifacts before creating the next task.
+
+
+## Incremental context rule
+
+Do not start every short follow-up command from zero. On first execution, build/read the full context. Then maintain SESSION_CONTEXT.md as a compact checkpoint. For subsequent commands or Stop/Resume cycles, validate HEAD/task/worktree and read only the checkpoint plus changed/relevant files. Do not reread unchanged protocol files or large source files. A changed task, material decision, relevant file, or stale checkpoint invalidates only the affected context. Before stopping, save the exact continuation point. A Stop is a pause, not a reset.
