@@ -1,9 +1,9 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: READY_FOR_EXECUTION
+STATUS: PAUSED_MANUAL
 TASK_ID: MI-V6-MEMBER-INTELLIGENCE-UX-THEME-REBUILD
 AUTHOR: ChatGPT
-EXECUTOR: Google Antigravity
+EXECUTOR: Manual Google Antigravity GUI only
 BRANCH: member-intelligence-v3
 
 ## Mission
@@ -311,4 +311,4 @@ Push to origin member-intelligence-v3.
 ## Model
 
 Use Gemini 3.1 Pro High with high effort.
-Execute immediately.
+Execution is intentionally paused for autonomous/headless bridge execution. Open the project in Google Antigravity and run this task visibly in the GUI.
