@@ -126,199 +126,94 @@ private fun BrowseMemberIntelligenceSurface(
     theme: ThemeId,
     viewModel: MemberIntelligenceViewModel
 ) {
-    // The outer dashboard maintains a stable, executive dark foundation (#0C1017)
-    // while individual member cards within the carousel apply their own local theme skins.
-    val dashboardTheme = ThemeId.MINIMAL_DARK
-    val dashboardBackground = Color(0xFF0C1017)
-
-    BADGymTheme(
-        colors = dashboardTheme.colors(),
-        shapes = dashboardTheme.shapes(),
-        motion = dashboardTheme.motion(),
-        elevation = dashboardTheme.elevation()
-    ) {
+    BADGymTheme(colors = theme.colors(), shapes = theme.shapes(), motion = theme.motion(), elevation = theme.elevation()) {
         val colors = BADGymTheme.colors
-
-        Column(
+        val selectedMember = success.snapshot
+        val eventTitle = success.currentEvent?.type?.name?.replace('_', ' ')?.lowercase()?.replaceFirstChar { it.titlecase() } ?: "Member intelligence"
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(dashboardBackground)
+                .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(colors.background, colors.surfaceMuted.copy(alpha = 0.62f), colors.background)))
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
-            // 1. BAD GYM Top App Bar
-            BadGymTopBar(modifier = Modifier.fillMaxWidth())
-
-            // 2. Section Header: Title + Active Members Count
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                BadGymTopBar(modifier = Modifier.fillMaxWidth())
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "MEMBER INTELLIGENCE",
-                        color = Color.White,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 0.5.sp
-                    )
-
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(eventTitle.uppercase(), color = colors.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.Black, letterSpacing = 0.35.sp)
+                        Text("Member Intelligence • live decision workspace", color = colors.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    }
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF16A34A).copy(alpha = 0.2f))
-                            .border(1.dp, Color(0xFF16A34A).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(colors.successSoft)
+                            .border(1.dp, colors.success.copy(alpha = 0.25f), RoundedCornerShape(20.dp))
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
                     ) {
-                        Text(
-                            text = "${success.members.size} Present",
-                            color = Color(0xFF4ADE80),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text(if (success.members.isEmpty()) "0 members" else "${success.members.size} live", color = colors.success, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
-
-                Spacer(Modifier.height(2.dp))
-
-                Text(
-                    text = if (success.isDetailExpanded)
-                        "Bounded Detail Mode • Select menu from side rail • Back to browse"
-                    else
-                        "Live Member Flow • Swipe cards to inspect • Tap card for details",
-                    color = Color(0xFF94A3B8),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            Spacer(Modifier.height(4.dp))
-
-            // 3. Compact Member Intelligence Carousel (snapping horizontal row with side peek & bounded detail)
-            CompactMemberCarousel(
-                members = success.members,
-                selectedIndex = success.selectedMemberIndex,
-                onMemberSelected = viewModel::selectMember,
-                onMemberClick = { viewModel.openMemberDetail(it) },
-                onCta = viewModel::executeCta,
-                activeTheme = theme,
-                isDetailExpanded = success.isDetailExpanded,
-                activeMenu = success.activeMenu,
-                menus = success.menus,
-                temporalRange = success.temporalRange,
-                onRangeChange = viewModel::updateTemporalRange,
-                onEventClick = viewModel::openEventDetail,
-                onMenuSelected = viewModel::selectMenu,
-                onCloseDetail = viewModel::closeMemberDetail,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // 4. Focused Member Quick Summary / Action Banner
-            val selectedMember = success.snapshot
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF161F2E))
-                    .border(1.dp, Color(0xFF334155).copy(alpha = 0.6f), RoundedCornerShape(14.dp))
-                    .clickable {
-                        if (success.isDetailExpanded) {
-                            viewModel.closeMemberDetail()
-                        } else {
-                            viewModel.openMemberDetail()
-                        }
-                    }
-                    .padding(horizontal = 12.dp, vertical = 10.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        com.example.badnewgym.feature.memberintelligence.presentation.components.MemberPhoto(
-                            photoUrl = selectedMember.identity.photoUrl,
-                            tier = selectedMember.identity.tier,
-                            width = 34.dp,
-                            height = 34.dp,
-                            showVerified = false,
-                            memberName = selectedMember.identity.name
-                        )
-
-                        Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    CompactMemberCarousel(
+                        members = success.members,
+                        selectedIndex = success.selectedMemberIndex,
+                        onMemberSelected = viewModel::selectMember,
+                        onMemberClick = { viewModel.openMemberDetail(it) },
+                        onCta = viewModel::executeCta,
+                        activeTheme = theme,
+                        isDetailExpanded = success.isDetailExpanded,
+                        activeMenu = success.activeMenu,
+                        menus = success.menus,
+                        temporalRange = success.temporalRange,
+                        onRangeChange = viewModel::updateTemporalRange,
+                        onEventClick = viewModel::openEventDetail,
+                        onMenuSelected = viewModel::selectMenu,
+                        onCloseDetail = viewModel::closeMemberDetail,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                if (!success.isDetailExpanded) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(colors.surface.copy(alpha = 0.96f))
+                                .border(1.dp, colors.border, RoundedCornerShape(16.dp))
+                                .padding(horizontal = 12.dp, vertical = 9.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            MemberPhoto(
+                                photoUrl = selectedMember.identity.photoUrl,
+                                tier = selectedMember.identity.tier,
+                                width = 34.dp,
+                                height = 34.dp,
+                                showVerified = false,
+                                memberName = selectedMember.identity.name
+                            )
+                            Spacer(Modifier.width(9.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(selectedMember.identity.name, color = colors.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 2)
                                 Text(
-                                    text = selectedMember.identity.name,
-                                    color = Color.White,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(Modifier.width(4.dp))
-                                Text(
-                                    text = "• ${selectedMember.membership?.planName ?: "Plan"}",
-                                    color = Color(0xFF94A3B8),
-                                    fontSize = 11.sp
+                                    listOfNotNull(selectedMember.membership?.planName, selectedMember.trainer?.trainerName)
+                                        .joinToString(" • ").ifBlank { "Open member detail" },
+                                    color = colors.textSecondary,
+                                    fontSize = 10.sp,
+                                    maxLines = 1
                                 )
                             }
-                            Text(
-                                text = if (success.isDetailExpanded)
-                                    "Tap to collapse detail • Back returns to carousel"
-                                else
-                                    "Trainer: ${selectedMember.trainer?.trainerName ?: "Unassigned"} • ${selectedMember.workout?.currentRoutine ?: "Routine"}",
-                                color = Color(0xFF64748B),
-                                fontSize = 10.sp,
-                                maxLines = 1
-                            )
+                            Text("OPEN", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Black)
                         }
                     }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = if (success.isDetailExpanded) "Collapse" else "Inspect Detail",
-                            color = Color(0xFF38BDF8),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Icon(
-                            imageVector = if (success.isDetailExpanded) Icons.Rounded.Close else Icons.AutoMirrored.Rounded.ArrowForward,
-                            contentDescription = if (success.isDetailExpanded) "Collapse profile" else "Open profile",
-                            tint = Color(0xFF38BDF8),
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
                 }
+                Spacer(Modifier.height(4.dp))
+                BadGymBottomBar(modifier = Modifier.fillMaxWidth(), onItemClick = { })
             }
-
-            Spacer(Modifier.weight(1f))
-
-            // 5. Standard BAD GYM Bottom Navigation Bar
-            BadGymBottomBar(
-                modifier = Modifier.fillMaxWidth(),
-                onItemClick = { }
-            )
-
-            // Stage 7.4 Temporal Event Detail Sheet
-            success.selectedEventDetail?.let { ev ->
-                com.example.badnewgym.feature.memberintelligence.presentation.components.EventDetailDialog(
-                    event = ev,
-                    onDismiss = viewModel::closeEventDetail
-                )
-            }
+            success.selectedEventDetail?.let { ev -> EventDetailDialog(event = ev, onDismiss = viewModel::closeEventDetail) }
         }
     }
 }

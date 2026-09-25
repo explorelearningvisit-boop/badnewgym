@@ -1345,103 +1345,101 @@ private fun HomeBoundedContent(
     onNavigate: (MenuType) -> Unit = {}
 ) {
     val colors = BADGymTheme.colors
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        HomeEnergyPanel(snapshot, theme, { onNavigate(MenuType.ATTENDANCE) }, { onNavigate(MenuType.WORKOUT) })
+        CompactMetricsGrid(snapshot.attendance, snapshot.trainer, snapshot.workout, theme, { onNavigate(MenuType.ATTENDANCE) }, { onNavigate(MenuType.TRAINER) }, { onNavigate(MenuType.WORKOUT) })
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        // 3 Core Decision Metrics Grid (Attendance, Sessions, Workouts)
-        CompactMetricsGrid(
-            attendance = snapshot.attendance,
-            trainer = snapshot.trainer,
-            workout = snapshot.workout,
-            theme = theme,
-            onAttendanceClick = { onNavigate(MenuType.ATTENDANCE) },
-            onSessionsClick = { onNavigate(MenuType.TRAINER) },
-            onWorkoutsClick = { onNavigate(MenuType.WORKOUT) }
-        )
+        val signalText: String? = if (semantics.isUrgent && semantics.urgentMessage != null) semantics.urgentMessage
+        else primarySignal?.title ?: secondarySignals.firstOrNull()?.title ?: snapshot.issues.firstOrNull()?.description
+        val isCritical = semantics.isUrgent ||
+            primarySignal?.priority == SignalPriority.P0_CRITICAL ||
+            snapshot.issues.firstOrNull()?.let { it.severity == IssueSeverity.HIGH || it.severity == IssueSeverity.CRITICAL } == true
 
-        // Exactly ONE Trend Card
-        HomeTrendCard(
-            snapshot = snapshot,
-            theme = theme,
-            onClick = { onNavigate(MenuType.ATTENDANCE) }
-        )
+        CompactSignalBanner(signalText, isCritical, semantics) { onNavigate(MenuType.INSIGHT) }
 
-        // Actionable signal banner
-        val signalText: String? = if (semantics.isUrgent && semantics.urgentMessage != null) {
-            semantics.urgentMessage
-        } else {
-            primarySignal?.title
-                ?: secondarySignals.firstOrNull()?.title
-                ?: snapshot.issues.firstOrNull()?.description
-        }
-
-        val isCritical: Boolean = semantics.isUrgent || primarySignal?.priority == SignalPriority.P0_CRITICAL ||
-                snapshot.issues.firstOrNull()?.let {
-                    it.severity == IssueSeverity.HIGH || it.severity == IssueSeverity.CRITICAL
-                } == true
-
-        CompactSignalBanner(
-            text = signalText,
-            isCritical = isCritical,
-            semantics = semantics,
-            onClick = { onNavigate(MenuType.INSIGHT) }
-        )
-
-        // Isolated Promotion Banner if present
         snapshot.promotion?.let { promo ->
-            PromotionBanner(
-                promotion = promo,
-                theme = theme,
-                onClaim = { onNavigate(MenuType.MORE) }
-            )
+            PromotionBanner(promo, theme) { onNavigate(MenuType.MORE) }
         }
 
-        // Trainer / Routine Quick Bar
-        Box(
+        val coachLabel = snapshot.trainer?.trainerName ?: "No trainer assigned"
+        val routineLabel = snapshot.workout?.currentRoutine ?: "Routine not recorded"
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
-                .background(colors.surfaceMuted.copy(alpha = 0.6f))
-                .border(0.6.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .background(colors.surfaceMuted.copy(alpha = 0.72f))
+                .border(1.dp, colors.border.copy(alpha = 0.72f), RoundedCornerShape(12.dp))
                 .clickable { onNavigate(MenuType.TRAINER) }
-                .padding(horizontal = 6.dp, vertical = 4.dp)
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Coach: ${snapshot.trainer?.trainerName ?: "Vikas Sharma"}",
-                    color = colors.textSecondary,
-                    fontSize = 13.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "Routine: ${snapshot.workout?.currentRoutine ?: "PPL Hypertrophy"}",
-                    color = colors.textPrimary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            Icon(Icons.Rounded.FitnessCenter, null, tint = colors.accent, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(coachLabel, color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(routineLabel, color = colors.textSecondary, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
+            Text("TRAINER", color = colors.accent, fontSize = 9.sp, fontWeight = FontWeight.Black)
         }
 
-        // Contextual Dynamic Bottom CTA Button
         val ctaLabel = resolveDynamicCtaLabel(snapshot, semantics, cta)
+        ThemedCtaButton(theme, ctaLabel, onCta, Modifier.fillMaxWidth().height(42.dp))
+    }
+}
 
-        ThemedCtaButton(
-            theme = theme,
-            label = ctaLabel,
-            onClick = onCta,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(38.dp)
-        )
+@Composable
+private fun CompactMetricsGrid(
+    attendance: AttendanceSummary?,
+    trainer: TrainerSummary?,
+    workout: WorkoutSummary?,
+    theme: ThemeId,
+    onAttendanceClick: () -> Unit = {},
+    onSessionsClick: () -> Unit = {},
+    onWorkoutsClick: () -> Unit = {}
+) {
+    val colors = BADGymTheme.colors
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        val visits = attendance?.visits
+        val target = attendance?.target
+        val attendancePercent = if (visits != null && target != null && target > 0) ((visits.toFloat() / target) * 100f).toInt().coerceIn(0, 100) else null
+        CompactMetricTile(theme, Modifier.weight(1f).clickable(onClick = onAttendanceClick)) {
+            Text(attendancePercent?.let { "${it}%" } ?: "—", color = colors.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Black)
+            attendancePercent?.let {
+                Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(progress = { it / 100f }, modifier = Modifier.fillMaxSize(), color = colors.accent, strokeWidth = 3.dp, trackColor = colors.surfaceMuted)
+                    Text("${it}", color = colors.textPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Text(if (visits != null) "${visits} visits" else "Not recorded", color = colors.textSecondary, fontSize = 10.sp)
+        }
+        val sessionsLeft = trainer?.let { (it.sessionsTotal - it.sessionsUsed).coerceAtLeast(0) }
+        CompactMetricTile(theme, Modifier.weight(1f).clickable(onClick = onSessionsClick)) {
+            Text(sessionsLeft?.toString() ?: "—", color = colors.accent, fontSize = 16.sp, fontWeight = FontWeight.Black)
+            Text(if (sessionsLeft != null) "PT left" else "No PT data", color = colors.textSecondary, fontSize = 10.sp)
+            Text(trainer?.trainerName ?: "No trainer", color = colors.textMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        CompactMetricTile(theme, Modifier.weight(1f).clickable(onClick = onWorkoutsClick)) {
+            Text(workout?.durationMinutes?.let { "${it}m" } ?: "—", color = colors.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Black)
+            Text("Last workout", color = colors.textSecondary, fontSize = 10.sp)
+            Text(workout?.calories?.let { "${it} kcal" } ?: "Calories not recorded", color = colors.textMuted, fontSize = 9.sp, maxLines = 1)
+        }
+    }
+}
+
+@Composable
+private fun CompactMetricTile(
+    theme: ThemeId,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val colors = BADGymTheme.colors
+    Box(
+        modifier = modifier.height(76.dp).clip(RoundedCornerShape(12.dp))
+            .background(colors.surface.copy(alpha = 0.96f))
+            .border(1.dp, colors.border, RoundedCornerShape(12.dp))
+            .padding(vertical = 6.dp, horizontal = 5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween, horizontalAlignment = Alignment.CenterHorizontally, content = content)
     }
 }
