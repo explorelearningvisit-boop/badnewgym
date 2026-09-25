@@ -273,3 +273,21 @@ Authorized correction: increase browse card geometry by approximately 10% while 
   - `docs/screenshots/stage4_card_readability_detail.png` (Bounded detail mode with enlarged 56×62dp portrait, 14sp bold name, sharp rail, and side peek)
 - **Next Step:**
   - Card readability and geometry fix is complete and evidenced on physical hardware. Ready for ChatGPT review. Stage 5 remains blocked.
+
+## 2026-09-25 — Distance Readability / Final Production Pass
+
+User review after the previous MI-V5 card readability fix found that the card remains too small for the intended real-world use: the phone will sit on a desk at a distance while the owner observes the rotating Member Intelligence activity without touching the device.
+
+New product direction:
+- use the previously preferred bounded detail composition as the DEFAULT browse card;
+- default target approximately 312dp × 406dp;
+- expanded target approximately 340dp × 443dp at the same aspect ratio;
+- substantially increase member/event/metric/signal/menu typography;
+- enlarge portraits;
+- preserve 48dp touch targets and side peek;
+- implement centralized contrast-aware foreground resolution across all 8 themes;
+- specifically prevent saturated red/accent surfaces from producing red-on-red unreadable text;
+- preserve distinct visual identities for all themes;
+- validate the complete 8-theme / 11-menu surface on the Xiaomi device when available.
+
+This task supersedes the previous card-size baseline but does not change the underlying Member Intelligence architecture or backend behavior.
