@@ -237,3 +237,46 @@ A task is complete only when:
 
 ---
 This file is the governing collaboration protocol for future Pull and Run cycles.
+
+
+## 12. Incremental context / no-repeat reading protocol
+
+The system must optimize for long-running work sessions. Do not reread the entire repository or every protocol file after every short follow-up command.
+
+Maintain a compact SESSION_CONTEXT.md as the active working-memory checkpoint.
+
+SESSION_CONTEXT.md should contain only current state: session/task ID; branch and HEAD SHA; clean/dirty state; files currently being edited; files already inspected and whether their relevant content is unchanged; last completed action; current action; exact stopping point; next authorized action; settled decisions; blockers; tests/build known; latest evidence; last communication sequence; context version/update marker.
+
+### Context reuse rules
+1. On the first Pull and Run of a task/session, perform the full required context read.
+2. After that, prefer SESSION_CONTEXT.md plus git status/diff/log and only files affected by the new command.
+3. Do not reread unchanged large files merely because a new command arrived.
+4. If HEAD SHA, task ID, or relevant file SHA has not changed, treat previously inspected content as cached context.
+5. If a file changed, reread only the changed/relevant range unless the change invalidates broader assumptions.
+6. If the user stops and resumes shortly afterward, continue from the checkpoint rather than restarting analysis.
+7. If ChatGPT changes CURRENT_TASK.md, task ID/version, or a material design decision, invalidate only affected context and reread relevant documents.
+8. If a new model/session has no trusted SESSION_CONTEXT.md, reconstruct context once and then write a checkpoint.
+9. Validate HEAD, task ID, working-tree state, and relevant file hashes before reusing context.
+10. Keep the checkpoint compact. It is a cache/index, not a duplicate of the repository.
+
+### Incremental communication
+ChatGPT and Antigravity should communicate using deltas, not repeated full copies. Each update should identify: checkpoint/version; what changed since the previous checkpoint; what did not change and therefore was not reread; new decision; new evidence; next action.
+
+Use sequence numbers such as CHATGPT→AGY #001, AGY→CHATGPT #001, CHATGPT→AGY #002. Do not paste the entire previous reasoning into every update.
+
+### Stop/resume behavior
+A Stop action is not a reset. Before stopping, Antigravity should update SESSION_CONTEXT.md with the exact safe continuation point.
+
+When resumed: verify HEAD and working tree; read SESSION_CONTEXT.md; inspect only files affected since the checkpoint; continue from the recorded next action.
+
+If uncertainty exists about stale context, perform targeted validation instead of rereading the whole repository.
+
+### ChatGPT-side efficiency
+ChatGPT should maintain a compact checkpoint when authoring consecutive tasks: last GitHub SHA reviewed; last handoff sequence; current task ID; explicit user acceptance/rejection; settled decisions; areas already reviewed; only new evidence requiring attention.
+
+The next task should describe only the delta from the previous state whenever possible.
+
+### Token/time principle
+Full read once → compact checkpoint → targeted delta reads → update checkpoint.
+
+Context caching must never override fresh user requirements or actual repository changes.
