@@ -55,7 +55,7 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         text = att?.periodName ?: "Current Month",
                         color = colors.textPrimary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp
+                        fontSize = 14.sp
                     )
                     Box(
                         modifier = Modifier
@@ -66,7 +66,7 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         Text(
                             text = "${(progress * 100).toInt()}% Done",
                             color = colors.accent,
-                            fontSize = 8.5.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
                     }
@@ -80,13 +80,13 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     Text(
                         text = "$visits",
                         color = colors.textPrimary,
-                        fontSize = 20.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Black
                     )
                     Text(
                         text = "of $target visits target",
                         color = colors.textSecondary,
-                        fontSize = 9.5.sp,
+                        fontSize = 13.5.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -145,7 +145,7 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     text = "Weekly Consistency Strip",
                     color = colors.textPrimary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 10.sp
+                    fontSize = 13.sp
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -182,7 +182,7 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                             Text(
                                 text = dayLabels.getOrElse(i) { "D" },
                                 color = if (isAttended) colors.textPrimary else colors.textMuted,
-                                fontSize = 8.sp,
+                                fontSize = 12.sp,
                                 fontWeight = if (isAttended) FontWeight.Bold else FontWeight.Normal
                             )
                         }
@@ -203,7 +203,7 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         text = "Recent Gate Activity",
                         color = colors.textPrimary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp
+                        fontSize = 13.sp
                     )
                     events.take(4).forEach { ev ->
                         Row(
@@ -224,14 +224,14 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                                 Text(
                                     text = ev.eventType.displayLabel(),
                                     color = colors.textPrimary,
-                                    fontSize = 9.sp,
+                                    fontSize = 13.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
                             Text(
                                 text = formatDate(ev.occurredAt),
                                 color = colors.textSecondary,
-                                fontSize = 8.5.sp
+                                fontSize = 12.5.sp
                             )
                         }
                     }
@@ -263,7 +263,7 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         text = mem?.planName ?: "No Active Plan",
                         color = colors.textPrimary,
                         fontWeight = FontWeight.Black,
-                        fontSize = 14.sp
+                        fontSize = 16.sp
                     )
                     Box(
                         modifier = Modifier
@@ -274,7 +274,7 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         Text(
                             text = if (isExpired) "EXPIRED" else "ACTIVE",
                             color = if (isExpired) Color(0xFFDC2626) else Color(0xFF16A34A),
-                            fontSize = 8.5.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
                     }
@@ -283,7 +283,7 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                 Text(
                     text = "${mem?.planType ?: "12 Months"} • Annual Membership",
                     color = colors.textSecondary,
-                    fontSize = 9.5.sp
+                    fontSize = 13.5.sp
                 )
 
                 Spacer(Modifier.height(2.dp))
@@ -293,20 +293,20 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text("Days Remaining", color = colors.textMuted, fontSize = 8.sp)
+                        Text("Days Remaining", color = colors.textMuted, fontSize = 12.sp)
                         Text(
                             text = if (isExpired) "0 Days" else "$daysRemaining Days",
                             color = if (isExpired) Color(0xFFDC2626) else colors.accent,
-                            fontSize = 13.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Black
                         )
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("Renewals", color = colors.textMuted, fontSize = 8.sp)
+                        Text("Renewals", color = colors.textMuted, fontSize = 12.sp)
                         Text(
                             text = "${mem?.renewalCount ?: 0} Times",
                             color = colors.textPrimary,
-                            fontSize = 11.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -317,7 +317,7 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
         // 2. Validity Timeline
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Validity Timeline", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                Text("Validity Timeline", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 mem?.let {
                     KeyValue("Start Date", formatDateOnly(it.startDate))
                     KeyValue("Expiry Date", formatDateOnly(it.expiryDate))
@@ -329,7 +329,7 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
         // 3. Freeze & Lifecycle
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Freeze & Privileges", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                Text("Freeze & Privileges", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 KeyValue("Freeze Allowance", "${mem?.freezeAllowanceDays ?: 30} days")
                 KeyValue("Freeze Consumed", "${mem?.freezeUsedDays ?: 0} days")
                 KeyValue("Member Since", formatDateOnly(snapshot.identity.memberSince))
@@ -375,7 +375,7 @@ fun PaymentPanel(
                     Text(
                         text = if (isOverdue) "Outstanding Balance" else "Account Balance",
                         color = colors.textSecondary,
-                        fontSize = 9.5.sp,
+                        fontSize = 13.5.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Box(
@@ -387,7 +387,7 @@ fun PaymentPanel(
                         Text(
                             text = if (isOverdue) "${overdueDays}d OVERDUE" else "PAID IN FULL",
                             color = if (isOverdue) Color(0xFFDC2626) else Color(0xFF16A34A),
-                            fontSize = 8.5.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = FontWeight.Black
                         )
                     }
@@ -397,14 +397,14 @@ fun PaymentPanel(
                     text = formattedDue,
                     color = if (isOverdue) Color(0xFFDC2626) else colors.textPrimary,
                     fontWeight = FontWeight.Black,
-                    fontSize = 20.sp
+                    fontSize = 22.sp
                 )
 
                 pay?.dueDate?.let {
                     Text(
                         text = "Due on: ${formatDate(it)}",
                         color = if (isOverdue) Color(0xFFEF4444) else colors.textMuted,
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -424,7 +424,7 @@ fun PaymentPanel(
         if (!pay?.breakdown.isNullOrEmpty()) {
             InfoCard(theme) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Breakdown", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    Text("Breakdown", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     pay!!.breakdown.forEach { item ->
                         KeyValue(item.label, "₹" + item.amount.toInt())
                     }
@@ -435,7 +435,7 @@ fun PaymentPanel(
         // 4. Payment Intelligence
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Payment Intelligence", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                Text("Payment Intelligence", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 pay?.lastPaymentAmount?.let { KeyValue("Last Payment", "₹" + it.toInt()) }
                 pay?.lastPaymentDate?.let { KeyValue("Last Paid Date", formatDateOnly(it)) }
                 pay?.lastPaymentMethod?.let { KeyValue("Payment Method", it) }
@@ -447,16 +447,16 @@ fun PaymentPanel(
         if (!pay?.history.isNullOrEmpty()) {
             InfoCard(theme) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Recent Transactions", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    Text("Recent Transactions", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     pay!!.history.take(3).forEach { tx ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(formatDateOnly(tx.occurredAt), color = colors.textSecondary, fontSize = 9.sp)
-                            Text("₹" + tx.amount.toInt(), color = colors.textPrimary, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
-                            Text(tx.method, color = colors.success, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text(formatDateOnly(tx.occurredAt), color = colors.textSecondary, fontSize = 13.sp)
+                            Text("₹" + tx.amount.toInt(), color = colors.textPrimary, fontSize = 13.5.sp, fontWeight = FontWeight.Bold)
+                            Text(tx.method, color = colors.success, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -475,7 +475,7 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 
         if (trainer == null) {
             InfoCard(theme) {
-                Text("No personal trainer assigned.", color = colors.textSecondary, fontSize = 11.sp)
+                Text("No personal trainer assigned.", color = colors.textSecondary, fontSize = 14.sp)
             }
             return
         }
@@ -511,7 +511,7 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                             text = trainer.trainerName,
                             color = colors.textPrimary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.5.sp
+                            fontSize = 15.5.sp
                         )
                         Box(
                             modifier = Modifier
@@ -519,11 +519,11 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                                 .background(Color(0xFFFEF3C7))
                                 .padding(horizontal = 4.dp, vertical = 1.dp)
                         ) {
-                            Text("★ 4.9", color = Color(0xFFD97706), fontSize = 7.5.sp, fontWeight = FontWeight.Bold)
+                            Text("★ 4.9", color = Color(0xFFD97706), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     trainer.focus?.let {
-                        Text(it, color = colors.textSecondary, fontSize = 9.sp, maxLines = 1)
+                        Text(it, color = colors.textSecondary, fontSize = 13.sp, maxLines = 1)
                     }
                 }
             }
@@ -539,8 +539,8 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("PT Sessions Progress", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                    Text("$sessionsLeft Remaining", color = colors.accent, fontWeight = FontWeight.Bold, fontSize = 9.sp)
+                    Text("PT Sessions Progress", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text("$sessionsLeft Remaining", color = colors.accent, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
 
                 LinearProgressIndicator(
@@ -554,8 +554,8 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Used: ${trainer.sessionsUsed}", color = colors.textMuted, fontSize = 8.5.sp)
-                    Text("Total: ${trainer.sessionsTotal}", color = colors.textMuted, fontSize = 8.5.sp)
+                    Text("Used: ${trainer.sessionsUsed}", color = colors.textMuted, fontSize = 12.5.sp)
+                    Text("Total: ${trainer.sessionsTotal}", color = colors.textMuted, fontSize = 12.5.sp)
                 }
             }
         }
@@ -563,7 +563,7 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
         // 3. Schedule & Focus
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Session Schedule", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                Text("Session Schedule", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 trainer.nextSessionDate?.let { KeyValue("Next Session", formatDate(it)) }
                 trainer.lastSessionDate?.let { KeyValue("Last Session", formatDate(it)) }
                 trainer.focus?.let { KeyValue("Current Focus", it) }
@@ -587,14 +587,14 @@ fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     text = workout?.currentRoutine ?: "Functional Training",
                     color = colors.textPrimary,
                     fontWeight = FontWeight.Black,
-                    fontSize = 13.sp
+                    fontSize = 15.sp
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Duration: ${workout?.durationMinutes ?: 60} mins", color = colors.textSecondary, fontSize = 9.5.sp)
-                    Text("Calories: ${workout?.calories ?: 480} kcal", color = colors.accent, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                    Text("Duration: ${workout?.durationMinutes ?: 60} mins", color = colors.textSecondary, fontSize = 13.5.sp)
+                    Text("Calories: ${workout?.calories ?: 480} kcal", color = colors.accent, fontSize = 13.5.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -602,7 +602,7 @@ fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
         // 2. Weekly Load Visualization
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Session Load (Last 5 Workouts)", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                Text("Session Load (Last 5 Workouts)", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -625,7 +625,7 @@ fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                                     .clip(RoundedCornerShape(3.dp))
                                     .background(if (idx == 2) colors.accent else colors.accent.copy(alpha = 0.4f))
                             )
-                            Text(days[idx], color = colors.textMuted, fontSize = 7.5.sp)
+                            Text(days[idx], color = colors.textMuted, fontSize = 11.5.sp)
                         }
                     }
                 }
@@ -635,7 +635,7 @@ fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
         // 3. Last Workout Summary
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Workout Log", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                Text("Workout Log", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 workout?.lastWorkoutDate?.let { KeyValue("Last Session", formatDate(it)) }
                 KeyValue("Weekly Target", "4 Sessions / Week")
                 KeyValue("Target Zone", "Hypertrophy & Core")
@@ -654,7 +654,7 @@ fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 
         if (item == null || !item.hasHistory) {
             InfoCard(theme) {
-                Text("No supplement purchase history recorded.", color = colors.textSecondary, fontSize = 11.sp)
+                Text("No supplement purchase history recorded.", color = colors.textSecondary, fontSize = 14.sp)
             }
         } else {
             InfoCard(theme) {
@@ -668,7 +668,7 @@ fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                             text = item.lastPurchaseName ?: "Whey Protein",
                             color = colors.textPrimary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
+                            fontSize = 15.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f)
@@ -679,7 +679,7 @@ fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                                 .background(colors.accent.copy(alpha = 0.15f))
                                 .padding(horizontal = 5.dp, vertical = 2.dp)
                         ) {
-                            Text("Active Supply", color = colors.accent, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                            Text("Active Supply", color = colors.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -691,7 +691,7 @@ fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 
             InfoCard(theme) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Inventory Status", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    Text("Inventory Status", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     KeyValue("Est. Supply", "18 Days Left")
                     KeyValue("Reorder Window", "Recommended in 10 Days")
                 }
@@ -719,7 +719,7 @@ fun NutritionPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         text = item?.planName ?: "Standard Diet Plan",
                         color = colors.textPrimary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp
+                        fontSize = 15.sp
                     )
                     Box(
                         modifier = Modifier
@@ -730,7 +730,7 @@ fun NutritionPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         Text(
                             text = if (item?.isSubscribed == true) "SUBSCRIBED" else "INACTIVE",
                             color = if (item?.isSubscribed == true) Color(0xFF16A34A) else Color(0xFF64748B),
-                            fontSize = 8.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
                     }
@@ -743,7 +743,7 @@ fun NutritionPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Daily Macro Target", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                Text("Daily Macro Target", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 KeyValue("Protein", "140g / Day")
                 KeyValue("Hydration", "3.5 L / Day")
                 KeyValue("Dietary Focus", "Lean Bulking & Recovery")
@@ -762,7 +762,7 @@ fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 
         if (services.isEmpty()) {
             InfoCard(theme) {
-                Text("No additional services active.", color = colors.textSecondary, fontSize = 11.sp)
+                Text("No additional services active.", color = colors.textSecondary, fontSize = 14.sp)
             }
         } else {
             services.forEach { service ->
@@ -773,7 +773,7 @@ fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(service.serviceName, color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                            Text(service.serviceName, color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.5.sp)
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
@@ -783,7 +783,7 @@ fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                                 Text(
                                     text = if (service.isActive) "ACTIVE" else "EXPIRED",
                                     color = if (service.isActive) Color(0xFF16A34A) else Color(0xFF64748B),
-                                    fontSize = 7.5.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -807,7 +807,7 @@ fun HistoryPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 
         if (events.isEmpty()) {
             InfoCard(theme) {
-                Text("No recent log activity.", color = colors.textSecondary, fontSize = 11.sp)
+                Text("No recent log activity.", color = colors.textSecondary, fontSize = 14.sp)
             }
         } else {
             events.take(6).forEach { ev ->
@@ -835,11 +835,11 @@ fun HistoryPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                                 modifier = Modifier.size(14.dp)
                             )
                             Column {
-                                Text(ev.eventType.displayLabel(), color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                Text("Source: ${ev.source.name}", color = colors.textMuted, fontSize = 8.sp)
+                                Text(ev.eventType.displayLabel(), color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("Source: ${ev.source.name}", color = colors.textMuted, fontSize = 12.sp)
                             }
                         }
-                        Text(formatDate(ev.occurredAt), color = colors.textSecondary, fontSize = 8.5.sp)
+                        Text(formatDate(ev.occurredAt), color = colors.textSecondary, fontSize = 12.5.sp)
                     }
                 }
             }
@@ -860,7 +860,7 @@ fun InsightPanel(
 
         if (signals.isEmpty()) {
             InfoCard(theme) {
-                Text("All systems nominal. No urgent intelligence actions.", color = colors.textSecondary, fontSize = 11.sp)
+                Text("All systems nominal. No urgent intelligence actions.", color = colors.textSecondary, fontSize = 14.sp)
             }
         } else {
             signals.forEach { sig ->
@@ -876,7 +876,7 @@ fun InsightPanel(
                                 text = sig.title,
                                 color = if (isP0) Color(0xFFDC2626) else colors.textPrimary,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp,
+                                fontSize = 14.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f)
@@ -890,7 +890,7 @@ fun InsightPanel(
                                 Text(
                                     text = if (isP0) "P0 URGENT" else "P1 ACTION",
                                     color = if (isP0) Color(0xFFDC2626) else Color(0xFFD97706),
-                                    fontSize = 7.5.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Black
                                 )
                             }
@@ -898,7 +898,7 @@ fun InsightPanel(
                         Text(
                             text = sig.subtitle ?: sig.evidence.firstOrNull() ?: sig.value.orEmpty(),
                             color = colors.textSecondary,
-                            fontSize = 8.5.sp,
+                            fontSize = 12.5.sp,
                             lineHeight = 11.sp
                         )
                     }
@@ -914,7 +914,7 @@ private fun SectionTitle(text: String, theme: ThemeId) {
         text = text,
         color = BADGymTheme.colors.textPrimary,
         fontWeight = FontWeight.ExtraBold,
-        fontSize = 11.sp,
+        fontSize = 14.sp,
         letterSpacing = 0.4.sp
     )
 }
@@ -964,8 +964,8 @@ private fun KeyValue(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 9.sp)
-        Text(value, color = BADGymTheme.colors.textPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 13.sp)
+        Text(value, color = BADGymTheme.colors.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -981,8 +981,8 @@ private fun StatItem(
         verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(13.dp))
-        Text(value, color = color, fontWeight = FontWeight.Black, fontSize = 11.sp)
-        Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 7.5.sp)
+        Text(value, color = color, fontWeight = FontWeight.Black, fontSize = 14.sp)
+        Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 11.5.sp)
     }
 }
 

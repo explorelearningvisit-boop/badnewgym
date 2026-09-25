@@ -68,7 +68,7 @@ fun ThemedCtaButton(
             Text(
                 text = displayText,
                 color = if (theme == ThemeId.PREMIUM_3D) Color(0xFF1C1304) else Color.White,
-                fontSize = 13.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.4.sp
             )

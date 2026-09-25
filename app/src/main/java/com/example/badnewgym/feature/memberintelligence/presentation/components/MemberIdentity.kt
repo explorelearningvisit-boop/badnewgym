@@ -69,14 +69,14 @@ fun MemberIdentitySection(
                 Text(
                     text = planName,
                     color = BADGymTheme.colors.textPrimary,
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 )
             }
             if (!planType.isNullOrBlank()) {
                 Text(
                     text = planType,
                     color = BADGymTheme.colors.textPrimary,
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -98,7 +98,7 @@ fun MemberIdentitySection(
                 Text(
                     text = "ACTIVE",
                     color = BADGymTheme.colors.textPrimary,
-                    fontSize = 12.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -106,7 +106,7 @@ fun MemberIdentitySection(
             Text(
                 text = "48 Days Left",
                 color = BADGymTheme.colors.textPrimary,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
             )
         }

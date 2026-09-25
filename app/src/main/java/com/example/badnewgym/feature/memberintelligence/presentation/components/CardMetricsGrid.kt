@@ -49,13 +49,13 @@ fun CardMetricsGrid(
                     Text(
                         text = "$visits/$target",
                         color = colors.textPrimary,
-                        fontSize = 13.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black
                     )
                     Text(
                         text = "Attendance",
                         color = colors.textSecondary,
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -83,7 +83,7 @@ fun CardMetricsGrid(
                     Text(
                         text = "$attendancePercent%",
                         color = colors.textPrimary,
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Black
                     )
                 }
@@ -109,13 +109,13 @@ fun CardMetricsGrid(
                     Text(
                         text = formattedAmount,
                         color = if (isOverdue) Color(0xFFDC2626) else colors.textPrimary,
-                        fontSize = 13.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black
                     )
                     Text(
                         text = "Payment Due",
                         color = colors.textSecondary,
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -134,7 +134,7 @@ fun CardMetricsGrid(
                     Text(
                         text = if (isOverdue) "$overdueDays days" else "All Clear",
                         color = if (isOverdue) Color(0xFFDC2626) else Color(0xFF16A34A),
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -153,13 +153,13 @@ fun CardMetricsGrid(
                     Text(
                         text = "$countDisplay",
                         color = colors.textPrimary,
-                        fontSize = 13.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black
                     )
                     Text(
                         text = "Workouts",
                         color = colors.textSecondary,
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }

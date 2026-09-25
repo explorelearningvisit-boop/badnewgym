@@ -46,7 +46,7 @@ fun CardFooterSection(
                     Text(
                         text = theme.footer,
                         color = Color(0xFFD4AF37),
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp,
                         textAlign = TextAlign.Center
@@ -56,13 +56,13 @@ fun CardFooterSection(
                     Text(
                         text = "/// ",
                         color = Color(0xFFFF1E27),
-                        fontSize = 11.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Black
                     )
                     Text(
                         text = theme.footer,
                         color = Color(0xFFFF4D5E),
-                        fontSize = 9.5.sp,
+                        fontSize = 13.5.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 0.8.sp,
                         textAlign = TextAlign.Center
@@ -70,7 +70,7 @@ fun CardFooterSection(
                     Text(
                         text = " ///",
                         color = Color(0xFFFF1E27),
-                        fontSize = 11.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Black
                     )
                 }
@@ -79,7 +79,7 @@ fun CardFooterSection(
                         Text(
                             text = theme.footer,
                             color = Color(0xFFC084FC),
-                            fontSize = 8.5.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.4.sp,
                             textAlign = TextAlign.Center
@@ -87,7 +87,7 @@ fun CardFooterSection(
                         Text(
                             text = "Better Together ♡",
                             color = Color(0xFFE9D5FF),
-                            fontSize = 9.sp,
+                            fontSize = 13.sp,
                             fontStyle = FontStyle.Italic,
                             fontWeight = FontWeight.Medium
                         )
@@ -104,7 +104,7 @@ fun CardFooterSection(
                     Text(
                         text = theme.footer,
                         color = Color(0xFF9CA3AF),
-                        fontSize = 8.5.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = 0.4.sp,
                         textAlign = TextAlign.Center
@@ -114,7 +114,7 @@ fun CardFooterSection(
                     Text(
                         text = theme.footer,
                         color = Color(0xFF00E5FF),
-                        fontSize = 8.5.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp,
                         textAlign = TextAlign.Center
@@ -124,7 +124,7 @@ fun CardFooterSection(
                     Text(
                         text = "⚡ " + theme.footer,
                         color = Color(0xFF6B21A8),
-                        fontSize = 8.5.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp,
                         textAlign = TextAlign.Center
@@ -134,7 +134,7 @@ fun CardFooterSection(
                     Text(
                         text = "〰 " + theme.footer,
                         color = Color(0xFF0284C7),
-                        fontSize = 8.5.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 0.3.sp,
                         textAlign = TextAlign.Center
@@ -144,7 +144,7 @@ fun CardFooterSection(
                     Text(
                         text = "🌿 " + theme.footer + " 🌿",
                         color = Color(0xFF2D6A4F),
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontStyle = FontStyle.Italic,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center

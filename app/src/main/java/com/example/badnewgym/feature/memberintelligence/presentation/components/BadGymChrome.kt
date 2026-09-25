@@ -60,19 +60,19 @@ fun BadGymTopBar(modifier: Modifier = Modifier) {
                 text = "BAD GYM",
                 color = BADGymTheme.colors.textPrimary,
                 fontWeight = FontWeight.Black,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 letterSpacing = 0.6.sp
             )
             Text(
                 text = "Your Gym's Operating Brain",
                 color = BADGymTheme.colors.textSecondary,
-                fontSize = 10.sp
+                fontSize = 13.sp
             )
         }
         Text(
             text = "Member Intelligence",
             color = BADGymTheme.colors.accent,
-            fontSize = 10.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -127,7 +127,7 @@ fun BadGymBottomBar(
                 Text(
                     text = item.label,
                     color = if (item.selected) BADGymTheme.colors.accent else BADGymTheme.colors.textMuted,
-                    fontSize = 7.sp,
+                    fontSize = 11.sp,
                     fontWeight = if (item.selected) FontWeight.Bold else FontWeight.Medium,
                     maxLines = 1
                 )

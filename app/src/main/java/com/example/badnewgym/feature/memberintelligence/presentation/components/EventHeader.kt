@@ -45,7 +45,7 @@ fun EventHeader(event: MemberEvent, theme: ThemeId, modifier: Modifier = Modifie
             Text(
                 text = "+ " + event.eventType.displayLabel(),
                 color = Color.White,
-                fontSize = 11.5.sp,
+                fontSize = 14.5.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.5.sp
             )
@@ -54,13 +54,13 @@ fun EventHeader(event: MemberEvent, theme: ThemeId, modifier: Modifier = Modifie
             Text(
                 text = theme.timeText,
                 color = BADGymTheme.colors.textPrimary,
-                fontSize = 12.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Black
             )
             Text(
                 text = theme.timeRelative,
                 color = BADGymTheme.colors.textMuted,
-                fontSize = 9.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
             )
         }

@@ -83,7 +83,7 @@ fun HomeMenu(
                 androidx.compose.material3.Text(
                     text = "$daysLeft\nDays",
                     color = BADGymTheme.colors.textPrimary,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     lineHeight = 18.sp
                 )
@@ -91,7 +91,7 @@ fun HomeMenu(
                 androidx.compose.material3.Text(
                     text = snapshot.membership?.planName ?: "None",
                     color = BADGymTheme.colors.textSecondary,
-                    fontSize = 10.sp,
+                    fontSize = 13.sp,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )

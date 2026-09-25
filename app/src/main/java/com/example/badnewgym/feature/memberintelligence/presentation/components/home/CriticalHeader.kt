@@ -87,10 +87,10 @@ private fun MiniKpi(
             )
             .padding(horizontal = 6.dp, vertical = 8.dp)
     ) {
-        Text(label, color = accent, fontSize = 8.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
+        Text(label, color = accent, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
         Spacer(modifier = Modifier.height(2.dp))
-        Text(value, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-        Text(sub, color = Color(0xFF94A3B8), fontSize = 8.sp, maxLines = 1)
+        Text(value, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        Text(sub, color = Color(0xFF94A3B8), fontSize = 12.sp, maxLines = 1)
     }
 }
 

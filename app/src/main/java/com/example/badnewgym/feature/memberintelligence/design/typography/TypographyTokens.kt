@@ -19,45 +19,45 @@ val defaultTypography = BADGymTypography(
     memberName = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
-        fontSize = 15.sp,
-        lineHeight = 20.sp
+        fontSize = 19.sp,
+        lineHeight = 24.sp
     ),
     eventLabel = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 11.sp,
-        lineHeight = 14.sp,
+        fontSize = 14.sp,
+        lineHeight = 18.sp,
         letterSpacing = 0.5.sp
     ),
     timestamp = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 10.sp,
-        lineHeight = 14.sp
+        fontSize = 13.sp,
+        lineHeight = 18.sp
     ),
     kpiValue = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.ExtraBold,
-        fontSize = 16.sp,
-        lineHeight = 20.sp
+        fontSize = 17.sp,
+        lineHeight = 22.sp
     ),
     label = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
-        fontSize = 9.sp,
-        lineHeight = 12.sp,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
         letterSpacing = 0.4.sp
     ),
     cta = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 12.sp,
-        lineHeight = 16.sp
+        fontSize = 14.sp,
+        lineHeight = 18.sp
     ),
     railItem = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 9.sp,
-        lineHeight = 12.sp
+        fontSize = 12.sp,
+        lineHeight = 16.sp
     )
 )

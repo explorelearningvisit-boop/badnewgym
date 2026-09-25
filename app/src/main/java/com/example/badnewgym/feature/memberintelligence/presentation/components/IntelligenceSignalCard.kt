@@ -77,7 +77,7 @@ fun IntelligenceSignalCard(
             Text(
                 text = signal.title,
                 color = signalColor,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
             )
             if (signal.subtitle != null) {
@@ -85,7 +85,7 @@ fun IntelligenceSignalCard(
                 Text(
                     text = signal.subtitle,
                     color = signalColor.copy(alpha = 0.8f),
-                    fontSize = 12.sp
+                    fontSize = 15.sp
                 )
             }
         }

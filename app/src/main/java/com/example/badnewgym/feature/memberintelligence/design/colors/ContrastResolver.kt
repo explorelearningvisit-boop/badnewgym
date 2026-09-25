@@ -10,7 +10,7 @@ object ContrastResolver {
      * to ensure sufficient contrast.
      */
     fun contentColorFor(backgroundColor: Color): Color {
-        return if (backgroundColor.luminance() > 0.5f) {
+        return if (backgroundColor.luminance() > 0.4f) {
             Color.Black
         } else {
             Color.White
@@ -19,21 +19,21 @@ object ContrastResolver {
 
     fun resolvePrimaryText(surfaceColor: Color, themeColors: BADGymColors): Color {
         val lum = surfaceColor.luminance()
-        return if (lum > 0.5f) {
+        return if (lum > 0.4f) {
             // Light surface, prefer dark text
-            if (themeColors.textPrimary.luminance() < 0.5f) themeColors.textPrimary else Color(0xFF1B2A20)
+            if (themeColors.textPrimary.luminance() < 0.4f) themeColors.textPrimary else Color(0xFF1B2A20)
         } else {
             // Dark surface, prefer light text
-            if (themeColors.textPrimary.luminance() > 0.5f) themeColors.textPrimary else Color.White
+            if (themeColors.textPrimary.luminance() > 0.4f) themeColors.textPrimary else Color.White
         }
     }
 
     fun resolveSecondaryText(surfaceColor: Color, themeColors: BADGymColors): Color {
         val lum = surfaceColor.luminance()
-        return if (lum > 0.5f) {
-            if (themeColors.textSecondary.luminance() < 0.5f) themeColors.textSecondary else Color(0xFF4B6354)
+        return if (lum > 0.4f) {
+            if (themeColors.textSecondary.luminance() < 0.4f) themeColors.textSecondary else Color(0xFF4B6354)
         } else {
-            if (themeColors.textSecondary.luminance() > 0.5f) themeColors.textSecondary else Color(0xFF94A3B8)
+            if (themeColors.textSecondary.luminance() > 0.4f) themeColors.textSecondary else Color(0xFF94A3B8)
         }
     }
 }

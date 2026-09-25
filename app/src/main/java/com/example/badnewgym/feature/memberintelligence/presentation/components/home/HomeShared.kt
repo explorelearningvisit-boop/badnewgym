@@ -140,7 +140,7 @@ fun CheckInHeader(
                 Text(
                     text = "CHECK-IN",
                     color = Color.White,
-                    fontSize = 10.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
                 )
@@ -150,10 +150,10 @@ fun CheckInHeader(
             Text(
                 text = formatEventTime(occurredAt),
                 color = timeColor,
-                fontSize = 12.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold
             )
-            Text(text = "Just now", color = subtitleColor, fontSize = 10.sp)
+            Text(text = "Just now", color = subtitleColor, fontSize = 13.sp)
         }
     }
 }
@@ -178,7 +178,7 @@ fun MemberHero(
                 Text(
                     text = snapshot.identity.name,
                     color = nameColor,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -195,12 +195,12 @@ fun MemberHero(
             Text(
                 text = snapshot.memberCode(),
                 color = metaColor,
-                fontSize = 11.sp
+                fontSize = 14.sp
             )
             Text(
                 text = snapshot.planLine(),
                 color = metaColor,
-                fontSize = 11.sp,
+                fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -230,7 +230,7 @@ fun StatusChip(
         Text(
             text = if (active) "ACTIVE • $days Days Left" else "INACTIVE",
             color = fg,
-            fontSize = 10.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -274,7 +274,7 @@ fun AttendanceRing(
         Text(
             text = "$percent%",
             color = textColor,
-            fontSize = 11.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
     }
@@ -337,7 +337,7 @@ fun LabeledBarChart(
                 Text(
                     text = label,
                     color = labelColor,
-                    fontSize = 9.sp,
+                    fontSize = 13.sp,
                     modifier = Modifier.weight(1f),
                     maxLines = 1
                 )
@@ -363,7 +363,7 @@ fun MetricPanel(
         Text(
             text = title, 
             color = titleColor, 
-            fontSize = 10.sp, 
+            fontSize = 13.sp, 
             fontWeight = FontWeight.Medium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -394,7 +394,7 @@ fun DueBlock(
         Text(
             text = if (compact) "Due" else "Outstanding Due",
             color = titleColor,
-            fontSize = 10.sp,
+            fontSize = 13.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -411,7 +411,7 @@ fun DueBlock(
             Text(
                 text = "Overdue: ${overdueDays ?: 0} days",
                 color = titleColor,
-                fontSize = 9.sp,
+                fontSize = 13.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -450,8 +450,8 @@ fun ShortcutTriple(
                 placeholderTint = iconBg
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Trainer", color = labelColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-            Text(text = trainer, color = valueColor, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = "Trainer", color = labelColor, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Text(text = trainer, color = valueColor, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         ShortcutCell("W", "Workout", workout, iconBg, labelColor, valueColor, Modifier.weight(1f))
         ShortcutCell("S", "Services", services, iconBg, labelColor, BADGymTheme.colors.success, Modifier.weight(1f))
@@ -484,14 +484,14 @@ private fun ShortcutCell(
                 .border(1.dp, BADGymTheme.colors.border.copy(alpha = 0.7f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = glyph, color = labelColor, fontWeight = FontWeight.Black, fontSize = 12.sp)
+            Text(text = glyph, color = labelColor, fontWeight = FontWeight.Black, fontSize = 15.sp)
         }
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = label, color = labelColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Text(text = label, color = labelColor, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         Text(
             text = value,
             color = valueColor,
-            fontSize = 9.sp,
+            fontSize = 13.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -519,12 +519,12 @@ fun AlertBanner(
                 .background(Color(0xFFEF4444)),
             contentAlignment = Alignment.Center
         ) {
-            Text("!", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Text("!", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Text(text = subtitle, color = Color(0xFFFCA5A5), fontSize = 10.sp)
+            Text(text = title, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = subtitle, color = Color(0xFFFCA5A5), fontSize = 13.sp)
         }
         Text("›", color = Color.White, fontWeight = FontWeight.Bold)
     }
@@ -548,7 +548,7 @@ fun QuoteFooter(
         Text(
             text = text,
             color = textColor,
-            fontSize = 12.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -572,7 +572,7 @@ fun PrimaryCta(
         Text(
             text = label,
             color = contentColor,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Bold
         )
     }
@@ -605,20 +605,20 @@ fun PromoBanner(
         )
         Spacer(modifier = Modifier.width(10.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, color = BADGymTheme.colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Text(text = subtitle, color = BADGymTheme.colors.textSecondary, fontSize = 10.sp)
+            Text(text = title, color = BADGymTheme.colors.textPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = subtitle, color = BADGymTheme.colors.textSecondary, fontSize = 13.sp)
             if (showPrice) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         text = HomeDemoData.wheyMrp,
                         color = BADGymTheme.colors.textMuted,
-                        fontSize = 10.sp,
+                        fontSize = 13.sp,
                         textDecoration = TextDecoration.LineThrough
                     )
                     Text(
                         text = HomeDemoData.wheyPrice,
                         color = BADGymTheme.colors.success,
-                        fontSize = 11.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -630,7 +630,7 @@ fun PromoBanner(
                 .background(BADGymTheme.colors.danger)
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            Text(text = badge, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text(text = badge, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

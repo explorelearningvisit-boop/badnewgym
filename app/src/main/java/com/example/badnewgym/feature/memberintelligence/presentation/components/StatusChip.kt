@@ -25,6 +25,6 @@ fun StatusChip(
             .background(bg, RoundedCornerShape(20.dp))
             .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
-        Text(text = text, color = fg, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+        Text(text = text, color = fg, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
     }
 }

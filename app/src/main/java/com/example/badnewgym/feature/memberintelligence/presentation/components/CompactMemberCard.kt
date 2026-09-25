@@ -421,7 +421,7 @@ private fun CompactEventHeader(
             Text(
                 text = "+ " + eventType.displayLabel(),
                 color = Color.White,
-                fontSize = 10.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.3.sp
             )
@@ -435,13 +435,13 @@ private fun CompactEventHeader(
             Text(
                 text = theme.timeText,
                 color = colors.textPrimary,
-                fontSize = 11.5.sp,
+                fontSize = 14.5.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = "• ${theme.timeRelative}",
                 color = colors.textMuted,
-                fontSize = 9.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -495,7 +495,7 @@ private fun CompactHeroIdentity(
                 Text(
                     text = semantics.tierLabel,
                     color = semantics.tierAccentColor,
-                    fontSize = 8.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 0.3.sp
                 )
@@ -509,7 +509,7 @@ private fun CompactHeroIdentity(
                 Text(
                     text = identity.name,
                     color = colors.textPrimary,
-                    fontSize = 14.5.sp,
+                    fontSize = 16.5.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = (-0.3).sp,
                     maxLines = 1,
@@ -529,14 +529,14 @@ private fun CompactHeroIdentity(
             Text(
                 text = identity.code ?: "BG---",
                 color = colors.textSecondary,
-                fontSize = 9.5.sp,
+                fontSize = 13.5.sp,
                 fontWeight = FontWeight.SemiBold
             )
 
             Text(
                 text = theme.motto,
                 color = colors.mottoColor,
-                fontSize = 9.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = if (theme == ThemeId.NATURAL_FRESH || theme == ThemeId.GLASSMORPHISM || theme == ThemeId.PURPLE_ROYAL || theme == ThemeId.PREMIUM_3D) FontStyle.Italic else FontStyle.Normal,
                 lineHeight = 12.sp,
@@ -583,7 +583,7 @@ private fun CompactMembershipBands(
                 Text(
                     text = planName,
                     color = semantics.tierAccentColor,
-                    fontSize = 9.5.sp,
+                    fontSize = 13.5.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -591,7 +591,7 @@ private fun CompactMembershipBands(
                 Text(
                     text = "${membership?.planType ?: "12M"}",
                     color = semantics.tierAccentColor.copy(alpha = 0.8f),
-                    fontSize = 8.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -632,13 +632,13 @@ private fun CompactMembershipBands(
                 Text(
                     text = semantics.stateLabel,
                     color = semantics.stateAccentColor,
-                    fontSize = 9.5.sp,
+                    fontSize = 13.5.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = statusSubtext,
                     color = semantics.stateAccentColor.copy(alpha = 0.85f),
-                    fontSize = 8.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -667,7 +667,7 @@ private fun CompactMetricsGrid(
             Text(
                 text = "$visits/$target",
                 color = colors.textPrimary,
-                fontSize = 11.5.sp,
+                fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black
             )
             Box(
@@ -684,14 +684,14 @@ private fun CompactMetricsGrid(
                 Text(
                     text = "$attendancePercent%",
                     color = colors.textPrimary,
-                    fontSize = 7.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Text(
                 text = "Attendance",
                 color = colors.textSecondary,
-                fontSize = 8.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -709,7 +709,7 @@ private fun CompactMetricsGrid(
             Text(
                 text = formattedAmount,
                 color = if (isOverdue) Color(0xFFDC2626) else colors.textPrimary,
-                fontSize = 11.5.sp,
+                fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -723,14 +723,14 @@ private fun CompactMetricsGrid(
                 Text(
                     text = if (isOverdue) "$overdueDays d due" else "Clear",
                     color = if (isOverdue) Color(0xFFDC2626) else Color(0xFF16A34A),
-                    fontSize = 8.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Text(
                 text = "Payment",
                 color = colors.textSecondary,
-                fontSize = 8.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -741,7 +741,7 @@ private fun CompactMetricsGrid(
             Text(
                 text = "$countDisplay",
                 color = colors.textPrimary,
-                fontSize = 11.5.sp,
+                fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black
             )
             Row(
@@ -766,7 +766,7 @@ private fun CompactMetricsGrid(
             Text(
                 text = "Workouts",
                 color = colors.textSecondary,
-                fontSize = 8.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -866,7 +866,7 @@ private fun CompactSignalBanner(
         Text(
             text = text,
             color = textColor,
-            fontSize = 9.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -1029,7 +1029,7 @@ private fun BoundedDetailRail(
                 Text(
                     text = menu.label,
                     color = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.textPrimary else colors.textMuted,
-                    fontSize = 7.5.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Medium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1039,7 +1039,7 @@ private fun BoundedDetailRail(
                     Text(
                         text = microData,
                         color = if (isActionNeeded) Color(0xFFEF4444) else if (isActive) colors.accent else colors.textSecondary,
-                        fontSize = 7.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -1134,7 +1134,7 @@ private fun PersistentDetailHeader(
                 Text(
                     text = "+ " + eventType.displayLabel(),
                     color = Color.White,
-                    fontSize = 9.5.sp,
+                    fontSize = 13.5.sp,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 0.2.sp
                 )
@@ -1148,13 +1148,13 @@ private fun PersistentDetailHeader(
                 Text(
                     text = theme.timeText,
                     color = colors.textPrimary,
-                    fontSize = 11.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "• ${theme.timeRelative}",
                     color = colors.textMuted,
-                    fontSize = 8.5.sp,
+                    fontSize = 12.5.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -1207,7 +1207,7 @@ private fun PersistentDetailHeader(
                     Text(
                         text = snapshot.identity.name,
                         color = colors.textPrimary,
-                        fontSize = 14.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = (-0.2).sp,
                         maxLines = 1,
@@ -1231,13 +1231,13 @@ private fun PersistentDetailHeader(
                     Text(
                         text = snapshot.identity.code ?: "BG---",
                         color = colors.textSecondary,
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "• ${theme.motto.replace("\n", " ")}",
                         color = colors.mottoColor,
-                        fontSize = 8.5.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Bold,
                         fontStyle = FontStyle.Italic,
                         maxLines = 1,
@@ -1327,7 +1327,7 @@ private fun HomeBoundedContent(
                 Text(
                     text = "Coach: ${snapshot.trainer?.trainerName ?: "Unassigned"}",
                     color = colors.textSecondary,
-                    fontSize = 9.sp,
+                    fontSize = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -1335,7 +1335,7 @@ private fun HomeBoundedContent(
                 Text(
                     text = "Routine: ${snapshot.workout?.currentRoutine ?: "Routine"}",
                     color = colors.textPrimary,
-                    fontSize = 9.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

@@ -95,13 +95,13 @@ fun MembershipTierStatus(
                 Text(
                     text = planName,
                     color = goldText,
-                    fontSize = 11.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Black
                 )
                 Text(
                     text = planType,
                     color = goldText.copy(alpha = 0.85f),
-                    fontSize = 9.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -132,13 +132,13 @@ fun MembershipTierStatus(
                 Text(
                     text = if (isActive) "ACTIVE" else "INACTIVE",
                     color = activeTint,
-                    fontSize = 11.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Black
                 )
                 Text(
                     text = "$daysRemaining Days Left",
                     color = activeTint.copy(alpha = 0.9f),
-                    fontSize = 9.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
                 )
             }

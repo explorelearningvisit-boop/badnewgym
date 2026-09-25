@@ -67,7 +67,7 @@ fun MemberContextHeader(
                 Text(
                     text = currentEvent.eventType.displayLabel().uppercase(),
                     color = eventColor,
-                    fontSize = 10.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -75,13 +75,13 @@ fun MemberContextHeader(
                 Text(
                     text = formattedTime,
                     color = BADGymTheme.colors.textPrimary,
-                    fontSize = 11.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "Just now",
                     color = BADGymTheme.colors.textSecondary,
-                    fontSize = 9.sp
+                    fontSize = 13.sp
                 )
             }
         }
@@ -105,7 +105,7 @@ fun MemberContextHeader(
             Text(
                 text = "Good Fitness\nBrighter You",
                 color = BADGymTheme.colors.textSecondary.copy(alpha = 0.5f),
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 0.sp,
                 lineHeight = 18.sp,
@@ -121,7 +121,7 @@ fun MemberContextHeader(
                 text = identity.name,
                 style = BADGymTheme.typography.memberName,
                 color = BADGymTheme.colors.textPrimary,
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
             if (identity.isVerified) {
@@ -140,7 +140,7 @@ fun MemberContextHeader(
             Text(
                 text = it,
                 color = BADGymTheme.colors.textSecondary,
-                fontSize = 11.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -169,7 +169,7 @@ fun MemberContextHeader(
             Text(
                 text = "$planName • 6 Months",
                 color = BADGymTheme.colors.textPrimary,
-                fontSize = 11.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -204,7 +204,7 @@ fun MemberContextHeader(
             Text(
                 text = if (daysLeft >= 0) "ACTIVE • $daysLeft Days Left" else "EXPIRED • ${abs(daysLeft)} Days Ago",
                 color = if (daysLeft >= 0) BADGymTheme.colors.success else BADGymTheme.colors.danger,
-                fontSize = 11.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
         }

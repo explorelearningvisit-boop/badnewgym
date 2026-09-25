@@ -79,14 +79,14 @@ fun CardHeader(
                         ThemeId.BEAST_MODE -> Color(0xFFFF4D5E)
                         else -> colors.textPrimary
                     },
-                    fontSize = 15.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.4.sp
                 )
                 Text(
                     theme.subtitle.replace("\n", " • "),
                     color = colors.textSecondary,
-                    fontSize = 8.5.sp,
+                    fontSize = 12.5.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 1
                 )
@@ -122,7 +122,7 @@ fun CardHeader(
                 .border(1.5.dp, colors.border.copy(alpha = .75f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text("A", color = colors.textPrimary, fontSize = 11.sp, fontWeight = FontWeight.Black)
+            Text("A", color = colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Black)
         }
     }
 }

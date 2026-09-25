@@ -50,7 +50,7 @@ fun HeroMemberSection(
                     Text(
                         text = identity.name,
                         color = colors.textPrimary,
-                        fontSize = 19.sp,
+                        fontSize = 21.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = (-0.5).sp,
                         maxLines = 1
@@ -65,14 +65,14 @@ fun HeroMemberSection(
                 Text(
                     text = identity.code ?: "",
                     color = colors.textSecondary,
-                    fontSize = 11.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = theme.motto,
                     color = colors.mottoColor,
-                    fontSize = 13.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     fontStyle = if (theme == ThemeId.NATURAL_FRESH || theme == ThemeId.GLASSMORPHISM || theme == ThemeId.PURPLE_ROYAL || theme == ThemeId.PREMIUM_3D) FontStyle.Italic else FontStyle.Normal,
                     lineHeight = 16.sp
