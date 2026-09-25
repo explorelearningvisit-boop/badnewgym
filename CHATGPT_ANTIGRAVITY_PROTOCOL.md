@@ -85,3 +85,7 @@ Do not launch hidden/background execution unless the user explicitly requests it
 If no task is authorized, stop and ask for authorization rather than inventing work.
 
 Important decisions must live in the repository, not only in an invisible model conversation.
+
+
+## Permanent master contract
+MASTER_AI_EXECUTION_CONTRACT.md is the top-level operational contract. If this file conflicts with it, the master contract wins. In particular, Pull and Run is never complete merely because Git reports “Already up to date”; the visible workflow continues through state detection, authorized execution/reconciliation, verification, documentation, commit, push and remote verification. Completed tasks are not blindly rerun.
