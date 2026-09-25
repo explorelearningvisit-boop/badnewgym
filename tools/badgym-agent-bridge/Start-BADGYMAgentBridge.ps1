@@ -180,30 +180,10 @@ while ($true) {
 
     $global:taskStartTime = Get-Date
 
-    $prompt = @"
-You are the autonomous Google Antigravity executor for the BAD GYM repository.
-
-Before touching code, read:
-AGENTS.md
-.agents/rules/00-badgym-github-loop.md
-CURRENT_TASK.md
-STATUS.md
-HANDOFF_STRATEGY.md
-HANDOFF_STATUS.md
-docs/reference/MI_V5_DESIGN_COMMUNICATION.md
-
-CURRENT_TASK.md is the executable authorization.
-Execute the current READY_FOR_EXECUTION task completely and autonomously.
-Run the requested Android unit tests/build/install/runtime checks.
-Update STATUS.md with exact implementation, verification.
-Update HANDOFF_STATUS.md.
-Only after the acceptance gate passes, set CURRENT_TASK.md STATUS to COMPLETED.
-If genuinely blocked, set STATUS/BLOCKED.
-Commit the intended changes and push to origin member-intelligence-v3.
-"@
+    $prompt = "You are the autonomous Google Antigravity executor for the BAD GYM repository. Before touching code, read: AGENTS.md, .agents/rules/00-badgym-github-loop.md, CURRENT_TASK.md, STATUS.md, HANDOFF_STRATEGY.md, HANDOFF_STATUS.md, docs/reference/MI_V5_DESIGN_COMMUNICATION.md. CURRENT_TASK.md is the executable authorization. Execute the current READY_FOR_EXECUTION task completely and autonomously. Run the requested Android unit tests/build/install/runtime checks. Update STATUS.md with exact implementation, verification. Update HANDOFF_STATUS.md. Only after the acceptance gate passes, set CURRENT_TASK.md STATUS to COMPLETED. If genuinely blocked, set STATUS/BLOCKED. Commit the intended changes and push to origin member-intelligence-v3."
 
     $args = @(
-      "-p", "`"$($prompt -replace '"', '\"' -replace "`n", " " -replace "`r", "")`"",
+      "-p", "`"$prompt`"",
       "--output-format", "stream-json",
       "--print-timeout", "$([int]$config.maxAgentMinutes)m",
       "--effort", [string]$config.effort
