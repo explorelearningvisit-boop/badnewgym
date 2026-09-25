@@ -22,3 +22,14 @@ Do not start Stage 8.
 Verification:
 - GitHub Actions assembleDebug must pass.
 - Runtime review on Xiaomi Redmi Note 11 remains required.
+
+
+## Current — Stage 7.6 Compact Fusion Card
+
+ChatGPT directly implemented the visual fusion layer on `member-intelligence-v3`.
+
+Goal: merge the strongest visual ideas from the three concept boards into the existing compact member-intelligence card without increasing its footprint.
+
+Implemented: `CompactIntelligenceStrip`, truthful metric fallbacks, two-line member-name support, and menu-specific signal routing.
+
+Next verification: GitHub Actions `assembleDebug`, then physical Redmi runtime screenshot review. Do not claim device verification until evidence exists.
