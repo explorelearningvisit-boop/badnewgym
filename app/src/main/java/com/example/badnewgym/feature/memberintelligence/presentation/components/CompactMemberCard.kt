@@ -34,6 +34,7 @@ import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -1394,7 +1395,7 @@ private fun HomeBoundedContent(
         }
 
         val ctaLabel = resolveDynamicCtaLabel(snapshot, semantics, cta)
-        ThemedCtaButton(theme, ctaLabel, onCta, Modifier.fillMaxWidth().height(42.dp))
+        Button(onClick = onCta, modifier = Modifier.fillMaxWidth().height(42.dp)) { Text(ctaLabel, fontWeight = FontWeight.Black) }
     }
 }
 
