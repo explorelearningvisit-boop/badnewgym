@@ -27,7 +27,13 @@ function Write-Event([string]$status, [string]$phase, [string]$msg) {
     heartbeat = $true
   }
   $evtJson = $evt | ConvertTo-Json -Compress
-  Add-Content -LiteralPath $eventsPath -Value $evtJson
+  
+  try {
+    Add-Content -LiteralPath $eventsPath -Value $evtJson -ErrorAction Stop
+  } catch {
+    Start-Sleep -Milliseconds 100
+    Add-Content -LiteralPath $eventsPath -Value $evtJson -ErrorAction SilentlyContinue
+  }
   
   # Console friendly output
   $time = (Get-Date).ToString("HH:mm:ss")
@@ -53,7 +59,15 @@ function Save-AgentState([string]$status, [string]$phase, [string]$msg) {
     message = $msg
     lastEventTime = (Get-Date).ToString("o")
   }
-  $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
+  
+  try {
+    $state | ConvertTo-Json | Set-Content -LiteralPath "$statePath.tmp" -Encoding UTF8 -ErrorAction Stop
+    Move-Item -Path "$statePath.tmp" -Destination $statePath -Force -ErrorAction Stop
+  } catch {
+    Start-Sleep -Milliseconds 100
+    $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8 -ErrorAction SilentlyContinue
+  }
+  
   Write-Event $status $phase $msg
 }
 
@@ -186,7 +200,7 @@ Commit the intended changes and push to origin member-intelligence-v3.
 "@
 
     $args = @(
-      "-p", $prompt,
+      "-p", "`"$($prompt -replace '"', '\"' -replace "`n", " " -replace "`r", "")`"",
       "--output-format", "stream-json",
       "--print-timeout", "$([int]$config.maxAgentMinutes)m",
       "--effort", [string]$config.effort
