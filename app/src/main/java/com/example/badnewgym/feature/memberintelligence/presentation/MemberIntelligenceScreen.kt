@@ -44,6 +44,8 @@ import com.example.badnewgym.feature.memberintelligence.design.shapes
 import com.example.badnewgym.feature.memberintelligence.presentation.components.BadGymBottomBar
 import com.example.badnewgym.feature.memberintelligence.presentation.components.BadGymTopBar
 import com.example.badnewgym.feature.memberintelligence.presentation.components.CompactMemberCarousel
+import com.example.badnewgym.feature.memberintelligence.presentation.components.EventDetailDialog
+import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberPhoto
 import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
 
 @Composable
@@ -129,7 +131,7 @@ private fun BrowseMemberIntelligenceSurface(
     BADGymTheme(colors = theme.colors(), shapes = theme.shapes(), motion = theme.motion(), elevation = theme.elevation()) {
         val colors = BADGymTheme.colors
         val selectedMember = success.snapshot
-        val eventTitle = success.currentEvent?.type?.name?.replace('_', ' ')?.lowercase()?.replaceFirstChar { it.titlecase() } ?: "Member intelligence"
+        val eventTitle = success.currentEvent?.eventType?.name?.replace('_', ' ')?.lowercase()?.replaceFirstChar { it.titlecase() } ?: "Member intelligence"
         Box(
             modifier = Modifier
                 .fillMaxSize()
