@@ -37,7 +37,8 @@ import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import com.example.badnewgym.feature.memberintelligence.domain.model.TemporalEventRecord
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -98,6 +99,9 @@ fun CompactMemberCard(
     isDetail: Boolean = false,
     menus: List<MemberMenu> = emptyList(),
     activeMenu: MenuType = MenuType.HOME,
+    temporalRange: TemporalRange = TemporalRange.forCurrentMonth(),
+    onRangeChange: (TemporalRange) -> Unit = {},
+    onEventClick: (TemporalEventRecord) -> Unit = {},
     onMenuSelected: (MenuType) -> Unit = {},
     onClick: () -> Unit = {},
     onCtaClick: () -> Unit = {},
@@ -105,6 +109,8 @@ fun CompactMemberCard(
     isReducedMotion: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    var inspectedEvent by remember { mutableStateOf<TemporalEventRecord?>(null) }
+
     BADGymTheme(
         colors = theme.colors(),
         shapes = theme.shapes(),
@@ -260,15 +266,40 @@ fun CompactMemberCard(
                                             onCta = onCtaClick,
                                             onNavigate = onMenuSelected
                                         )
-                                        MenuType.ATTENDANCE -> AttendancePanel(snapshot, theme)
+                                        MenuType.ATTENDANCE -> AttendancePanel(
+                                            snapshot = snapshot,
+                                            theme = theme,
+                                            temporalRange = temporalRange,
+                                            onRangeChange = onRangeChange,
+                                            onEventClick = { inspectedEvent = it; onEventClick(it) }
+                                        )
                                         MenuType.PLAN -> PlanPanel(snapshot, theme)
-                                        MenuType.PAYMENT -> PaymentPanel(snapshot = snapshot, theme = theme, onCtaClick = onCtaClick)
+                                        MenuType.PAYMENT -> PaymentPanel(
+                                            snapshot = snapshot,
+                                            theme = theme,
+                                            temporalRange = temporalRange,
+                                            onRangeChange = onRangeChange,
+                                            onEventClick = { inspectedEvent = it; onEventClick(it) },
+                                            onCtaClick = onCtaClick
+                                        )
                                         MenuType.TRAINER -> TrainerPanel(snapshot, theme)
-                                        MenuType.WORKOUT -> WorkoutPanel(snapshot, theme)
+                                        MenuType.WORKOUT -> WorkoutPanel(
+                                            snapshot = snapshot,
+                                            theme = theme,
+                                            temporalRange = temporalRange,
+                                            onRangeChange = onRangeChange,
+                                            onEventClick = { inspectedEvent = it; onEventClick(it) }
+                                        )
                                         MenuType.SUPPLEMENTS -> SupplementsPanel(snapshot, theme)
                                         MenuType.NUTRITION -> NutritionPanel(snapshot, theme)
                                         MenuType.SERVICES -> ServicesPanel(snapshot, theme)
-                                        MenuType.HISTORY -> HistoryPanel(snapshot, theme)
+                                        MenuType.HISTORY -> HistoryPanel(
+                                            snapshot = snapshot,
+                                            theme = theme,
+                                            temporalRange = temporalRange,
+                                            onRangeChange = onRangeChange,
+                                            onEventClick = { inspectedEvent = it; onEventClick(it) }
+                                        )
                                         MenuType.INSIGHT -> InsightPanel(
                                             snapshot = snapshot,
                                             signals = if (primarySignal != null) listOf(primarySignal) + secondarySignals else secondarySignals,
@@ -278,6 +309,11 @@ fun CompactMemberCard(
                                     }
                                 }
                             }
+                        }
+
+                        // Event Audit Drill-down Dialog
+                        inspectedEvent?.let { ev ->
+                            EventDetailDialog(event = ev, onDismiss = { inspectedEvent = null })
                         }
 
                         Spacer(Modifier.height(2.dp))

@@ -3,16 +3,25 @@
 MI-STAGE-7-DEPTH-MOTION-LAYER: COMPLETED
 MI-STAGE-7.1-VISUAL-DATA-REDESIGN: COMPLETED
 MI-STAGE-7.2-FINAL-PRODUCTION-INTELLIGENCE: COMPLETED
+MI-STAGE-7.3-MEMBER-INTELLIGENCE-REBUILD: COMPLETED
+MI-STAGE-7.4-TEMPORAL-INTELLIGENCE-ON-DEMAND: COMPLETED
 
-Verified baseline: 0c6c1d2e74a2d05cbfcd9b59695c24204bed1ded
-Stage 7.2 packet: docs/reference/STAGE_7_2_FINAL_PRODUCTION_INTELLIGENCE_PACKET.md
+Verified baseline: 539c305
+Stage 7.4 packet: docs/reference/STAGE_7_4_TEMPORAL_INTELLIGENCE_ON_DEMAND.md
 Accomplished:
-- Converted all 8 theme palettes into distinct, high-contrast light material personalities (white/ivory/pastel bases with independent semantic indicators).
-- Home Cockpit redesigned with 3 unique core KPIs (Attendance, Sessions, Workouts) + single Last 7 Days Attendance Trend card + Intelligence Signal + dynamic bottom action CTA.
-- Implemented and verified all 11 menus + More action directory with zero clipping, honest data grounding, and macro/payment audits.
-- Intelligent vertical rail with truthful semantic micro-data badges (Overdue, Due, Inactive, Expiring, Complaint).
-- Promotion surfaces strictly isolated in non-critical panels with explicit badges.
-- Verification: Gradle unit tests (28/28 tasks passed), assembleDebug APK built successfully, streamed install and activity launch verified on physical device (Xiaomi Redmi Note 11).
+- Implemented core temporal domain models (TemporalGranularity, TemporalRange, SourceVerificationMetadata, TemporalEventRecord, TemporalPage, AttendanceTemporalSummary, PaymentTemporalSummary, WorkoutTemporalSummary, HistoryTemporalSummary, DataRetentionPolicy).
+- Implemented TemporalIntelligenceRepository and StubTemporalIntelligenceRepositoryImpl supporting on-demand, capability-scoped fetching of summaries and second-precision raw events.
+- Added TemporalMemoryCache with configurable TTL (60s summary, 300s detail), stale indicator, member invalidation, and real-time telemetry (query counts, payload bytes, cache hit rate, response latency).
+- Implemented TemporalNavigator component supporting LIVE, DAY, WEEK, MONTH, QUARTER, HALF_YEAR, YEAR, and CUSTOM ranges with next/prev period stepping and "Today" quick jump.
+- Implemented EventDetailDialog audit sheet rendering exact contextual verification metadata (gate name, device ID, match confidence %, latency ms, transaction invoice #, amount, and notes).
+- Integrated interactive drill-down and sub-menu tabs into MenuContentPanels:
+  * Attendance: Pattern, Calendar, Timing, Live, Forecast tabs + source badges (FACE, QR, NFC, CAMERA, STAFF) with second-precision audit timestamps.
+  * Payment: Audit, Timeline, Recurring, Dues, Forecast tabs + transaction click -> invoice detail drill-down.
+  * Workout: Today, Program, Sessions, Progress, Muscles, PRs tabs + sets/reps item detail sheet.
+  * History: All, Attendance, Payment, Workout, Trainer, Issues filter chips + unified event audit stream.
+- Unit testing: TemporalIntelligenceTest suite verified temporal stepping, label formatting, source verification metadata, cache hit rate telemetry, and on-demand payment/history queries.
+- Build verification: `testDebugUnitTest` (28/28 tasks passed green), `assembleDebug` APK built cleanly.
+- Runtime verification: Streamed install and runtime execution confirmed on physical device Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`); screenshot captured to `docs/reference/screenshots/stage_7_4_device_verification.png`.
 
 Execution: visible Google Antigravity GUI only. Autonomous/headless bridge remains DISABLED.
 Next action: Ready for next architectural instruction from ChatGPT.

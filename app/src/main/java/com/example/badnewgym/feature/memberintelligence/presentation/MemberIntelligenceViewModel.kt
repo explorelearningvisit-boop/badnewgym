@@ -3,16 +3,14 @@ package com.example.badnewgym.feature.memberintelligence.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.badnewgym.feature.memberintelligence.data.repository.StubMemberRepositoryImpl
+import com.example.badnewgym.feature.memberintelligence.data.repository.StubTemporalIntelligenceRepositoryImpl
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
-import com.example.badnewgym.feature.memberintelligence.domain.model.EventSource
-import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
-import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
-import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
-import com.example.badnewgym.feature.memberintelligence.domain.model.SignalAction
+import com.example.badnewgym.feature.memberintelligence.domain.model.*
 import com.example.badnewgym.feature.memberintelligence.domain.repository.MemberIntelligenceRepository
-import com.example.badnewgym.feature.memberintelligence.data.repository.StubMemberRepositoryImpl
+import com.example.badnewgym.feature.memberintelligence.domain.repository.TemporalIntelligenceRepository
 import com.example.badnewgym.feature.memberintelligence.integration.MemberIntelligenceNavigator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +19,7 @@ import kotlinx.coroutines.launch
 
 class MemberIntelligenceViewModel(
     private val repository: MemberIntelligenceRepository = StubMemberRepositoryImpl(),
+    private val temporalRepository: TemporalIntelligenceRepository = StubTemporalIntelligenceRepositoryImpl(),
     private val navigator: MemberIntelligenceNavigator = MemberIntelligenceNavigator.NoOp
 ) : ViewModel() {
     private val engine = MemberIntelligenceEngine()
@@ -30,6 +29,7 @@ class MemberIntelligenceViewModel(
 
     private var themeId: ThemeId = ThemeId.NATURAL_FRESH
     private var isDetailExpanded: Boolean = false
+    private var currentTemporalRange: TemporalRange = TemporalRange.forCurrentMonth()
 
     fun loadMemberData(memberId: String = "BG204", gymId: String = "gym1") {
         viewModelScope.launch {
@@ -94,8 +94,12 @@ class MemberIntelligenceViewModel(
                 themeId = themeId,
                 members = cardItems,
                 selectedMemberIndex = targetIndex,
-                isDetailExpanded = isDetailExpanded
+                isDetailExpanded = isDetailExpanded,
+                temporalRange = currentTemporalRange
             )
+
+            // On initial open, pre-fetch home temporal metrics without downloading entire raw history
+            loadMenuTemporalData(MenuType.HOME, currentTemporalRange)
         }
     }
 
@@ -117,6 +121,7 @@ class MemberIntelligenceViewModel(
             selectedMemberIndex = index,
             isDetailExpanded = isDetailExpanded
         )
+        loadMenuTemporalData(current.activeMenu, currentTemporalRange)
     }
 
     fun openMemberDetail(index: Int? = null) {
@@ -140,6 +145,90 @@ class MemberIntelligenceViewModel(
         val target = current.menus.firstOrNull { it.id == menu } ?: return
         if (target.isLocked || !target.isEnabled) return
         _state.value = current.copy(activeMenu = menu)
+        loadMenuTemporalData(menu, current.temporalRange)
+    }
+
+    fun updateTemporalRange(range: TemporalRange) {
+        currentTemporalRange = range
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        _state.value = current.copy(temporalRange = range)
+        loadMenuTemporalData(current.activeMenu, range)
+    }
+
+    fun loadMenuTemporalData(menu: MenuType, range: TemporalRange = currentTemporalRange) {
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        val memberId = current.snapshot.id
+
+        viewModelScope.launch {
+            _state.value = current.copy(isTemporalLoading = true)
+
+            when (menu) {
+                MenuType.ATTENDANCE, MenuType.HOME -> {
+                    val summaryRes = temporalRepository.getAttendanceSummary(memberId, range)
+                    val eventsRes = temporalRepository.getAttendanceEvents(memberId, range)
+                    val updated = _state.value as? MemberIntelligenceUiState.Success ?: return@launch
+                    _state.value = updated.copy(
+                        attendanceSummary = summaryRes.getOrNull(),
+                        attendanceEvents = eventsRes.getOrNull()?.items.orEmpty(),
+                        isFromCache = eventsRes.getOrNull()?.isFromCache ?: false,
+                        isTemporalLoading = false
+                    )
+                }
+                MenuType.PAYMENT -> {
+                    val summaryRes = temporalRepository.getPaymentSummary(memberId, range)
+                    val eventsRes = temporalRepository.getPaymentEvents(memberId, range)
+                    val updated = _state.value as? MemberIntelligenceUiState.Success ?: return@launch
+                    _state.value = updated.copy(
+                        paymentSummary = summaryRes.getOrNull(),
+                        paymentEvents = eventsRes.getOrNull()?.items.orEmpty(),
+                        isFromCache = eventsRes.getOrNull()?.isFromCache ?: false,
+                        isTemporalLoading = false
+                    )
+                }
+                MenuType.WORKOUT -> {
+                    val summaryRes = temporalRepository.getWorkoutSummary(memberId, range)
+                    val eventsRes = temporalRepository.getWorkoutEvents(memberId, range)
+                    val updated = _state.value as? MemberIntelligenceUiState.Success ?: return@launch
+                    _state.value = updated.copy(
+                        workoutSummary = summaryRes.getOrNull(),
+                        workoutEvents = eventsRes.getOrNull()?.items.orEmpty(),
+                        isFromCache = eventsRes.getOrNull()?.isFromCache ?: false,
+                        isTemporalLoading = false
+                    )
+                }
+                MenuType.MORE, MenuType.PLAN, MenuType.TRAINER, MenuType.SERVICES, MenuType.NUTRITION, MenuType.SUPPLEMENTS -> {
+                    val summaryRes = temporalRepository.getHistorySummary(memberId, range)
+                    val eventsRes = temporalRepository.getHistoryEvents(memberId, current.historyFilter, range)
+                    val updated = _state.value as? MemberIntelligenceUiState.Success ?: return@launch
+                    _state.value = updated.copy(
+                        historySummary = summaryRes.getOrNull(),
+                        historyEvents = eventsRes.getOrNull()?.items.orEmpty(),
+                        isFromCache = eventsRes.getOrNull()?.isFromCache ?: false,
+                        isTemporalLoading = false
+                    )
+                }
+                else -> {
+                    val updated = _state.value as? MemberIntelligenceUiState.Success ?: return@launch
+                    _state.value = updated.copy(isTemporalLoading = false)
+                }
+            }
+        }
+    }
+
+    fun openEventDetail(event: TemporalEventRecord) {
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        _state.value = current.copy(selectedEventDetail = event)
+    }
+
+    fun closeEventDetail() {
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        _state.value = current.copy(selectedEventDetail = null)
+    }
+
+    fun setHistoryFilter(filter: EventType?) {
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        _state.value = current.copy(historyFilter = filter)
+        loadMenuTemporalData(current.activeMenu, current.temporalRange)
     }
 
     fun selectTheme(theme: ThemeId) {
@@ -167,11 +256,14 @@ class MemberIntelligenceViewModel(
     }
 
     companion object {
-        fun provideFactory(repository: MemberIntelligenceRepository): ViewModelProvider.Factory =
+        fun provideFactory(
+            repository: MemberIntelligenceRepository = StubMemberRepositoryImpl(),
+            temporalRepository: TemporalIntelligenceRepository = StubTemporalIntelligenceRepositoryImpl()
+        ): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return MemberIntelligenceViewModel(repository) as T
+                    return MemberIntelligenceViewModel(repository, temporalRepository) as T
                 }
             }
     }

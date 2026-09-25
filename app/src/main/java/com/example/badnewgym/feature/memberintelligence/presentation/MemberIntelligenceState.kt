@@ -1,13 +1,7 @@
 package com.example.badnewgym.feature.memberintelligence.presentation
 
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
-import com.example.badnewgym.feature.memberintelligence.domain.model.IntelligenceSignal
-import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
-import com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu
-import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
-import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
-import com.example.badnewgym.feature.memberintelligence.domain.model.SignalAction
-import com.example.badnewgym.feature.memberintelligence.domain.model.SyncStatus
+import com.example.badnewgym.feature.memberintelligence.domain.model.*
 
 /**
  * Representation of a single member item in the browse carousel.
@@ -38,7 +32,21 @@ sealed class MemberIntelligenceUiState {
         val syncStatus: SyncStatus = SyncStatus.SYNCED,
         val members: List<MemberCardItem> = emptyList(),
         val selectedMemberIndex: Int = 0,
-        val isDetailExpanded: Boolean = false
+        val isDetailExpanded: Boolean = false,
+        // Stage 7.4 Temporal State
+        val temporalRange: TemporalRange = TemporalRange.forCurrentMonth(),
+        val selectedEventDetail: TemporalEventRecord? = null,
+        val attendanceSummary: AttendanceTemporalSummary? = null,
+        val attendanceEvents: List<TemporalEventRecord> = emptyList(),
+        val paymentSummary: PaymentTemporalSummary? = null,
+        val paymentEvents: List<TemporalEventRecord> = emptyList(),
+        val workoutSummary: WorkoutTemporalSummary? = null,
+        val workoutEvents: List<TemporalEventRecord> = emptyList(),
+        val historySummary: HistoryTemporalSummary? = null,
+        val historyEvents: List<TemporalEventRecord> = emptyList(),
+        val historyFilter: EventType? = null,
+        val isTemporalLoading: Boolean = false,
+        val isFromCache: Boolean = false
     ) : MemberIntelligenceUiState()
 
     data class Error(val message: String) : MemberIntelligenceUiState()

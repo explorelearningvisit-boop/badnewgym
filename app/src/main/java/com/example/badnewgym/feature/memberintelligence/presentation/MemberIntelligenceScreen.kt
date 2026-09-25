@@ -210,6 +210,9 @@ private fun BrowseMemberIntelligenceSurface(
                 isDetailExpanded = success.isDetailExpanded,
                 activeMenu = success.activeMenu,
                 menus = success.menus,
+                temporalRange = success.temporalRange,
+                onRangeChange = viewModel::updateTemporalRange,
+                onEventClick = viewModel::openEventDetail,
                 onMenuSelected = viewModel::selectMenu,
                 onCloseDetail = viewModel::closeMemberDetail,
                 modifier = Modifier.fillMaxWidth()
@@ -308,6 +311,14 @@ private fun BrowseMemberIntelligenceSurface(
                 modifier = Modifier.fillMaxWidth(),
                 onItemClick = { }
             )
+
+            // Stage 7.4 Temporal Event Detail Sheet
+            success.selectedEventDetail?.let { ev ->
+                com.example.badnewgym.feature.memberintelligence.presentation.components.EventDetailDialog(
+                    event = ev,
+                    onDismiss = viewModel::closeEventDetail
+                )
+            }
         }
     }
 }
