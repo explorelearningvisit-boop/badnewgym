@@ -1,7 +1,7 @@
 # BAD GYM — Current AI Handoff
 
 STATUS: READY_FOR_EXECUTION
-TASK_ID: MI-STAGE-7.1-VISUAL-DATA-REDESIGN
+TASK_ID: MI-STAGE-7.1-INTELLIGENCE-SYSTEM
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity GUI only — visible execution
 BRANCH: member-intelligence-v3
@@ -14,8 +14,9 @@ Refine the completed Stage 7 Member Intelligence card with approximately +20dp v
 
 ## Authorization
 
-Full specification:
+Full specifications:
 docs/reference/STAGE_7_1_VISUAL_DATA_HEIGHT_PACKET.md
+docs/reference/MI_PRODUCTION_INTELLIGENCE_SYSTEM_SPEC.md
 
 Previous Stage 7 implementation:
 03d60a01d5ca1983fb5d2d83d8184dd30f6821eb
@@ -69,3 +70,8 @@ Acceptance emphasis:
 - no giant raster UI;
 - no tiny text;
 - verify each layer before advancing.
+
+
+## Production intelligence requirements
+
+The supplied reference concepts are visual direction only. Every chart, bar, ring, color, icon and badge must have explicit metric/state/period semantics. Payment must distinguish Paid/Due/Overdue; supplements must identify product and meaning of stock/status; Home trends must name their metric and period; vertical rail may expose semantic badges; bottom CTA is state-derived; promotions are isolated and clearly labeled. All menus must use real domain data and visual-first layouts.
