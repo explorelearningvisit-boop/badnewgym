@@ -182,6 +182,35 @@ Implement/reconcile the following operational event/state variants. Prefer exist
 
 These are CARD VARIANTS, not a mandate to create 70 new domain event enum values. Collapse semantically related states into existing EventType/CardKind where possible.
 
+
+## CRITICAL VISUAL-QA REQUIREMENT — UNIQUE RAW CARD UNIVERSE
+
+The immediate goal is visual UX verification, not merely backend taxonomy completeness.
+
+The current dashboard already has roughly 8 visible card examples. That is NOT sufficient. Create a RAW, deterministic visual fixture gallery of at least 50 unique card variants; target 70–100 if the existing domain supports it without inventing semantics.
+
+### One fixture = one unique operational state
+
+Do NOT create duplicate cards such as Check-in / Member A, Check-in / Member B, Check-in / Member C. Those are duplicates and provide almost no additional UX value.
+
+Instead create genuinely distinct states: Check-in, Late check-in, Check-out, Payment due, Payment overdue, Payment failed, Payment successful, Partial payment, Refund/reversal, Balance resolved, Membership expiring, Membership expired, Membership renewed, Freeze active, Freeze ending, Ban active, Ban lifted, Walk-in, Trial active, Trial expired, Trial converted, PT scheduled, PT starting, PT in progress, PT completed, PT missed, Trainer reassignment, Workout completed, Workout gap, Workout milestone, Service active, Service expired, No service, Machine fault reported, Machine fault assigned, Machine fault resolved, Member issue raised, Member issue resolved, Facility incident, Communication follow-up, High-priority signal, Multiple unresolved signals, Retention risk, Re-engagement opportunity, Recovery opportunity, Healthy/clean state, Data incomplete, History summary, plus every other supported unique state.
+
+### Purpose of the raw gallery
+
+The gallery exists to inspect card composition, spacing, typography, hierarchy, semantic colors, contrast, icon treatment, CTA placement, long-text behavior, amount/date formatting, empty states, warning/danger/success states, theme behavior, clipping/overflow, carousel depth/focus, and whether each operational state is visually distinguishable.
+
+The gallery MUST use the same production card renderer/components. Do not create a fake screenshot-only UI.
+
+### Raw QA navigation
+
+Provide a deterministic way to open the entire fixture universe sequentially. It should support previous/next fixture, fixture index such as 17 / 70, fixture name/state, and direct access from an existing Member Intelligence debug/demo entry point where possible. Do not render 70–100 cards simultaneously if that harms performance. The requirement is 70–100 unique reachable fixtures, not simultaneous rendering.
+
+### No duplicate-state padding
+
+Do not inflate fixture count by cloning one event for different member names. A fixture is countable only when a meaningful operational dimension changes: event/state, lifecycle stage, payment condition, access condition, trainer session state, workout state, service state, issue state, intelligence state, or a materially different temporal state.
+
+The goal is a card UX laboratory, not a fake member database.
+
 ## Visual archetype rules
 
 Do not make all cards look identical with only title changes.
