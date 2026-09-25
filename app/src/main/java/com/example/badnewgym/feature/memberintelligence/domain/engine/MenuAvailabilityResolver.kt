@@ -77,7 +77,8 @@ object MenuAvailabilityResolver {
                 visible = true,
                 locked = !entitlements.allows(FeatureKey.ADVANCED_INSIGHTS),
                 defaultPriority = 100
-            )
+            ),
+            menu(MenuType.MORE, visible = true, defaultPriority = 110)
         ).filter { it.isVisible }.sortedBy { it.priority }
     }
 }

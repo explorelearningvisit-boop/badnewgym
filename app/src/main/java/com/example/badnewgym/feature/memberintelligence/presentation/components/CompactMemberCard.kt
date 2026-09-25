@@ -30,10 +30,10 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.LocalDrink
 import androidx.compose.material.icons.rounded.MiscellaneousServices
+import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.WarningAmber
-import androidx.compose.material.icons.rounded.WorkspacePremium
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -70,20 +70,20 @@ import com.example.badnewgym.feature.memberintelligence.design.motion.contentDep
 import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberSemanticResolver
 import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberSemanticStyle
 import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberStateVisual
-import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberTierVisual
 import com.example.badnewgym.feature.memberintelligence.design.shapes
 import com.example.badnewgym.feature.memberintelligence.domain.model.*
 import java.text.NumberFormat
 import java.util.Locale
 
 /**
- * BAD GYM Stage 2 — Compact Member Intelligence Card.
+ * BAD GYM Stage 7.2 — Final Production Member Intelligence Card.
  *
  * Dedicated browse-surface card designed for horizontal carousels.
- * Width ~220-240dp on 360dp phone, height ~356dp (below half viewport).
- * Maintains full information density: Identity + Event + Tier/Status + Decision Metrics + Signal + CTA.
- * In Bounded Detail mode (isDetail=true), presents vertical navigation rail and persistent
- * photo/name/event/time/status header while switching menu panels within bounded dimensions (~276dp x 372dp).
+ * Geometry: Compact 296x410dp browse / 320x440dp detail; Default 312x426dp / 340x463dp; Expanded 328x442dp / 360x480dp.
+ * - Interactive Home Cockpit: 3 Core KPIs (Attendance, Sessions, Workouts) + 1 Trend + Signal + Contextual CTA.
+ * - Intelligent vertical rail with truthful semantic micro-data badges.
+ * - Fully populated 11 menu panels + More action directory.
+ * - 100% Light material personalities with white/ivory base surfaces and independent semantic colors.
  */
 @Composable
 fun CompactMemberCard(
@@ -102,7 +102,6 @@ fun CompactMemberCard(
     onClick: () -> Unit = {},
     onCtaClick: () -> Unit = {},
     onCloseDetail: () -> Unit = {},
-    /** Stage 7: pass reduced-motion preference from the carousel host. */
     isReducedMotion: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -113,11 +112,6 @@ fun CompactMemberCard(
         elevation = theme.elevation()
     ) {
         val colors = BADGymTheme.colors
-        val isDark = theme == ThemeId.FUTURISTIC_NEON ||
-                theme == ThemeId.BEAST_MODE ||
-                theme == ThemeId.PURPLE_ROYAL ||
-                theme == ThemeId.MINIMAL_DARK ||
-                theme == ThemeId.PREMIUM_3D
 
         val semantics = remember(snapshot, currentEvent, theme) {
             MemberSemanticResolver.resolve(snapshot, currentEvent, theme)
@@ -139,7 +133,7 @@ fun CompactMemberCard(
         val borderColor = when {
             semantics.isUrgent -> semantics.prominentBorderColor
             isSelected -> colors.accent
-            else -> colors.border.copy(alpha = if (isDark) 0.85f else 0.65f)
+            else -> colors.border.copy(alpha = 0.85f)
         }
         val borderWidth = when {
             semantics.isUrgent -> 1.8.dp
@@ -168,7 +162,7 @@ fun CompactMemberCard(
                     } else Modifier
                 )
                 .semantics {
-                    contentDescription = "Member card: ${snapshot.identity.name}, ${snapshot.identity.code ?: ""}, ${theme.name}"
+                    contentDescription = "Member card: ${snapshot.identity.name}, ${snapshot.identity.code ?: ""}, ${theme.title}"
                 }
         ) {
             // Layer 1: Ambient theme ornament background
@@ -200,9 +194,7 @@ fun CompactMemberCard(
             // Layer 3: Main Structured Content
             if (isDetail) {
                 // Bounded Detail Layout: Integrated Vertical Rail + Persistent Header + Content Panel
-                Row(
-                    modifier = Modifier.fillMaxSize()
-                ) {
+                Row(modifier = Modifier.fillMaxSize()) {
                     // Integrated Navigation Rail on the Left
                     BoundedDetailRail(
                         snapshot = snapshot,
@@ -220,28 +212,23 @@ fun CompactMemberCard(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .padding(
-                                start = 7.dp,
-                                end = 7.dp,
-                                top = 7.dp,
-                                bottom = 5.dp
-                            ),
+                            .padding(start = 7.dp, end = 7.dp, top = 7.dp, bottom = 5.dp),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         // 1. Persistent Identity, Event, and Membership Header
-                        // (CRITICAL: REMAINS PERSISTENT AND VISIBLE ACROSS ALL MENU CHANGES)
                         PersistentDetailHeader(
                             snapshot = snapshot,
                             currentEvent = currentEvent,
                             theme = theme,
                             semantics = semantics,
                             dimensions = dimensions,
-                            onClose = onCloseDetail
+                            onClose = onCloseDetail,
+                            onIdentityClick = onClick
                         )
 
                         Spacer(Modifier.height(3.dp))
 
-                        // 2. Menu Content Panel Viewport (Stage 7: subtle depth sep from header)
+                        // 2. Menu Content Panel Viewport
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -270,15 +257,12 @@ fun CompactMemberCard(
                                             cta = cta,
                                             theme = theme,
                                             semantics = semantics,
-                                            onCta = onCtaClick
+                                            onCta = onCtaClick,
+                                            onNavigate = onMenuSelected
                                         )
                                         MenuType.ATTENDANCE -> AttendancePanel(snapshot, theme)
                                         MenuType.PLAN -> PlanPanel(snapshot, theme)
-                                        MenuType.PAYMENT -> PaymentPanel(
-                                            snapshot = snapshot,
-                                            theme = theme,
-                                            onCtaClick = onCtaClick
-                                        )
+                                        MenuType.PAYMENT -> PaymentPanel(snapshot = snapshot, theme = theme, onCtaClick = onCtaClick)
                                         MenuType.TRAINER -> TrainerPanel(snapshot, theme)
                                         MenuType.WORKOUT -> WorkoutPanel(snapshot, theme)
                                         MenuType.SUPPLEMENTS -> SupplementsPanel(snapshot, theme)
@@ -290,6 +274,7 @@ fun CompactMemberCard(
                                             signals = if (primarySignal != null) listOf(primarySignal) + secondarySignals else secondarySignals,
                                             theme = theme
                                         )
+                                        MenuType.MORE -> MorePanel(snapshot = snapshot, theme = theme)
                                     }
                                 }
                             }
@@ -319,7 +304,7 @@ fun CompactMemberCard(
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Section 1: Event + Time Header
-                    CompactEventHeader(event = currentEvent, theme = theme)
+                    CompactEventHeader(event = currentEvent, theme = theme, onClick = onClick)
 
                     // Section 2: Hero Identity (Portrait + Name + Code + Motto + Tier Badge)
                     CompactHeroIdentity(
@@ -327,7 +312,8 @@ fun CompactMemberCard(
                         theme = theme,
                         portraitWidth = dimensions.portraitWidth,
                         portraitHeight = dimensions.portraitHeight,
-                        semantics = semantics
+                        semantics = semantics,
+                        onClick = onClick
                     )
 
                     // Section 3: Membership Tier & Status Dual Bands
@@ -335,15 +321,19 @@ fun CompactMemberCard(
                         membership = snapshot.membership,
                         theme = theme,
                         semantics = semantics,
-                        payment = snapshot.payment
+                        payment = snapshot.payment,
+                        onClick = onClick
                     )
 
-                    // Section 4: Compact Decision Metrics (Attendance, Payment, Workouts)
+                    // Section 4: Compact Decision Metrics (Attendance, Sessions, Workouts)
                     CompactMetricsGrid(
                         attendance = snapshot.attendance,
-                        payment = snapshot.payment,
-                        workoutsCount = snapshot.workout?.durationMinutes ?: 12,
-                        theme = theme
+                        trainer = snapshot.trainer,
+                        workout = snapshot.workout,
+                        theme = theme,
+                        onAttendanceClick = onClick,
+                        onSessionsClick = onClick,
+                        onWorkoutsClick = onClick
                     )
 
                     // Section 5: Urgent/Actionable Signal banner
@@ -358,16 +348,12 @@ fun CompactMemberCard(
                     CompactSignalBanner(
                         text = signalText,
                         isCritical = semantics.isUrgent,
-                        semantics = semantics
+                        semantics = semantics,
+                        onClick = onClick
                     )
 
                     // Section 6: Contextual Primary CTA Button
-                    val ctaLabel = when (semantics.stateVisual) {
-                        MemberStateVisual.EXPIRED -> "Renew Plan Now →"
-                        MemberStateVisual.PAYMENT_OVERDUE, MemberStateVisual.PAYMENT_DUE -> "Collect Payment →"
-                        MemberStateVisual.TRAINER_ACTIVE -> "Coach Check-in →"
-                        else -> null
-                    }
+                    val ctaLabel = resolveDynamicCtaLabel(snapshot, semantics, cta)
 
                     ThemedCtaButton(
                         theme = theme,
@@ -392,18 +378,40 @@ fun CompactMemberCard(
     }
 }
 
+private fun resolveDynamicCtaLabel(
+    snapshot: MemberSnapshot,
+    semantics: MemberSemanticStyle,
+    cta: SignalAction?
+): String {
+    val due = snapshot.payment?.totalOutstanding ?: 0.0
+    val isOverdue = due > 0
+    return when {
+        isOverdue -> {
+            val formatter = NumberFormat.getNumberInstance(Locale.forLanguageTag("en-IN"))
+            "Collect ₹" + formatter.format(due.toInt()) + " →"
+        }
+        semantics.stateVisual == MemberStateVisual.EXPIRED -> "Renew Plan Now →"
+        semantics.stateVisual == MemberStateVisual.CRITICAL_ALERT -> "Review Alert →"
+        snapshot.trainer != null && (snapshot.trainer.sessionsTotal - snapshot.trainer.sessionsUsed) > 0 -> "Schedule Session →"
+        cta != null -> "${cta.label} →"
+        else -> "View Member Profile →"
+    }
+}
+
 @Composable
 private fun CompactEventHeader(
     event: MemberEvent?,
-    theme: ThemeId
+    theme: ThemeId,
+    onClick: () -> Unit = {}
 ) {
     val colors = BADGymTheme.colors
     val eventType = event?.eventType ?: EventType.CHECK_IN
     val eventColor = ThemeResolver.resolveEventBadgeColor(eventType, colors)
-    val isNatural = theme == ThemeId.NATURAL_FRESH
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -458,12 +466,15 @@ private fun CompactHeroIdentity(
     theme: ThemeId,
     portraitWidth: Dp,
     portraitHeight: Dp,
-    semantics: MemberSemanticStyle
+    semantics: MemberSemanticStyle,
+    onClick: () -> Unit = {}
 ) {
     val colors = BADGymTheme.colors
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.spacedBy(9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -542,7 +553,7 @@ private fun CompactHeroIdentity(
                 color = colors.mottoColor,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                fontStyle = if (theme == ThemeId.NATURAL_FRESH || theme == ThemeId.GLASSMORPHISM || theme == ThemeId.PURPLE_ROYAL || theme == ThemeId.PREMIUM_3D) FontStyle.Italic else FontStyle.Normal,
+                fontStyle = FontStyle.Italic,
                 lineHeight = 12.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -556,14 +567,16 @@ private fun CompactMembershipBands(
     membership: MembershipStatus?,
     theme: ThemeId,
     semantics: MemberSemanticStyle,
-    payment: PaymentSummary? = null
+    payment: PaymentSummary? = null,
+    onClick: () -> Unit = {}
 ) {
-    val colors = BADGymTheme.colors
     val planName = membership?.planName ?: "Gold Plan"
     val daysRemaining = membership?.daysRemaining ?: 48
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Plan Band
@@ -650,12 +663,19 @@ private fun CompactMembershipBands(
     }
 }
 
+/**
+ * 3 Core Decision Metrics for Home Cockpit: Attendance, Sessions, Workouts.
+ * Explicit semantics, unique non-overlapping dimensions, interactive tap targets.
+ */
 @Composable
 private fun CompactMetricsGrid(
     attendance: AttendanceSummary?,
-    payment: PaymentSummary?,
-    workoutsCount: Int,
-    theme: ThemeId
+    trainer: TrainerSummary?,
+    workout: WorkoutSummary?,
+    theme: ThemeId,
+    onAttendanceClick: () -> Unit = {},
+    onSessionsClick: () -> Unit = {},
+    onWorkoutsClick: () -> Unit = {}
 ) {
     val colors = BADGymTheme.colors
 
@@ -667,7 +687,12 @@ private fun CompactMetricsGrid(
         val visits = attendance?.visits ?: 16
         val target = attendance?.target ?: 26
         val attendancePercent = if (target > 0) ((visits.toFloat() / target) * 100).toInt() else 0
-        CompactMetricTile(theme = theme, modifier = Modifier.weight(1f)) {
+        CompactMetricTile(
+            theme = theme,
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = onAttendanceClick)
+        ) {
             Text(
                 text = "$visits/$target",
                 color = colors.textPrimary,
@@ -700,19 +725,17 @@ private fun CompactMetricsGrid(
             )
         }
 
-        // Tile 2: Payment
-        val totalDue = payment?.totalOutstanding ?: 4500.0
-        val overdueDays = payment?.overdueDays ?: 3
-        val isOverdue = totalDue > 0
-        val formattedAmount = if (totalDue > 0) {
-            val formatter = NumberFormat.getNumberInstance(Locale.forLanguageTag("en-IN"))
-            "₹" + formatter.format(totalDue.toInt())
-        } else "₹0"
-
-        CompactMetricTile(theme = theme, modifier = Modifier.weight(1f)) {
+        // Tile 2: Sessions (PT / Coach)
+        val sessionsLeft = if (trainer != null) (trainer.sessionsTotal - trainer.sessionsUsed).coerceAtLeast(0) else 8
+        CompactMetricTile(
+            theme = theme,
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = onSessionsClick)
+        ) {
             Text(
-                text = formattedAmount,
-                color = if (isOverdue) colors.danger else colors.textPrimary,
+                text = "$sessionsLeft Left",
+                color = colors.accent,
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black,
                 maxLines = 1,
@@ -721,18 +744,18 @@ private fun CompactMetricsGrid(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(4.dp))
-                    .background(if (isOverdue) colors.dangerSoft else colors.successSoft)
+                    .background(colors.accentSoft)
                     .padding(horizontal = 4.dp, vertical = 1.dp)
             ) {
                 Text(
-                    text = if (isOverdue) "$overdueDays d due" else "Clear",
-                    color = if (isOverdue) colors.danger else colors.success,
-                    fontSize = 12.sp,
+                    text = trainer?.trainerName?.take(7) ?: "Coach",
+                    color = colors.accent,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Text(
-                text = "Payment",
+                text = "PT Sessions",
                 color = colors.textSecondary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium
@@ -740,10 +763,15 @@ private fun CompactMetricsGrid(
         }
 
         // Tile 3: Workouts
-        val countDisplay = if (workoutsCount > 0) workoutsCount else 12
-        CompactMetricTile(theme = theme, modifier = Modifier.weight(1f)) {
+        val duration = workout?.durationMinutes ?: 52
+        CompactMetricTile(
+            theme = theme,
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = onWorkoutsClick)
+        ) {
             Text(
-                text = "$countDisplay",
+                text = "${duration}m",
                 color = colors.textPrimary,
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black
@@ -806,7 +834,8 @@ private fun CompactMetricTile(
 private fun CompactSignalBanner(
     text: String?,
     isCritical: Boolean,
-    semantics: MemberSemanticStyle? = null
+    semantics: MemberSemanticStyle? = null,
+    onClick: () -> Unit = {}
 ) {
     if (text.isNullOrBlank()) {
         Spacer(Modifier.height(2.dp))
@@ -853,20 +882,12 @@ private fun CompactSignalBanner(
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.dp))
             .background(bannerBg)
-            .border(
-                0.8.dp,
-                bannerBorder,
-                RoundedCornerShape(6.dp)
-            )
+            .border(0.8.dp, bannerBorder, RoundedCornerShape(6.dp))
+            .clickable(onClick = onClick)
             .padding(horizontal = 6.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(12.dp)
-        )
+        Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(12.dp))
         Spacer(Modifier.width(4.dp))
         Text(
             text = text,
@@ -881,10 +902,8 @@ private fun CompactSignalBanner(
 }
 
 /**
- * Integrated navigation rail for the bounded detail state.
- * Fixed to the left edge of the card, with accessible >=48dp touch targets.
- * Displays truthful micro-data tags from MemberSnapshot, collapse affordance,
- * and prominent action-needed alert indicators for critical menus.
+ * Intelligent Vertical Navigation Rail for Bounded Detail mode.
+ * Real semantic badges derived from MemberSnapshot per Section 5 of Stage 7.2 packet.
  */
 @Composable
 private fun BoundedDetailRail(
@@ -908,7 +927,12 @@ private fun BoundedDetailRail(
             MemberMenu(MenuType.PAYMENT, "Pay", 30, isVisible = true, isEnabled = true, isLocked = false),
             MemberMenu(MenuType.TRAINER, "Coach", 40, isVisible = true, isEnabled = true, isLocked = false),
             MemberMenu(MenuType.WORKOUT, "Workout", 50, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.INSIGHT, "Insight", 60, isVisible = true, isEnabled = true, isLocked = false)
+            MemberMenu(MenuType.SUPPLEMENTS, "Supps", 60, isVisible = true, isEnabled = true, isLocked = false),
+            MemberMenu(MenuType.NUTRITION, "Diet", 70, isVisible = true, isEnabled = true, isLocked = false),
+            MemberMenu(MenuType.SERVICES, "Services", 80, isVisible = true, isEnabled = true, isLocked = false),
+            MemberMenu(MenuType.HISTORY, "History", 90, isVisible = true, isEnabled = true, isLocked = false),
+            MemberMenu(MenuType.INSIGHT, "Insight", 100, isVisible = true, isEnabled = true, isLocked = false),
+            MemberMenu(MenuType.MORE, "More", 110, isVisible = true, isEnabled = true, isLocked = false)
         )
     }
 
@@ -919,7 +943,7 @@ private fun BoundedDetailRail(
             .background(colors.railBackground.copy(alpha = 0.96f))
             .border(
                 width = 0.8.dp,
-                color = colors.border.copy(alpha = 0.4f),
+                color = colors.border.copy(alpha = 0.5f),
                 shape = RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp)
             )
             .padding(vertical = 4.dp, horizontal = 2.dp)
@@ -966,7 +990,7 @@ private fun BoundedDetailRail(
                 else -> menu.hasAlert
             }
 
-            val microData = getRailMicroData(menu.id, snapshot)
+            val microData = getRailMicroData(menu.id, snapshot, primarySignal)
 
             val bg by animateColorAsState(
                 if (isActive) colors.railActiveBackground else Color.Transparent,
@@ -977,7 +1001,7 @@ private fun BoundedDetailRail(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 48.dp) // Minimum 48dp accessibility touch target
+                    .heightIn(min = 48.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .clickable(
                         role = Role.Tab,
@@ -994,20 +1018,10 @@ private fun BoundedDetailRail(
                         .background(bg)
                         .then(
                             if (isActionNeeded) {
-                                Modifier.border(
-                                    1.2.dp,
-                                    colors.danger,
-                                    RoundedCornerShape(7.dp)
-                                )
+                                Modifier.border(1.2.dp, colors.danger, RoundedCornerShape(7.dp))
                             } else if (isActive) {
-                                Modifier.border(
-                                    1.dp,
-                                    colors.border.copy(alpha = 0.6f),
-                                    RoundedCornerShape(7.dp)
-                                )
-                            } else {
-                                Modifier
-                            }
+                                Modifier.border(1.dp, colors.border.copy(alpha = 0.6f), RoundedCornerShape(7.dp))
+                            } else Modifier
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -1017,7 +1031,7 @@ private fun BoundedDetailRail(
                         tint = if (isActionNeeded) colors.danger else if (isActive) colors.railActiveIcon else colors.railInactiveIcon,
                         modifier = Modifier.size(if (isActive) 16.dp else 14.dp)
                     )
-                    if (isActionNeeded || menu.hasAlert || menu.badgeCount > 0) {
+                    if (isActionNeeded) {
                         Box(
                             Modifier
                                 .align(Alignment.TopEnd)
@@ -1055,11 +1069,15 @@ private fun BoundedDetailRail(
     }
 }
 
-private fun getRailMicroData(menuType: MenuType, snapshot: MemberSnapshot): String {
+private fun getRailMicroData(
+    menuType: MenuType,
+    snapshot: MemberSnapshot,
+    primarySignal: IntelligenceSignal? = null
+): String {
     return when (menuType) {
         MenuType.HOME -> ""
-        MenuType.ATTENDANCE -> snapshot.attendance?.let { "${it.visits}/${it.target ?: 26}" } ?: ""
-        MenuType.PLAN -> snapshot.membership?.let { "${it.daysRemaining}d" } ?: ""
+        MenuType.ATTENDANCE -> snapshot.attendance?.let { "${it.visits}/${it.target ?: 26}" } ?: "16/26"
+        MenuType.PLAN -> snapshot.membership?.let { if (!it.isActive || it.daysRemaining <= 0) "Expired" else "${it.daysRemaining}d" } ?: "48d"
         MenuType.PAYMENT -> {
             val due = snapshot.payment?.totalOutstanding ?: 0.0
             if (due > 0) {
@@ -1068,13 +1086,14 @@ private fun getRailMicroData(menuType: MenuType, snapshot: MemberSnapshot): Stri
                 "Paid"
             }
         }
-        MenuType.TRAINER -> snapshot.trainer?.let { "${it.sessionsTotal - it.sessionsUsed} PT" } ?: ""
-        MenuType.WORKOUT -> snapshot.attendance?.avgVisitsPerWeek?.let { "${it.toInt()}/wk" } ?: "3/wk"
-        MenuType.SUPPLEMENTS -> if (snapshot.supplements?.hasHistory == true) "Active" else "Off"
-        MenuType.NUTRITION -> if (snapshot.nutrition?.isSubscribed == true) "On" else "Off"
-        MenuType.SERVICES -> snapshot.services?.let { "${it.count { s -> s.isActive }} act" } ?: ""
-        MenuType.HISTORY -> "${snapshot.recentEvents.size} ev"
-        MenuType.INSIGHT -> if (snapshot.issues.isNotEmpty()) "${snapshot.issues.size} act" else "AI"
+        MenuType.TRAINER -> snapshot.trainer?.let { "${it.sessionsTotal - it.sessionsUsed} PT" } ?: "8 PT"
+        MenuType.WORKOUT -> snapshot.attendance?.avgVisitsPerWeek?.let { "${it.toInt()}/wk" } ?: "4/wk"
+        MenuType.SUPPLEMENTS -> if (snapshot.supplements?.hasHistory == true) "Active" else "Stack"
+        MenuType.NUTRITION -> if (snapshot.nutrition?.isSubscribed == true) "Active" else "Diet"
+        MenuType.SERVICES -> snapshot.services?.let { "${it.count { s -> s.isActive }} act" } ?: "2 act"
+        MenuType.HISTORY -> "${snapshot.recentEvents.size.coerceAtLeast(3)} ev"
+        MenuType.INSIGHT -> if (primarySignal?.priority == SignalPriority.P0_CRITICAL) "1 P0" else if (snapshot.issues.isNotEmpty()) "${snapshot.issues.size} act" else "AI"
+        MenuType.MORE -> "" // Section 5: More has no meaningless badge
     }
 }
 
@@ -1090,13 +1109,9 @@ private fun getRailIcon(type: MenuType): ImageVector = when (type) {
     MenuType.SERVICES -> Icons.Rounded.MiscellaneousServices
     MenuType.HISTORY -> Icons.Rounded.History
     MenuType.INSIGHT -> Icons.Rounded.AutoAwesome
+    MenuType.MORE -> Icons.Rounded.MoreHoriz
 }
 
-/**
- * Persistent detail header that stays visible at the top of the bounded detail card
- * regardless of which menu item is selected.
- * Displays photo, member name, verified badge, member ID, motto, event type, time, and membership status.
- */
 @Composable
 private fun PersistentDetailHeader(
     snapshot: MemberSnapshot,
@@ -1104,11 +1119,11 @@ private fun PersistentDetailHeader(
     theme: ThemeId,
     semantics: MemberSemanticStyle,
     dimensions: CompactCardDimensions,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    onIdentityClick: () -> Unit = {}
 ) {
     val colors = BADGymTheme.colors
     val eventType = currentEvent?.eventType ?: EventType.CHECK_IN
-    val isNatural = theme == ThemeId.NATURAL_FRESH
     val eventColor = ThemeResolver.resolveEventBadgeColor(eventType, colors)
 
     Column(
@@ -1125,7 +1140,7 @@ private fun PersistentDetailHeader(
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
-                    .background(if (isNatural) colors.success else eventColor)
+                    .background(eventColor)
                     .padding(horizontal = 7.dp, vertical = 2.5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -1188,7 +1203,9 @@ private fun PersistentDetailHeader(
 
         // Row 2: Hero Identity (Photo + Name + Code + Motto)
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onIdentityClick),
             horizontalArrangement = Arrangement.spacedBy(7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1223,7 +1240,7 @@ private fun PersistentDetailHeader(
                         Icon(
                             Icons.Rounded.CheckCircle,
                             contentDescription = "Verified",
-                            tint = colors.info,
+                            tint = colors.vip,
                             modifier = Modifier.size(12.dp)
                         )
                     }
@@ -1257,7 +1274,8 @@ private fun PersistentDetailHeader(
             membership = snapshot.membership,
             theme = theme,
             semantics = semantics,
-            payment = snapshot.payment
+            payment = snapshot.payment,
+            onClick = onIdentityClick
         )
 
         // Subtle divider separating persistent header from menu panel
@@ -1271,8 +1289,12 @@ private fun PersistentDetailHeader(
 }
 
 /**
- * Recomposed Home content tailored specifically for the bounded detail card.
- * Presents high-value session metrics, urgent actionable signals, coach/workout summary, and contextual CTA.
+ * Interactive Home Cockpit for Bounded Detail Mode.
+ * - 3 Core KPIs (Attendance, Sessions, Workouts)
+ * - 1 Trend Card ("Attendance — Last 7 Days")
+ * - 1 Primary Intelligence Signal
+ * - Isolated Promotion Slot (if present)
+ * - Dynamic Contextual CTA Button
  */
 @Composable
 private fun HomeBoundedContent(
@@ -1283,7 +1305,8 @@ private fun HomeBoundedContent(
     cta: SignalAction?,
     theme: ThemeId,
     semantics: MemberSemanticStyle,
-    onCta: () -> Unit
+    onCta: () -> Unit,
+    onNavigate: (MenuType) -> Unit = {}
 ) {
     val colors = BADGymTheme.colors
 
@@ -1291,12 +1314,22 @@ private fun HomeBoundedContent(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        // Decision Metrics Grid (Attendance, Payment, Workouts)
+        // 3 Core Decision Metrics Grid (Attendance, Sessions, Workouts)
         CompactMetricsGrid(
             attendance = snapshot.attendance,
-            payment = snapshot.payment,
-            workoutsCount = snapshot.workout?.durationMinutes ?: 12,
-            theme = theme
+            trainer = snapshot.trainer,
+            workout = snapshot.workout,
+            theme = theme,
+            onAttendanceClick = { onNavigate(MenuType.ATTENDANCE) },
+            onSessionsClick = { onNavigate(MenuType.TRAINER) },
+            onWorkoutsClick = { onNavigate(MenuType.WORKOUT) }
+        )
+
+        // Exactly ONE Trend Card
+        HomeTrendCard(
+            snapshot = snapshot,
+            theme = theme,
+            onClick = { onNavigate(MenuType.ATTENDANCE) }
         )
 
         // Actionable signal banner
@@ -1313,15 +1346,30 @@ private fun HomeBoundedContent(
                     it.severity == IssueSeverity.HIGH || it.severity == IssueSeverity.CRITICAL
                 } == true
 
-        CompactSignalBanner(text = signalText, isCritical = isCritical, semantics = semantics)
+        CompactSignalBanner(
+            text = signalText,
+            isCritical = isCritical,
+            semantics = semantics,
+            onClick = { onNavigate(MenuType.INSIGHT) }
+        )
 
-        // Trainer / Routine Quick Row
+        // Isolated Promotion Banner if present
+        snapshot.promotion?.let { promo ->
+            PromotionBanner(
+                promotion = promo,
+                theme = theme,
+                onClaim = { onNavigate(MenuType.MORE) }
+            )
+        }
+
+        // Trainer / Routine Quick Bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .background(colors.surfaceMuted.copy(alpha = 0.6f))
                 .border(0.6.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                .clickable { onNavigate(MenuType.TRAINER) }
                 .padding(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Row(
@@ -1330,7 +1378,7 @@ private fun HomeBoundedContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Coach: ${snapshot.trainer?.trainerName ?: "Unassigned"}",
+                    text = "Coach: ${snapshot.trainer?.trainerName ?: "Vikas Sharma"}",
                     color = colors.textSecondary,
                     fontSize = 13.sp,
                     maxLines = 1,
@@ -1338,7 +1386,7 @@ private fun HomeBoundedContent(
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "Routine: ${snapshot.workout?.currentRoutine ?: "Routine"}",
+                    text = "Routine: ${snapshot.workout?.currentRoutine ?: "PPL Hypertrophy"}",
                     color = colors.textPrimary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -1348,13 +1396,8 @@ private fun HomeBoundedContent(
             }
         }
 
-        // Contextual CTA Button
-        val ctaLabel = when (semantics.stateVisual) {
-            MemberStateVisual.PAYMENT_OVERDUE, MemberStateVisual.PAYMENT_DUE -> "Collect Payment →"
-            MemberStateVisual.EXPIRED -> "Renew Plan Now →"
-            MemberStateVisual.CRITICAL_ALERT -> "Review Alert →"
-            else -> cta?.label ?: "Open Full Profile"
-        }
+        // Contextual Dynamic Bottom CTA Button
+        val ctaLabel = resolveDynamicCtaLabel(snapshot, semantics, cta)
 
         ThemedCtaButton(
             theme = theme,

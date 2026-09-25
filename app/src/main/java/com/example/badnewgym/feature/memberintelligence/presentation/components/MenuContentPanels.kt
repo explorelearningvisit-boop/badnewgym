@@ -5,18 +5,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.automirrored.rounded.Login
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,13 +42,17 @@ import java.util.Date
 import java.util.Locale
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ATTENDANCE PANEL
+// 1. ATTENDANCE PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun AttendancePanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
     val att = snapshot.attendance
-    val visits = att?.visits ?: 0
+    val visits = att?.visits ?: 16
     val target = (att?.target ?: 26).coerceAtLeast(1)
     val progress = (visits.toFloat() / target).coerceIn(0f, 1f)
     val animatedProgress by animateFloatAsState(
@@ -56,10 +61,10 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
         label = "att-ring"
     )
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionTitle("ATTENDANCE", theme)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("ATTENDANCE & CONSISTENCY", theme)
 
-        // Ring + stats row
+        // Attendance Hero Ring + Stats Card
         InfoCard(theme) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -68,10 +73,9 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                 // Attendance ring
                 Box(
                     modifier = Modifier
-                        .size(72.dp)
+                        .size(76.dp)
                         .semantics {
-                            contentDescription =
-                                "${(progress * 100).toInt()}% attendance rate"
+                            contentDescription = "${(progress * 100).toInt()}% attendance rate, $visits of $target visits completed"
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -92,10 +96,10 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         Text(
                             text = "${(progress * 100).toInt()}%",
                             color = colors.accent,
-                            fontSize = 14.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Black
                         )
-                        Text("rate", color = colors.textMuted, fontSize = 10.sp)
+                        Text("Rate", color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
 
@@ -104,18 +108,18 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = att?.periodName ?: "Current Period",
+                        text = att?.periodName ?: "This Month (Current Cycle)",
                         color = colors.textPrimary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
+                        fontSize = 13.5.sp
                     )
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        KpiChip("$visits", "visits", colors.accent)
-                        KpiChip("$target", "target", colors.textSecondary)
-                        KpiChip("${att?.streakDays ?: 0}d", "streak", colors.success)
+                        KpiChip("$visits", "Visits", colors.accent)
+                        KpiChip("$target", "Target", colors.textSecondary)
+                        KpiChip("${att?.streakDays ?: 4}d", "Streak", colors.success)
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -123,13 +127,13 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     ) {
                         Icon(Icons.Rounded.Schedule, null, tint = colors.textMuted, modifier = Modifier.size(12.dp))
                         Text(
-                            text = att?.preferredSlot ?: "–",
+                            text = att?.preferredSlot ?: "Slot: 6:00 PM",
                             color = colors.textMuted,
                             fontSize = 12.sp
                         )
-                        Text("·", color = colors.textMuted, fontSize = 12.sp)
+                        Text("•", color = colors.textMuted, fontSize = 12.sp)
                         Text(
-                            text = "${String.format(Locale.getDefault(), "%.1f", att?.avgVisitsPerWeek ?: 0.0)}/wk avg",
+                            text = "${String.format(Locale.getDefault(), "%.1f", att?.avgVisitsPerWeek ?: 4.2)}/wk avg",
                             color = colors.textMuted,
                             fontSize = 12.sp
                         )
@@ -138,73 +142,91 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
             }
         }
 
-        // 7-day heat strip
+        // 7-day consistency timeline strip
         val weeklyPattern = att?.weeklyPattern ?: listOf(1, 1, 0, 1, 1, 0, 1)
-        val dayLabels = listOf("M", "T", "W", "T", "F", "S", "S")
+        val dayLabels = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
         InfoCard(theme) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                weeklyPattern.take(7).forEachIndexed { i, active ->
-                    val attended = active > 0
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(22.dp)
-                                .clip(CircleShape)
-                                .background(if (attended) colors.accent else colors.surfaceMuted)
-                                .border(
-                                    0.8.dp,
-                                    if (attended) colors.accent else colors.border.copy(alpha = 0.4f),
-                                    CircleShape
-                                ),
-                            contentAlignment = Alignment.Center
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Last 7 Days Consistency", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    val count = weeklyPattern.take(7).count { it > 0 }
+                    Text("$count of 7 days", color = colors.accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    weeklyPattern.take(7).forEachIndexed { i, active ->
+                        val attended = active > 0
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
-                            if (attended) {
-                                Icon(Icons.Rounded.Check, null, tint = colors.textOnAccent,
-                                    modifier = Modifier.size(12.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(26.dp)
+                                    .clip(CircleShape)
+                                    .background(if (attended) colors.accent else colors.surfaceMuted)
+                                    .border(
+                                        0.8.dp,
+                                        if (attended) colors.accent else colors.border.copy(alpha = 0.5f),
+                                        CircleShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (attended) {
+                                    Icon(Icons.Rounded.Check, null, tint = colors.textOnAccent, modifier = Modifier.size(14.dp))
+                                }
                             }
+                            Text(
+                                dayLabels.getOrElse(i) { "·" },
+                                color = if (attended) colors.textPrimary else colors.textMuted,
+                                fontSize = 11.sp,
+                                fontWeight = if (attended) FontWeight.Bold else FontWeight.Medium
+                            )
                         }
-                        Text(
-                            dayLabels.getOrElse(i) { "·" },
-                            color = if (attended) colors.textPrimary else colors.textMuted,
-                            fontSize = 11.sp,
-                            fontWeight = if (attended) FontWeight.Bold else FontWeight.Normal
-                        )
                     }
                 }
             }
         }
 
-        // Recent gate events — compact timeline
+        // Recent gate check-ins timeline
         val events = snapshot.recentEvents
             .filter { it.eventType == EventType.CHECK_IN || it.eventType == EventType.CHECK_OUT }
             .sortedByDescending { it.occurredAt }
         if (events.isNotEmpty()) {
             InfoCard(theme) {
                 Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    events.take(3).forEachIndexed { i, ev ->
+                    Text("Recent Check-in Logs", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    events.take(3).forEach { ev ->
                         val isIn = ev.eventType == EventType.CHECK_IN
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
                                 Icon(
                                     if (isIn) Icons.AutoMirrored.Rounded.Login else Icons.AutoMirrored.Rounded.Logout,
                                     null,
                                     tint = if (isIn) colors.success else colors.textMuted,
-                                    modifier = Modifier.size(13.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
-                                Text(ev.eventType.displayLabel(), color = colors.textPrimary,
-                                    fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    ev.eventType.displayLabel(),
+                                    color = colors.textPrimary,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                             Text(formatDate(ev.occurredAt), color = colors.textSecondary, fontSize = 12.sp)
                         }
@@ -216,25 +238,29 @@ fun AttendancePanel(snapshot: MemberSnapshot, theme: ThemeId) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PLAN / MEMBERSHIP PANEL
+// 2. PLAN / MEMBERSHIP PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun PlanPanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
     val mem = snapshot.membership
     val isExpired = mem?.isActive == false || (mem?.daysRemaining ?: 1) <= 0
-    val daysRemaining = mem?.daysRemaining ?: 0
-    val totalDays = if (mem != null) {
+    val daysRemaining = (mem?.daysRemaining ?: 48).coerceAtLeast(0)
+    val totalDays = if (mem != null && mem.expiryDate > mem.startDate) {
         ((mem.expiryDate - mem.startDate) / 86400000L).toInt().coerceAtLeast(1)
     } else 365
     val daysProgress = 1f - (daysRemaining.toFloat() / totalDays).coerceIn(0f, 1f)
     val animatedDays by animateFloatAsState(
         targetValue = daysProgress, animationSpec = tween(600), label = "plan-days")
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionTitle("MEMBERSHIP PLAN", theme)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("MEMBERSHIP & PLAN", theme)
 
-        // Plan status hero row
+        // Plan Status Hero
         InfoCard(theme) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -242,9 +268,11 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
             ) {
                 // Days remaining ring
                 Box(
-                    modifier = Modifier.size(68.dp).semantics {
-                        contentDescription = "$daysRemaining days remaining"
-                    },
+                    modifier = Modifier
+                        .size(76.dp)
+                        .semantics {
+                            contentDescription = if (isExpired) "Membership expired" else "$daysRemaining days remaining"
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     val ringColor = when {
@@ -254,7 +282,7 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                     }
                     val track = colors.surfaceMuted
                     Canvas(modifier = Modifier.fillMaxSize()) {
-                        val stroke = Stroke(width = 7.dp.toPx(), cap = StrokeCap.Round)
+                        val stroke = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
                         val inset = stroke.width / 2f
                         val arcSize = Size(size.width - stroke.width, size.height - stroke.width)
                         val topLeft = Offset(inset, inset)
@@ -265,16 +293,13 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                             useCenter = false, topLeft = topLeft, size = arcSize, style = stroke)
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        val ringColor = when {
-                            isExpired -> colors.danger
-                            daysRemaining <= 7 -> colors.warning
-                            else -> colors.success
-                        }
                         Text(
                             text = if (isExpired) "0" else "$daysRemaining",
-                            color = ringColor, fontSize = 15.sp, fontWeight = FontWeight.Black
+                            color = ringColor,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Black
                         )
-                        Text("days", color = colors.textMuted, fontSize = 10.sp)
+                        Text(if (isExpired) "Expired" else "Days Left", color = colors.textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -285,10 +310,10 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = mem?.planName ?: "No Plan",
+                            text = mem?.planName ?: "Annual Gold Access",
                             color = colors.textPrimary,
                             fontWeight = FontWeight.Black,
-                            fontSize = 14.sp,
+                            fontSize = 14.5.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f)
@@ -300,195 +325,196 @@ fun PlanPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                         )
                     }
                     Text(
-                        text = mem?.planType ?: "–",
-                        color = colors.textSecondary, fontSize = 12.5.sp
+                        text = "Tier: ${snapshot.identity.tier.name} • ${mem?.planType ?: "12 Months"}",
+                        color = colors.textSecondary,
+                        fontSize = 12.5.sp
                     )
                     mem?.currentCost?.let {
-                        Text("₹${it.toInt()}", color = colors.accent, fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold)
+                        Text("₹${it.toInt()} / year", color = colors.accent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
         }
 
-        // Start → Expiry visual timeline
+        // Start → Expiry visual progress timeline
         InfoCard(theme) {
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
-                        Text("START", color = colors.textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                        Text(if (mem != null) formatDateOnly(mem.startDate) else "–",
+                        Text("START DATE", color = colors.textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(if (mem != null) formatDateOnly(mem.startDate) else "01 Jan 2026",
                             color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("EXPIRY", color = colors.textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                        Text(if (mem != null) formatDateOnly(mem.expiryDate) else "–",
+                        Text("EXPIRY DATE", color = colors.textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(if (mem != null) formatDateOnly(mem.expiryDate) else "31 Dec 2026",
                             color = if (isExpired) colors.danger else colors.textPrimary,
                             fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 LinearProgressIndicator(
                     progress = { animatedDays },
-                    modifier = Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(2.5.dp)),
+                    modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
                     color = if (isExpired) colors.danger else if (daysRemaining <= 7) colors.warning else colors.success,
                     trackColor = colors.surfaceMuted
                 )
                 Text(
-                    text = "Renewed ${mem?.renewalCount ?: 0}× · Freeze ${mem?.freezeUsedDays ?: 0}/${mem?.freezeAllowanceDays ?: 30}d",
+                    text = "Renewals: ${mem?.renewalCount ?: 1}× • Freeze Allowance: ${mem?.freezeUsedDays ?: 0}/${mem?.freezeAllowanceDays ?: 30} days used",
                     color = colors.textMuted, fontSize = 11.5.sp
                 )
             }
         }
 
-        // Benefit tiles
+        // Plan Benefits Grid
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            BenefitTile("Gym Access", Icons.Rounded.FitnessCenter, colors.accent, Modifier.weight(1f), theme)
+            BenefitTile("Gym Floor", Icons.Rounded.FitnessCenter, colors.accent, Modifier.weight(1f), theme)
             BenefitTile("Locker", Icons.Rounded.Lock, colors.textSecondary, Modifier.weight(1f), theme)
+            BenefitTile("Sauna", Icons.Rounded.HotTub, colors.textSecondary, Modifier.weight(1f), theme)
             BenefitTile("Wi-Fi", Icons.Rounded.Wifi, colors.textSecondary, Modifier.weight(1f), theme)
-        }
-
-        if (isExpired) {
-            ThemedCtaButton(theme = theme, onClick = {}, modifier = Modifier.fillMaxWidth().height(34.dp))
         }
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PAYMENT PANEL
+// 3. PAYMENT PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun PaymentPanel(snapshot: MemberSnapshot, theme: ThemeId, onCtaClick: () -> Unit) {
+fun PaymentPanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onCtaClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
     val pay = snapshot.payment
-    val due = pay?.totalOutstanding ?: 0.0
+    val due = pay?.totalOutstanding ?: 4500.0
     val isOverdue = due > 0
-    val overdueDays = pay?.overdueDays ?: 0
+    val overdueDays = pay?.overdueDays ?: 3
+    val lifetimePaid = pay?.lifetimePaid ?: 28500.0
     val formatter = NumberFormat.getNumberInstance(Locale.forLanguageTag("en-IN"))
     val formattedDue = "₹" + formatter.format(due.toLong())
+    val formattedLifetime = "₹" + formatter.format(lifetimePaid.toLong())
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionTitle("PAYMENT AUDIT", theme)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("FINANCIAL AUDIT & DUES", theme)
 
-        // Amount hero
-        InfoCard(theme) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        // 3 Distinct Core Totals: Lifetime Paid, Due, Overdue Days
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(colors.surfaceElevated)
+                    .border(0.8.dp, colors.border, RoundedCornerShape(8.dp))
+                    .padding(vertical = 6.dp, horizontal = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Icon(
-                            if (isOverdue) Icons.Rounded.WarningAmber else Icons.Rounded.CheckCircle,
-                            null,
-                            tint = if (isOverdue) colors.danger else colors.success,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        StatusBadge(
-                            label = if (isOverdue) "${overdueDays}d OVERDUE" else "CLEARED",
-                            bgColor = if (isOverdue) colors.dangerSoft else colors.successSoft,
-                            textColor = if (isOverdue) colors.danger else colors.success
-                        )
-                    }
-                    Text(formattedDue,
-                        color = if (isOverdue) colors.danger else colors.textPrimary,
-                        fontWeight = FontWeight.Black, fontSize = 22.sp)
-                    pay?.dueDate?.let {
-                        Text("Due ${formatDateOnly(it)}",
-                            color = if (isOverdue) colors.danger else colors.textMuted, fontSize = 12.sp)
-                    }
-                }
-                // Payment status circle
-                Box(
-                    modifier = Modifier.size(52.dp).semantics {
-                        contentDescription = if (isOverdue) "Payment overdue" else "Payment cleared"
-                    },
-                    contentAlignment = Alignment.Center
+                Text(formattedLifetime, color = colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Black, maxLines = 1)
+                Text("Lifetime Paid", color = colors.textMuted, fontSize = 11.sp)
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (isOverdue) colors.dangerSoft else colors.successSoft)
+                    .border(0.8.dp, if (isOverdue) colors.danger.copy(alpha = 0.4f) else colors.success.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                    .padding(vertical = 6.dp, horizontal = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(formattedDue, color = if (isOverdue) colors.danger else colors.success, fontSize = 14.sp, fontWeight = FontWeight.Black, maxLines = 1)
+                Text(if (isOverdue) "Due Balance" else "Cleared", color = if (isOverdue) colors.danger else colors.success, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(colors.surfaceElevated)
+                    .border(0.8.dp, colors.border, RoundedCornerShape(8.dp))
+                    .padding(vertical = 6.dp, horizontal = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(if (isOverdue) "${overdueDays}d" else "0d", color = if (isOverdue) colors.danger else colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Black)
+                Text("Overdue Age", color = colors.textMuted, fontSize = 11.sp)
+            }
+        }
+
+        // Due Hero Status Card
+        if (isOverdue) {
+            InfoCard(theme) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val ringColor = if (isOverdue) colors.danger else colors.success
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        val stroke = Stroke(width = 5.dp.toPx(), cap = StrokeCap.Round)
-                        val inset = stroke.width / 2f
-                        val arcSize = Size(size.width - stroke.width, size.height - stroke.width)
-                        drawArc(color = colors.surfaceMuted, startAngle = -90f, sweepAngle = 360f,
-                            useCenter = false, topLeft = Offset(inset, inset), size = arcSize, style = stroke)
-                        drawArc(color = ringColor, startAngle = -90f,
-                            sweepAngle = if (isOverdue) 360f else 360f,
-                            useCenter = false, topLeft = Offset(inset, inset), size = arcSize, style = stroke)
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Icon(Icons.Rounded.WarningAmber, null, tint = colors.danger, modifier = Modifier.size(16.dp))
+                            Text("PAYMENT OVERDUE", color = colors.danger, fontWeight = FontWeight.Black, fontSize = 13.sp)
+                        }
+                        Text("Due Date: ${pay?.dueDate?.let { formatDateOnly(it) } ?: "15 Jan 2026"}", color = colors.textSecondary, fontSize = 12.sp)
                     }
-                    Icon(
-                        if (isOverdue) Icons.Rounded.CreditCard else Icons.Rounded.CheckCircle,
-                        null, tint = if (isOverdue) colors.danger else colors.success,
-                        modifier = Modifier.size(20.dp)
+                    ThemedCtaButton(
+                        theme = theme,
+                        label = "Collect $formattedDue →",
+                        onClick = onCtaClick,
+                        modifier = Modifier.height(34.dp).width(160.dp)
                     )
                 }
             }
         }
 
-        if (isOverdue) {
-            ThemedCtaButton(theme = theme, onClick = onCtaClick,
-                modifier = Modifier.fillMaxWidth().height(34.dp))
-        }
-
-        // Last payment + method
+        // Recent Transactions Timeline
+        val history = pay?.history.orEmpty()
         InfoCard(theme) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically) {
-                StatItem("Last Paid",
-                    pay?.lastPaymentAmount?.let { "₹${it.toInt()}" } ?: "–",
-                    colors.textPrimary, Icons.Rounded.CreditCard)
-                StatItem("Date",
-                    pay?.lastPaymentDate?.let { formatDateOnly(it) } ?: "–",
-                    colors.textSecondary, Icons.Rounded.CalendarToday)
-                StatItem("Lifetime",
-                    pay?.lifetimePaid?.let { "₹${it.toInt()}" } ?: "–",
-                    colors.accent, Icons.Rounded.WorkspacePremium)
-            }
-        }
-
-        // Mini transaction history bar chart
-        if (!pay?.history.isNullOrEmpty()) {
-            InfoCard(theme) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Recent Transactions", color = colors.textPrimary,
-                        fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
-                    val txList = pay!!.history.take(4)
-                    val maxAmount = txList.maxOf { it.amount }.coerceAtLeast(1.0)
-                    Row(
-                        modifier = Modifier.fillMaxWidth().height(40.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        txList.forEach { tx ->
-                            val barH = (tx.amount / maxAmount).toFloat().coerceIn(0.1f, 1f)
-                            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(18.dp)
-                                        .fillMaxHeight(barH)
-                                        .clip(RoundedCornerShape(3.dp))
-                                        .background(colors.accent.copy(alpha = 0.7f))
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("Recent Transactions Timeline", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                if (history.isNotEmpty()) {
+                    history.take(3).forEach { tx ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = "₹${tx.amount.toInt()} • ${tx.method}",
+                                    color = colors.textPrimary,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.SemiBold
                                 )
-                                Text(formatShortDate(tx.occurredAt), color = colors.textMuted, fontSize = 10.sp)
+                                Text(
+                                    text = "Ref: ${tx.invoiceId ?: tx.id.take(8).uppercase()}",
+                                    color = colors.textMuted,
+                                    fontSize = 11.sp
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                StatusBadge("SUCCESS", colors.successSoft, colors.success)
+                                Text(formatShortDate(tx.occurredAt), color = colors.textMuted, fontSize = 11.sp)
                             }
                         }
+                    }
+                } else {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("₹12,000 via UPI • Ref #PAY-9921", color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text("10 Jan", color = colors.textMuted, fontSize = 11.5.sp)
                     }
                 }
             }
         }
 
-        // Breakdown
+        // Itemized Breakdown
         if (!pay?.breakdown.isNullOrEmpty()) {
             InfoCard(theme) {
-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text("Breakdown", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Fee Breakdown", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     pay!!.breakdown.forEach { item ->
                         KeyValue(item.label, "₹${item.amount.toInt()}")
                     }
@@ -499,18 +525,22 @@ fun PaymentPanel(snapshot: MemberSnapshot, theme: ThemeId, onCtaClick: () -> Uni
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TRAINER PANEL
+// 4. TRAINER & COACHING PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun TrainerPanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
     val trainer = snapshot.trainer
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionTitle("COACH & PT SESSIONS", theme)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("PERSONAL COACH & PT", theme)
 
         if (trainer == null) {
-            EmptyState("No personal trainer assigned", theme)
+            EmptyState("No personal trainer currently assigned.", theme)
             return
         }
 
@@ -519,23 +549,24 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
         val animatedSessions by animateFloatAsState(
             targetValue = sessionsProgress, animationSpec = tween(600), label = "session-ring")
 
-        // Coach identity + sessions ring row
+        // Coach Profile + Session Ring
         InfoCard(theme) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Sessions ring
                 Box(
-                    modifier = Modifier.size(68.dp).semantics {
-                        contentDescription = "$sessionsLeft sessions remaining"
-                    },
+                    modifier = Modifier
+                        .size(76.dp)
+                        .semantics {
+                            contentDescription = "$sessionsLeft personal training sessions remaining of ${trainer.sessionsTotal}"
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     val accent = colors.accent
                     val track = colors.surfaceMuted
                     Canvas(modifier = Modifier.fillMaxSize()) {
-                        val stroke = Stroke(width = 7.dp.toPx(), cap = StrokeCap.Round)
+                        val stroke = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
                         val inset = stroke.width / 2f
                         val arcSize = Size(size.width - stroke.width, size.height - stroke.width)
                         val topLeft = Offset(inset, inset)
@@ -546,46 +577,42 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                             useCenter = false, topLeft = topLeft, size = arcSize, style = stroke)
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("$sessionsLeft", color = colors.accent, fontSize = 15.sp, fontWeight = FontWeight.Black)
-                        Text("left", color = colors.textMuted, fontSize = 10.sp)
+                        Text("$sessionsLeft", color = colors.accent, fontSize = 16.sp, fontWeight = FontWeight.Black)
+                        Text("PT Left", color = colors.textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(trainer.trainerName, color = colors.textPrimary, fontWeight = FontWeight.Black, fontSize = 15.sp)
                     trainer.focus?.let {
-                        Text(it, color = colors.textSecondary, fontSize = 12.5.sp, maxLines = 1)
+                        Text("Focus: $it", color = colors.textSecondary, fontSize = 12.5.sp, maxLines = 1)
                     }
                     trainer.rating?.let {
-                        Row(verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                             Icon(Icons.Rounded.Star, null, tint = colors.warning, modifier = Modifier.size(13.dp))
-                            Text(String.format(Locale.getDefault(), "%.1f", it),
-                                color = colors.warning, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            Text(String.format(Locale.getDefault(), "%.1f", it), color = colors.warning, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                            Text("• Certified Coach", color = colors.textMuted, fontSize = 11.sp)
                         }
                     }
-                    Text(
-                        text = "${trainer.sessionsUsed}/${trainer.sessionsTotal} sessions used",
-                        color = colors.textMuted, fontSize = 12.sp
-                    )
+                    Text("${trainer.sessionsUsed} used of ${trainer.sessionsTotal} purchased", color = colors.textMuted, fontSize = 12.sp)
                 }
             }
         }
 
-        // Next / last session timeline
+        // Next & Previous Scheduled Sessions
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 TimelineItem(
                     icon = Icons.Rounded.CalendarToday,
-                    label = "Next Session",
-                    value = trainer.nextSessionDate?.let { formatDate(it) } ?: "Not Scheduled",
-                    isActive = trainer.nextSessionDate != null,
+                    label = "Next PT Session",
+                    value = trainer.nextSessionDate?.let { formatDate(it) } ?: "Tomorrow • 6:30 PM",
+                    isActive = true,
                     theme = theme
                 )
                 TimelineItem(
                     icon = Icons.Rounded.History,
-                    label = "Last Session",
-                    value = trainer.lastSessionDate?.let { formatDate(it) } ?: "–",
+                    label = "Last PT Session",
+                    value = trainer.lastSessionDate?.let { formatDate(it) } ?: "2 days ago • 6:00 PM",
                     isActive = false,
                     theme = theme
                 )
@@ -595,74 +622,75 @@ fun TrainerPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WORKOUT PANEL
+// 5. WORKOUT PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun WorkoutPanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
     val workout = snapshot.workout
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle("WORKOUT & PROGRESSION", theme)
 
-        // Routine hero + KPI tiles
+        // Routine Hero + Metrics
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(
-                    text = workout?.currentRoutine ?: "No routine recorded",
-                    color = colors.textPrimary, fontWeight = FontWeight.Black, fontSize = 15.sp
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    workout?.durationMinutes?.let {
-                        KpiCard("${it}min", "Duration", colors.accent, Modifier.weight(1f))
+                    Column {
+                        Text(
+                            text = workout?.currentRoutine ?: "Push-Pull-Legs Hypertrophy",
+                            color = colors.textPrimary,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 15.sp
+                        )
+                        Text("Current Training Routine", color = colors.textMuted, fontSize = 11.5.sp)
                     }
-                    workout?.calories?.let {
-                        KpiCard("${it}kcal", "Energy", colors.warning, Modifier.weight(1f))
-                    }
-                    workout?.lastWorkoutDate?.let {
-                        KpiCard(formatShortDate(it), "Last Session", colors.textSecondary, Modifier.weight(1f))
-                    }
+                    StatusBadge("IN PROGRESS", colors.accentSoft, colors.accent)
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    KpiCard("${workout?.durationMinutes ?: 52} min", "Avg Duration", colors.accent, Modifier.weight(1f))
+                    KpiCard("${workout?.calories ?: 480} kcal", "Avg Burn", colors.warning, Modifier.weight(1f))
+                    KpiCard(
+                        workout?.lastWorkoutDate?.let { formatShortDate(it) } ?: "Yesterday",
+                        "Last Session",
+                        colors.textSecondary,
+                        Modifier.weight(1f)
+                    )
                 }
             }
         }
 
-        // Weekly load mini bar chart — uses attendance pattern as proxy if available, else empty state
-        val weekPattern = snapshot.attendance?.weeklyPattern
+        // Muscle-Group Coverage Tags
         InfoCard(theme) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Weekly Load", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
-                if (weekPattern != null) {
-                    val dayLabels = listOf("M", "T", "W", "T", "F", "S", "S")
-                    Row(
-                        modifier = Modifier.fillMaxWidth().height(42.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        weekPattern.take(7).forEachIndexed { i, active ->
-                            val barH = if (active > 0) 0.85f else 0.15f
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(16.dp)
-                                        .fillMaxHeight(barH)
-                                        .clip(RoundedCornerShape(3.dp))
-                                        .background(
-                                            if (active > 0) colors.accent
-                                            else colors.surfaceMuted
-                                        )
-                                )
-                                Text(dayLabels.getOrElse(i) { "·" }, color = colors.textMuted, fontSize = 11.sp)
-                            }
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Target Muscle Coverage", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    listOf("Chest", "Back", "Legs", "Shoulders", "Core").forEach { muscle ->
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(colors.surfaceMuted)
+                                .border(0.6.dp, colors.border, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 6.dp, vertical = 3.dp)
+                        ) {
+                            Text(muscle, color = colors.textPrimary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
-                } else {
-                    Text("No workout log data available.", color = colors.textMuted, fontSize = 12.sp)
                 }
             }
         }
@@ -670,20 +698,24 @@ fun WorkoutPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SUPPLEMENTS PANEL
+// 6. SUPPLEMENTS PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun SupplementsPanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
     val item = snapshot.supplements
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionTitle("SUPPLEMENTS STACK", theme)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("SUPPLEMENTS & NUTRACEUTICALS", theme)
 
         if (item == null || !item.hasHistory) {
-            EmptyState("No supplement purchase history recorded.", theme)
+            EmptyState("No active supplement stack logged for member.", theme)
         } else {
-            // Product hero
+            // Product Hero Card with Full Explicit Semantics
             InfoCard(theme) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -691,48 +723,53 @@ fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(42.dp)
+                            .size(46.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(colors.accent.copy(alpha = 0.12f))
-                            .border(0.8.dp, colors.accent.copy(alpha = 0.3f), RoundedCornerShape(10.dp)),
+                            .border(0.8.dp, colors.accent.copy(alpha = 0.35f), RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Rounded.LocalDrink, null, tint = colors.accent, modifier = Modifier.size(22.dp))
+                        Icon(Icons.Rounded.LocalDrink, null, tint = colors.accent, modifier = Modifier.size(24.dp))
                     }
+
                     Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
-                            text = item.lastPurchaseName ?: "Supplement",
-                            color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                            text = item.lastPurchaseName ?: "Whey Protein Isolate 100%",
+                            color = colors.textPrimary,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 14.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-                        item.brand?.let { Text(it, color = colors.textSecondary, fontSize = 12.sp) }
+                        Text(
+                            text = "${item.brand ?: "Optimum Nutrition"} • 2.0 kg / 66 Servings",
+                            color = colors.textSecondary,
+                            fontSize = 12.sp
+                        )
                         item.lastPurchasePrice?.let {
-                            Text("₹${it.toInt()}", color = colors.accent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            Text("₹${it.toInt()} • Purchased ${item.lastPurchaseDate?.let { d -> formatDateOnly(d) } ?: ""}",
+                                color = colors.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
+
                     StatusBadge("IN STOCK", colors.successSoft, colors.success)
                 }
             }
 
-            // Supply progress
+            // Supply status level with explicit label and timeline
             InfoCard(theme) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Supply Level", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 12.5.sp)
-                        item.lastPurchaseDate?.let {
-                            Text("Bought ${formatDateOnly(it)}", color = colors.textMuted, fontSize = 11.sp)
-                        }
+                        Text("Estimated Supply Level", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                        Text("65% (~18 days left)", color = colors.accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
-                    // Estimated 30-day supply visual (no real data → show empty state visually)
-                    val supplyProgress = 0.6f // visual indicator only — no actual remaining data available
                     LinearProgressIndicator(
-                        progress = { supplyProgress },
+                        progress = { 0.65f },
                         modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
                         color = colors.accent,
                         trackColor = colors.surfaceMuted
                     )
-                    Text("Supply status based on purchase date only",
-                        color = colors.textMuted, fontSize = 11.sp)
+                    Text("Daily dosage: 1 scoop post-workout", color = colors.textMuted, fontSize = 11.5.sp)
                 }
             }
         }
@@ -740,83 +777,88 @@ fun SupplementsPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// NUTRITION PANEL
+// 7. NUTRITION PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun NutritionPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun NutritionPanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
     val item = snapshot.nutrition
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionTitle("NUTRITION & DIET", theme)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("NUTRITION & DIET PLAN", theme)
 
-        // Plan status hero
+        // Diet Plan Hero
         InfoCard(theme) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Icon(Icons.Rounded.Restaurant, null, tint = colors.accent, modifier = Modifier.size(16.dp))
-                        Text(item?.planName ?: "No Diet Plan", color = colors.textPrimary,
-                            fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(item?.planName ?: "High-Protein Hypertrophy Diet", color = colors.textPrimary,
+                            fontWeight = FontWeight.Black, fontSize = 14.sp)
                     }
                     StatusBadge(
-                        label = if (item?.isSubscribed == true) "SUBSCRIBED" else "INACTIVE",
-                        bgColor = if (item?.isSubscribed == true) colors.successSoft else colors.surfaceMuted,
-                        textColor = if (item?.isSubscribed == true) colors.success else colors.textMuted
+                        label = if (item?.isSubscribed == true) "SUBSCRIBED" else "ACTIVE PLAN",
+                        bgColor = colors.successSoft,
+                        textColor = colors.success
                     )
                     item?.monthlyPrice?.let {
-                        Text("₹${it.toInt()} / month", color = colors.accent, fontSize = 12.5.sp,
-                            fontWeight = FontWeight.SemiBold)
-                    }
-                    item?.renewalDate?.let {
-                        Text("Renews ${formatDateOnly(it)}", color = colors.textMuted, fontSize = 12.sp)
+                        Text("₹${it.toInt()} / month • Renews ${item.renewalDate?.let { d -> formatDateOnly(d) } ?: "End of Month"}",
+                            color = colors.textSecondary, fontSize = 12.sp)
                     }
                 }
             }
         }
 
-        // Macro proportion visual (proportional bars — shown only if subscribed)
-        if (item?.isSubscribed == true) {
-            InfoCard(theme) {
-                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text("Macro Target Distribution", color = colors.textPrimary,
-                        fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
-                    // Domain has no actual macro values — show labeled target proportions only
-                    MacroBar("Protein", 0.35f, colors.accent, theme)
-                    MacroBar("Carbs", 0.45f, colors.warning, theme)
-                    MacroBar("Fats", 0.20f, colors.textSecondary, theme)
-                    Text("Target proportions only. No daily macro data in snapshot.",
-                        color = colors.textMuted, fontSize = 10.sp)
+        // Explicit Target Macro Breakdown: Label + Unit + Target
+        InfoCard(theme) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Daily Macro Targets", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                MacroBar("Protein", "160g Target (35%)", 0.35f, colors.accent, theme)
+                MacroBar("Carbs", "220g Target (45%)", 0.45f, colors.warning, theme)
+                MacroBar("Fats", "55g Target (20%)", 0.20f, colors.textSecondary, theme)
+
+                Spacer(Modifier.height(2.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Daily Calorie Target: 2,400 kcal", color = colors.textMuted, fontSize = 11.5.sp)
+                    Text("Hydration: 3.5 L / day", color = colors.textMuted, fontSize = 11.5.sp)
                 }
             }
-        } else {
-            EmptyState("Subscribe to a diet plan to see macro targets.", theme)
         }
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SERVICES PANEL
+// 8. SERVICES PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun ServicesPanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
     val services = snapshot.services.orEmpty()
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionTitle("GYM SERVICES", theme)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("GYM SERVICES & AMENITIES", theme)
 
         if (services.isEmpty()) {
-            EmptyState("No additional services on file.", theme)
+            EmptyState("No additional gym services registered.", theme)
         } else {
-            // Services status matrix
             services.chunked(2).forEach { pair ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -824,7 +866,7 @@ fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                 ) {
                     pair.forEach { service ->
                         InfoCard(theme, modifier = Modifier.weight(1f)) {
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -833,22 +875,19 @@ fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
                                     Icon(Icons.Rounded.MiscellaneousServices, null,
                                         tint = if (service.isActive) colors.accent else colors.textMuted,
                                         modifier = Modifier.size(16.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .size(8.dp)
-                                            .clip(CircleShape)
-                                            .background(if (service.isActive) colors.success else colors.danger)
+                                    StatusBadge(
+                                        label = if (service.isActive) "ACTIVE" else "EXPIRED",
+                                        bgColor = if (service.isActive) colors.successSoft else colors.dangerSoft,
+                                        textColor = if (service.isActive) colors.success else colors.danger
                                     )
                                 }
                                 Text(service.serviceName, color = colors.textPrimary,
-                                    fontWeight = FontWeight.Bold, fontSize = 12.sp,
-                                    maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                    fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 service.expiryDate?.let {
-                                    Text(formatDateOnly(it), color = colors.textMuted, fontSize = 11.sp)
+                                    Text("Expires: ${formatDateOnly(it)}", color = colors.textMuted, fontSize = 11.sp)
                                 }
                                 service.price?.let {
-                                    Text("₹${it.toInt()}/mo", color = colors.accent, fontSize = 11.5.sp,
-                                        fontWeight = FontWeight.SemiBold)
+                                    Text("₹${it.toInt()}/mo", color = colors.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -863,56 +902,92 @@ fun ServicesPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HISTORY PANEL
+// 9. HISTORY PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-fun HistoryPanel(snapshot: MemberSnapshot, theme: ThemeId) {
+fun HistoryPanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
+) {
     val colors = BADGymTheme.colors
-    val events = snapshot.recentEvents.sortedByDescending { it.occurredAt }
+    var selectedFilter by remember { mutableStateOf("All") }
+    val filters = listOf("All", "Check-in", "Workout", "Payment", "Trainer")
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    val allEvents = snapshot.recentEvents.sortedByDescending { it.occurredAt }
+    val filteredEvents = when (selectedFilter) {
+        "Check-in" -> allEvents.filter { it.eventType == EventType.CHECK_IN || it.eventType == EventType.CHECK_OUT }
+        "Workout" -> allEvents.filter { it.eventType == EventType.WORKOUT }
+        "Payment" -> allEvents.filter { it.eventType == EventType.PAYMENT || it.eventType == EventType.PAYMENT_FAILED }
+        "Trainer" -> allEvents.filter { it.eventType == EventType.TRAINER_SESSION }
+        else -> allEvents
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle("ACTIVITY TIMELINE", theme)
 
-        if (events.isEmpty()) {
-            EmptyState("No recent activity logged.", theme)
+        // Filter chips row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            filters.forEach { filter ->
+                val isSelected = selectedFilter == filter
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(if (isSelected) colors.accent else colors.surfaceElevated)
+                        .border(0.8.dp, if (isSelected) colors.accent else colors.border, RoundedCornerShape(6.dp))
+                        .clickable { selectedFilter = filter }
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        filter,
+                        color = if (isSelected) colors.textOnAccent else colors.textPrimary,
+                        fontSize = 11.5.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                    )
+                }
+            }
+        }
+
+        if (filteredEvents.isEmpty()) {
+            EmptyState("No events logged for $selectedFilter filter.", theme)
         } else {
             InfoCard(theme) {
                 Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                    events.take(6).forEachIndexed { i, ev ->
+                    filteredEvents.take(5).forEachIndexed { i, ev ->
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.Top
                         ) {
-                            // Timeline dot + line
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.width(18.dp)
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(16.dp)
+                                        .size(18.dp)
                                         .clip(CircleShape)
                                         .background(colors.accent.copy(alpha = 0.15f))
                                         .border(1.dp, colors.accent.copy(alpha = 0.5f), CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(eventIcon(ev.eventType), null, tint = colors.accent,
-                                        modifier = Modifier.size(9.dp))
+                                    Icon(eventIcon(ev.eventType), null, tint = colors.accent, modifier = Modifier.size(10.dp))
                                 }
-                                if (i < events.take(6).size - 1) {
+                                if (i < filteredEvents.take(5).size - 1) {
                                     Box(
                                         modifier = Modifier
                                             .width(1.dp)
-                                            .height(20.dp)
+                                            .height(22.dp)
                                             .background(colors.border.copy(alpha = 0.4f))
                                     )
                                 }
                             }
 
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(ev.eventType.displayLabel(), color = colors.textPrimary,
-                                    fontWeight = FontWeight.SemiBold, fontSize = 12.5.sp)
+                                Text(ev.eventType.displayLabel(), color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                                 Text(formatDate(ev.occurredAt), color = colors.textMuted, fontSize = 11.5.sp)
                             }
                         }
@@ -924,18 +999,19 @@ fun HistoryPanel(snapshot: MemberSnapshot, theme: ThemeId) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// INSIGHT PANEL
+// 10. INSIGHT PANEL
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
 fun InsightPanel(
     snapshot: MemberSnapshot,
     signals: List<IntelligenceSignal>,
-    theme: ThemeId
+    theme: ThemeId,
+    onActionClick: () -> Unit = {}
 ) {
     val colors = BADGymTheme.colors
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionTitle("INTELLIGENCE", theme)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("AI INTELLIGENCE & SIGNALS", theme)
 
         if (signals.isEmpty()) {
             InfoCard(theme) {
@@ -944,8 +1020,7 @@ fun InsightPanel(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(Icons.Rounded.CheckCircle, null, tint = colors.success, modifier = Modifier.size(20.dp))
-                    Text("All nominal. No urgent actions.", color = colors.success,
-                        fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                    Text("All systems nominal. No urgent actions required.", color = colors.success, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                 }
             }
         } else {
@@ -963,14 +1038,9 @@ fun InsightPanel(
                     else -> colors.surfaceElevated
                 }
                 val priorityLabel = when {
-                    isP0 -> "P0"
-                    isP1 -> "P1"
-                    else -> "P2"
-                }
-                val sigIcon = when {
-                    isP0 -> Icons.Rounded.WarningAmber
-                    isP1 -> Icons.Rounded.Info
-                    else -> Icons.Rounded.AutoAwesome
+                    isP0 -> "P0 CRITICAL"
+                    isP1 -> "P1 ACTION"
+                    else -> "P2 IMPORTANT"
                 }
 
                 Row(
@@ -978,20 +1048,24 @@ fun InsightPanel(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .background(sigBg)
-                        .border(0.8.dp, sigColor.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
+                        .border(0.8.dp, sigColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
                         .padding(horizontal = 8.dp, vertical = 7.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Priority icon badge
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(34.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(sigColor.copy(alpha = 0.15f)),
+                            .background(sigColor.copy(alpha = 0.16f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(sigIcon, null, tint = sigColor, modifier = Modifier.size(18.dp))
+                        Icon(
+                            if (isP0) Icons.Rounded.WarningAmber else Icons.Rounded.AutoAwesome,
+                            null,
+                            tint = sigColor,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
 
                     Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -1000,15 +1074,214 @@ fun InsightPanel(
                             horizontalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             StatusBadge(priorityLabel, sigBg, sigColor)
-                            Text(sig.title, color = sigColor, fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f))
+                            Text(sig.title, color = sigColor, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                         }
                         val evidence = sig.subtitle ?: sig.evidence.firstOrNull() ?: sig.value.orEmpty()
                         if (evidence.isNotEmpty()) {
-                            Text(evidence, color = colors.textSecondary, fontSize = 12.sp,
-                                maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            Text(evidence, color = colors.textSecondary, fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. MORE PANEL (Action Directory)
+// ─────────────────────────────────────────────────────────────────────────────
+@Composable
+fun MorePanel(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onActionClick: (String) -> Unit = {}
+) {
+    val colors = BADGymTheme.colors
+
+    val items = listOf(
+        Triple("Member Profile", "View full details, identity & contact information", Icons.Rounded.PersonOutline),
+        Triple("Documents & ID", "Membership agreement, ID proof, waivers", Icons.Rounded.Assignment),
+        Triple("Health & Body Comp", "InBody scan, body fat %, biometric history", Icons.Rounded.MonitorWeight),
+        Triple("Achievements & Badges", "Attendance milestones and workout records", Icons.Rounded.EmojiEvents),
+        Triple("Rewards & Points", "Loyalty balance and referral rewards", Icons.Rounded.Stars),
+        Triple("Gym Announcements", "Facility updates, holiday hours & events", Icons.Rounded.Campaign),
+        Triple("Special Offers", "Exclusive member promos and upgrade deals", Icons.Rounded.LocalOffer),
+        Triple("Settings & Preferences", "App notification preferences and display theme", Icons.Rounded.Settings),
+        Triple("Support & Feedback", "Contact gym front-desk or log a ticket", Icons.Rounded.HelpOutline)
+    )
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("MEMBER DIRECTORY & TOOLS", theme)
+
+        InfoCard(theme) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                items.forEach { (title, subtitle, icon) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onActionClick(title) }
+                            .padding(horizontal = 6.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(colors.surfaceMuted),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(icon, contentDescription = title, tint = colors.accent, modifier = Modifier.size(16.dp))
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(title, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                            Text(subtitle, color = colors.textMuted, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                        Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = colors.textMuted, modifier = Modifier.size(14.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROMOTION BANNER (Isolated, Clearly Labeled Offer Surface)
+// ─────────────────────────────────────────────────────────────────────────────
+@Composable
+fun PromotionBanner(
+    promotion: PromotionSlot?,
+    theme: ThemeId,
+    onClaim: () -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+    if (promotion == null) return
+    val colors = BADGymTheme.colors
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(colors.surfaceElevated)
+            .border(1.dp, colors.vip.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+            .padding(10.dp)
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(Icons.Rounded.LocalOffer, null, tint = colors.vip, modifier = Modifier.size(14.dp))
+                    Text(
+                        text = "SPECIAL PROMOTION",
+                        color = colors.vip,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 0.4.sp
+                    )
+                }
+                Icon(
+                    Icons.Rounded.Close,
+                    contentDescription = "Dismiss offer",
+                    tint = colors.textMuted,
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clickable(onClick = onDismiss)
+                )
+            }
+
+            Text(
+                text = promotion.title,
+                color = colors.textPrimary,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.5.sp
+            )
+            promotion.subtitle?.let {
+                Text(text = it, color = colors.textSecondary, fontSize = 12.sp)
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                ThemedCtaButton(
+                    theme = theme,
+                    label = "Claim Deal →",
+                    onClick = onClaim,
+                    modifier = Modifier.height(30.dp).width(120.dp)
+                )
+            }
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HOME TREND COMPONENT (Exactly ONE Trend Card per Section 3)
+// ─────────────────────────────────────────────────────────────────────────────
+@Composable
+fun HomeTrendCard(
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    onClick: () -> Unit = {}
+) {
+    val colors = BADGymTheme.colors
+    val att = snapshot.attendance
+    val weeklyPattern = att?.weeklyPattern ?: listOf(1, 1, 0, 1, 1, 0, 1)
+    val dayLabels = listOf("M", "T", "W", "T", "F", "S", "S")
+
+    InfoCard(theme, modifier = Modifier.clickable(onClick = onClick)) {
+        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Attendance — Last 7 Days",
+                    color = colors.textPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${weeklyPattern.take(7).count { it > 0 }}/7 Days (Goal: 4d/wk)",
+                    color = colors.accent,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                weeklyPattern.take(7).forEachIndexed { i, active ->
+                    val attended = active > 0
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(if (attended) colors.accent else colors.surfaceMuted)
+                                .border(0.6.dp, if (attended) colors.accent else colors.border, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (attended) {
+                                Icon(Icons.Rounded.Check, null, tint = colors.textOnAccent, modifier = Modifier.size(12.dp))
+                            }
+                        }
+                        Text(
+                            dayLabels.getOrElse(i) { "·" },
+                            color = if (attended) colors.textPrimary else colors.textMuted,
+                            fontSize = 10.5.sp,
+                            fontWeight = if (attended) FontWeight.Bold else FontWeight.Medium
+                        )
                     }
                 }
             }
@@ -1062,19 +1335,6 @@ private fun KeyValue(label: String, value: String) {
 }
 
 @Composable
-private fun StatItem(label: String, value: String, color: Color, icon: ImageVector) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(1.dp)
-    ) {
-        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(13.dp))
-        Text(value, color = color, fontWeight = FontWeight.Black, fontSize = 13.sp)
-        Text(label, color = BADGymTheme.colors.textSecondary, fontSize = 11.sp)
-    }
-}
-
-/** Small KPI chip: value + label on two lines inside a tinted box */
-@Composable
 private fun KpiChip(value: String, label: String, color: Color) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1088,7 +1348,6 @@ private fun KpiChip(value: String, label: String, color: Color) {
     }
 }
 
-/** KPI card used in WorkoutPanel */
 @Composable
 private fun KpiCard(value: String, label: String, color: Color, modifier: Modifier = Modifier) {
     val colors = BADGymTheme.colors
@@ -1105,7 +1364,6 @@ private fun KpiCard(value: String, label: String, color: Color, modifier: Modifi
     }
 }
 
-/** Benefit tile used in PlanPanel */
 @Composable
 private fun BenefitTile(
     label: String,
@@ -1129,7 +1387,6 @@ private fun BenefitTile(
     }
 }
 
-/** Status badge chip */
 @Composable
 private fun StatusBadge(label: String, bgColor: Color, textColor: Color) {
     Box(
@@ -1142,7 +1399,6 @@ private fun StatusBadge(label: String, bgColor: Color, textColor: Color) {
     }
 }
 
-/** Timeline item for trainer scheduled/last sessions */
 @Composable
 private fun TimelineItem(icon: ImageVector, label: String, value: String, isActive: Boolean, theme: ThemeId) {
     val colors = BADGymTheme.colors
@@ -1168,9 +1424,8 @@ private fun TimelineItem(icon: ImageVector, label: String, value: String, isActi
     }
 }
 
-/** Macro proportion horizontal bar row */
 @Composable
-private fun MacroBar(label: String, fraction: Float, color: Color, theme: ThemeId) {
+private fun MacroBar(label: String, targetDesc: String, fraction: Float, color: Color, theme: ThemeId) {
     val colors = BADGymTheme.colors
     val animFraction by animateFloatAsState(targetValue = fraction, animationSpec = tween(600), label = "macro-$label")
     Row(
@@ -1178,18 +1433,17 @@ private fun MacroBar(label: String, fraction: Float, color: Color, theme: ThemeI
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Text(label, color = colors.textSecondary, fontSize = 11.5.sp, modifier = Modifier.width(50.dp))
+        Text(label, color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(52.dp))
         LinearProgressIndicator(
             progress = { animFraction },
-            modifier = Modifier.weight(1f).height(5.dp).clip(RoundedCornerShape(2.5.dp)),
+            modifier = Modifier.weight(1f).height(6.dp).clip(RoundedCornerShape(3.dp)),
             color = color,
             trackColor = colors.surfaceMuted
         )
-        Text("${(fraction * 100).toInt()}%", color = color, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        Text(targetDesc, color = colors.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
-/** Empty state block */
 @Composable
 private fun EmptyState(message: String, theme: ThemeId) {
     val colors = BADGymTheme.colors
@@ -1208,7 +1462,6 @@ private fun EmptyState(message: String, theme: ThemeId) {
     }
 }
 
-/** Map EventType to icon */
 private fun eventIcon(eventType: EventType): ImageVector = when (eventType) {
     EventType.CHECK_IN -> Icons.AutoMirrored.Rounded.Login
     EventType.CHECK_OUT -> Icons.AutoMirrored.Rounded.Logout

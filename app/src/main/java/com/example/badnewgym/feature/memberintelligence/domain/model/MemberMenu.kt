@@ -24,5 +24,6 @@ enum class MenuType(val defaultLabel: String) {
     NUTRITION("Nutrition"),
     SERVICES("Services"),
     HISTORY("History"),
-    INSIGHT("Insight")
+    INSIGHT("Insight"),
+    MORE("More")
 }

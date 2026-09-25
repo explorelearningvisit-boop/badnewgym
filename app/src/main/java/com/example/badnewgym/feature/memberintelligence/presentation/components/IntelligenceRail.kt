@@ -137,4 +137,5 @@ private fun getRailIcon(type: MenuType): ImageVector = when (type) {
     MenuType.SERVICES -> Icons.Rounded.MiscellaneousServices
     MenuType.HISTORY -> Icons.Rounded.History
     MenuType.INSIGHT -> Icons.Rounded.AutoAwesome
+    MenuType.MORE -> Icons.Rounded.MoreHoriz
 }

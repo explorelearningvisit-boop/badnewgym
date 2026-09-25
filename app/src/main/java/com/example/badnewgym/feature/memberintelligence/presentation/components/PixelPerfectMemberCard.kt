@@ -248,6 +248,7 @@ private fun CardBody(
                         MenuType.SERVICES -> ServicesPanel(snapshot, theme)
                         MenuType.HISTORY -> HistoryPanel(snapshot, theme)
                         MenuType.INSIGHT -> InsightPanel(snapshot, signals, theme)
+                        MenuType.MORE -> MorePanel(snapshot = snapshot, theme = theme)
                     }
                 }
 

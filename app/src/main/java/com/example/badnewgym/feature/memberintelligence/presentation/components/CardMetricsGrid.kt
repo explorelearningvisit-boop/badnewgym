@@ -2,6 +2,7 @@ package com.example.badnewgym.feature.memberintelligence.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,6 +28,10 @@ fun CardMetricsGrid(
     payment: PaymentSummary?,
     workoutsCount: Int,
     theme: ThemeId,
+    trainer: com.example.badnewgym.feature.memberintelligence.domain.model.TrainerSummary? = null,
+    onAttendanceClick: () -> Unit = {},
+    onSessionsClick: () -> Unit = {},
+    onWorkoutsClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val colors = BADGymTheme.colors
@@ -39,7 +44,12 @@ fun CardMetricsGrid(
         val visits = attendance?.visits ?: 16
         val target = attendance?.target ?: 26
         val attendancePercent = if (target > 0) ((visits.toFloat() / target) * 100).toInt() else 0
-        MetricTileContainer(theme = theme, modifier = Modifier.weight(1f)) {
+        MetricTileContainer(
+            theme = theme,
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = onAttendanceClick)
+        ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween,
@@ -81,16 +91,14 @@ fun CardMetricsGrid(
             }
         }
 
-        // Tile 2: Payment Status / Due
-        val totalDue = payment?.totalOutstanding ?: 4500.0
-        val overdueDays = payment?.overdueDays ?: 3
-        val isOverdue = totalDue > 0
-        val formattedAmount = if (totalDue > 0) {
-            val formatter = NumberFormat.getNumberInstance(Locale("en", "IN"))
-            "₹" + formatter.format(totalDue.toInt())
-        } else "₹0"
-
-        MetricTileContainer(theme = theme, modifier = Modifier.weight(1f)) {
+        // Tile 2: Sessions / PT Remaining
+        val sessionsLeft = if (trainer != null) (trainer.sessionsTotal - trainer.sessionsUsed).coerceAtLeast(0) else 8
+        MetricTileContainer(
+            theme = theme,
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = onSessionsClick)
+        ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween,
@@ -98,13 +106,13 @@ fun CardMetricsGrid(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = formattedAmount,
-                        color = if (isOverdue) colors.danger else colors.textPrimary,
+                        text = "$sessionsLeft Left",
+                        color = colors.accent,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Black
                     )
                     Text(
-                        text = "Payment Due",
+                        text = "PT Sessions",
                         color = colors.textSecondary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
@@ -114,14 +122,14 @@ fun CardMetricsGrid(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(if (isOverdue) colors.dangerSoft else colors.successSoft)
+                        .background(colors.accentSoft)
                         .padding(horizontal = 8.dp, vertical = 3.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (isOverdue) "$overdueDays days" else "All Clear",
-                        color = if (isOverdue) colors.danger else colors.success,
-                        fontSize = 13.sp,
+                        text = trainer?.trainerName?.take(8) ?: "Active PT",
+                        color = colors.accent,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -130,7 +138,12 @@ fun CardMetricsGrid(
 
         // Tile 3: Workouts count with six-bar progression
         val countDisplay = if (workoutsCount > 0) workoutsCount else 12
-        MetricTileContainer(theme = theme, modifier = Modifier.weight(1f)) {
+        MetricTileContainer(
+            theme = theme,
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = onWorkoutsClick)
+        ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween,
