@@ -48,13 +48,13 @@ fun AdvancedEventMemberCard(
     val spec = event?.let { EventCardCatalog.forEvent(it.eventType) } ?: EventCardCatalog.forEvent(EventType.CHECK_IN)
     val colors = BADGymTheme.colors
     val accent = when (spec.kind) {
-        EventCardKind.BAN -> colors.error
+        EventCardKind.BAN -> colors.danger
         EventCardKind.FREEZE -> colors.info
         EventCardKind.PAYMENT -> colors.warning
         EventCardKind.WALK_IN, EventCardKind.TRIAL -> colors.warning
         EventCardKind.TRAINER -> colors.info
         EventCardKind.WORKOUT -> colors.success
-        EventCardKind.FACILITY_OPERATION, EventCardKind.ISSUE_RESOLUTION -> colors.error
+        EventCardKind.FACILITY_OPERATION, EventCardKind.ISSUE_RESOLUTION -> colors.danger
         EventCardKind.SERVICE -> colors.accent
         else -> colors.accent
     }
@@ -148,11 +148,11 @@ private fun EventFacts(s: MemberSnapshot, e: MemberEvent?, kind: EventCardKind, 
 
 @Composable private fun FactsRow(a:String,b:String,c:String,d:String) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Fact(a,b); Fact(c,d)
+        Fact(a,b, Modifier.weight(1f)); Fact(c,d, Modifier.weight(1f))
     }
 }
-@Composable private fun Fact(label:String,value:String) {
-    Column(Modifier.weight(1f)) {
+@Composable private fun Fact(label:String,value:String, modifier: Modifier = Modifier) {
+    Column(modifier) {
         Text(label.uppercase(), color=BADGymTheme.colors.textMuted, fontSize=8.sp, fontWeight=FontWeight.Black)
         Text(value, color=BADGymTheme.colors.textPrimary, fontSize=10.5.sp, fontWeight=FontWeight.Bold, maxLines=2, overflow=TextOverflow.Ellipsis)
     }

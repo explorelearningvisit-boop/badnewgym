@@ -40,11 +40,12 @@ STATUS: Stage 7.6 Visual QA COMPLETED
 
 - Fixed compilation errors in `EventCardCatalog.kt` (`P1_ACTION` -> `P1_ACTION_REQUIRED`, `P3_INFO` -> `P3_BACKGROUND`).
 - Added exhaustive fallback in `ThemeResolver.kt` for newly added `EventType` entries.
+- Fixed `AdvancedEventMemberCard.kt` compilation errors (`colors.error` -> `colors.danger`, and Fact weight modifier).
 - Added comprehensive unit tests in `EventCardCatalogTest.kt` verifying:
   - EventCardCatalog mappings for Walk-in, Trial, Freeze, Ban, Payment, Machine Fault, etc.
   - EventCardRouter deterministic check-in state overrides (overdue payment -> PAYMENT_OVERDUE, expired membership -> MEMBERSHIP_EXPIRED, scheduled PT -> TRAINER_SESSION_SCHEDULED, clean check-in -> CHECK_IN).
   - Non-check-in direct event routing.
 - Local verification completed: `./gradlew testDebugUnitTest assembleDebug` passed (46 actionable tasks, all unit tests passed, build successful).
-- Physical device runtime verification: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`). Check-in live decision workspace renders cleanly with goal ring and action metrics.
+- Physical device runtime verification: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`). AdvancedEventMemberCard and compact carousel render cleanly with real attendance pulse, facts hierarchy, and actionable CTAs.
 
 STATUS: Stage 7.8 Verified and Ready for ChatGPT Review
