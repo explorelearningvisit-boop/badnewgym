@@ -5,10 +5,10 @@ This file is a compact working-memory checkpoint, not a duplicate of repository 
 ## Session
 - TASK_ID: MI-V6-MEMBER-INTELLIGENCE-UX-THEME-REBUILD
 - BRANCH: member-intelligence-v3
-- CONTEXT_VERSION: 1
+- CONTEXT_VERSION: 2
 - STATUS: READY_FOR_EXECUTION
-- Last checkpoint: initialized by ChatGPT
-- Last completed action: established bidirectional collaboration protocol and incremental context rules
+- Last checkpoint: incremental collaboration protocol expanded
+- Last completed action: added context manifest, sync state, short-command rules, incremental invalidation, conflict handling, and expanded design/engineering skills
 - Current action: awaiting visible Antigravity Pull and Run
 - Next action: Pull and Run; validate HEAD/worktree; read checkpoint plus required context; execute authorized task visibly
 - Stop point: before MI-V6 implementation
