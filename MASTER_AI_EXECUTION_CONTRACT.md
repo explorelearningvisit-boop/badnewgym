@@ -182,3 +182,37 @@ Resume: validate branch/HEAD/worktree/task, load SESSION_CONTEXT and continue; d
 Antigravity must finish with what happened, what was verified, exact commit SHA, remote branch, limitations/deviations and next state.
 
 Never finish only with “up to date”, “done”, or “looks good”.
+
+
+## Permanent capability-based parallel work
+
+BAD GYM uses a capability-based two-lane workflow defined in CHATGPT_AGY_PARALLEL_WORK_PROTOCOL.md.
+
+ChatGPT lane:
+- product reasoning;
+- UX/design;
+- architecture;
+- design/motion/depth specifications;
+- acceptance criteria;
+- verification planning;
+- post-push review and corrective-task authoring.
+
+Antigravity lane:
+- visible repository execution;
+- production implementation;
+- tests/build;
+- device/runtime verification;
+- screenshots;
+- documentation;
+- commit/push;
+- exact evidence reporting.
+
+This is not an artificial 50/50 code split. Work is divided by capability to minimize duplicate effort and maximize correctness.
+
+GitHub is the merge boundary. Production source must not be edited simultaneously by both agents. ChatGPT prepares the durable task packet; Antigravity implements and verifies it; ChatGPT reviews the pushed SHA/evidence; defects become explicit corrective tasks.
+
+Every future CURRENT_TASK.md must contain a Work split section naming both lanes and the merge/review gate.
+
+## Permanent fast-path
+
+Preparation and execution may overlap when their artifacts are independent, but implementation remains single-writer. The user should only need to trigger Pull and Run after the task packet is ready.
