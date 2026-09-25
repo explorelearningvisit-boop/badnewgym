@@ -1,26 +1,15 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: COMPLETED
-TASK_ID: MI-V5-STAGE-04-REVIEW-FIX-AND-EVIDENCE-GATE
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-V5-CARD-READABILITY-GEOMETRY-FIX
 AUTHOR: ChatGPT
 EXECUTOR: Google Antigravity
 BRANCH: member-intelligence-v3
 
 ## Mission
-Do not start Stage 5. Re-open Stage 4 as a verification/fix pass and make the repository satisfy the Stage 4 acceptance gate exactly.
-
-The previous Stage 4 commit is:
-64adafde8c39a451eeb579fcbc5e8703189c0d2a
-"feat: implement stage 4 eight theme engine and reference fidelity"
-
-I have verified from GitHub that this commit is the branch HEAD and that it changed the actual production files:
-- app/src/main/java/com/example/badnewgym/feature/memberintelligence/design/colors/ColorTokens.kt
-- app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCard.kt
-- app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/ThemeOrnamentLayer.kt
-and added physical screenshots.
+Do not start Stage 5. Perform a focused production fix to the Member Intelligence card geometry/readability and verify it on the physical Xiaomi device.
 
 ## Required first reads
-Read, in this order:
 1. AGENTS.md
 2. .agents/rules/00-badgym-github-loop.md
 3. CURRENT_TASK.md
@@ -29,70 +18,66 @@ Read, in this order:
 6. HANDOFF_STATUS.md
 7. docs/reference/MI_V5_DESIGN_COMMUNICATION.md
 
-Then inspect the current branch source and screenshot evidence before editing.
+Then inspect the current Member Intelligence card, dimension tokens, and the latest Stage 4 evidence before editing.
 
-## Known gate discrepancy to resolve
-The Stage 4 task specified these exact screenshot paths:
-- docs/screenshots/stage4_natural_fresh.png
-- docs/screenshots/stage4_futuristic_neon.png
-- docs/screenshots/stage4_minimal_dark.png
-- docs/screenshots/stage4_glassmorphism.png
-- docs/screenshots/stage4_premium_3d.png
-- docs/screenshots/stage4_vibrant_gradient.png
-- docs/screenshots/stage4_gym_beast_mode.png
-- docs/screenshots/stage4_purple_royal.png
-- docs/screenshots/stage4_semantic_matrix.png
-- docs/screenshots/stage4_menu_matrix.png
+## User-observed defect
+When the card is tapped, its outer width increases but the internal typography and portrait become visually smaller. This is unacceptable. The bounded detail state must become MORE readable as it gets larger, not smaller.
 
-The current commit instead contains files named stage4_theme_* plus individual semantic/menu files. Fix this evidence mismatch. Prefer renaming/copying the already captured physical screenshots to the exact required filenames when they correspond to the same evidence. If any required matrix screenshot is not actually a valid physical-device capture, capture it on the physical device now. Do not fabricate evidence.
+## Required geometry direction
+Increase the compact browse card by approximately 10% while preserving the existing aspect ratio and carousel/side-peek behavior.
+Current default baseline is approximately 247dp × 356dp. Target approximately 270dp × 389dp.
+Current expanded baseline is approximately 261dp × 366dp. Target approximately 286dp × 401dp.
+Keep the card bounded; never make it full-screen. Preserve a visible adjacent-card side peek.
 
-## Visual/source review
-Verify and fix, if needed:
-- centralized ThemeId/ThemeResolver/ColorTokens architecture is actually used by the production card;
-- all 8 themes are materially distinct, not only accent-color swaps;
-- Minimal Dark is true charcoal/slate, not light slate;
-- Glassmorphism has translucent/atmospheric depth;
-- Premium 3D has metallic/depth treatment without heavy continuous 3D;
-- Natural Fresh has botanical language;
-- Neon has sapphire/cyan glow;
-- Vibrant Gradient has multi-hue gradient language;
-- Beast Mode has aggressive red/athletic language;
-- Purple Royal has violet/lilac depth;
-- semantic states override decoration where urgent;
-- tier styling remains subordinate to critical states;
-- all 11 menus remain implemented and bounded;
-- browse card/detail dimensions and side peek remain intact;
-- actual portraits remain used;
-- global dashboard does not unexpectedly recolor;
-- no fake metrics or backend claims;
-- no infinite decorative animation.
+Update min/max geometry tokens so the new target is not artificially clamped. Keep the detail card bounded and proportionally larger as well; do not allow its internal content to shrink.
 
-Do not rewrite working architecture merely for cosmetic reasons. Make the smallest production-quality changes necessary.
+## Readability requirements
+- The tapped/expanded card must NOT reduce font sizes, portrait size, or important spacing merely because width increases.
+- Internal content should use the larger geometry tokens: portrait, member name, event/time text, membership bands, metrics, signal, CTA and menu/detail content should become at least as readable as browse mode.
+- Prefer explicit dimension tokens and responsive typography over global scale-down transforms.
+- Portrait should visibly increase rather than shrink.
+- Preserve 48dp touch targets.
+- Maintain event, identity, membership/status, decision metrics, signal and CTA hierarchy.
+- Do not cram extra business data just because space is available.
+- Do not change backend behavior or invent metrics.
+
+## Interaction requirements
+- Browse remains compact horizontal carousel.
+- Tap opens bounded detail only.
+- Back returns to browse.
+- Side peek remains visible.
+- Existing 11 menus remain intact.
+- Menu transitions remain restrained.
+- Global dashboard must not unexpectedly recolor.
+
+## Visual direction
+Use the existing Stage 4 theme engine and semantic system. Do not rewrite the theme architecture.
+All 8 themes must continue to work.
+Minimal Dark must remain true charcoal/slate.
+Urgent semantic states must retain their semantic override.
 
 ## Physical QA
-Use the same Xiaomi physical device if available. Build, test, install, launch, and verify:
-- browse
-- bounded detail
-- Back
-- all 8 themes
-- at least 5 semantic states
-- all 11 menus
-- side peek
-- actual portraits
+On the same Xiaomi Redmi Note 11 if available:
+- testDebugUnitTest
+- assembleDebug
+- install and launch
+- browse screenshot
+- tapped/detail screenshot
+- verify text and portrait readability at both states
+- verify side peek
+- verify Back
+- smoke-test all 8 themes and the 11 menus
 - no crash/layout exception
 
-Run the relevant unit tests and assembleDebug. Fix any failures.
+## Evidence
+Add/update physical screenshots:
+- docs/screenshots/stage4_card_readability_browse.png
+- docs/screenshots/stage4_card_readability_detail.png
+Update STATUS.md with exact final commit SHA, measured geometry, build/test/install/runtime results and any deviations.
+Append a dated entry to docs/reference/MI_V5_DESIGN_COMMUNICATION.md describing the user-observed readability defect and the fix.
+Update HANDOFF_STATUS.md to reflect execution state.
+Commit and push to member-intelligence-v3.
+Only mark CURRENT_TASK.md COMPLETED after the physical acceptance gate passes.
 
-## Evidence and documentation
-After verification/fixes:
-1. Commit exact required Stage 4 screenshot filenames.
-2. Update STATUS.md with exact final implementation commit SHA, device/build/test results, geometry, 8-theme coverage, semantic coverage, 11-menu coverage, exact screenshot paths, runtime marker, and remaining deviations.
-3. Append a Stage 4 review/fix report to docs/reference/MI_V5_DESIGN_COMMUNICATION.md.
-4. Update HANDOFF_STATUS.md so it no longer contradicts the final state.
-5. Commit and push to member-intelligence-v3.
-6. Only then set CURRENT_TASK.md to STATUS: COMPLETED.
-
-## Completion rule
-Do NOT claim completion from Gradle success alone. The task is complete only when the evidence paths, source architecture, visual coverage, physical QA, and documentation all agree.
-
-Use Gemini 3.1 Pro High with high effort for this pass. Execute immediately; do not wait for another turn.
+## Model
+Use Gemini 3.1 Pro High with high effort. Execute immediately.
