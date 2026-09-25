@@ -18,3 +18,30 @@ MI-V6 is successfully reconciled. Git log verified that `e5ee32c` implemented th
 
 ## Required output
 Record actual starting state, reconciliation findings, protocol changes, MI-V6 evidence findings, model/configuration, verification, exact final SHA, remaining limitations and next state.
+
+## MI-STAGE-7-DEPTH-MOTION-LAYER — CHATGPT→AGY #001
+
+STATUS: READY_FOR_EXECUTION
+BRANCH: member-intelligence-v3
+WORK_SPLIT: CHATGPT_AGY_PARALLEL_WORK_PROTOCOL.md v1.0
+
+ChatGPT has prepared the Stage 7 task packet and permanent capability-based parallel workflow.
+
+Task packet:
+docs/reference/STAGE_7_PARALLEL_WORK_PACKET.md
+
+ChatGPT lane:
+- product/design/architecture;
+- depth/motion tokens;
+- accessibility and performance constraints;
+- acceptance and verification plan;
+- post-push review.
+
+Antigravity lane:
+- visible implementation;
+- tests/build/device;
+- screenshots;
+- documentation;
+- commit/push.
+
+Next action: visible Pull and Run.
