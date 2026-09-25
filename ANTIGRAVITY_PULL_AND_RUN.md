@@ -1,23 +1,117 @@
-# Antigravity Pull & Run Protocol
+# BAD GYM — "Pull and Run" Execution Contract
 
-When the user says **Pull and Run**, execute this protocol in the CURRENT repository.
+When the user types **Pull and Run** in Google Antigravity, execute this protocol visibly in the current Antigravity GUI session.
 
-1. Sync the current authorized branch from origin with fetch + fast-forward pull. Never reset, force-push, discard unrelated work, or overwrite dirty user work.
+## 1. Synchronize
+- Identify the currently authorized branch from CURRENT_TASK.md.
+- Fetch and fast-forward pull the branch.
+- Do not reset, force-push, discard unrelated work, or overwrite dirty user changes.
 
-2. Read AGENTS.md, .agents/rules/00-badgym-github-loop.md if present, CURRENT_TASK.md, STATUS.md, HANDOFF_STRATEGY.md if present, HANDOFF_STATUS.md, docs/reference/MI_V5_DESIGN_COMMUNICATION.md if present, CHATGPT_ANTIGRAVITY_PROTOCOL.md, and ENGINEERING_SKILLS.md.
+## 2. Read the complete context
+Before implementation, read:
+- AGENTS.md
+- .agents/rules/00-badgym-github-loop.md, if present
+- CURRENT_TASK.md
+- STATUS.md
+- HANDOFF_STATUS.md
+- CHATGPT_HANDOFF.md
+- CHATGPT_ANTIGRAVITY_PROTOCOL.md
+- AI_COLLABORATION_PROTOCOL.md
+- AI_COLLABORATION_LOG.md
+- MODEL_PERFORMANCE_LOG.md
+- USER_FEEDBACK.md
+- ENGINEERING_SKILLS.md
+- HANDOFF_STRATEGY.md, if present
+- docs/reference/MI_V5_DESIGN_COMMUNICATION.md, if present
+- all task-specific files named by CURRENT_TASK.md
 
-3. Treat CURRENT_TASK.md as the executable authorization. Do not invent unrelated work.
+Also inspect recent Git history and the relevant source code before editing.
 
-4. Work visibly in this Antigravity session. Do NOT launch hidden/background AGY supervisors, duplicate agents, or bridge scripts unless the user explicitly asks.
+## 3. Authorization
+CURRENT_TASK.md is the executable authorization.
 
-5. Before coding, briefly establish current behavior, user problem, constraints, intended solution, affected files, and acceptance criteria. Then implement; do not stop at a proposal.
+If STATUS is PAUSED_MANUAL or otherwise not authorized for execution, do not invent work. Tell the user in the visible Antigravity session that authorization is paused and stop.
 
-6. Apply relevant skills from ENGINEERING_SKILLS.md: product analysis, UI/UX, accessibility, frontend/mobile, backend/API, database, security, testing/QA, performance, DevOps/Git, documentation, and prompt/context engineering. Use only what the task needs.
+If a new task is authorized, execute only that task.
 
-7. Verify with appropriate tests, lint/static analysis, build, and runtime/device/browser checks. For UI work capture required screenshots/evidence.
+## 4. Reason before coding
+Write or visibly establish:
+- goal;
+- current behavior;
+- actual defect;
+- root cause;
+- intended solution;
+- affected files;
+- acceptance criteria;
+- verification plan.
 
-8. Before finishing, update STATUS.md, HANDOFF_STATUS.md, and CHATGPT_HANDOFF.md. Record what changed, why, decisions, files, tests/build/runtime evidence, limitations, screenshots, exact commit SHA, and recommended next task.
+Do not blindly implement a previous model's suggestion.
 
-9. Review git diff, commit only intended changes, and push to the authorized branch. Never claim completion without verification.
+## 5. Full engineering skill usage
+Apply every skill relevant to the task from ENGINEERING_SKILLS.md, including product reasoning, UI/UX, 2D/3D visual design, motion/animation, Android/Compose, frontend, backend/API, database, security, accessibility, testing, performance, DevOps, Git, and visual QA.
 
-Short trigger: Pull and Run
+Use only the skills relevant to the actual task; do not add unnecessary technology.
+
+## 6. Visible execution
+All implementation must occur in the active Antigravity GUI session.
+
+Do not launch:
+- hidden/background AGY supervisors;
+- duplicate autonomous agents;
+- detached model runners;
+- repository bridge scripts;
+unless the user explicitly asks for such execution.
+
+## 7. Verification
+Verify at the appropriate level:
+- static/code inspection;
+- unit/integration/UI tests;
+- build;
+- runtime;
+- device/browser;
+- screenshots/video;
+- visual measurements;
+- accessibility/contrast;
+- performance where relevant.
+
+Do not call a visual task complete from build success alone.
+
+## 8. Write back to GitHub
+Before finishing, update:
+- STATUS.md
+- HANDOFF_STATUS.md
+- CHATGPT_HANDOFF.md
+- AI_COLLABORATION_LOG.md
+- MODEL_PERFORMANCE_LOG.md
+- USER_FEEDBACK.md when explicit feedback is available
+
+Record:
+- what was requested;
+- what was found;
+- what was changed;
+- why;
+- model/configuration;
+- files;
+- tests/build/runtime;
+- screenshots/evidence;
+- failures/deviations;
+- risks;
+- exact commit SHA;
+- next task.
+
+## 9. Commit and push
+- Review git diff.
+- Commit only intended work.
+- Push the authorized branch.
+- Report the exact commit SHA in the visible session and in CHATGPT_HANDOFF.md.
+
+## 10. Finish with a ChatGPT-readable handoff
+The final visible message should summarize:
+- task;
+- result;
+- evidence;
+- known limitations;
+- exact SHA;
+- recommended next task.
+
+The repository is the communication channel. ChatGPT will read the pushed artifacts before creating the next task.
