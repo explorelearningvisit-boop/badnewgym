@@ -41,3 +41,11 @@ Goal: merge the strongest visual ideas from the three concept boards into the ex
 Implemented: `CompactIntelligenceStrip`, truthful metric fallbacks, two-line member-name support, and menu-specific signal routing.
 
 Next verification: GitHub Actions `assembleDebug`, then physical Redmi runtime screenshot review. Do not claim device verification until evidence exists.
+
+
+## Stage 7.7 — Event Card + Gym Capability Engine
+- Specification: `docs/reference/STAGE_7_7_EVENT_CARD_AND_GYM_CAPABILITY_ENGINE.md`
+- Scope: typed event taxonomy, reusable event card archetypes, priority routing, capability enable/disable, plan entitlements, custom services, expandable sections, NOW/PAST/FUTURE.
+- Execution owner: Google Antigravity (visible GUI/runtime).
+- ChatGPT role: product architecture/specification and post-push review; production source must not be edited simultaneously.
+- Required evidence: representative event screenshots, menu routing, scrolling, CTA visibility, build/tests, exact pushed SHA.
