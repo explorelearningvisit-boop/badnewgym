@@ -2,30 +2,15 @@
 
 STATUS: READY_FOR_EXECUTION
 BRANCH: member-intelligence-v3
-CURRENT AUTHORIZATION: MI-STAGE-7.1-VISUAL-DATA-REDESIGN
+CURRENT AUTHORIZATION: MI-STAGE-7.2-FINAL-PRODUCTION-INTELLIGENCE
 EXECUTOR: Google Antigravity GUI — visible execution
 WORK_SPLIT: CHATGPT_AGY_PARALLEL_WORK_PROTOCOL.md v1.0
 
-## Goal
+Authoritative packet: docs/reference/STAGE_7_2_FINAL_PRODUCTION_INTELLIGENCE_PACKET.md
+Previous verified implementation: 0c6c1d2e74a2d05cbfcd9b59695c24204bed1ded
 
-Increase usable card height by approximately 20dp and redesign all 11 Member Intelligence menu panels into visual-first, glanceable data views with no hidden essential content.
+ChatGPT lane: product/design/architecture/specification/acceptance/verification/post-push review.
+Antigravity lane: repository inspection, production implementation, tests, build, device, screenshots, documentation, commit/push.
 
-## Packet
-
-docs/reference/STAGE_7_1_VISUAL_DATA_HEIGHT_PACKET.md
-
-## ChatGPT lane
-
-Product/design/architecture/specification/acceptance/verification planning/review.
-
-## Antigravity lane
-
-Implementation/tests/build/device/screenshots/documentation/commit/push.
-
-## Merge gate
-
-Antigravity pushes verified implementation; ChatGPT reviews remote SHA and complete changed-file inventory. Any defect becomes an explicit corrective task.
-
-## Safety
-
-No fake backend data, no new navigation architecture, no hidden agents, no force-push/reset/discard, no Stage 8 work.
+Merge gate: ChatGPT reviews remote SHA and complete changed-file inventory after Antigravity push.
+Safety: no fake data, no Stage 8, no force-push/reset/discard, no hidden agents.
