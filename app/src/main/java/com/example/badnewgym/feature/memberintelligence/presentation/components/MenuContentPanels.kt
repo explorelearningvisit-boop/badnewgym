@@ -218,75 +218,37 @@ fun AttendancePanel(
                             Text("Tap for Audit Detail", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                         }
 
-                        val sampleEvents = listOf(
-                            TemporalEventRecord(
-                                eventId = "att_01",
-                                memberId = snapshot.id,
-                                eventType = EventType.CHECK_IN,
-                                occurredAt = System.currentTimeMillis() - 7200000L,
-                                source = EventSource.GATE,
-                                sourceMetadata = SourceVerificationMetadata("FACE", "Turnstile Gate 1", "CAM_ENTRANCE_01", "SUCCESS", 95L, 0.992f),
-                                title = "Check-in • FACE Verification",
-                                subtitle = "Gate 1 • Turnstile 1 • Latency: 95ms"
-                            ),
-                            TemporalEventRecord(
-                                eventId = "att_02",
-                                memberId = snapshot.id,
-                                eventType = EventType.CHECK_OUT,
-                                occurredAt = System.currentTimeMillis() - 3600000L,
-                                source = EventSource.GATE,
-                                sourceMetadata = SourceVerificationMetadata("FACE", "Turnstile Gate 1 Exit", "CAM_EXIT_01", "SUCCESS", 102L, 0.988f),
-                                title = "Check-out • FACE Verification",
-                                subtitle = "Session Duration: 60 mins • Gate 1 Exit"
-                            ),
-                            TemporalEventRecord(
-                                eventId = "att_03",
-                                memberId = snapshot.id,
-                                eventType = EventType.CHECK_IN,
-                                occurredAt = System.currentTimeMillis() - 93600000L,
-                                source = EventSource.GATE,
-                                sourceMetadata = SourceVerificationMetadata("QR", "Front Desk Scanner", "QR_RECEPTION", "SUCCESS", 45L, 1.0f),
-                                title = "Check-in • QR Code Scan",
-                                subtitle = "Reception Desk • Latency: 45ms"
-                            )
-                        )
-
-                        sampleEvents.forEach { ev ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(colors.surfaceMuted.copy(alpha = 0.5f))
-                                    .border(1.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                                    .clickable { onEventClick(ev) }
-                                    .padding(horizontal = 10.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                        val accessEvents = snapshot.recentEvents.filter { it.eventType == EventType.CHECK_IN || it.eventType == EventType.CHECK_OUT }
+                        if (accessEvents.isEmpty()) {
+                            EmptyStateRow("No access events recorded for this range.")
+                        } else {
+                            accessEvents.take(6).forEach { event ->
                                 Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                                        .background(colors.surfaceMuted.copy(alpha = 0.5f))
+                                        .border(1.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            onEventClick(TemporalEventRecord(
+                                                eventId = event.id, memberId = event.memberId, eventType = event.eventType,
+                                                occurredAt = event.occurredAt, source = event.source,
+                                                title = event.eventType.displayLabel(),
+                                                subtitle = event.metadata.values.joinToString(" • ").ifBlank { null }
+                                            ))
+                                        }
+                                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(28.dp)
-                                            .clip(CircleShape)
-                                            .background(if (ev.eventType == EventType.CHECK_IN) colors.success.copy(alpha = 0.15f) else colors.textMuted.copy(alpha = 0.15f)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            if (ev.eventType == EventType.CHECK_IN) Icons.AutoMirrored.Rounded.Login else Icons.AutoMirrored.Rounded.Logout,
-                                            null,
-                                            tint = if (ev.eventType == EventType.CHECK_IN) colors.success else colors.textMuted,
-                                            modifier = Modifier.size(15.dp)
-                                        )
+                                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        Box(Modifier.size(28.dp).clip(CircleShape).background(colors.accent.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+                                            Icon(if (event.eventType == EventType.CHECK_IN) Icons.AutoMirrored.Rounded.Login else Icons.AutoMirrored.Rounded.Logout, null, tint = colors.accent, modifier = Modifier.size(15.dp))
+                                        }
+                                        Column(Modifier.weight(1f)) {
+                                            Text(event.eventType.displayLabel(), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                            Text(event.metadata.values.joinToString(" • ").ifBlank { "Access event recorded" }, color = colors.textMuted, fontSize = 10.sp)
+                                        }
                                     }
-                                    Column {
-                                        Text(ev.title, color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        Text(ev.subtitle ?: "", color = colors.textMuted, fontSize = 10.sp)
-                                    }
+                                    Text(SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(event.occurredAt)), color = colors.textSecondary, fontSize = 10.sp)
                                 }
-                                Text(ev.formatTimeOnly(withSeconds = true), color = colors.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -406,89 +368,32 @@ fun PaymentPanel(
                     Text("Tap for Receipt", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                 }
 
-                val sampleTransactions = listOf(
-                    TemporalEventRecord(
-                        eventId = "pay_01",
-                        memberId = snapshot.id,
-                        eventType = EventType.PAYMENT,
-                        occurredAt = System.currentTimeMillis() - (12L * 86400000L),
-                        source = EventSource.PAYMENT,
-                        status = "SUCCESS",
-                        title = "Quarterly Elite Renewal",
-                        subtitle = "Paid via Razorpay UPI AutoPay",
-                        amount = 15000.0,
-                        invoiceNumber = "INV-2026-0902",
-                        referenceId = "TXN_RZP_98231908",
-                        details = mapOf(
-                            "Plan" to "Quarterly Elite",
-                            "GST No." to "27AAAAA0000A1Z5",
-                            "Tax Paid" to "₹2,288.14",
-                            "Method" to "UPI AutoPay"
-                        )
-                    ),
-                    TemporalEventRecord(
-                        eventId = "pay_02",
-                        memberId = snapshot.id,
-                        eventType = if (isOverdue) EventType.PAYMENT_FAILED else EventType.PAYMENT,
-                        occurredAt = System.currentTimeMillis() - (45L * 86400000L),
-                        source = EventSource.PAYMENT,
-                        status = if (isOverdue) "FAILED" else "SUCCESS",
-                        title = if (isOverdue) "Monthly Locker Fee (Overdue)" else "PT 10-Session Package",
-                        subtitle = if (isOverdue) "Bank Auto-Debit Failed" else "Paid via HDFC NetBanking",
-                        amount = if (isOverdue) 3500.0 else 8000.0,
-                        invoiceNumber = "INV-2026-0814",
-                        referenceId = "TXN_HDFC_4719280",
-                        details = mapOf(
-                            "Item" to if (isOverdue) "Locker Rental" else "10 PT Sessions",
-                            "Bank Ref" to "HDFC889921",
-                            "Status" to if (isOverdue) "Declined (Insufficient Funds)" else "Cleared"
-                        )
-                    )
-                )
-
-                sampleTransactions.forEach { txn ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(colors.surfaceMuted.copy(alpha = 0.5f))
-                            .border(1.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                            .clickable { onEventClick(txn) }
-                            .padding(horizontal = 10.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                val transactions = pay?.history.orEmpty()
+                if (transactions.isEmpty()) {
+                    EmptyStateRow("No payment transactions recorded for this range.")
+                } else {
+                    transactions.take(5).forEach { txn ->
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                                .background(colors.surfaceMuted.copy(alpha = 0.5f))
+                                .border(1.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(CircleShape)
-                                    .background(if (txn.status == "SUCCESS") colors.success.copy(alpha = 0.15f) else colors.danger.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Rounded.ReceiptLong,
-                                    null,
-                                    tint = if (txn.status == "SUCCESS") colors.success else colors.danger,
-                                    modifier = Modifier.size(15.dp)
-                                )
+                            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Box(Modifier.size(28.dp).clip(CircleShape).background(colors.success.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Rounded.ReceiptLong, null, tint = colors.success, modifier = Modifier.size(15.dp))
+                                }
+                                Column(Modifier.weight(1f)) {
+                                    Text(txn.purpose ?: "Payment", color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(listOfNotNull(txn.method, txn.invoiceId).joinToString(" • "), color = colors.textMuted, fontSize = 10.sp)
+                                }
                             }
-                            Column {
-                                Text(txn.title, color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                Text(txn.subtitle ?: "", color = colors.textMuted, fontSize = 10.sp)
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(formatter.format(txn.amount), color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                                Text(formatDate(txn.occurredAt), color = colors.textMuted, fontSize = 9.5.sp)
                             }
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                formatter.format(txn.amount ?: 0.0),
-                                color = if (txn.status == "SUCCESS") colors.textPrimary else colors.danger,
-                                fontSize = 12.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(txn.formatTimestamp(withSeconds = false), color = colors.textMuted, fontSize = 9.5.sp)
                         }
                     }
                 }
@@ -574,71 +479,36 @@ fun WorkoutPanel(
                     Text("Tap for Sets & Load", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                 }
 
-                val sessions = listOf(
-                    TemporalEventRecord(
-                        eventId = "wo_01",
-                        memberId = snapshot.id,
-                        eventType = EventType.WORKOUT,
-                        occurredAt = System.currentTimeMillis() - 86400000L,
-                        title = "Push Day A — Chest & Triceps",
-                        subtitle = "6 exercises • 18 sets • 62 mins",
-                        durationMinutes = 62,
-                        details = mapOf(
-                            "Flat DB Bench Press" to "4 sets x 10 reps @ 32kg",
-                            "Incline Barbell Press" to "4 sets x 8 reps @ 75kg",
-                            "Lateral Raises" to "4 sets x 15 reps @ 12kg",
-                            "Tricep Rope Pushdown" to "3 sets x 12 reps @ 30kg",
-                            "Overhead DB Extension" to "3 sets x 12 reps @ 24kg"
-                        )
-                    ),
-                    TemporalEventRecord(
-                        eventId = "wo_02",
-                        memberId = snapshot.id,
-                        eventType = EventType.WORKOUT,
-                        occurredAt = System.currentTimeMillis() - (3L * 86400000L),
-                        title = "Pull Day B — Back & Biceps",
-                        subtitle = "5 exercises • 16 sets • 55 mins",
-                        durationMinutes = 55,
-                        details = mapOf(
-                            "Conventional Deadlift" to "4 sets x 5 reps @ 150kg",
-                            "Weighted Pull-ups" to "4 sets x 6 reps @ +15kg",
-                            "Chest Supported Rows" to "4 sets x 8 reps @ 80kg",
-                            "Incline DB Curls" to "4 sets x 10 reps @ 16kg"
-                        )
-                    )
-                )
-
-                sessions.forEach { s ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(colors.surfaceMuted.copy(alpha = 0.5f))
-                            .border(1.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                            .clickable { onEventClick(s) }
-                            .padding(horizontal = 10.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                if (workoutEvents.isEmpty()) {
+                    EmptyStateRow("No workout sessions recorded for this range.")
+                } else {
+                    workoutEvents.take(5).forEach { event ->
+                        val detail = event.metadata.entries.joinToString(" • ") { entry -> entry.key + ": " + entry.value }
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                                .background(colors.surfaceMuted.copy(alpha = 0.5f))
+                                .border(1.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                .clickable {
+                                    onEventClick(TemporalEventRecord(
+                                        eventId = event.id, memberId = event.memberId, eventType = event.eventType,
+                                        occurredAt = event.occurredAt, source = event.source,
+                                        title = event.eventType.displayLabel(), subtitle = detail.ifBlank { null }
+                                    ))
+                                }
+                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(CircleShape)
-                                    .background(colors.accent.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(Icons.Rounded.FitnessCenter, null, tint = colors.accent, modifier = Modifier.size(15.dp))
+                            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Box(Modifier.size(28.dp).clip(CircleShape).background(colors.accent.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Rounded.FitnessCenter, null, tint = colors.accent, modifier = Modifier.size(15.dp))
+                                }
+                                Column(Modifier.weight(1f)) {
+                                    Text(event.eventType.displayLabel(), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(detail.ifBlank { "Recorded workout event" }, color = colors.textMuted, fontSize = 10.sp)
+                                }
                             }
-                            Column {
-                                Text(s.title, color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                Text(s.subtitle ?: "", color = colors.textMuted, fontSize = 10.sp)
-                            }
+                            Text(formatDate(event.occurredAt), color = colors.textSecondary, fontSize = 10.sp)
                         }
-                        Text(formatDate(s.occurredAt), color = colors.textSecondary, fontSize = 11.sp)
                     }
                 }
             }
@@ -697,94 +567,44 @@ fun HistoryPanel(
                     Text("Tap Event for Audit", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                 }
 
-                val auditEvents = listOf(
-                    TemporalEventRecord(
-                        eventId = "hist_01",
-                        memberId = snapshot.id,
-                        eventType = EventType.CHECK_IN,
-                        occurredAt = System.currentTimeMillis() - 7200000L,
-                        source = EventSource.GATE,
-                        sourceMetadata = SourceVerificationMetadata("FACE", "Turnstile Gate 1", "CAM_01", "SUCCESS", 95L, 0.99f),
-                        title = "Check-in • Face Verification",
-                        subtitle = "Gate 1 • 95ms verification latency"
-                    ),
-                    TemporalEventRecord(
-                        eventId = "hist_02",
-                        memberId = snapshot.id,
-                        eventType = EventType.WORKOUT,
-                        occurredAt = System.currentTimeMillis() - 5400000L,
-                        source = EventSource.MEMBER,
-                        title = "Push Day A Workout Completed",
-                        subtitle = "Logged via BAD GYM App • 62 mins"
-                    ),
-                    TemporalEventRecord(
-                        eventId = "hist_03",
-                        memberId = snapshot.id,
-                        eventType = EventType.TRAINER_SESSION,
-                        occurredAt = System.currentTimeMillis() - 86400000L,
-                        source = EventSource.TRAINER,
-                        actorName = "Coach Vikram",
-                        title = "PT Session with Coach Vikram",
-                        subtitle = "Strength Coaching & Form Correction"
-                    ),
-                    TemporalEventRecord(
-                        eventId = "hist_04",
-                        memberId = snapshot.id,
-                        eventType = EventType.PAYMENT,
-                        occurredAt = System.currentTimeMillis() - (12L * 86400000L),
-                        source = EventSource.PAYMENT,
-                        amount = 15000.0,
-                        invoiceNumber = "INV-2026-0902",
-                        title = "Quarterly Elite Plan Renewal",
-                        subtitle = "₹15,000 via Razorpay UPI AutoPay"
-                    )
-                )
-
-                auditEvents.forEach { ev ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(colors.surfaceMuted.copy(alpha = 0.5f))
-                            .border(1.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                            .clickable { onEventClick(ev) }
-                            .padding(horizontal = 10.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                val auditEvents = snapshot.recentEvents.filter { event ->
+                    selectedFilter == "All" || when (selectedFilter) {
+                        "Attendance" -> event.eventType == EventType.CHECK_IN || event.eventType == EventType.CHECK_OUT
+                        "Payment" -> event.eventType == EventType.PAYMENT || event.eventType == EventType.PAYMENT_FAILED || event.eventType == EventType.RENEWAL
+                        "Workout" -> event.eventType == EventType.WORKOUT
+                        "Trainer" -> event.eventType == EventType.TRAINER_SESSION
+                        "Issues" -> event.eventType == EventType.COMPLAINT || event.eventType == EventType.MAINTENANCE
+                        else -> true
+                    }
+                }
+                if (auditEvents.isEmpty()) {
+                    EmptyStateRow("No matching events are recorded for this member.")
+                } else {
+                    auditEvents.take(8).forEach { event ->
+                        val temporal = TemporalEventRecord(
+                            eventId = event.id, memberId = event.memberId, eventType = event.eventType,
+                            occurredAt = event.occurredAt, source = event.source,
+                            title = event.eventType.displayLabel(),
+                            subtitle = event.metadata.entries.joinToString(" • ") { entry -> entry.key + ": " + entry.value }.ifBlank { null }
+                        )
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                                .background(colors.surfaceMuted.copy(alpha = 0.5f))
+                                .border(1.dp, colors.border.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                .clickable { onEventClick(temporal) }
+                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(CircleShape)
-                                    .background(colors.accent.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = when (ev.eventType) {
-                                        EventType.CHECK_IN -> Icons.AutoMirrored.Rounded.Login
-                                        EventType.CHECK_OUT -> Icons.AutoMirrored.Rounded.Logout
-                                        EventType.PAYMENT -> Icons.Rounded.ReceiptLong
-                                        EventType.WORKOUT -> Icons.Rounded.FitnessCenter
-                                        EventType.TRAINER_SESSION -> Icons.Rounded.SportsMartialArts
-                                        else -> Icons.Rounded.Event
-                                    },
-                                    contentDescription = null,
-                                    tint = colors.accent,
-                                    modifier = Modifier.size(15.dp)
-                                )
+                            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Box(Modifier.size(28.dp).clip(CircleShape).background(colors.accent.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Rounded.Event, null, tint = colors.accent, modifier = Modifier.size(15.dp))
+                                }
+                                Column(Modifier.weight(1f)) {
+                                    Text(event.eventType.displayLabel(), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(event.metadata.values.joinToString(" • ").ifBlank { "Recorded event" }, color = colors.textMuted, fontSize = 10.sp)
+                                }
                             }
-                            Column {
-                                Text(ev.title, color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                Text(ev.subtitle ?: "", color = colors.textMuted, fontSize = 10.sp)
-                            }
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(ev.formatTimestamp(withSeconds = false), color = colors.textSecondary, fontSize = 10.sp)
-                            Text(ev.eventType.displayLabel(), color = colors.accent, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            Text(formatDate(event.occurredAt), color = colors.textSecondary, fontSize = 10.sp)
                         }
                     }
                 }
