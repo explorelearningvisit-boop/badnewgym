@@ -39,6 +39,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnaps
 @Composable
 fun CompactIntelligenceStrip(
     snapshot: MemberSnapshot,
+    activeMenu: MenuType,
     onAttendanceClick: () -> Unit = {},
     onTrainerClick: () -> Unit = {},
     onWorkoutClick: () -> Unit = {},
@@ -49,71 +50,91 @@ fun CompactIntelligenceStrip(
     val attendance = snapshot.attendance
     val trainer = snapshot.trainer
     val workout = snapshot.workout
-    val visits = attendance?.visits
-    val target = attendance?.target
-    val progress = if (visits != null && target != null && target > 0) {
-        (visits.toFloat() / target.toFloat()).coerceIn(0f, 1f)
-    } else 0f
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = tween(420),
-        label = "compact-intelligence-progress"
-    )
-    val sessionsLeft = trainer?.let { (it.sessionsTotal - it.sessionsUsed).coerceAtLeast(0) }
-    val weekly = attendance?.weeklyPattern?.map { it.coerceAtLeast(0) } ?: emptyList()
-    val maxWeekly = (weekly.maxOrNull() ?: 1).coerceAtLeast(1)
+    val payment = snapshot.payment
+
+    val cells: List<Triple<String, String, Color>> = when (activeMenu) {
+        MenuType.ATTENDANCE -> listOf(
+            Triple("VISITS", attendance?.visits?.toString() ?: "—", colors.accent),
+            Triple("TARGET", attendance?.target?.toString() ?: "—", colors.info),
+            Triple("AVG/WK", attendance?.avgVisitsPerWeek?.let { "%.1f".format(it) } ?: "—", colors.success),
+            Triple("STREAK", attendance?.streakDays?.let { "${it}d" } ?: "—", colors.warning)
+        )
+        MenuType.PLAN -> listOf(
+            Triple("DAYS", snapshot.membership?.daysRemaining?.toString() ?: "—", colors.accent),
+            Triple("STATUS", if (snapshot.membership?.isActive == true) "ACTIVE" else if (snapshot.membership != null) "EXPIRED" else "—", if (snapshot.membership?.isActive == true) colors.success else colors.danger),
+            Triple("RENEWALS", snapshot.membership?.renewalCount?.toString() ?: "—", colors.info),
+            Triple("TIER", snapshot.identity.tier.name, colors.warning)
+        )
+        MenuType.PAYMENT -> listOf(
+            Triple("DUE", payment?.totalOutstanding?.let(::formatCompactMoney) ?: "—", if ((payment?.totalOutstanding ?: 0.0) > 0) colors.danger else colors.success),
+            Triple("PAID", payment?.lifetimePaid?.let(::formatCompactMoney) ?: "—", colors.success),
+            Triple("OVERDUE", payment?.overdueDays?.let { "${it}d" } ?: "—", colors.warning),
+            Triple("METHOD", payment?.lastPaymentMethod ?: "—", colors.info)
+        )
+        MenuType.TRAINER -> listOf(
+            Triple("PT LEFT", trainer?.let { (it.sessionsTotal - it.sessionsUsed).coerceAtLeast(0).toString() } ?: "—", colors.accent),
+            Triple("NEXT", trainer?.nextSessionDate?.let(::formatShortDate) ?: "—", colors.info),
+            Triple("FOCUS", trainer?.focus ?: "—", colors.success),
+            Triple("RATING", trainer?.rating?.toString() ?: "—", colors.warning)
+        )
+        MenuType.WORKOUT -> listOf(
+            Triple("LAST", workout?.durationMinutes?.let { "${it}m" } ?: "—", colors.accent),
+            Triple("ROUTINE", workout?.currentRoutine ?: "—", colors.info),
+            Triple("CAL", workout?.calories?.toString() ?: "—", colors.warning),
+            Triple("DATE", workout?.lastWorkoutDate?.let(::formatShortDate) ?: "—", colors.success)
+        )
+        MenuType.SUPPLEMENTS -> listOf(
+            Triple("LAST BUY", snapshot.supplements?.lastPurchaseName ?: "—", colors.accent),
+            Triple("BRAND", snapshot.supplements?.brand ?: "—", colors.info),
+            Triple("DATE", snapshot.supplements?.lastPurchaseDate?.let(::formatShortDate) ?: "—", colors.success),
+            Triple("PRICE", snapshot.supplements?.lastPurchasePrice?.let(::formatCompactMoney) ?: "—", colors.warning)
+        )
+        MenuType.NUTRITION -> listOf(
+            Triple("PLAN", snapshot.nutrition?.planName ?: "—", colors.accent),
+            Triple("STATUS", if (snapshot.nutrition?.isSubscribed == true) "ACTIVE" else "—", colors.success),
+            Triple("RENEW", snapshot.nutrition?.renewalDate?.let(::formatShortDate) ?: "—", colors.info),
+            Triple("PRICE", snapshot.nutrition?.monthlyPrice?.let(::formatCompactMoney) ?: "—", colors.warning)
+        )
+        MenuType.SERVICES -> {
+            val services = snapshot.services.orEmpty()
+            listOf(
+                Triple("ACTIVE", services.count { it.isActive }.toString(), colors.success),
+                Triple("TOTAL", services.size.toString(), colors.info),
+                Triple("NEXT EXP", services.filter { it.isActive }.minByOrNull { it.expiryDate ?: Long.MAX_VALUE }?.expiryDate?.let(::formatShortDate) ?: "—", colors.warning),
+                Triple("VALUE", services.sumOf { it.price ?: 0.0 }.let(::formatCompactMoney), colors.accent)
+            )
+        }
+        MenuType.HISTORY -> listOf(
+            Triple("EVENTS", snapshot.recentEvents.size.toString(), colors.accent),
+            Triple("LAST", snapshot.recentEvents.firstOrNull()?.eventType?.displayLabel() ?: "—", colors.info),
+            Triple("ISSUES", snapshot.issues.size.toString(), colors.danger),
+            Triple("MEMBER", snapshot.identity.code ?: "—", colors.success)
+        )
+        MenuType.INSIGHT -> listOf(
+            Triple("SIGNALS", snapshot.issues.size.toString(), colors.accent),
+            Triple("CRITICAL", snapshot.issues.count { it.severity == IssueSeverity.CRITICAL }.toString(), colors.danger),
+            Triple("DUE", payment?.totalOutstanding?.let(::formatCompactMoney) ?: "—", colors.warning),
+            Triple("ATTEND", attendance?.visits?.let { "${it}/${attendance.target ?: "—"}" } ?: "—", colors.info)
+        )
+        MenuType.MORE -> listOf(
+            Triple("TIER", snapshot.identity.tier.name, colors.accent),
+            Triple("CODE", snapshot.identity.code ?: "—", colors.info),
+            Triple("SINCE", formatShortDate(snapshot.identity.memberSince), colors.success),
+            Triple("EVENTS", snapshot.recentEvents.size.toString(), colors.warning)
+        )
+        else -> emptyList()
+    }
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(58.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(
-                Brush.horizontalGradient(
-                    listOf(
-                        colors.surface.copy(alpha = 0.98f),
-                        colors.accentSoft.copy(alpha = 0.28f),
-                        colors.surface.copy(alpha = 0.98f)
-                    )
-                )
-            )
-            .border(1.dp, colors.border.copy(alpha = 0.82f), RoundedCornerShape(14.dp))
-            .padding(horizontal = 7.dp, vertical = 6.dp),
+        modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(14.dp))
+            .background(Brush.horizontalGradient(listOf(colors.surface.copy(alpha = 0.98f), colors.accentSoft.copy(alpha = 0.22f), colors.surface.copy(alpha = 0.98f))))
+            .border(1.dp, colors.border.copy(alpha = 0.82f), RoundedCornerShape(14.dp)).padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AttendanceMini(progress, visits, target, weekly, maxWeekly, onAttendanceClick)
-        FusionDivider()
-        FusionMetric(
-            icon = Icons.Rounded.FitnessCenter,
-            title = "PT",
-            value = sessionsLeft?.toString() ?: "—",
-            caption = if (sessionsLeft != null) "sessions left" else "not recorded",
-            accent = colors.accent,
-            onClick = onTrainerClick
-        )
-        FusionDivider()
-        FusionMetric(
-            icon = Icons.Rounded.CalendarMonth,
-            title = "WORKOUT",
-            value = workout?.durationMinutes?.let { it.toString() + "m" } ?: "—",
-            caption = "last recorded",
-            accent = colors.info,
-            onClick = onWorkoutClick
-        )
-        FusionDivider()
-        val due = snapshot.payment?.totalOutstanding
-        FusionMetric(
-            icon = Icons.Rounded.Payments,
-            title = "DUE",
-            value = due?.let { formatCompactMoney(it) } ?: "—",
-            caption = when {
-                due == null -> "not recorded"
-                due > 0 -> "action"
-                else -> "clear"
-            },
-            accent = if (due != null && due > 0) colors.warning else colors.success,
-            onClick = onPaymentClick
-        )
+        cells.forEachIndexed { index, cell ->
+            if (index > 0) FusionDivider()
+            FusionMetric(title = cell.first, value = cell.second, accent = cell.third)
+        }
     }
 }
 
@@ -124,7 +145,6 @@ private fun AttendanceMini(
     target: Int?,
     weekly: List<Int>,
     maxWeekly: Int,
-    onClick: () -> Unit
 ) {
     val colors = BADGymTheme.colors
     Row(
@@ -198,15 +218,10 @@ private fun RowScope.FusionMetric(
         modifier = Modifier
             .weight(1f)
             .clip(RoundedCornerShape(9.dp))
-            .clickable(onClick = onClick)
             .padding(horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = accent, modifier = Modifier.size(10.dp))
-            Spacer(Modifier.width(2.dp))
-            Text(title, color = colors.textMuted, fontSize = 6.5.sp, fontWeight = FontWeight.Black)
-        }
+        Text(title, color = accent, fontSize = 6.5.sp, fontWeight = FontWeight.Black, maxLines = 1)
         Text(value, color = colors.textPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.Black, maxLines = 1)
         Text(caption, color = colors.textMuted, fontSize = 6.5.sp, fontWeight = FontWeight.Medium, maxLines = 1)
     }
@@ -221,6 +236,8 @@ private fun FusionDivider() {
             .background(BADGymTheme.colors.border.copy(alpha = 0.55f))
     )
 }
+
+private fun formatShortDate(millis: Long): String = java.text.SimpleDateFormat("dd MMM", java.util.Locale.getDefault()).format(java.util.Date(millis))
 
 private fun formatCompactMoney(value: Double): String {
     val rounded = value.toLong().coerceAtLeast(0L)
