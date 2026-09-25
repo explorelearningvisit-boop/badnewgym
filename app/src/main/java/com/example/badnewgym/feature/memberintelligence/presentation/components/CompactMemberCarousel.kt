@@ -142,36 +142,49 @@ fun CompactMemberCarousel(
                 },
                 contentAlignment = Alignment.Center
             ) {
-                CompactMemberCard(
-                    snapshot = item.snapshot,
-                    currentEvent = item.currentEvent,
-                    theme = effectiveTheme,
-                    primarySignal = item.primarySignal,
-                    secondarySignals = item.secondarySignals,
-                    cta = item.cta,
-                    dimensions = dimensions,
-                    isSelected = isSelected,
-                    isDetail = isCardDetail,
-                    menus = menus,
-                    activeMenu = activeMenu,
-                    temporalRange = temporalRange,
-                    onRangeChange = onRangeChange,
-                    onEventClick = onEventClick,
-                    onMenuSelected = onMenuSelected,
-                    onCloseDetail = onCloseDetail,
-                    isReducedMotion = isReducedMotion,
-                    onClick = {
-                        if (!isDetailExpanded) {
+                if (isCardDetail) {
+                    CompactMemberCard(
+                        snapshot = item.snapshot,
+                        currentEvent = item.currentEvent,
+                        theme = effectiveTheme,
+                        primarySignal = item.primarySignal,
+                        secondarySignals = item.secondarySignals,
+                        cta = item.cta,
+                        dimensions = dimensions,
+                        isSelected = isSelected,
+                        isDetail = true,
+                        menus = menus,
+                        activeMenu = activeMenu,
+                        temporalRange = temporalRange,
+                        onRangeChange = onRangeChange,
+                        onEventClick = onEventClick,
+                        onMenuSelected = onMenuSelected,
+                        onCloseDetail = onCloseDetail,
+                        isReducedMotion = isReducedMotion,
+                        onClick = {
+                            if (index != selectedIndex) onMemberSelected(index)
+                        },
+                        onCtaClick = {
+                            item.cta?.let(onCta) ?: onMemberClick(index)
+                        }
+                    )
+                } else {
+                    AdvancedEventMemberCard(
+                        snapshot = item.snapshot,
+                        currentEvent = item.currentEvent,
+                        theme = effectiveTheme,
+                        cta = item.cta,
+                        dimensions = dimensions,
+                        isSelected = isSelected,
+                        onClick = {
                             onMemberSelected(index)
                             onMemberClick(index)
-                        } else if (index != selectedIndex) {
-                            onMemberSelected(index)
+                        },
+                        onCtaClick = {
+                            item.cta?.let(onCta) ?: onMemberClick(index)
                         }
-                    },
-                    onCtaClick = {
-                        item.cta?.let(onCta) ?: onMemberClick(index)
-                    }
-                )
+                    )
+                }
             }
         }
     }
