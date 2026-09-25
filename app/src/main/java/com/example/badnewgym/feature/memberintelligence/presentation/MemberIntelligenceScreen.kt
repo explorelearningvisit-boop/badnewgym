@@ -135,7 +135,7 @@ private fun BrowseMemberIntelligenceSurface(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(colors.background, colors.surfaceMuted.copy(alpha = 0.62f), colors.background)))
+                .background(colors.background)
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
