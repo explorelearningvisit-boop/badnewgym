@@ -1,21 +1,17 @@
 # BAD GYM — Active Session Context
 
-- TASK_ID: PROTOCOL-ALL-IN-ONE-PULL-RUN-RECONCILIATION
+- TASK_ID: MI-STAGE-6-DEEP-MENUS-PRODUCTION
 - BRANCH: member-intelligence-v3
-- CONTEXT_VERSION: 3
-- STATUS: COMPLETED
-- Protocol: MASTER_AI_EXECUTION_CONTRACT.md v1.0
+- CONTEXT_VERSION: 4
+- STATUS: READY_FOR_EXECUTION
 - Execution: visible Google Antigravity GUI only
 - Autonomous/headless bridge: disabled
 
 ## Current checkpoint
-Install/reconcile the permanent all-in-one Pull and Run contract. Do not implement new product scope.
-
-## Known reconciliation issue
-MI-V6 documentation has been successfully reconciled. Git evidence confirmed commit e5ee32c implemented MI-V6. Stale documentation is cleared.
+MI-V6 and the permanent Pull and Run contract are reconciled. Next product stage is Stage 6: deep menus and production interaction states.
 
 ## Reuse
-On subsequent commands validate branch, HEAD, worktree, task and relevant file SHAs. Reuse this checkpoint when valid and read only deltas.
+Validate branch/HEAD/worktree/task first. Reuse unchanged MI-V6/theme context and load only Stage 6 deltas and relevant menu/navigation source.
 
 ## Stop/Resume
-Stop saves the exact continuation point here. Resume validates and continues from it.
+Stop saves exact continuation point here. Resume validates and continues from it.
