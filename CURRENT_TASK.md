@@ -1,5 +1,13 @@
 # BAD GYM — Current Task
 
+## ACTIVE ANTIGRAVITY EXECUTION PACKET
+- Task: Stage 7.6 Production Visual QA & Finalization
+- Prompt: `docs/reference/AGY_STAGE_7_6_PRODUCTION_VISUAL_QA_PROMPT.md`
+- Execution owner: Google Antigravity (visible GUI/runtime)
+- ChatGPT role: review the pushed result after Antigravity verification; do not edit production source during this execution phase.
+- Mandatory: screenshot every Member Intelligence menu, inspect vertical/horizontal scrolling, fix clipped CTA, remove repetitive information, prioritize menu-specific data, verify build/runtime, push exact SHA.
+
+
 STATUS: COMPLETED_BY_CHATGPT_DIRECT_GITHUB_IMPLEMENTATION
 TASK_ID: MI-STAGE-7.5-VISUAL-ENTERTAINMENT-ENERGY-REDESIGN
 BRANCH: member-intelligence-v3
