@@ -103,3 +103,25 @@ Do not delete previous entries. Append new entries. This is a historical reasoni
 #### Outcome
 - Status: READY_FOR_EXECUTION
 - Next action: user triggers Pull and Run.
+
+### MI-STAGE-7.1-VISUAL-DATA-REDESIGN — ChatGPT→AGY #001
+- Date: 2026-09-25
+- ChatGPT task SHA: cafe66d2b865229feda30e7cd7d4dba9479447ef
+- Antigravity implementation SHA: pending
+
+#### ChatGPT analysis
+- User goal: add approximately 20dp card height and redesign every menu into visual/pictorial, glanceable data views so essential content is not hidden.
+- Current problem: current detail panels are text-heavy InfoCard/KeyValue layouts and bottom content can be visually constrained.
+- Proposed solution: centralize responsive height tokens and convert menu presentation to reusable visual-data primitives using real MemberSnapshot/domain data.
+- Non-negotiables: no fake data, no Stage 8, preserve Stage 6/7 behavior, all 8 themes, no hidden essential content.
+- Acceptance criteria: tests/build/device runtime, all 11 menus, all 8 themes, screenshots, documentation, commit/push, remote verification.
+
+#### Antigravity analysis
+- Pending visible Pull and Run.
+
+#### Review / reconciliation
+- Pending implementation evidence.
+
+#### Outcome
+- Status: READY_FOR_EXECUTION
+- Next action: user triggers Pull and Run.
