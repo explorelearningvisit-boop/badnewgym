@@ -111,7 +111,7 @@ fun CompactIntelligenceStrip(
                 due > 0 -> "action"
                 else -> "clear"
             },
-            accent = if (due != null && due > 0) colors.error else colors.success,
+            accent = if (due != null && due > 0) colors.warning else colors.success,
             onClick = onPaymentClick
         )
     }
@@ -173,7 +173,7 @@ private fun AttendanceMini(
                         Box(
                             Modifier
                                 .weight(1f)
-                                .fillMaxHeight((value.toFloat() / maxWeekly).coerceIn(0.12f, 1f))
+                                .fillMaxHeight(fraction = (value.toFloat() / maxWeekly).coerceIn(0.12f, 1f))
                                 .clip(RoundedCornerShape(2.dp))
                                 .background(colors.accent.copy(alpha = 0.72f))
                         )
@@ -185,7 +185,7 @@ private fun AttendanceMini(
 }
 
 @Composable
-private fun FusionMetric(
+private fun RowScope.FusionMetric(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     value: String,
