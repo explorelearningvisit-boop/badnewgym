@@ -2,44 +2,64 @@
 
 STATUS: READY_FOR_EXECUTION
 BRANCH: member-intelligence-v3
-CURRENT AUTHORIZATION: MI-V5-DISTANCE-READABILITY-FINAL-PRODUCTION
-EXECUTOR: Google Antigravity on the user's laptop
+CURRENT AUTHORIZATION: MI-V6-MEMBER-INTELLIGENCE-UX-THEME-REBUILD
+EXECUTOR: Google Antigravity
 
-## User-approved direction
+## Design review decision
 
-The currently preferred bounded detail card is now the desired DEFAULT browse card.
+The previous MI-V5 distance-readability pass is technically complete but visually rejected by the user.
 
-Target:
-- Default browse: ~312dp × 406dp
-- Expanded detail: ~340dp × 443dp
-- Same aspect ratio
-- Bounded, never full-screen
-- Visible adjacent-card side peek
+Primary defect:
+The eight themes currently feel like unrelated color skins rather than one coherent BAD GYM design system. Some component/menu colors also fight the selected theme and create same-hue or opposing combinations.
 
-The owner will place the phone on a desk and observe member activity from a distance. The card therefore prioritizes glanceable typography and high contrast over dense information.
+This stage is a design-system correction.
 
-## Required visual hierarchy
+## Non-negotiables
 
-EVENT → MEMBER NAME → TIME → MEMBERSHIP/STATE → PRIMARY SIGNAL → KEY METRICS → CTA
+- Keep all 8 themes.
+- Keep the shared information architecture.
+- Keep default browse approximately 312 × 406dp.
+- Keep bounded detail approximately 340 × 443dp.
+- Keep adjacent card peek.
+- Keep automatic carousel.
+- Keep all 11 menus.
+- Do not introduce backend/fake data.
+- Do not turn the card into a mini-dashboard.
+- Do not use full-screen detail.
+- Do not solve theme differences by simply changing hue.
 
-Important text must be substantially larger than the previous implementation.
+## Desired visual principle
 
-## Contrast requirement
+One BAD GYM system, eight material personalities.
 
-Audit all 8 themes with centralized semantic contrast resolution. Accent colors must not become unreadable text on same-hue surfaces. Critical red states may use red accents, but primary text must remain high contrast.
+Theme changes:
+material + atmosphere + accent + decorative treatment.
 
-## Required reads
+Theme does NOT change:
+information hierarchy + semantics + readability + component geometry.
 
-- AGENTS.md
-- .agents/rules/00-badgym-github-loop.md
-- CURRENT_TASK.md
-- STATUS.md
-- HANDOFF_STRATEGY.md
-- HANDOFF_STATUS.md
-- docs/reference/MI_V5_DESIGN_COMMUNICATION.md
+## Priority
 
-## Execution
+P0: contrast/readability defects
+P0: theme coherence
+P1: card hierarchy and glanceability
+P1: menu consistency
+P2: decorative refinement
 
-Use Gemini 3.1 Pro High with high effort.
-Implement, test, build, install, physically verify where possible, capture evidence, commit and push.
-Only then mark CURRENT_TASK.md COMPLETED.
+## Required evidence
+
+Fresh device screenshots:
+- stage5_theme_ux_browse.png
+- stage5_theme_ux_detail.png
+- stage5_theme_ux_matrix.png
+
+Required report:
+- exact commit SHA
+- changed files
+- tests/build results
+- device and resolution
+- measured geometry
+- theme-by-theme visual notes
+- any deviations/blockers
+
+Do not claim visual completion from build success alone.
