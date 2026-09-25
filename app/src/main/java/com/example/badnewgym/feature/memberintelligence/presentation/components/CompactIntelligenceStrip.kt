@@ -42,6 +42,7 @@ fun CompactIntelligenceStrip(
     onAttendanceClick: () -> Unit = {},
     onTrainerClick: () -> Unit = {},
     onWorkoutClick: () -> Unit = {},
+    onPaymentClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val colors = BADGymTheme.colors
@@ -111,7 +112,7 @@ fun CompactIntelligenceStrip(
                 else -> "clear"
             },
             accent = if (due != null && due > 0) colors.error else colors.success,
-            onClick = onTrainerClick
+            onClick = onPaymentClick
         )
     }
 }
