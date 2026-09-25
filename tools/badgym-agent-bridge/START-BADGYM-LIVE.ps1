@@ -1,5 +1,8 @@
 $ErrorActionPreference = "Stop"
 
+Write-Host "BAD GYM autonomous AGY bridge is DISABLED. Use Google Antigravity GUI directly."
+exit 0
+
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $repoRoot
 
