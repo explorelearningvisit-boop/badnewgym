@@ -327,7 +327,7 @@ fun PaymentPanel(
                         )
                     }
                     if (isOverdue) {
-                        ActionChip("COLLECT ₹${totalDue.toInt()}", colors.danger) { onCtaClick() }
+                        ActionChip("COLLECT ₹${totalDue?.toInt() ?: 0}", colors.danger) { onCtaClick() }
                     } else {
                         BadgeChip("PAID UP", colors.success)
                     }
@@ -645,7 +645,7 @@ fun PlanPanel(
                         Text(planName, color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Text("$tierName Plan Tier", color = colors.textMuted, fontSize = 11.5.sp)
                     }
-                    BadgeChip(if (isActive) "ACTIVE" else "EXPIRED", if (isActive) colors.success else colors.danger)
+                    BadgeChip(if (isActive == true) "ACTIVE" else if (isActive == false) "EXPIRED" else "NOT RECORDED", if (isActive == true) colors.success else if (isActive == false) colors.danger else colors.textMuted)
                 }
 
                 HorizontalDivider(color = colors.divider)
@@ -660,11 +660,11 @@ fun PlanPanel(
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Days Remaining", color = colors.textMuted, fontSize = 10.sp)
-                        Text("$daysRemaining days", color = if (daysRemaining < 7) colors.danger else colors.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(daysRemaining?.let { "$it days" } ?: "—", color = if (daysRemaining != null && daysRemaining < 7) colors.danger else colors.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text("End Date", color = colors.textMuted, fontSize = 10.sp)
-                        Text(formatDate(expiryDate), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text(expiryDate?.let { formatDate(it) } ?: "—", color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
