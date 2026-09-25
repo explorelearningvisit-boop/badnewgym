@@ -234,14 +234,17 @@ fun CompactMemberCard(
                             onIdentityClick = onClick
                         )
 
-                        CompactIntelligenceStrip(
-                            snapshot = snapshot,
-                            onAttendanceClick = { onMenuSelected(MenuType.ATTENDANCE) },
-                            onTrainerClick = { onMenuSelected(MenuType.TRAINER) },
-                            onWorkoutClick = { onMenuSelected(MenuType.WORKOUT) },
-                            onPaymentClick = { onMenuSelected(MenuType.PAYMENT) },
-                            modifier = Modifier.padding(top = 2.dp)
-                        )
+                        if (activeMenu != MenuType.HOME) {
+                            CompactIntelligenceStrip(
+                                snapshot = snapshot,
+                                activeMenu = activeMenu,
+                                onAttendanceClick = { onMenuSelected(MenuType.ATTENDANCE) },
+                                onTrainerClick = { onMenuSelected(MenuType.TRAINER) },
+                                onWorkoutClick = { onMenuSelected(MenuType.WORKOUT) },
+                                onPaymentClick = { onMenuSelected(MenuType.PAYMENT) },
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
 
                         Spacer(Modifier.height(3.dp))
 
