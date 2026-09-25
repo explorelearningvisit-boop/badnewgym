@@ -49,3 +49,27 @@ Next verification: GitHub Actions `assembleDebug`, then physical Redmi runtime s
 - Execution owner: Google Antigravity (visible GUI/runtime).
 - ChatGPT role: product architecture/specification and post-push review; production source must not be edited simultaneously.
 - Required evidence: representative event screenshots, menu routing, scrolling, CTA visibility, build/tests, exact pushed SHA.
+
+
+## CURRENT — Stage 7.8 Event Card Variety + Story Implementation
+- Specification: `docs/reference/STAGE_7_8_EVENT_CARD_VARIETY_MATRIX.md`
+- Registry: `app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/EventCardCatalog.kt`
+- Event taxonomy expanded in `MemberEvent.kt`.
+- Goal: replace generic repeated event presentation with distinct semantic card variants while keeping reusable Compose archetypes.
+- Required visible variants: Walk-in, Trial, Freeze, Ban, Check-in, Check-out, Membership, Payment, Trainer, Workout, Service, Facility/Ops, Issue/Resolution, Communication, Insight.
+- Walk-in must preserve the journey: WALK-IN → TRIAL → CONVERTED or EXPIRED.
+- Trial must be a separate card and show its lifecycle.
+- Freeze must be a separate member-state card.
+- Ban must be a separate access-restriction card and only appear for a real ban/restriction record.
+- Media is evidence-backed only: no fake member/equipment/service photos; use stored references when present.
+- Above fold target: event/state + identity + 3–5 decision facts + one visible primary CTA.
+- NOW/PAST/FUTURE is contextual and compact.
+- Do not create dozens of unrelated Composables; use reusable archetypes configured by `EventCardSpec`.
+- Integrate `EventCardCatalog.forEvent()` and `EventCardRouter.route()` into the current Member Intelligence rendering/routing path.
+- Ensure check-in state overrides remain deterministic: overdue payment → Payment; expired membership → Plan; scheduled PT → Trainer; otherwise Attendance.
+- Verify all newly added enum values compile and existing legacy event values remain supported.
+- Add unit tests for card mapping and routing, including the Walk-in → Trial story and check-in overrides.
+- Capture runtime screenshots for at least: Walk-in, Trial Active, Trial Expired, Trial Converted, Freeze Active, Ban Active, Check-in, Overdue Payment, Payment Success, PT Started, Workout, Service Active/No Service, Machine Fault.
+- Inspect scroll and CTA visibility on every representative card.
+- Build/test/device verification required before claiming completion.
+- Antigravity remains execution owner for visible UI integration and runtime evidence.
