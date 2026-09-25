@@ -232,3 +232,9 @@ Status checkpoint commit: `3f4a4c102ceacd4d7cb70172211e1fd71564c8fb`
 - **Runtime Identity:**
   - Visible on cards: `MI-V5 • BUILD ae38da9 • DEBUG` (injected at build time).
 
+
+
+## CHATGPT → ANTIGRAVITY / CARD READABILITY & GEOMETRY FIX — 2026-09-25
+User review identified a concrete UX defect: tapping the member card increases outer width while internal font and portrait appear smaller. This is rejected because the expanded state must improve readability.
+
+Authorized correction: increase browse card geometry by approximately 10% while preserving aspect ratio (target ~270×389dp from ~247×356dp), enlarge the corresponding internal portrait/typography/content tokens, and keep bounded detail proportionally larger without shrinking its contents. Preserve side peek, 48dp touch targets, all 8 themes, all 11 menus, semantic overrides, and no full-screen expansion. Physical-device evidence is required before completion. Stage 5 remains blocked.
