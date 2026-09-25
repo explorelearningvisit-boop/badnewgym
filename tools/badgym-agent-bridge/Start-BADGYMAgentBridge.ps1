@@ -45,6 +45,12 @@ Write-Host "============================================================"
 Write-Host ""
 
 Log "Bridge started."
+Write-Host ""
+Write-Host "============================================================"
+Write-Host " BAD GYM AUTONOMOUS BRIDGE: LIVE"
+Write-Host " Current authorized task will be auto-picked from GitHub."
+Write-Host "============================================================"
+Write-Host ""
 
 while ($true) {
   try {
@@ -150,7 +156,15 @@ Never force-push.
 Commit the intended changes and push to origin member-intelligence-v3.
 "@
 
-    Log "AGY: launching task $taskId with live stream output."
+    Log "AGY HEADLESS: autonomous pickup confirmed for $taskId."
+Log "AGY: launching task $taskId with live stream output."
+Write-Host ""
+Write-Host ">>> AGY HEADLESS MODE: RUNNING"
+Write-Host ">>> AUTO-PICKED TASK: $taskId"
+Write-Host ">>> MODEL: $([string]$config.model)"
+Write-Host ">>> EFFORT: $([string]$config.effort)"
+Write-Host ">>> LIVE STREAM: ENABLED"
+Write-Host ""
     Log "AGY: model=$([string]$config.model), effort=$([string]$config.effort), timeout=$([int]$config.maxAgentMinutes)m"
 
     $args = @(
