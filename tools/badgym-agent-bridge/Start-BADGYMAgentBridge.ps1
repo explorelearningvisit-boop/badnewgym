@@ -57,6 +57,7 @@ function Save-AgentState([string]$status, [string]$phase, [string]$msg) {
     elapsedSeconds = $elapsed
     phase = $phase
     message = $msg
+    diffStat = $global:currentDiff
     lastEventTime = (Get-Date).ToString("o")
   }
   
@@ -99,6 +100,8 @@ Save-AgentState "WAITING" "INIT" "Starting supervisor"
 $global:currentTaskId = "UNKNOWN"
 $global:agyPid = $null
 $global:taskStartTime = $null
+$global:currentDiff = ""
+$global:lastDiffTime = (Get-Date).AddDays(-1)
 
 while ($true) {
   try {
@@ -236,6 +239,13 @@ Commit the intended changes and push to origin member-intelligence-v3.
     $lastHeartbeat = Get-Date
     
     while (-not $process.HasExited) {
+      if (((Get-Date) - $global:lastDiffTime).TotalSeconds -gt 5) {
+        $ErrorActionPreference = "Continue"
+        $global:currentDiff = (git diff --stat 2>&1) -join "`n"
+        $ErrorActionPreference = "Stop"
+        $global:lastDiffTime = Get-Date
+      }
+
       if ($process.StandardOutput.EndOfStream -and $process.StandardError.EndOfStream) {
         $staleTime = (Get-Date) - $lastHeartbeat
         if ($staleTime.TotalMinutes -gt 5) {
