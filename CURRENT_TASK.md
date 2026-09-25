@@ -1,77 +1,36 @@
 # BAD GYM — Current AI Handoff
 
-STATUS: COMPLETED
-TASK_ID: MI-STAGE-7.1-INTELLIGENCE-SYSTEM
+STATUS: READY_FOR_EXECUTION
+TASK_ID: MI-STAGE-7.2-FINAL-PRODUCTION-INTELLIGENCE
 AUTHOR: ChatGPT
-EXECUTOR: Google Antigravity GUI only — visible execution
+EXECUTOR: Google Antigravity GUI only — visible Pull and Run
 BRANCH: member-intelligence-v3
-PROTOCOL_VERSION: 1.0
-WORK_SPLIT_PROTOCOL: CHATGPT_AGY_PARALLEL_WORK_PROTOCOL.md v1.0
+PREVIOUS VERIFIED IMPLEMENTATION: 0c6c1d2e74a2d05cbfcd9b59695c24204bed1ded
 
 ## Mission
+Finalize Member Intelligence as a practical light-only production visual intelligence system. Remove duplicated/redundant metrics, enlarge important information, make Home interactive, make the rail semantically intelligent, make the bottom CTA contextual, isolate promotions and ensure every visual has explicit meaning.
 
-Refine the completed Stage 7 Member Intelligence card with approximately +20dp vertical space and a visual-first redesign of all 11 menu panels so essential information is glanceable and not hidden/clipped.
+## Authoritative packet
+docs/reference/STAGE_7_2_FINAL_PRODUCTION_INTELLIGENCE_PACKET.md
 
-## Authorization
+## Visual direction
+Latest generated concept board is visual inspiration only. Use white/ivory/pastel light material personalities. No black/dark-black user-facing themes.
 
-Full specifications:
-docs/reference/STAGE_7_1_VISUAL_DATA_HEIGHT_PACKET.md
-docs/reference/MI_PRODUCTION_INTELLIGENCE_SYSTEM_SPEC.md
-
-Previous Stage 7 implementation:
-03d60a01d5ca1983fb5d2d83d8184dd30f6821eb
-
-Known Stage 7 limitation remains:
-rememberIsReducedMotion() is still a stub; full Settings.Global.ANIMATOR_DURATION_SCALE wiring is not part of this task unless required to preserve the reduced-motion contract.
-
-## ChatGPT lane
-
-Product/UX reasoning, visual-data grammar, geometry targets, accessibility, acceptance criteria, verification matrix and post-push review.
-
-## Antigravity lane
-
-Visible repository inspection, production Kotlin/Compose implementation, tests, build, device/runtime, screenshots, documentation, commit/push and exact evidence.
+## Required sequence
+L0 geometry → L1 material → L2 shape → L3 identity → L4 state → L5 unique analytics → L6 CTA → L7 typography → L8 assets → L9 rail → L10 menu content → L11 motion → L12 theme matrix → L13 interaction/accessibility → L14 final verification.
 
 ## Non-negotiables
-
 - No Stage 8.
-- No fake backend data.
-- Preserve domain/repository/state boundaries.
-- Preserve all 8 MI-V6 themes and semantic colors.
-- Preserve Stage 6 menu/navigation behavior.
-- Preserve Stage 7 depth/motion behavior.
-- Centralize geometry changes in dimension tokens.
-- No hidden essential content or clipped CTA/chart/legend.
-- Visual-first; minimize prose and reading load.
-- No heavy chart dependency without justification.
-- No force-push/reset/discard.
+- No fake data.
+- No unexplained chart/color.
+- No duplicate primary metrics.
+- No tiny text used to force-fit content.
+- Every interactive-looking control must perform a real action or navigate to a real flow.
+- Preserve existing domain/repository/navigation boundaries.
+- Preserve Stage 6 and Stage 7 behavior.
+- No giant bitmap UI background.
+- No black/dark-black user-facing theme.
+- Promotions are clearly labeled and never obscure operational intelligence.
 
-
-## Additional user-directed design requirement
-
-Reference direction: the generated 8-theme Member Intelligence concept image supplied in the current task.
-
-Implementation must be SEQUENTIAL LAYER-BY-LAYER, not a single giant redesign:
-L0 geometry/canvas → L1 background/material → L2 border/shape → L3 photo/identity → L4 event/state → L5 visual KPIs/analytics → L6 CTA → L7 typography → L8 visual assets → L9 menu/rail → L10 menu-specific visual content → L11 motion/depth → L12 8-theme matrix.
-
-Start with ONE card, Natural Fresh, and prove it on-device before generalizing.
-
-The reference image is inspiration, not a bitmap UI background. Use practical Compose-native/vector/lightweight assets, real MemberSnapshot data, responsive tokens and accessible semantics.
-
-User explicitly rejects black/dark-black user-facing card backgrounds. The redesigned themes must use premium light/soft alternatives while preserving the theme personality.
-
-Acceptance emphasis:
-- empty-shell geometry first;
-- then background only;
-- then each layer in sequence;
-- no hidden/clipped essential content;
-- visual-first analytics;
-- no fake data;
-- no giant raster UI;
-- no tiny text;
-- verify each layer before advancing.
-
-
-## Production intelligence requirements
-
-The supplied reference concepts are visual direction only. Every chart, bar, ring, color, icon and badge must have explicit metric/state/period semantics. Payment must distinguish Paid/Due/Overdue; supplements must identify product and meaning of stock/status; Home trends must name their metric and period; vertical rail may expose semantic badges; bottom CTA is state-derived; promotions are isolated and clearly labeled. All menus must use real domain data and visual-first layouts.
+## Acceptance
+11 menus + More, all visible interactions, 8 light themes, responsive reasoning, device runtime, no clipping, semantic rail badges, contextual bottom actions, promotion isolation, accessibility, tests, build, screenshots, docs, commit/push and exact remote SHA.
