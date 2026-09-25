@@ -31,3 +31,19 @@ Replace the flat/minimal visual treatment with a light, high-energy gym operatin
 
 ## Verification
 GitHub Actions assembleDebug must pass. Physical Redmi runtime review remains required.
+
+## Stage 7.6 — Compact Fusion Card
+
+Implemented after runtime review of the installed compact-card screenshots.
+
+- The member intelligence card keeps its existing responsive width/height tokens; no full-screen replacement was introduced.
+- Added a fixed-height `CompactIntelligenceStrip` inside bounded detail mode so attendance rhythm, PT sessions, last workout, and payment state can coexist without expanding the card.
+- The strip uses mini-ring, mini-bars, semantic accents, and tappable metrics to merge the richer concept-board ideas into the existing card architecture.
+- Long member names in bounded detail may wrap to two lines instead of being forcibly truncated.
+- Removed remaining demo fallback values from membership/attendance/PT/workout metrics; unknown values render as `—` / `Not recorded`.
+- Payment signal routes to the Payment menu; attendance/trainer/workout signals route to their respective menus.
+- Existing menu panels remain vertically scrollable inside the fixed card viewport, preserving the multi-information mobile dashboard strategy.
+
+### Card-space rule
+
+The card is a reusable dashboard component, not a full-screen page. Visual richness must come from information density, micro-charts, semantic color, and progressive disclosure—not from increasing the card footprint. Full-screen detail belongs to the eventual all-in-one team application shell, not this reusable member card.
