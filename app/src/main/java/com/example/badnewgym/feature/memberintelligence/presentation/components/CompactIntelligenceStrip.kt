@@ -95,7 +95,7 @@ fun CompactIntelligenceStrip(
         FusionMetric(
             icon = Icons.Rounded.CalendarMonth,
             title = "WORKOUT",
-            value = workout?.durationMinutes?.let { "\${it}m" } ?: "—",
+            value = workout?.durationMinutes?.let { it.toString() + "m" } ?: "—",
             caption = "last recorded",
             accent = colors.info,
             onClick = onWorkoutClick
@@ -148,7 +148,7 @@ private fun AttendanceMini(
                 )
             }
             Text(
-                text = if (target != null && target > 0) "\${(progress * 100).toInt()}%" else "—",
+                text = if (target != null && target > 0) (progress * 100).toInt().toString() + "%" else "—",
                 color = colors.textPrimary,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Black
@@ -158,7 +158,7 @@ private fun AttendanceMini(
         Column(Modifier.weight(1f)) {
             Text("ATTEND", color = colors.textMuted, fontSize = 7.sp, fontWeight = FontWeight.Black)
             Text(
-                text = if (visits != null && target != null) "\${visits}/\${target}" else "—",
+                text = if (visits != null && target != null) visits.toString() + "/" + target.toString() else "—",
                 color = colors.textPrimary,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Black
@@ -225,8 +225,8 @@ private fun FusionDivider() {
 private fun formatCompactMoney(value: Double): String {
     val rounded = value.toLong().coerceAtLeast(0L)
     return when {
-        rounded >= 1000000L -> "₹\${rounded / 1000000}M"
-        rounded >= 1000L -> "₹\${rounded / 1000}K"
-        else -> "₹\${rounded}"
+        rounded >= 1000000L -> "₹" + (rounded / 1000000).toString() + "M"
+        rounded >= 1000L -> "₹" + (rounded / 1000).toString() + "K"
+        else -> "₹" + rounded.toString()
     }
 }
