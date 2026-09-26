@@ -64,62 +64,71 @@ object MenuAvailabilityResolver {
         }
 
         return listOf(
-            // LEFT rail = core operational member intelligence.
-            menu(MenuType.HOME, true, defaultPriority = 0),
-            menu(MenuType.ATTENDANCE, true, defaultPriority = 10),
+            // CORE: Home, Attendance, Plan, Payment
+            menu(MenuType.HOME, true, defaultPriority = 10, railSide = MenuRailSide.LEFT),
+            menu(MenuType.ATTENDANCE, true, defaultPriority = 20, railSide = MenuRailSide.LEFT),
             menu(
                 MenuType.PLAN,
                 true,
-                defaultPriority = 20,
+                defaultPriority = 30,
+                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.membership?.planName
             ),
-            menu(MenuType.PAYMENT, true, defaultPriority = 30),
-            menu(MenuType.WORKOUT, visible = snapshot.workout != null, defaultPriority = 40),
-            menu(MenuType.HISTORY, true, defaultPriority = 50),
-            menu(MenuType.INSIGHT, true, locked = !entitlements.allows(FeatureKey.ADVANCED_INSIGHTS), defaultPriority = 60),
-            menu(MenuType.MORE, true, defaultPriority = 70),
+            menu(MenuType.PAYMENT, true, defaultPriority = 40, railSide = MenuRailSide.LEFT),
 
-            // RIGHT rail = contextual/premium/member-specific services.
+            // TRAINING: Trainer, Workout
             menu(
                 MenuType.TRAINER,
                 visible = hasTrainer,
                 locked = hasTrainer && !entitlements.allows(FeatureKey.TRAINER_MANAGEMENT),
-                defaultPriority = 10,
-                railSide = MenuRailSide.RIGHT,
+                defaultPriority = 50,
+                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.trainer?.trainerName
             ),
+            menu(MenuType.WORKOUT, visible = snapshot.workout != null, defaultPriority = 60, railSide = MenuRailSide.LEFT),
+
+            // WELLNESS: Supplements, Nutrition
             menu(
                 MenuType.SUPPLEMENTS,
                 visible = hasSupplements,
                 locked = hasSupplements && !entitlements.allows(FeatureKey.SUPPLEMENTS),
-                defaultPriority = 20,
-                railSide = MenuRailSide.RIGHT,
+                defaultPriority = 70,
+                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.supplements?.lastPurchaseName
             ),
             menu(
                 MenuType.NUTRITION,
                 visible = hasNutrition,
                 locked = hasNutrition && !entitlements.allows(FeatureKey.NUTRITION),
-                defaultPriority = 30,
-                railSide = MenuRailSide.RIGHT,
+                defaultPriority = 80,
+                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.nutrition?.planName
             ),
+
+            // SERVICES: Services
             menu(
                 MenuType.SERVICES,
                 visible = hasServices,
-                defaultPriority = 40,
-                railSide = MenuRailSide.RIGHT,
+                defaultPriority = 90,
+                railSide = MenuRailSide.LEFT,
                 summaryOverride = serviceSummary() ?: if (premiumTier) "Premium access" else null
             ),
+
+            // INTELLIGENCE: History, Insight
+            menu(MenuType.HISTORY, true, defaultPriority = 100, railSide = MenuRailSide.LEFT),
+            menu(MenuType.INSIGHT, true, locked = !entitlements.allows(FeatureKey.ADVANCED_INSIGHTS), defaultPriority = 110, railSide = MenuRailSide.LEFT),
+
+            // UTILITY: More
+            menu(MenuType.MORE, true, defaultPriority = 120, railSide = MenuRailSide.LEFT),
+
+            // CONTEXTUAL: Offers
             menu(
                 MenuType.ADVERTISEMENT,
                 visible = hasAdvertisement,
-                defaultPriority = 50,
-                railSide = MenuRailSide.RIGHT,
+                defaultPriority = 130,
+                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.promotion?.badge ?: snapshot.promotion?.title
             )
-        ).filter { it.isVisible }.sortedWith(
-            compareBy<MemberMenu> { it.railSide.ordinal }.thenBy { it.priority }
-        )
+        ).filter { it.isVisible }.sortedBy { it.priority }
     }
 }

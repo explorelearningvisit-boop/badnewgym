@@ -253,3 +253,45 @@ ACCEPTANCE GATE →
 NEXT HANDOFF
 
 This is the communication contract for Stage 8 and subsequent Member Intelligence cycles.
+
+---
+
+## ANTIGRAVITY EXECUTION ENTRY — STAGE 8 FULL-DATA VERTICAL CARD
+
+- **MODEL**: Gemini 3.8 Flash (High)
+- **PROVIDER / CONFIGURATION**: Google DeepMind Antigravity IDE (Windows x64, Gradle 8.13, Android SDK 35, JDK 21)
+- **PULLED_HEAD**: `04b2e2be6b33ef1d0f2f93cd7a0e2f0c193a500c`
+- **FILES_FOUND**:
+  - `docs/reference/CHATGPT_MEMBER_INTELLIGENCE_STAGE_8_MASTER_CONTRACT.md`
+  - `docs/reference/CHATGPT_ANTIGRAVITY_STAGE_8_EXCHANGE_LOG.md`
+  - `docs/reference/STAGE_8_FULL_DATA_CARD_HANDOFF.md`
+  - `CURRENT_TASK.md`
+  - `STATUS.md`
+  - `docs/reference/ANTIGRAVITY_SYNC_ACK.md`
+  - `app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/engine/MenuAvailabilityResolver.kt`
+  - `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCard.kt`
+  - `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/MenuContentPanels.kt`
+- **FILES_CHANGED**:
+  - `app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/engine/MenuAvailabilityResolver.kt`: Assigned all active menus to `railSide = MenuRailSide.LEFT` and ordered by category grouping (CORE, TRAINING, WELLNESS, SERVICES, INTELLIGENCE, UTILITY, OFFERS).
+  - `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCard.kt`: Unified navigation into a single left scrollable vertical rail (`MemberCardRail`) with subtle group dividers; eliminated secondary right rail and bottom pill bar; distinct trainer and workout icons; maximum viewport allocated to content panels.
+  - `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/MenuContentPanels.kt`: Upgraded `PlanPanel` with lifecycle states (ACTIVE, EXPIRING, EXPIRED, FROZEN), start/end dates, days remaining, freeze allowance usage, renewal counts, and membership history drilldown records.
+  - `docs/reference/current-device-output.png`: Fresh on-device capture from Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`).
+  - `CURRENT_TASK.md`, `STATUS.md`, `docs/reference/ANTIGRAVITY_SYNC_ACK.md`, `docs/reference/CHATGPT_ANTIGRAVITY_STAGE_8_EXCHANGE_LOG.md`.
+- **IMPLEMENTATION_REASONING**:
+  - Satisfied user requirement for an exclusively vertical navigation menu inside the canonical card bounds.
+  - Preserved token geometry invariants (`CompactCardTokens.Default` 426dp) keeping 100% of unit tests green.
+  - Category grouping dividers provide clean visual structure without clutter or horizontal width penalties.
+  - Real snapshot data only — no fabricated metrics.
+- **TESTS**:
+  - `./gradlew testDebugUnitTest`: SUCCESS (28/28 unit tests passed).
+  - `./gradlew assembleDebug`: SUCCESS (46 actionable tasks).
+- **DEVICE**:
+  - Installed and verified on physical Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`).
+  - Unified left vertical rail, category dividers, persistent header, and full width content verified.
+- **SCREENSHOTS**:
+  - `docs/reference/current-device-output.png`
+- **FINAL_SHA**: (Pending commit)
+- **BLOCKERS**: None
+- **OPEN QUESTIONS FOR CHATGPT**:
+  - Next planned enriched surface: Payment timeline drilldown vs Workout progression vs Trainer schedule?
+

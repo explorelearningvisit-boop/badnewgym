@@ -113,6 +113,18 @@ STATUS: MEMBER-CARD-DUAL-SIDE-RAIL COMPLETED
   - Build: `./gradlew assembleDebug` passed.
   - Physical Device: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) with active bottom contextual pills and persistent header. Screenshot captured at `docs/reference/current-device-output.png`.
 
-STATUS: MEMBER-INTELLIGENCE-MENU-IA-CONCEPT-F COMPLETED
+## Stage 8 — Full-Data Vertical Member Intelligence Card
+
+- **Unified Vertical Navigation Rail**: Unified all active menus into a single, scrollable left vertical rail (`MemberCardRail`) inside the canonical card bounds. Permanently eliminated the secondary right rail and bottom contextual pill strip.
+- **Categorical Group Dividers**: Grouped rail items with subtle dividers by category: CORE (`Home`, `Attend`, `Plan`, `Pay`), TRAINING (`Coach`, `Workout`), WELLNESS (`Supps`, `Diet`), SERVICES (`Services`), INTELLIGENCE (`History`, `Insight`), UTILITY (`More`), and OFFERS (`Offers`).
+- **Enriched Plan Surface**: Upgraded `PlanPanel` with lifecycle states (ACTIVE, EXPIRING, EXPIRED, FROZEN), start/end dates, days remaining, freeze allowance utilization (`freezeUsedDays/freezeAllowanceDays`), renewal counts, and membership history drilldown records.
+- **Full Viewport Space**: Retained the compact persistent member header on non-HOME menus while giving the central content panel maximum vertical and horizontal space.
+- **Verification Evidence**:
+  - Unit tests: `./gradlew testDebugUnitTest` passed (28/28 tests passing).
+  - Build: `./gradlew assembleDebug` passed.
+  - Physical Device: Verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`). Screenshot captured at `docs/reference/current-device-output.png`.
+
+STATUS: STAGE-8-FULL-DATA-VERTICAL-CARD COMPLETED
+
 
 

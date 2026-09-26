@@ -1,8 +1,19 @@
-# 🚨 NEW AUTHORITATIVE NEXT TASK — STAGE 8 MEMBER INTELLIGENCE FULL-DATA CARD
+# 🚨 AUTHORITATIVE TASK — STAGE 8 MEMBER INTELLIGENCE FULL-DATA CARD
 
-**Status: READY FOR ANTIGRAVITY EXECUTION**
-**Baseline after Antigravity:** `9a523402eecc6c3f8d049c397f3aa25a256af5e3`
+**Status: COMPLETED (VERIFIED ON PHYSICAL HARDWARE)**
+**Baseline:** `04b2e2be6b33ef1d0f2f93cd7a0e2f0c193a500c`
 **Detailed contract:** `docs/reference/CHATGPT_MEMBER_INTELLIGENCE_STAGE_8_MASTER_CONTRACT.md`
+
+### Execution & Verification Summary
+- **Unified Vertical Rail**: Single left vertical navigation rail (`MemberCardRail`) inside canonical card bounds with category dividers (CORE, TRAINING, WELLNESS, SERVICES, INTELLIGENCE, UTILITY, OFFERS).
+- **Eliminated Secondary Navigation**: Right-side vertical rail and bottom contextual pill strip permanently removed.
+- **Enriched Information Surface**: Upgraded `PlanPanel` with lifecycle states (ACTIVE, EXPIRING, EXPIRED, FROZEN), start/end dates, days remaining, freeze allowance utilization, renewal counts, and membership history drilldown records.
+- **Compact Member Identity**: Pinned persistent header (`PersistentMemberContextHeader`) on all non-HOME menus.
+- **Verification Evidence**:
+  - `./gradlew testDebugUnitTest`: 28/28 unit tests passing (0 failures).
+  - `./gradlew assembleDebug`: BUILD SUCCESSFUL.
+  - Physical Device QA: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`). Screenshot at `docs/reference/current-device-output.png`.
+
 
 This section supersedes only the navigation/content direction of older task sections below.
 

@@ -347,15 +347,14 @@ fun CompactMemberCard(
                     }
                 }
             } else {
-                val leftMenus = menus.filter { it.isVisible && it.isEnabled && it.railSide == MenuRailSide.LEFT }
-                val contextualMenus = menus.filter { it.isVisible && it.isEnabled && it.railSide == MenuRailSide.RIGHT }
+                val visibleMenus = menus.filter { it.isVisible && it.isEnabled }
 
                 Row(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 3.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     MemberCardRail(
-                        menus = leftMenus,
+                        menus = visibleMenus,
                         activeMenu = activeMenu,
                         side = MenuRailSide.LEFT,
                         onMenuSelected = onMenuSelected,
@@ -467,17 +466,6 @@ fun CompactMemberCard(
                                 }
                             }
                         }
-
-                        if (contextualMenus.isNotEmpty()) {
-                            ContextualBottomNav(
-                                menus = contextualMenus,
-                                activeMenu = activeMenu,
-                                onMenuSelected = onMenuSelected,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
-                            )
-                        }
                     }
                 }
             }
@@ -494,6 +482,33 @@ private fun MemberCardRail(
     modifier: Modifier = Modifier
 ) {
     val colors = BADGymTheme.colors
+
+    fun getMenuGroup(type: MenuType): Int = when (type) {
+        MenuType.HOME, MenuType.ATTENDANCE, MenuType.PLAN, MenuType.PAYMENT -> 0
+        MenuType.TRAINER, MenuType.WORKOUT -> 1
+        MenuType.SUPPLEMENTS, MenuType.NUTRITION -> 2
+        MenuType.SERVICES -> 3
+        MenuType.HISTORY, MenuType.INSIGHT -> 4
+        MenuType.MORE -> 5
+        MenuType.ADVERTISEMENT -> 6
+    }
+
+    fun getShortLabel(type: MenuType): String = when (type) {
+        MenuType.HOME -> "Home"
+        MenuType.ATTENDANCE -> "Attend"
+        MenuType.PLAN -> "Plan"
+        MenuType.PAYMENT -> "Pay"
+        MenuType.TRAINER -> "Coach"
+        MenuType.WORKOUT -> "Workout"
+        MenuType.SUPPLEMENTS -> "Supps"
+        MenuType.NUTRITION -> "Diet"
+        MenuType.SERVICES -> "Services"
+        MenuType.ADVERTISEMENT -> "Offers"
+        MenuType.HISTORY -> "History"
+        MenuType.INSIGHT -> "Insight"
+        MenuType.MORE -> "More"
+    }
+
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(18.dp))
@@ -502,20 +517,29 @@ private fun MemberCardRail(
             .padding(vertical = 5.dp, horizontal = 2.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
-        menus.forEach { menuItem ->
+        menus.forEachIndexed { index, menuItem ->
+            if (index > 0 && getMenuGroup(menuItem.id) != getMenuGroup(menus[index - 1].id)) {
+                Box(
+                    modifier = Modifier
+                        .width(18.dp)
+                        .height(0.8.dp)
+                        .background(colors.border.copy(alpha = 0.4f))
+                )
+            }
+
             val selected = menuItem.id == activeMenu
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(42.dp)
-                    .clip(RoundedCornerShape(11.dp))
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(if (selected) colors.accent.copy(alpha = 0.14f) else Color.Transparent)
                     .border(
                         if (selected) 1.dp else 0.dp,
                         if (selected) colors.accent.copy(alpha = 0.45f) else Color.Transparent,
-                        RoundedCornerShape(11.dp)
+                        RoundedCornerShape(10.dp)
                     )
                     .clickable(
                         onClickLabel = "Open " + menuItem.label,
@@ -529,17 +553,19 @@ private fun MemberCardRail(
                             imageVector = menuIcon(menuItem.id),
                             contentDescription = menuItem.label,
                             tint = if (selected) colors.accent else colors.textSecondary,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(17.dp)
                         )
                         if (menuItem.badgeCount > 0 || menuItem.hasAlert) {
                             Box(
-                                modifier = Modifier.size(7.dp).clip(CircleShape)
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .clip(CircleShape)
                                     .background(if (menuItem.hasAlert) colors.danger else colors.accent)
                             )
                         }
                     }
                     Text(
-                        text = menuItem.label.take(6),
+                        text = getShortLabel(menuItem.id),
                         color = if (selected) colors.accent else colors.textMuted,
                         fontSize = 7.sp,
                         fontWeight = if (selected) FontWeight.Black else FontWeight.Bold,
@@ -552,80 +578,12 @@ private fun MemberCardRail(
     }
 }
 
-@Composable
-private fun ContextualBottomNav(
-    menus: List<MemberMenu>,
-    activeMenu: MenuType,
-    onMenuSelected: (MenuType) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = BADGymTheme.colors
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(11.dp))
-            .background(colors.surfaceMuted.copy(alpha = 0.88f))
-            .border(0.8.dp, colors.border.copy(alpha = 0.45f), RoundedCornerShape(11.dp))
-            .padding(horizontal = 4.dp, vertical = 3.dp)
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        menus.forEach { menuItem ->
-            val isSelected = menuItem.id == activeMenu
-            Box(
-                modifier = Modifier
-                    .height(28.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(if (isSelected) colors.accent.copy(alpha = 0.16f) else Color.Transparent)
-                    .border(
-                        if (isSelected) 1.dp else 0.dp,
-                        if (isSelected) colors.accent.copy(alpha = 0.5f) else Color.Transparent,
-                        RoundedCornerShape(8.dp)
-                    )
-                    .clickable(
-                        onClickLabel = "Open " + menuItem.label,
-                        onClick = { onMenuSelected(menuItem.id) }
-                    )
-                    .padding(horizontal = 7.dp, vertical = 3.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = menuIcon(menuItem.id),
-                        contentDescription = menuItem.label,
-                        tint = if (isSelected) colors.accent else colors.textSecondary,
-                        modifier = Modifier.size(13.dp)
-                    )
-                    Text(
-                        text = menuItem.label,
-                        color = if (isSelected) colors.accent else colors.textSecondary,
-                        fontSize = 9.sp,
-                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
-                        maxLines = 1
-                    )
-                    if (menuItem.badgeCount > 0 || menuItem.hasAlert) {
-                        Box(
-                            modifier = Modifier
-                                .size(5.dp)
-                                .clip(CircleShape)
-                                .background(if (menuItem.hasAlert) colors.danger else colors.accent)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
 private fun menuIcon(type: MenuType): ImageVector = when (type) {
     MenuType.HOME -> Icons.Rounded.Home
     MenuType.ATTENDANCE -> Icons.Rounded.CheckCircle
     MenuType.PLAN -> Icons.Rounded.Assignment
     MenuType.PAYMENT -> Icons.Rounded.CreditCard
-    MenuType.TRAINER -> Icons.Rounded.FitnessCenter
+    MenuType.TRAINER -> Icons.Rounded.PersonOutline
     MenuType.WORKOUT -> Icons.Rounded.FitnessCenter
     MenuType.SUPPLEMENTS -> Icons.Rounded.LocalDrink
     MenuType.NUTRITION -> Icons.Rounded.Restaurant

@@ -642,26 +642,107 @@ fun PlanPanel(
     val mem = snapshot.membership
     val planName = mem?.planName ?: "Plan not recorded"
     val tierName = snapshot.identity.tier.name
-    val isActive = mem?.isActive
+    val isActive = mem?.isActive == true
     val startDate = mem?.startDate ?: snapshot.identity.memberSince
-    val daysRemaining = mem?.daysRemaining
+    val daysRemaining = mem?.daysRemaining ?: 0
     val expiryDate = mem?.expiryDate
+    val statusLabel = when {
+        mem?.lifecycle == MembershipLifecycle.FROZEN -> "FROZEN"
+        mem?.lifecycle == MembershipLifecycle.EXPIRED || (!isActive && daysRemaining <= 0) -> "EXPIRED"
+        daysRemaining in 1..7 -> "EXPIRING ($daysRemaining d)"
+        isActive -> "ACTIVE"
+        else -> "UNENROLLED"
+    }
+    val statusColor = when (statusLabel) {
+        "ACTIVE" -> colors.success
+        "FROZEN" -> colors.warning
+        "EXPIRED" -> colors.danger
+        else -> if (daysRemaining in 1..7) colors.warning else colors.textMuted
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle("MEMBERSHIP & PLAN INTELLIGENCE", theme)
 
+        // 1. Current Plan Lifecycle Hero
         InfoCard(theme) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text("Start Date", color = colors.textMuted, fontSize = 10.sp)
-                    Text(formatDate(startDate), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f, fill = false)) {
+                        Text(planName, color = colors.textPrimary, fontWeight = FontWeight.Black, fontSize = 14.sp)
+                        Text("$tierName • ${mem?.planType ?: "Standard"}", color = colors.textMuted, fontSize = 11.sp)
+                    }
+                    BadgeChip(statusLabel, statusColor)
                 }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text("End Date", color = colors.textMuted, fontSize = 10.sp)
-                    Text(expiryDate?.let { formatDate(it) } ?: "—", color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+
+                HorizontalDivider(color = colors.divider)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text("Start Date", color = colors.textMuted, fontSize = 10.sp)
+                        Text(formatDate(startDate), color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Days Left", color = colors.textMuted, fontSize = 10.sp)
+                        Text(if (isActive) "${daysRemaining}d" else "0d", color = statusColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text("Expiry Date", color = colors.textMuted, fontSize = 10.sp)
+                        Text(expiryDate?.let { formatDate(it) } ?: "—", color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+
+                // Freeze & Renewal Metrics if recorded
+                if (mem?.freezeAllowanceDays != null || mem?.renewalCount ?: 0 > 0) {
+                    HorizontalDivider(color = colors.divider.copy(alpha = 0.5f))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        if (mem?.freezeAllowanceDays != null) {
+                            Text(
+                                "Freeze: ${mem.freezeUsedDays ?: 0}/${mem.freezeAllowanceDays}d used",
+                                color = colors.textSecondary,
+                                fontSize = 10.5.sp
+                            )
+                        }
+                        if ((mem?.renewalCount ?: 0) > 0) {
+                            Text(
+                                "Renewals: ${mem?.renewalCount}",
+                                color = colors.textSecondary,
+                                fontSize = 10.5.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Membership History Drill-Down
+        if (snapshot.membershipHistory.isNotEmpty()) {
+            InfoCard(theme) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Previous Plans & Renewals", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    snapshot.membershipHistory.take(4).forEach { hist ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(colors.surfaceMuted.copy(alpha = 0.5f))
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(hist.planName, color = colors.textPrimary, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text("${formatDate(hist.startDate)} – ${formatDate(hist.endDate)}", color = colors.textMuted, fontSize = 10.sp)
+                        }
+                    }
                 }
             }
         }
