@@ -395,15 +395,24 @@ fun CompactMemberCard(
                             ?: snapshot.issues.firstOrNull()?.description
                     }
 
-                    CompactSignalBanner(
-                        text = signalText,
-                        isCritical = semantics.isUrgent,
-                        semantics = semantics,
+                    // Event evidence belongs inside the canonical member card.
+                    // Do not replace this card with a second detail/event interface.
+                    CompactEventContext(
+                        event = currentEvent,
+                        snapshot = snapshot,
+                        theme = theme,
+                        isUrgent = semantics.isUrgent,
+                        signalText = signalText,
                         onClick = onClick
                     )
 
                     // Section 6: Contextual Primary CTA Button
-                    val ctaLabel = resolveDynamicCtaLabel(snapshot, semantics, cta)
+                    val ctaLabel = resolveDynamicCtaLabel(
+                        snapshot = snapshot,
+                        currentEvent = currentEvent,
+                        semantics = semantics,
+                        cta = cta
+                    )
 
                     ThemedCtaButton(
                         theme = theme,
@@ -430,12 +439,32 @@ fun CompactMemberCard(
 
 private fun resolveDynamicCtaLabel(
     snapshot: MemberSnapshot,
+    currentEvent: MemberEvent?,
     semantics: MemberSemanticStyle,
     cta: SignalAction?
 ): String {
     val due = snapshot.payment?.totalOutstanding ?: 0.0
     val isOverdue = due > 0
+    val eventAction = when (currentEvent?.eventType) {
+        EventType.PAYMENT_OVERDUE, EventType.PAYMENT_DUE, EventType.PAYMENT_FAILED -> "Collect Payment →"
+        EventType.PAYMENT_PARTIAL -> "Collect Balance →"
+        EventType.TRIAL_STARTED, EventType.TRIAL_EXPIRED -> "Convert Trial →"
+        EventType.TRIAL_CONVERTED -> "Activate Plan →"
+        EventType.FREEZE_STARTED -> "View Freeze →"
+        EventType.FREEZE_ENDED -> "View Plan →"
+        EventType.BANNED -> "View Ban Reason →"
+        EventType.BAN_LIFTED -> "View Access →"
+        EventType.TRAINER_SESSION_SCHEDULED -> "View Trainer Session →"
+        EventType.TRAINER_SESSION_STARTED -> "View Live Session →"
+        EventType.TRAINER_SESSION_MISSED -> "Reschedule Session →"
+        EventType.WORKOUT_COMPLETED, EventType.WORKOUT_STARTED -> "View Workout →"
+        EventType.WORKOUT_SKIPPED -> "View Workout Pattern →"
+        EventType.SERVICE_PURCHASE -> "View Service →"
+        EventType.MAINTENANCE -> "View Maintenance →"
+        else -> null
+    }
     return when {
+        eventAction != null -> eventAction
         isOverdue -> {
             val formatter = NumberFormat.getNumberInstance(Locale.forLanguageTag("en-IN"))
             "Collect ₹" + formatter.format(due.toInt()) + " →"
@@ -877,6 +906,100 @@ private fun CompactMetricTile(
             horizontalAlignment = Alignment.CenterHorizontally,
             content = content
         )
+    }
+}
+
+@Composable
+private fun CompactEventContext(
+    event: MemberEvent?,
+    snapshot: MemberSnapshot,
+    theme: ThemeId,
+    isUrgent: Boolean,
+    signalText: String?,
+    onClick: () -> Unit
+) {
+    val colors = BADGymTheme.colors
+    val metadata = event?.metadata.orEmpty()
+    val eventType = event?.eventType
+
+    val facts = when (eventType) {
+        EventType.CHECK_IN -> listOf(
+            "ARRIVAL" to (metadata["checkInAt"] ?: metadata["at"] ?: theme.timeText),
+            "STATUS" to if (metadata["late"]?.equals("true", true) == true) {
+                "Late " + (metadata["latenessMinutes"]?.let { "$it min" } ?: "")
+            } else "On time"
+        )
+        EventType.CHECK_OUT -> listOf(
+            "CHECK-OUT" to (metadata["checkOutAt"] ?: theme.timeText),
+            "SESSION" to (metadata["durationMinutes"]?.let { "$it min" } ?: "Completed")
+        )
+        EventType.PAYMENT_OVERDUE, EventType.PAYMENT_DUE, EventType.PAYMENT_FAILED, EventType.PAYMENT_PARTIAL -> listOf(
+            "OUTSTANDING" to snapshot.payment?.totalOutstanding?.let {
+                NumberFormat.getNumberInstance(Locale.forLanguageTag("en-IN")).format(it).let { value -> "₹$value" }
+            }.orEmpty().ifBlank { "—" },
+            "STATUS" to (metadata["overdueDays"]?.let { "$it days overdue" }
+                ?: snapshot.payment?.overdueDays?.let { "$it days overdue" }
+                ?: eventType.displayLabel())
+        )
+        EventType.TRIAL_STARTED, EventType.TRIAL_EXPIRED, EventType.TRIAL_CONVERTED, EventType.WALK_IN -> listOf(
+            "JOURNEY" to (metadata["stage"] ?: eventType.displayLabel()),
+            "EXPIRY / OUTCOME" to (metadata["expiresAt"] ?: metadata["convertedAt"] ?: metadata["expiredAt"] ?: "Pending")
+        )
+        EventType.FREEZE_STARTED, EventType.FREEZE_ENDED -> listOf(
+            "FREEZE" to (metadata["freezeStart"] ?: "Recorded"),
+            "END" to (metadata["freezeEnd"] ?: "—")
+        )
+        EventType.BANNED, EventType.BAN_LIFTED -> listOf(
+            "ACCESS" to if (eventType == EventType.BANNED) "Blocked" else "Restored",
+            "REASON" to (metadata["reason"] ?: "Recorded restriction")
+        )
+        EventType.TRAINER_SESSION_SCHEDULED, EventType.TRAINER_SESSION_STARTED,
+        EventType.TRAINER_SESSION_COMPLETED, EventType.TRAINER_SESSION_MISSED,
+        EventType.TRAINER_SESSION_CANCELLED -> listOf(
+            "COACH" to (snapshot.trainer?.trainerName ?: "—"),
+            "SESSION" to (metadata["sessionAt"] ?: snapshot.trainer?.nextSessionDate?.toString() ?: eventType.displayLabel())
+        )
+        EventType.WORKOUT_STARTED, EventType.WORKOUT_COMPLETED, EventType.WORKOUT_SKIPPED, EventType.PR_ACHIEVED -> listOf(
+            "ROUTINE" to (snapshot.workout?.currentRoutine ?: "—"),
+            "ACTIVITY" to (metadata["durationMinutes"]?.let { "$it min" } ?: eventType.displayLabel())
+        )
+        EventType.SERVICE_PURCHASE, EventType.SUPPLEMENT_PURCHASE, EventType.NUTRITION -> listOf(
+            "SERVICE" to (metadata["serviceName"] ?: snapshot.services.orEmpty().firstOrNull { it.isActive }?.serviceName ?: eventType.displayLabel()),
+            "STATUS" to (metadata["status"] ?: "Recorded")
+        )
+        EventType.MAINTENANCE -> listOf(
+            "ASSET" to (metadata["asset"] ?: "Equipment"),
+            "STATUS" to (metadata["status"] ?: "Reported")
+        )
+        else -> {
+            val label = signalText ?: eventType?.displayLabel() ?: "Member activity"
+            listOf("EVENT" to label, "STATUS" to (snapshot.membership?.planName ?: "Recorded"))
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (isUrgent) colors.dangerSoft.copy(alpha = 0.72f)
+                else colors.surfaceMuted.copy(alpha = 0.68f)
+            )
+            .border(
+                0.8.dp,
+                if (isUrgent) colors.danger.copy(alpha = 0.34f) else colors.border.copy(alpha = 0.62f),
+                RoundedCornerShape(8.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        facts.take(2).forEach { (label, value) ->
+            Column(Modifier.weight(1f)) {
+                Text(label, color = if (isUrgent) colors.danger else colors.textMuted, fontSize = 7.5.sp, fontWeight = FontWeight.Black, maxLines = 1)
+                Text(value.ifBlank { "—" }, color = colors.textPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
     }
 }
 
