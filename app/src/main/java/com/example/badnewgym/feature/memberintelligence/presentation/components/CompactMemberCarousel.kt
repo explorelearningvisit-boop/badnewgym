@@ -172,7 +172,6 @@ fun CompactMemberCarousel(
                         item.cta?.let(onCta) ?: onMemberClick(index)
                     }
                 )
-                }
             }
         }
     }
