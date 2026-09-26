@@ -1,3 +1,81 @@
+# 🚨 NEW AUTHORITATIVE NEXT TASK — STAGE 8 MEMBER INTELLIGENCE FULL-DATA CARD
+
+**Status: READY FOR ANTIGRAVITY EXECUTION**
+**Baseline after Antigravity:** `9a523402eecc6c3f8d049c397f3aa25a256af5e3`
+**Detailed contract:** `docs/reference/CHATGPT_MEMBER_INTELLIGENCE_STAGE_8_MASTER_CONTRACT.md`
+
+This section supersedes only the navigation/content direction of older task sections below.
+
+## Immediate objective
+
+Integrate the approved BAD GYM concept direction into the existing canonical member card and preserve all working behavior.
+
+### Non-negotiables
+- The member menu concept must remain **VERTICAL inside the bounded card**.
+- Do not restore the right-side rail.
+- Do not replace the canonical card with a full-screen dashboard.
+- Preserve existing event routing, temporal architecture, QA fixtures, persistent member context, and working menu behavior.
+- Increase card height only if needed; do not increase width merely to fit content.
+- Target approximately +20dp height where safe: 296x430, 312x446, 328x462; detail 320x460, 340x483, 360x500.
+- Every menu must become a real information surface, not a placeholder panel.
+- A menu must support NOW/PAST/FUTURE where meaningful and drill into complete historical records on demand.
+- Use real data only.
+- No fake chart, metric, name, price, date, coach, service, health value, forecast, or media.
+- Use shared ACTIVE/EXPIRING/EXPIRED/NOT_ENROLLED/NO_DATA/UNAVAILABLE state handling.
+- Remove duplicate information while preserving evidence.
+- Use multiple chart/visual archetypes based on the question being answered.
+- Use controlled animation only; respect reduced motion.
+- Monetization/ad surfaces are secondary to member data and operational actions. Clearly label promotional content.
+- Critical issues, overdue payments, access restrictions, and safety/operations alerts must never be displaced by advertising.
+
+## Menu data contract
+
+HOME -> decision cockpit
+ATTENDANCE -> current visit + history + pattern + timing + forecast when supported
+PLAN -> current membership + benefits + renewals/freezes/history
+PAYMENT -> current balance + due state + full payment/invoice timeline + future due
+TRAINER -> coach + sessions + schedule + history + notes when supported
+WORKOUT -> current routine + sessions + progress + PR/goals/body data when supported
+SUPPLEMENTS -> stack + usage + purchases + expiry + relevant opportunities
+NUTRITION -> today + meals + macros + hydration + trends + plan
+SERVICES -> active + bookings + usage + expiry + issues/resolution
+HISTORY -> unified audit timeline with filters and drill-down
+INSIGHT -> action/pattern/risk/opportunity/forecast/explain with evidence
+MORE -> supported utility records only
+OFFERS -> real promotions / monetization only
+
+## Vertical navigation
+
+Use one compact vertical rail with capability/data-driven visibility. Prefer icon + short label. The rail may scroll independently. Never allow labels to collapse into vertical letters.
+
+Suggested groups:
+CORE: Home, Attendance, Plan, Payment
+TRAINING: Trainer, Workout
+WELLNESS: Supplements, Nutrition
+SERVICES: Services
+INTELLIGENCE: History, Insight
+UTILITY: More
+
+Offers should be contextual unless actual promotion data warrants a visible destination.
+
+## Implementation sequence
+
+1. Pull/inspect current HEAD `9a523402...` and this master contract.
+2. Inspect Antigravity's exact implementation and current runtime.
+3. Refactor menu navigation/content inside the existing canonical card.
+4. Build reusable data-state and content-slot primitives.
+5. Implement menu-by-menu data surfaces.
+6. Add chart/motion variants only where real data supports them.
+7. Add adaptive monetization slot only where actual promotion/inventory data supports it.
+8. Remove duplicated presentation.
+9. Add/extend tests and fixture states.
+10. Build + unit test + lint if configured + physical-device QA.
+11. Update `docs/reference/ANTIGRAVITY_SYNC_ACK.md` with exact evidence and final SHA.
+
+Read the full contract before coding.
+
+---
+
 # 🚨 CURRENT AUTHORITATIVE TASK — MEMBER INTELLIGENCE MENU IA + DENSE MENU SURFACES
 
 **Status: COMPLETED**
