@@ -46,6 +46,7 @@ fun AdvancedEventMemberCard(
 ) {
     val event = currentEvent ?: snapshot.recentEvents.firstOrNull()
     val spec = event?.let { EventCardCatalog.forEvent(it.eventType) } ?: EventCardCatalog.forEvent(EventType.CHECK_IN)
+    val presentation = event?.let(EventCardVariantResolver::resolve) ?: EventCardPresentation(EventCardVariant.DEFAULT)
     val colors = BADGymTheme.colors
     val accent = when (spec.kind) {
         EventCardKind.BAN -> colors.danger
@@ -68,9 +69,12 @@ fun AdvancedEventMemberCard(
     ) {
         Box(Modifier.fillMaxWidth().height(100.dp).background(Brush.horizontalGradient(listOf(accent.copy(alpha = 0.13f), colors.surface))))
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(spec.title, color = colors.textPrimary, fontSize = 19.sp, fontWeight = FontWeight.Black, maxLines = 2)
+            Text(presentation.headlineOverride ?: spec.title, color = colors.textPrimary, fontSize = 19.sp, fontWeight = FontWeight.Black, maxLines = 2)
             Text(snapshot.identity.name, color = colors.textSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(spec.storyLabel, color = accent, fontSize = 9.sp, fontWeight = FontWeight.Black, letterSpacing = 0.8.sp)
+            if (presentation.variant != EventCardVariant.DEFAULT) {
+                Pill(presentation.variant.name.replace("_", " "), accent)
+            }
             EventFacts(snapshot, event, spec.kind, accent)
             if (spec.kind == EventCardKind.CHECK_IN) AttendancePulse(snapshot, accent)
             cta?.let {
@@ -113,8 +117,19 @@ private fun EventFacts(s: MemberSnapshot, e: MemberEvent?, kind: EventCardKind, 
                 FactsRow("Actor", m["actor"] ?: "—", "Lifted", m["liftedAt"] ?: "—")
             }
             EventCardKind.PAYMENT -> {
+                if (EventCardVariantResolver.resolve(e ?: return@EventFacts).variant == EventCardVariant.OVERDUE) {
+                    FactsRow("Received", money(s.payment?.lastPaymentAmount), "Late by", m["overdueDays"]?.let { "$it days" } ?: s.payment?.overdueDays?.let { "$it days" } ?: "—")
+                }
                 FactsRow("Outstanding", money(s.payment?.totalOutstanding), "Due", s.payment?.dueDate?.let(::date) ?: "—")
                 FactsRow("Last paid", money(s.payment?.lastPaymentAmount), "Overdue", s.payment?.overdueDays?.toString() ?: "0 days")
+            }
+            EventCardKind.CHECK_IN -> {
+                val late = m["latenessMinutes"]?.toLongOrNull() ?: 0L
+                if (late > 0L || m["late"]?.equals("true", ignoreCase = true) == true) {
+                    FactsRow("Arrival", eventDate(e), "Late by", if (late > 0L) "$late min" else "Late")
+                } else {
+                    FactsRow("Arrival", eventDate(e), "Status", "On time")
+                }
             }
             EventCardKind.TRAINER -> {
                 FactsRow("Coach", s.trainer?.trainerName ?: "—", "Next", s.trainer?.nextSessionDate?.let(::date) ?: "—")
