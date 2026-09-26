@@ -83,7 +83,7 @@ fun CompactMemberCarousel(
     }
 
     val rowHeight by animateDpAsState(
-        targetValue = if (isDetailExpanded) dimensions.detailCardHeight + 16.dp else dimensions.cardHeight + 16.dp,
+        targetValue = dimensions.detailCardHeight + 16.dp,
         animationSpec = tween(durationMillis = 220),
         label = "carousel-height"
     )
@@ -143,9 +143,7 @@ fun CompactMemberCarousel(
                 },
                 contentAlignment = Alignment.Center
             ) {
-                // IMPORTANT: the browse carousel always renders the canonical Member Intelligence card.
-                // The old expanded/detail renderer created a second, visually unrelated interface on tap.
-                // Detail navigation is now contextual data inside the canonical card, not a replacement surface.
+                // Canonical Member Intelligence card with integrated vertical navigation rail on the selected card.
                 CompactMemberCard(
                     snapshot = item.snapshot,
                     currentEvent = item.currentEvent,
@@ -155,7 +153,7 @@ fun CompactMemberCarousel(
                     cta = item.cta,
                     dimensions = dimensions,
                     isSelected = isSelected,
-                    isDetail = false,
+                    isDetail = isSelected,
                     menus = menus,
                     activeMenu = activeMenu,
                     temporalRange = temporalRange,

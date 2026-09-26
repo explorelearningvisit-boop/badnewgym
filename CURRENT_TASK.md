@@ -1,20 +1,21 @@
 # BAD GYM — Current Task
 
 ## ACTIVE ANTIGRAVITY EXECUTION PACKET
-- Task: Canonical Member Card Consolidation & Verification
+- Task: Canonical Member Card Integrated Vertical Rail Restoration & Verification
 - Specification: `docs/reference/ANTIGRAVITY_CANONICAL_CARD_FIX_PROMPT.md`
 - Execution owner: Google Antigravity (visible GUI/runtime)
 - Status: COMPLETED
-- Verification: `./gradlew testDebugUnitTest assembleDebug` passed (46 actionable tasks, 0 failures, build successful). Physical device runtime verification on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) verified:
-  - Canonical `CompactMemberCard` as the sole default browse/focus surface.
+- Verification: `./gradlew testDebugUnitTest assembleDebug` passed (28 actionable tasks, 0 test failures, build successful). Physical device runtime verification on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) verified:
+  - Canonical `CompactMemberCard` integrated vertical navigation rail (`BoundedDetailRail`) restored for the selected card in `CompactMemberCarousel.kt` (`isDetail = isSelected`).
+  - Navigation rail items rendered cleanly: `Home`, `Attend`, `Plan`, `Pay`, `Coach`, `Workout`, `Supps`, `Diet`, `Services`, `History`, `Insight`, `More`.
   - Event intelligence integrated directly inside the card (badge, 4-quadrant/dual facts, single contextual CTA).
   - Duplicate bottom member `OPEN` launcher row removed.
   - Tapping stays within canonical card without launching secondary detail shells.
   - QA Lab remains optional via header badge button (`QA LAB [69]`).
-  - Verified across CHECK_IN, PAYMENT_OVERDUE, FREEZE_STARTED, TRIAL_STARTED, BANNED, WORKOUT, and TRAINER states.
+  - Screenshot evidence saved at `docs/reference/current-device-output.png`.
 
 STATUS: COMPLETED
-TASK_ID: CANONICAL-MEMBER-CARD-CONSOLIDATION
+TASK_ID: CANONICAL-MEMBER-CARD-VERTICAL-RAIL-RESTORE
 BRANCH: member-intelligence-v3
 
 ### Non-negotiable product behavior

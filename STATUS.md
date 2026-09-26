@@ -68,15 +68,15 @@ STATUS: Stage 7.8 Event Card Variety COMPLETED
 STATUS: Stage 7.9 Complete Fixture Coverage & Production Readiness COMPLETED
 
 
-## Canonical Member Card Consolidation & Verification
+## Canonical Member Card Consolidation & Vertical Rail Restoration
 
-- **Consolidated UI**: Replaced dual interface flow with canonical `CompactMemberCard` as the sole default browse/focus surface in `CompactMemberCarousel.kt`.
-- **Integrated Event Context**: Added event badge header (`CompactEventHeader`), dual-metric facts/quadrants, and dynamic contextual single CTA (`resolveDynamicCtaLabel`) directly inside the card without changing card identity.
+- **Integrated Vertical Rail Restored**: In `CompactMemberCarousel.kt`, updated `rowHeight` to `dimensions.detailCardHeight + 16.dp` and set `isDetail = isSelected` on the canonical `CompactMemberCard`. This renders the integrated vertical navigation rail (`BoundedDetailRail`) on the active card with all menu items (`Home`, `Attend`, `Plan`, `Pay`, `Coach`, `Workout`, `Supps`, `Diet`, `Services`, `History`, `Insight`, `More`) without opening a separate screen.
+- **Consolidated UI**: Preserved canonical `CompactMemberCard` as the sole default browse/focus surface in `CompactMemberCarousel.kt`.
+- **Integrated Event Context**: Event badge header (`CompactEventHeader`), dual-metric facts/quadrants, and dynamic contextual single CTA (`resolveDynamicCtaLabel`) directly inside the card without changing card identity.
 - **Removed Duplicate Elements**: Removed the redundant bottom member `OPEN` launcher row across all screens.
-- **Fixed HomeBoundedContent Integration**: Added `currentEvent` parameter handling and compile-correctness in `CompactMemberCard.kt` (`resolveDynamicCtaLabel(snapshot, currentEvent, semantics, cta)`).
 - **Verification Evidence**:
-  - Unit tests: `./gradlew testDebugUnitTest` passed (all tests green, 0 failures).
-  - Build: `./gradlew assembleDebug` passed (46 actionable tasks, build successful).
-  - Physical Device: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) across CHECK_IN, PAYMENT_OVERDUE, FREEZE_STARTED, TRIAL_STARTED, BANNED, WORKOUT, and TRAINER states. Screenshot captured at `docs/reference/current-device-output.png`.
+  - Unit tests: `./gradlew testDebugUnitTest` passed (28 actionable tasks, 0 test failures).
+  - Build: `./gradlew assembleDebug` passed.
+  - Physical Device: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) with active vertical rail and menu switching. Screenshot captured at `docs/reference/current-device-output.png`.
 
-STATUS: CANONICAL-MEMBER-CARD-CONSOLIDATION COMPLETED
+STATUS: CANONICAL-MEMBER-CARD-VERTICAL-RAIL-RESTORE COMPLETED
