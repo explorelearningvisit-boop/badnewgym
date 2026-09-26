@@ -17,7 +17,9 @@ data class MemberSnapshot(
     val recentEvents: List<MemberEvent> = emptyList(),
     val issues: List<MemberIssue> = emptyList(),
     val promotion: PromotionSlot? = null,
-    val membershipHistory: List<MembershipHistory> = emptyList()
+    val membershipHistory: List<MembershipHistory> = emptyList(),
+    /** Optional engagement/community/approval data; empty means the capability has no records. */
+    val engagement: MemberEngagementSummary? = null
 )
 
 data class MembershipHistory(
