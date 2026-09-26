@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Assignment
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.Campaign
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.FitnessCenter
@@ -344,96 +345,255 @@ fun CompactMemberCard(
                     }
                 }
             } else {
-                // Browse Mode Structured Content
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(
-                            horizontal = dimensions.innerPaddingHorizontal,
-                            vertical = dimensions.innerPaddingVertical
-                        ),
-                    verticalArrangement = Arrangement.SpaceBetween
+                val leftMenus = menus.filter { it.isVisible && it.isEnabled && it.railSide == MenuRailSide.LEFT }
+                val rightMenus = menus.filter { it.isVisible && it.isEnabled && it.railSide == MenuRailSide.RIGHT }
+
+                Row(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 3.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Section 1: Event + Time Header
-                    CompactEventHeader(event = currentEvent, theme = theme, onClick = onClick)
-
-                    // Section 2: Hero Identity (Portrait + Name + Code + Motto + Tier Badge)
-                    CompactHeroIdentity(
-                        identity = snapshot.identity,
-                        theme = theme,
-                        portraitWidth = dimensions.portraitWidth,
-                        portraitHeight = dimensions.portraitHeight,
-                        semantics = semantics,
-                        onClick = onClick
+                    MemberCardRail(
+                        menus = leftMenus,
+                        activeMenu = activeMenu,
+                        side = MenuRailSide.LEFT,
+                        onMenuSelected = onMenuSelected,
+                        modifier = Modifier.fillMaxHeight().width(38.dp)
                     )
 
-                    // Section 3: Membership Tier & Status Dual Bands
-                    CompactMembershipBands(
-                        membership = snapshot.membership,
-                        theme = theme,
-                        semantics = semantics,
-                        payment = snapshot.payment,
-                        onClick = onClick
-                    )
+                    Spacer(Modifier.width(3.dp))
 
-                    // Section 4: Compact Decision Metrics (Attendance, Sessions, Workouts)
-                    CompactMetricsGrid(
-                        attendance = snapshot.attendance,
-                        trainer = snapshot.trainer,
-                        workout = snapshot.workout,
-                        theme = theme,
-                        onAttendanceClick = onClick,
-                        onSessionsClick = onClick,
-                        onWorkoutsClick = onClick
-                    )
-
-                    // Section 5: Urgent/Actionable Signal banner
-                    val signalText: String? = if (semantics.isUrgent && semantics.urgentMessage != null) {
-                        semantics.urgentMessage
-                    } else {
-                        primarySignal?.title
-                            ?: secondarySignals.firstOrNull()?.title
-                            ?: snapshot.issues.firstOrNull()?.description
+                    Box(
+                        modifier = Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(18.dp))
+                    ) {
+                        if (activeMenu == MenuType.HOME) {
+                            Column(
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 7.dp, vertical = 9.dp),
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                CompactEventHeader(event = currentEvent, theme = theme, onClick = onClick)
+                                CompactHeroIdentity(
+                                    identity = snapshot.identity,
+                                    theme = theme,
+                                    portraitWidth = dimensions.portraitWidth,
+                                    portraitHeight = dimensions.portraitHeight,
+                                    semantics = semantics,
+                                    onClick = onClick
+                                )
+                                CompactMembershipBands(
+                                    membership = snapshot.membership,
+                                    theme = theme,
+                                    semantics = semantics,
+                                    payment = snapshot.payment,
+                                    onClick = onClick
+                                )
+                                CompactMetricsGrid(
+                                    attendance = snapshot.attendance,
+                                    trainer = snapshot.trainer,
+                                    workout = snapshot.workout,
+                                    theme = theme,
+                                    onAttendanceClick = { onMenuSelected(MenuType.ATTENDANCE) },
+                                    onSessionsClick = { onMenuSelected(MenuType.TRAINER) },
+                                    onWorkoutsClick = { onMenuSelected(MenuType.WORKOUT) }
+                                )
+                                val signalText: String? = if (semantics.isUrgent && semantics.urgentMessage != null) {
+                                    semantics.urgentMessage
+                                } else {
+                                    primarySignal?.title
+                                        ?: secondarySignals.firstOrNull()?.title
+                                        ?: snapshot.issues.firstOrNull()?.description
+                                }
+                                CompactEventContext(
+                                    event = currentEvent,
+                                    snapshot = snapshot,
+                                    theme = theme,
+                                    isUrgent = semantics.isUrgent,
+                                    signalText = signalText,
+                                    onClick = onClick
+                                )
+                                val ctaLabel = resolveDynamicCtaLabel(
+                                    snapshot = snapshot,
+                                    currentEvent = currentEvent,
+                                    semantics = semantics,
+                                    cta = cta
+                                )
+                                ThemedCtaButton(
+                                    theme = theme,
+                                    onClick = onCtaClick,
+                                    label = ctaLabel,
+                                    modifier = Modifier.fillMaxWidth().height(dimensions.ctaHeight)
+                                )
+                            }
+                        } else {
+                            CompactRailMenuContent(
+                                menu = activeMenu,
+                                snapshot = snapshot,
+                                currentEvent = currentEvent,
+                                primarySignal = primarySignal,
+                                secondarySignals = secondarySignals,
+                                cta = cta,
+                                theme = theme,
+                                temporalRange = temporalRange,
+                                onRangeChange = onRangeChange,
+                                onEventClick = onEventClick,
+                                onCtaClick = onCtaClick,
+                                onMenuSelected = onMenuSelected
+                            )
+                        }
                     }
 
-                    // Event evidence belongs inside the canonical member card.
-                    // Do not replace this card with a second detail/event interface.
-                    CompactEventContext(
-                        event = currentEvent,
-                        snapshot = snapshot,
-                        theme = theme,
-                        isUrgent = semantics.isUrgent,
-                        signalText = signalText,
-                        onClick = onClick
-                    )
-
-                    // Section 6: Contextual Primary CTA Button
-                    val ctaLabel = resolveDynamicCtaLabel(
-                        snapshot = snapshot,
-                        currentEvent = currentEvent,
-                        semantics = semantics,
-                        cta = cta
-                    )
-
-                    ThemedCtaButton(
-                        theme = theme,
-                        onClick = onCtaClick,
-                        label = ctaLabel,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(dimensions.ctaHeight)
-                    )
-
-                    // Section 7: Dedicated clean debug / identity row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        DebugRuntimeIdentityBadge()
+                    if (rightMenus.isNotEmpty()) {
+                        Spacer(Modifier.width(3.dp))
+                        MemberCardRail(
+                            menus = rightMenus,
+                            activeMenu = activeMenu,
+                            side = MenuRailSide.RIGHT,
+                            onMenuSelected = onMenuSelected,
+                            modifier = Modifier.fillMaxHeight().width(38.dp)
+                        )
                     }
                 }
             }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MemberCardRail(
+    menus: List<MemberMenu>,
+    activeMenu: MenuType,
+    side: MenuRailSide,
+    onMenuSelected: (MenuType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = BADGymTheme.colors
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .background(colors.railBackground.copy(alpha = 0.96f))
+            .border(0.8.dp, colors.border.copy(alpha = 0.55f), RoundedCornerShape(18.dp))
+            .padding(vertical = 5.dp, horizontal = 2.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        menus.forEach { menuItem ->
+            val selected = menuItem.id == activeMenu
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(42.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(if (selected) colors.accent.copy(alpha = 0.14f) else Color.Transparent)
+                    .border(
+                        if (selected) 1.dp else 0.dp,
+                        if (selected) colors.accent.copy(alpha = 0.45f) else Color.Transparent,
+                        RoundedCornerShape(11.dp)
+                    )
+                    .clickable(
+                        onClickLabel = "Open " + menuItem.label,
+                        onClick = { onMenuSelected(menuItem.id) }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(contentAlignment = Alignment.TopEnd) {
+                        Icon(
+                            imageVector = menuIcon(menuItem.id),
+                            contentDescription = menuItem.label,
+                            tint = if (selected) colors.accent else colors.textSecondary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        if (menuItem.badgeCount > 0 || menuItem.hasAlert) {
+                            Box(
+                                modifier = Modifier.size(7.dp).clip(CircleShape)
+                                    .background(if (menuItem.hasAlert) colors.danger else colors.accent)
+                            )
+                        }
+                    }
+                    Text(
+                        text = menuItem.label.take(6),
+                        color = if (selected) colors.accent else colors.textMuted,
+                        fontSize = 7.sp,
+                        fontWeight = if (selected) FontWeight.Black else FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun menuIcon(type: MenuType): ImageVector = when (type) {
+    MenuType.HOME -> Icons.Rounded.Home
+    MenuType.ATTENDANCE -> Icons.Rounded.CheckCircle
+    MenuType.PLAN -> Icons.Rounded.Assignment
+    MenuType.PAYMENT -> Icons.Rounded.CreditCard
+    MenuType.TRAINER -> Icons.Rounded.FitnessCenter
+    MenuType.WORKOUT -> Icons.Rounded.FitnessCenter
+    MenuType.SUPPLEMENTS -> Icons.Rounded.LocalDrink
+    MenuType.NUTRITION -> Icons.Rounded.Restaurant
+    MenuType.SERVICES -> Icons.Rounded.MiscellaneousServices
+    MenuType.ADVERTISEMENT -> Icons.Rounded.Campaign
+    MenuType.HISTORY -> Icons.Rounded.History
+    MenuType.INSIGHT -> Icons.Rounded.AutoAwesome
+    MenuType.MORE -> Icons.Rounded.MoreHoriz
+}
+
+@Composable
+private fun CompactRailMenuContent(
+    menu: MenuType,
+    snapshot: MemberSnapshot,
+    currentEvent: MemberEvent?,
+    primarySignal: IntelligenceSignal?,
+    secondarySignals: List<IntelligenceSignal>,
+    cta: SignalAction?,
+    theme: ThemeId,
+    temporalRange: TemporalRange,
+    onRangeChange: (TemporalRange) -> Unit,
+    onEventClick: (TemporalEventRecord) -> Unit,
+    onCtaClick: () -> Unit,
+    onMenuSelected: (MenuType) -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        when (menu) {
+            MenuType.ATTENDANCE -> AttendancePanel(snapshot, theme, temporalRange, onRangeChange, onEventClick)
+            MenuType.PLAN -> PlanPanel(snapshot, theme)
+            MenuType.PAYMENT -> PaymentPanel(snapshot, theme, temporalRange, onRangeChange, onEventClick, onCtaClick)
+            MenuType.TRAINER -> TrainerPanel(snapshot, theme)
+            MenuType.WORKOUT -> WorkoutPanel(snapshot, theme, temporalRange, onRangeChange, onEventClick)
+            MenuType.SUPPLEMENTS -> SupplementsPanel(snapshot, theme)
+            MenuType.NUTRITION -> NutritionPanel(snapshot, theme)
+            MenuType.SERVICES -> ServicesPanel(snapshot, theme)
+            MenuType.ADVERTISEMENT -> AdvertisementPanel(snapshot.promotion, theme)
+            MenuType.HISTORY -> HistoryPanel(snapshot, theme, temporalRange, onRangeChange, onEventClick)
+            MenuType.INSIGHT -> InsightPanel(snapshot, if (primarySignal != null) listOf(primarySignal) + secondarySignals else secondarySignals, theme)
+            MenuType.MORE -> MorePanel(snapshot = snapshot, theme = theme)
+            MenuType.HOME -> Unit
+        }
+    }
+}
+
+@Composable
+private fun AdvertisementPanel(
+    promotion: PromotionSlot?,
+    theme: ThemeId
+) {
+    val colors = BADGymTheme.colors
+    SectionTitle("MEMBER OFFERS", theme)
+    if (promotion == null) {
+        EmptyStateRow("No active offer recorded.")
+        return
+    }
+    InfoCard(theme) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            promotion.badge?.let { Text(it, color = colors.accent, fontSize = 9.sp, fontWeight = FontWeight.Black) }
+            Text(promotion.title, color = colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Black)
+            promotion.subtitle?.let { Text(it, color = colors.textSecondary, fontSize = 11.sp) }
         }
     }
 }
