@@ -46,7 +46,10 @@ sealed class MemberIntelligenceUiState {
         val historyEvents: List<TemporalEventRecord> = emptyList(),
         val historyFilter: EventType? = null,
         val isTemporalLoading: Boolean = false,
-        val isFromCache: Boolean = false
+        val isFromCache: Boolean = false,
+        // Stage 7.9 QA Fixture Universe
+        val isQaGalleryOpen: Boolean = false,
+        val activeFixtureId: String? = null
     ) : MemberIntelligenceUiState()
 
     data class Error(val message: String) : MemberIntelligenceUiState()

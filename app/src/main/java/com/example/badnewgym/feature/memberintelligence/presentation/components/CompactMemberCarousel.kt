@@ -56,9 +56,10 @@ fun CompactMemberCarousel(
     val isReducedMotion = rememberIsReducedMotion()
 
     // Synchronize scroll when selected index changes externally
-    LaunchedEffect(selectedIndex) {
+    val currentSelectedMemberId = members.getOrNull(selectedIndex)?.snapshot?.id
+    LaunchedEffect(selectedIndex, currentSelectedMemberId) {
         if (selectedIndex in members.indices) {
-            listState.animateScrollToItem(selectedIndex)
+            listState.scrollToItem(selectedIndex)
         }
     }
 
@@ -75,8 +76,8 @@ fun CompactMemberCarousel(
         }
     }
 
-    LaunchedEffect(currentCenteredIndex) {
-        if (currentCenteredIndex != selectedIndex && currentCenteredIndex in members.indices) {
+    LaunchedEffect(currentCenteredIndex, listState.isScrollInProgress) {
+        if (!listState.isScrollInProgress && currentCenteredIndex != selectedIndex && currentCenteredIndex in members.indices) {
             onMemberSelected(currentCenteredIndex)
         }
     }

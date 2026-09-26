@@ -18,6 +18,12 @@ object VariantDebugBridge {
 
     @Volatile
     var onOpenDetail: ((Int?) -> Unit)? = null
+
+    @Volatile
+    var onToggleQaGallery: ((Boolean) -> Unit)? = null
+
+    @Volatile
+    var onLoadFixture: ((String) -> Unit)? = null
 }
 
 class VariantDebugReceiver : BroadcastReceiver() {
@@ -35,6 +41,16 @@ class VariantDebugReceiver : BroadcastReceiver() {
         val openDetail = intent.getBooleanExtra("openDetail", false)
         if (openDetail) {
             VariantDebugBridge.onOpenDetail?.invoke(if (memberIndex >= 0) memberIndex else null)
+        }
+
+        if (intent.hasExtra("qaGallery")) {
+            val open = intent.getBooleanExtra("qaGallery", true)
+            VariantDebugBridge.onToggleQaGallery?.invoke(open)
+        }
+
+        val fixtureId = intent.getStringExtra("fixtureId")
+        if (fixtureId != null) {
+            VariantDebugBridge.onLoadFixture?.invoke(fixtureId)
         }
 
         val variantName = intent.getStringExtra("variant")

@@ -36,7 +36,7 @@ Implemented directly by ChatGPT on `member-intelligence-v3`.
 STATUS: Stage 7.6 Visual QA COMPLETED
 
 
-## Stage 7.8 / 7.9 — Event Card Variety Lab & Contextual Resolution
+## Stage 7.8 — Event Card Variety Lab & Contextual Resolution
 
 - Implemented `EventCardVariantResolver.kt` supporting `EventCardVariant` (DEFAULT, LATE_CHECK_IN, EARLY_CHECK_IN, OVERDUE, FAILED, PARTIAL, ACTIVE, RESOLVED, CONVERTED, EXPIRED, BLOCKED, REOPENED) and `EventCardPresentation`.
 - Integrated contextual variant presentation into `AdvancedEventMemberCard.kt` for late/early check-ins, overdue payments, and status pills.
@@ -45,8 +45,26 @@ STATUS: Stage 7.6 Visual QA COMPLETED
   - EventCardRouter deterministic check-in state overrides (overdue payment -> PAYMENT_OVERDUE, expired membership -> MEMBERSHIP_EXPIRED, scheduled PT -> TRAINER_SESSION_SCHEDULED, clean check-in -> CHECK_IN).
   - Non-check-in direct event routing.
   - Contextual variant resolution in `EventCardVariantResolver` (late/early check-in, overdue/failed payment, trial converted/expired, ban active/lifted).
-- Local verification completed: `./gradlew testDebugUnitTest assembleDebug` passed (46 actionable tasks, all unit tests passed, build successful).
-- Physical device runtime verification: Installed APK on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) and captured screenshot `docs/reference/current-device-output.png`.
+- Local verification completed: `./gradlew testDebugUnitTest assembleDebug` passed.
 
-STATUS: Stage 7.8/7.9 Event Card Variety Verified and Ready for ChatGPT Review
+STATUS: Stage 7.8 Event Card Variety COMPLETED
+
+
+## Stage 7.9 — Complete Fixture Coverage & Production Readiness
+
+- Created deterministic synthetic fixture universe in `MemberIntelligenceFixtureUniverse.kt`:
+  - 69/69 typed `EventType` taxonomy coverage (all 68 events + UNKNOWN sentinel).
+  - 16/16 `EventCardKind` archetypes represented.
+  - 10 complex edge cases (lateness, overdue balance, expired pass, frozen billing, conduct bans, high-frequency attendance, zero visits, multiple custom services).
+  - Synthetic data guarantee: all fixture data is tagged and isolated from production/live member data.
+- Built interactive `MemberIntelligenceQaGallery.kt` accessible via in-app `QA LAB [69]` badge button and debug broadcast:
+  - Tabs: Taxonomy (69) / Edge Cases (10).
+  - Filters: Temporal (ALL, NOW, PAST, FUTURE), Archetype (16 kinds), Text search.
+  - Live preview & direct fixture injection into the decision workspace.
+- Unit test suite: `MemberIntelligenceFixtureUniverseTest.kt` verifying 100% taxonomy coverage, archetype coverage, temporal bucket assignment, and edge case assertions.
+- Fixed carousel scroll synchronization & settling selection handling in `CompactMemberCarousel.kt`.
+- Physical device runtime verification: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`), verified interactive QA Gallery (`docs/reference/qa-gallery-device-output.png`) and live card injection for Walk-in, Banned, Frozen, and Payment states (`docs/reference/current-device-output.png`).
+
+STATUS: Stage 7.9 Complete Fixture Coverage & Production Readiness COMPLETED
+
 

@@ -8,6 +8,8 @@ import com.example.badnewgym.feature.memberintelligence.data.repository.StubTemp
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
+import com.example.badnewgym.feature.memberintelligence.domain.fixture.FixtureCardItem
+import com.example.badnewgym.feature.memberintelligence.domain.fixture.MemberIntelligenceFixtureUniverse
 import com.example.badnewgym.feature.memberintelligence.domain.model.*
 import com.example.badnewgym.feature.memberintelligence.domain.repository.MemberIntelligenceRepository
 import com.example.badnewgym.feature.memberintelligence.domain.repository.TemporalIntelligenceRepository
@@ -236,6 +238,80 @@ class MemberIntelligenceViewModel(
         val current = _state.value as? MemberIntelligenceUiState.Success
         if (current == null) return
         _state.value = current.copy(themeId = theme)
+    }
+
+    fun openQaGallery() {
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        _state.value = current.copy(isQaGalleryOpen = true)
+    }
+
+    fun closeQaGallery() {
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        _state.value = current.copy(isQaGalleryOpen = false)
+    }
+
+    fun toggleQaGallery(open: Boolean) {
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        _state.value = current.copy(isQaGalleryOpen = open)
+    }
+
+    fun loadFixture(fixture: FixtureCardItem) {
+        val current = _state.value as? MemberIntelligenceUiState.Success
+        val now = System.currentTimeMillis()
+        val eval = engine.evaluate(fixture.snapshot, fixture.event, now)
+        val cardTheme = themeForMember(fixture.snapshot.id, fixture.snapshot.identity.code)
+        val cardItem = MemberCardItem(
+            snapshot = fixture.snapshot,
+            currentEvent = fixture.event,
+            themeId = cardTheme,
+            signals = eval.signals,
+            primarySignal = eval.primary,
+            secondarySignals = eval.secondary,
+            cta = eval.cta
+        )
+        val menus = MenuAvailabilityResolver.resolve(fixture.snapshot, eval.signals)
+        val existingMembers = current?.members?.toMutableList() ?: mutableListOf()
+        val existingIndex = existingMembers.indexOfFirst { it.snapshot.id == fixture.snapshot.id }
+        val targetIndex = if (existingIndex >= 0) {
+            existingMembers[existingIndex] = cardItem
+            existingIndex
+        } else {
+            existingMembers.add(0, cardItem)
+            0
+        }
+
+        themeId = cardTheme
+        _state.value = (current ?: MemberIntelligenceUiState.Success(
+            snapshot = fixture.snapshot,
+            currentEvent = fixture.event,
+            menus = menus,
+            signals = eval.signals,
+            primarySignal = eval.primary,
+            secondarySignals = eval.secondary,
+            cta = eval.cta,
+            activeMenu = MenuType.HOME,
+            themeId = cardTheme,
+            members = existingMembers,
+            selectedMemberIndex = targetIndex
+        )).copy(
+            snapshot = fixture.snapshot,
+            currentEvent = fixture.event,
+            menus = menus,
+            signals = eval.signals,
+            primarySignal = eval.primary,
+            secondarySignals = eval.secondary,
+            cta = eval.cta,
+            themeId = cardTheme,
+            members = existingMembers,
+            selectedMemberIndex = targetIndex,
+            isQaGalleryOpen = false,
+            activeFixtureId = fixture.id
+        )
+    }
+
+    fun loadFixtureById(fixtureId: String) {
+        val fixture = MemberIntelligenceFixtureUniverse.getById(fixtureId) ?: return
+        loadFixture(fixture)
     }
 
     fun executeCta(action: SignalAction) {

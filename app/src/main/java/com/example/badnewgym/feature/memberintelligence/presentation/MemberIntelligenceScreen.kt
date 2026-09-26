@@ -45,6 +45,7 @@ import com.example.badnewgym.feature.memberintelligence.presentation.components.
 import com.example.badnewgym.feature.memberintelligence.presentation.components.BadGymTopBar
 import com.example.badnewgym.feature.memberintelligence.presentation.components.CompactMemberCarousel
 import com.example.badnewgym.feature.memberintelligence.presentation.components.EventDetailDialog
+import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberIntelligenceQaGallery
 import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberPhoto
 import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
 
@@ -76,6 +77,12 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
         VariantDebugBridge.onOpenDetail = { index ->
             viewModel.openMemberDetail(index)
         }
+        VariantDebugBridge.onToggleQaGallery = { open ->
+            viewModel.toggleQaGallery(open)
+        }
+        VariantDebugBridge.onLoadFixture = { fixtureId ->
+            viewModel.loadFixtureById(fixtureId)
+        }
         val receiver = VariantDebugReceiver()
         ContextCompat.registerReceiver(
             context,
@@ -88,6 +95,8 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             VariantDebugBridge.onMemberIndex = null
             VariantDebugBridge.onCloseDetail = null
             VariantDebugBridge.onOpenDetail = null
+            VariantDebugBridge.onToggleQaGallery = null
+            VariantDebugBridge.onLoadFixture = null
             runCatching { context.unregisterReceiver(receiver) }
         }
     }
@@ -96,7 +105,10 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     val theme = success?.themeId ?: ThemeId.NATURAL_FRESH
 
     // System Back Handler
-    BackHandler(enabled = success?.isDetailExpanded == true) {
+    BackHandler(enabled = success?.isQaGalleryOpen == true) {
+        viewModel.closeQaGallery()
+    }
+    BackHandler(enabled = success?.isDetailExpanded == true && success.isQaGalleryOpen != true) {
         viewModel.closeMemberDetail()
     }
 
@@ -109,6 +121,24 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(color = Color(0xFF16A34A))
+        }
+        return
+    }
+
+    if (success.isQaGalleryOpen) {
+        BADGymTheme(colors = theme.colors(), shapes = theme.shapes(), motion = theme.motion(), elevation = theme.elevation()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+            ) {
+                MemberIntelligenceQaGallery(
+                    onSelectFixture = { viewModel.loadFixture(it) },
+                    onClose = { viewModel.closeQaGallery() },
+                    activeFixtureId = success.activeFixtureId
+                )
+            }
         }
         return
     }
@@ -149,14 +179,52 @@ private fun BrowseMemberIntelligenceSurface(
                         Text(eventTitle.uppercase(), color = colors.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.Black, letterSpacing = 0.35.sp)
                         Text("Member Intelligence • live decision workspace", color = colors.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                     }
-                    Box(
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(colors.accent.copy(alpha = 0.12f))
+                                .border(1.dp, colors.accent.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
+                                .clickable { viewModel.openQaGallery() }
+                                .padding(horizontal = 9.dp, vertical = 5.dp)
+                        ) {
+                            Text("QA LAB [69]", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(colors.successSoft)
+                                .border(1.dp, colors.success.copy(alpha = 0.25f), RoundedCornerShape(20.dp))
+                                .padding(horizontal = 9.dp, vertical = 5.dp)
+                        ) {
+                            Text(if (success.members.isEmpty()) "0 members" else "${success.members.size} live", color = colors.success, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+                if (success.activeFixtureId != null) {
+                    Row(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(colors.successSoft)
-                            .border(1.dp, colors.success.copy(alpha = 0.25f), RoundedCornerShape(20.dp))
-                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 2.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFFEF3C7))
+                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(if (success.members.isEmpty()) "0 members" else "${success.members.size} live", color = colors.success, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "DEMO FIXTURE: ${success.activeFixtureId}",
+                            color = Color(0xFF92400E),
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            "OPEN QA LAB",
+                            color = Color(0xFFB45309),
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.clickable { viewModel.openQaGallery() }
+                        )
                     }
                 }
                 Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
