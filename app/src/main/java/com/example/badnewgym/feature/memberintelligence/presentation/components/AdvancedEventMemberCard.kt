@@ -117,7 +117,7 @@ private fun EventFacts(s: MemberSnapshot, e: MemberEvent?, kind: EventCardKind, 
                 FactsRow("Actor", m["actor"] ?: "—", "Lifted", m["liftedAt"] ?: "—")
             }
             EventCardKind.PAYMENT -> {
-                if (EventCardVariantResolver.resolve(e ?: return@EventFacts).variant == EventCardVariant.OVERDUE) {
+                if (e?.let { EventCardVariantResolver.resolve(it).variant } == EventCardVariant.OVERDUE) {
                     FactsRow("Received", money(s.payment?.lastPaymentAmount), "Late by", m["overdueDays"]?.let { "$it days" } ?: s.payment?.overdueDays?.let { "$it days" } ?: "—")
                 }
                 FactsRow("Outstanding", money(s.payment?.totalOutstanding), "Due", s.payment?.dueDate?.let(::date) ?: "—")
