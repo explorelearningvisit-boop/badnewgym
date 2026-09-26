@@ -271,6 +271,7 @@ fun CompactMemberCard(
                                     when (menu) {
                                         MenuType.HOME -> HomeBoundedContent(
                                             snapshot = snapshot,
+                                            currentEvent = currentEvent,
                                             signals = if (primarySignal != null) listOf(primarySignal) + secondarySignals else secondarySignals,
                                             primarySignal = primarySignal,
                                             secondarySignals = secondarySignals,
@@ -1473,6 +1474,7 @@ private fun PersistentDetailHeader(
 @Composable
 private fun HomeBoundedContent(
     snapshot: MemberSnapshot,
+    currentEvent: MemberEvent? = null,
     signals: List<IntelligenceSignal>,
     primarySignal: IntelligenceSignal?,
     secondarySignals: List<IntelligenceSignal>,
@@ -1521,7 +1523,7 @@ private fun HomeBoundedContent(
             Text("TRAINER", color = colors.accent, fontSize = 9.sp, fontWeight = FontWeight.Black)
         }
 
-        val ctaLabel = resolveDynamicCtaLabel(snapshot, semantics, cta)
+        val ctaLabel = resolveDynamicCtaLabel(snapshot, currentEvent, semantics, cta)
         androidx.compose.material3.Button(
             onClick = onCta,
             modifier = Modifier.fillMaxWidth().height(42.dp),

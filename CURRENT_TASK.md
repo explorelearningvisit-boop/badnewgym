@@ -1,20 +1,21 @@
-# 🚨 URGENT — CANONICAL MEMBER CARD CONSOLIDATION — PULL AND RUN
+# BAD GYM — Current Task
 
-**Execution owner: Google Antigravity. No manual prompt paste is required.**
+## ACTIVE ANTIGRAVITY EXECUTION PACKET
+- Task: Canonical Member Card Consolidation & Verification
+- Specification: `docs/reference/ANTIGRAVITY_CANONICAL_CARD_FIX_PROMPT.md`
+- Execution owner: Google Antigravity (visible GUI/runtime)
+- Status: COMPLETED
+- Verification: `./gradlew testDebugUnitTest assembleDebug` passed (46 actionable tasks, 0 failures, build successful). Physical device runtime verification on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) verified:
+  - Canonical `CompactMemberCard` as the sole default browse/focus surface.
+  - Event intelligence integrated directly inside the card (badge, 4-quadrant/dual facts, single contextual CTA).
+  - Duplicate bottom member `OPEN` launcher row removed.
+  - Tapping stays within canonical card without launching secondary detail shells.
+  - QA Lab remains optional via header badge button (`QA LAB [69]`).
+  - Verified across CHECK_IN, PAYMENT_OVERDUE, FREEZE_STARTED, TRIAL_STARTED, BANNED, WORKOUT, and TRAINER states.
 
-The branch already contains the ChatGPT implementation. On pull, immediately execute the task in:
-`docs/reference/ANTIGRAVITY_CANONICAL_CARD_FIX_PROMPT.md`
-
-Current remote HEAD at handoff:
-`83fef399f377be5ece16bdf2ea50e232c4d19767`
-
-Required first action:
-
-```bash
-git fetch origin
-git pull --ff-only origin member-intelligence-v3
-git rev-parse HEAD
-```
+STATUS: COMPLETED
+TASK_ID: CANONICAL-MEMBER-CARD-CONSOLIDATION
+BRANCH: member-intelligence-v3
 
 ### Non-negotiable product behavior
 
