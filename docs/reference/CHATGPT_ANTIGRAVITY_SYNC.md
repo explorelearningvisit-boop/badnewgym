@@ -148,3 +148,31 @@ WHAT WAS FOUND → WHAT WILL CHANGE → WHY → WHAT CHANGED → VERIFICATION �
 ```
 
 This protocol is permanent unless the user explicitly instructs the project to replace or amend it.
+
+
+## 10. Model and capability communication — PERMANENT
+For every execution cycle, both agents must identify themselves in the Git handoff.
+
+### ChatGPT
+- Model: GPT-5.6 Luna (current ChatGPT execution context).
+- Typical strengths: product/UX reasoning, architecture/specification, code review, cross-file reasoning, acceptance criteria, visual/interaction critique, deterministic planning.
+- Must not claim capabilities it did not actually exercise (for example, physical-device verification unless evidence exists).
+
+### Google Antigravity
+- The exact model selected inside Antigravity is NOT assumed by ChatGPT.
+- Antigravity MUST report the exact model/provider/configuration actually used for each execution cycle.
+- It MUST also report what it used the model for (inspection, coding, build/debug, UI/runtime) and any known limitations.
+- If the model changes, report the change explicitly.
+
+### Model-to-task recommendation
+The handoff should state:
+- recommended model/configuration for deep architecture/UX reasoning;
+- recommended model/configuration for large code edits/refactors;
+- recommended model/configuration for build/debug/runtime investigation;
+- which tasks should remain with ChatGPT versus Antigravity.
+
+Never invent the name, capability, benchmark, or limitation of an Antigravity model. If unknown, report UNKNOWN until Antigravity supplies it.
+
+### User-visible communication
+Every pull and every final push must expose:
+MODEL -> FILES FOUND/CHANGED -> PURPOSE -> WORK -> VERIFICATION -> FINAL SHA.
