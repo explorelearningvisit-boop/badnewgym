@@ -22,6 +22,13 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.ServiceSumm
 import com.example.badnewgym.feature.memberintelligence.domain.model.SupplementSummary
 import com.example.badnewgym.feature.memberintelligence.domain.model.TrainerSummary
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSummary
+import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEngagementSummary
+import com.example.badnewgym.feature.memberintelligence.domain.model.MemberStatusUpdate
+import com.example.badnewgym.feature.memberintelligence.domain.model.MemberApprovalRequest
+import com.example.badnewgym.feature.memberintelligence.domain.model.MemberRecognition
+import com.example.badnewgym.feature.memberintelligence.domain.model.GymRecognitionEntry
+import com.example.badnewgym.feature.memberintelligence.domain.model.ApprovalChannel
+import com.example.badnewgym.feature.memberintelligence.domain.model.RecognitionType
 
 object MemberScenarios {
     private const val DAY = 86_400_000L
@@ -150,7 +157,37 @@ object MemberScenarios {
             nutrition = NutritionSummary(true, "Neon Pro Diet", now + DAY * 30, 2500.0),
             services = listOf(ServiceSummary("VIP Locker", true, now + DAY * 102, 1000.0)),
             recentEvents = listOf(MemberEvent("e2", "2", "gym1", EventType.WORKOUT, now, EventSource.MEMBER)),
-            issues = emptyList()
+            issues = emptyList(),
+            // Synthetic preview fixture only; production repositories must supply real engagement records.
+            engagement = MemberEngagementSummary(
+                statuses = listOf(
+                    MemberStatusUpdate("s1", "Arjun Mehta", "Completed upper-body session", now - 20 * 60_000L, reactions = 18, comments = 3),
+                    MemberStatusUpdate("s2", "Gym Coach", "Consistency challenge update", now - 45 * 60_000L, reactions = 27, comments = 5)
+                ),
+                approvals = listOf(
+                    MemberApprovalRequest(
+                        id = "a1",
+                        channel = ApprovalChannel.EMAIL,
+                        subject = "Approve membership renewal",
+                        preview = "Premium plan • requested by Front Desk",
+                        requestedBy = "Front Desk",
+                        requestedAt = now - 35 * 60_000L,
+                        amount = 28_000.0
+                    )
+                ),
+                recognitions = listOf(
+                    MemberRecognition("r1", RecognitionType.ATTENDANCE, "Attendance leader", "22 visits this month", now),
+                    MemberRecognition("r2", RecognitionType.PAYMENT_ON_TIME, "Payment on time", "0 overdue days", now)
+                ),
+                leaderboard = listOf(
+                    GymRecognitionEntry("2", "Arjun Mehta", 1, "Attendance", "22/26", "Top attendance this month", isCurrentMember = true),
+                    GymRecognitionEntry("1", "Yash Singh", 2, "Streak", "8 days", "Consistency", false),
+                    GymRecognitionEntry("3", "Riya Kapoor", 3, "Visits", "18", "Strong attendance", false)
+                ),
+                rewardsPoints = 1280,
+                rewardTier = "Gold",
+                unreadNotifications = 3
+            )
         )
         val event = MemberEvent("live_2", "2", "gym1", EventType.WORKOUT, now, EventSource.MEMBER)
         return snapshot to event
