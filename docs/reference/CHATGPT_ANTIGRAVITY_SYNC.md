@@ -230,3 +230,29 @@ All implementation cycles must read:
 `docs/reference/CHATGPT_ANTIGRAVITY_MASTER_HANDOFF.md`
 
 If it conflicts with an older task packet on menu placement or menu count, the master handoff governs the current UX direction unless the user explicitly changes it.
+
+
+---
+
+# STAGE 8 HANDOFF — FULL-DATA MEMBER CARD
+
+New authoritative implementation contract:
+`docs/reference/CHATGPT_MEMBER_INTELLIGENCE_STAGE_8_MASTER_CONTRACT.md`
+
+Current baseline before Stage 8 execution:
+`9a523402eecc6c3f8d049c397f3aa25a256af5e3`
+
+Required direction:
+- Vertical menu inside the bounded canonical card.
+- No right-side rail.
+- Preserve existing Concept F work where it remains useful, but the primary menu presentation must now be vertical.
+- Every menu becomes a real member intelligence surface with NOW/PAST/FUTURE and on-demand historical drilldown.
+- Preserve existing event/temporal/capability architecture.
+- Add universal data states: ACTIVE, EXPIRING, EXPIRED, NOT_ENROLLED, NO_DATA, UNAVAILABLE, CRITICAL, WARNING, RESOLVED.
+- Remove duplicate presentation, not evidence.
+- Add semantic chart variants, controlled motion, and adaptive monetization only after member data/action content.
+- Card width remains bounded; height may increase approximately 20dp if required.
+- No fake data.
+
+Antigravity must read the complete Stage 8 contract before coding and report:
+MODEL -> PROVIDER/CONFIGURATION -> PULLED_HEAD -> FILES_FOUND -> FILES_CHANGED -> WORK -> TESTS -> DEVICE -> SCREENSHOTS -> FINAL_SHA -> BLOCKERS
