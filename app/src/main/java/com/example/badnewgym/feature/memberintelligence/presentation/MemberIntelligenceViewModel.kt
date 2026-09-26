@@ -92,7 +92,7 @@ class MemberIntelligenceViewModel(
                 primarySignal = selectedItem.primarySignal,
                 secondarySignals = selectedItem.secondarySignals,
                 cta = selectedItem.cta,
-                activeMenu = MenuType.HOME,
+                activeMenu = resolveInitialMenu(selectedItem.snapshot, selectedItem.currentEvent, selectedItem.signals, menus),
                 themeId = themeId,
                 members = cardItems,
                 selectedMemberIndex = targetIndex,
@@ -111,9 +111,13 @@ class MemberIntelligenceViewModel(
         val target = current.members[index]
         themeId = target.themeId
         val menus = MenuAvailabilityResolver.resolve(target.snapshot, target.signals)
-        val nextActiveMenu = current.activeMenu.takeIf { active ->
-            menus.any { it.id == active && it.isVisible && it.isEnabled }
-        } ?: MenuType.HOME
+        val nextActiveMenu = if (current.activeMenu == MenuType.HOME) {
+            resolveInitialMenu(target.snapshot, target.currentEvent, target.signals, menus)
+        } else {
+            current.activeMenu.takeIf { active ->
+                menus.any { it.id == active && it.isVisible && it.isEnabled }
+            } ?: resolveInitialMenu(target.snapshot, target.currentEvent, target.signals, menus)
+        }
 
         _state.value = current.copy(
             snapshot = target.snapshot,
@@ -162,6 +166,41 @@ class MemberIntelligenceViewModel(
         val current = _state.value as? MemberIntelligenceUiState.Success ?: return
         _state.value = current.copy(temporalRange = range)
         loadMenuTemporalData(current.activeMenu, range)
+    }
+
+    private fun resolveInitialMenu(
+        snapshot: MemberSnapshot,
+        currentEvent: MemberEvent,
+        signals: List<IntelligenceSignal>,
+        menus: List<MemberMenu>
+    ): MenuType {
+        val visible = menus.filter { it.isVisible && it.isEnabled }.map { it.id }.toSet()
+        val urgentSource = signals.firstOrNull {
+            it.priority == SignalPriority.P0_CRITICAL || it.priority == SignalPriority.P1_ACTION_REQUIRED
+        }?.sourceMenu
+        if (urgentSource != null && urgentSource in visible) return urgentSource
+
+        return when (currentEvent.eventType) {
+            EventType.PAYMENT_FAILED,
+            EventType.PAYMENT_DUE,
+            EventType.PAYMENT_OVERDUE,
+            EventType.PAYMENT_PARTIAL -> MenuType.PAYMENT
+            EventType.MEMBERSHIP_EXPIRED,
+            EventType.MEMBERSHIP_CANCELLED -> MenuType.PLAN
+            EventType.TRAINER_SESSION_SCHEDULED,
+            EventType.TRAINER_SESSION_STARTED,
+            EventType.TRAINER_SESSION_MISSED,
+            EventType.TRAINER_SESSION_CANCELLED -> MenuType.TRAINER
+            EventType.WORKOUT_STARTED,
+            EventType.WORKOUT_COMPLETED,
+            EventType.WORKOUT_SKIPPED,
+            EventType.PR_ACHIEVED -> MenuType.WORKOUT
+            EventType.SERVICE_ISSUE -> MenuType.SERVICES
+            EventType.COMPLAINT,
+            EventType.INCIDENT_REPORTED,
+            EventType.MACHINE_FAULT -> MenuType.INSIGHT
+            else -> MenuType.HOME
+        }.takeIf { it in visible } ?: MenuType.HOME
     }
 
     fun loadMenuTemporalData(menu: MenuType, range: TemporalRange = currentTemporalRange) {
