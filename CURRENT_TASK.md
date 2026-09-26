@@ -1,3 +1,98 @@
+# 🚨 ACTIVE TASK — MEMBER INTELLIGENCE UX V2 DENSE DECISION SURFACES
+
+Execution owner: Google Antigravity — Pull, Inspect, Run, Fix, Verify, Push.
+
+## User intent
+The dual-side rail is accepted. The current problem is the content UX inside the card.
+- HOME keeps the large hero identity treatment.
+- Every non-HOME menu keeps a persistent compact member context strip: small photo, small name/code, tier/plan, event/time, and attention state.
+- Switching menus must never make the operator forget which member is open.
+- The compact identity strip must consume minimal vertical space so the selected menu gets maximum viewport.
+- Menus should minimize scrolling; use dense, responsive, decision-oriented layouts.
+- Each menu must have distinct information architecture, useful charts/graphs/metrics, and no decorative/fake analytics.
+- When a member has an urgent problem, the most relevant menu should auto-open. HOME and that menu must communicate the same priority.
+- Keep one canonical member card. Do not create a second detail/dashboard shell.
+- Preserve left core rail + right contextual/premium rail.
+
+## Source specification
+docs/reference/MEMBER_INTELLIGENCE_UX_V2_BLUEPRINT.md
+
+## ChatGPT implementation already pushed for this task
+
+FILES PUSHED: 3
+
+1. app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/PersistentMemberContextHeader.kt
+   - NEW
+   - Persistent identity context component.
+   - Large HOME identity; compact non-HOME identity.
+   - Keeps member photo/name/code/plan/event/attention visible while menu content changes.
+
+2. app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCard.kt
+   - MODIFIED
+   - Uses the new persistent context header in the canonical detail card.
+   - Non-HOME menu content receives substantially more vertical space.
+
+3. app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/MemberIntelligenceViewModel.kt
+   - MODIFIED
+   - Adds deterministic initial-menu resolution.
+   - P0/P1 signal source opens first when available.
+   - Payment/plan/trainer/workout/service/issue events can open their relevant menu.
+   - Switching members can auto-select a newly urgent menu when current menu is HOME/unavailable.
+
+Sequential ChatGPT commits:
+- 82ae74a06a8a843d30053f8ee5ff7ca1959c7ae4
+- 92d5a1a980de17956566dab975fec7207117c774
+- e490dceaed222329c41b2de19a1db32b3f5a8afc
+
+Current remote HEAD must be verified with Git before execution.
+
+## Antigravity required pre-execution report
+After Pull & Inspect, report to the user/Git:
+- exact model/provider/configuration used
+- model role/capabilities used for this task
+- exact HEAD
+- exact files found
+- exact expected work per file
+- any additional files discovered as relevant
+- whether execution may begin
+
+Required shape: MODEL -> FILES FOUND -> EXPECTED WORK -> EXECUTION PLAN -> BLOCKERS
+
+## Required implementation
+1. Pull the branch and inspect the 3 files above plus the existing menu panel architecture.
+2. Inspect all current screenshots/QA states already present in the repository.
+3. Implement the UX V2 blueprint menu-by-menu, not as a generic repeated panel.
+4. Fix current visual failures: vertical letter stacking, clipped transaction/training content, huge empty Plan/Supplements/Nutrition/Services canvases, weak information density, inconsistent hierarchy, unnecessary scroll.
+5. Build responsive content using available constraints; use 2-column micro-layouts when space permits and collapse gracefully on narrow cards.
+6. Keep the compact identity strip persistent on all non-HOME menus.
+7. Use real snapshot/temporal data only. Unsupported metrics must be explicitly unavailable, not fabricated.
+8. Give each menu a useful information personality:
+   - Attendance: consistency/trend/timing
+   - Plan: entitlement/expiry/access
+   - Payment: due/lifetime/timeline/status
+   - Trainer: sessions/next/missed/progress
+   - Workout: routine/frequency/progress/milestones
+   - Supplements: stack/purchases/renewal
+   - Nutrition: plan/macros/adherence when connected
+   - Services: entitlements/usage/expiry
+   - History: event timeline/filter
+   - Insight: prioritized signals/evidence/actions
+   - More: grouped operational actions
+   - Offers: real promotion/eligibility/expiry
+9. Home remains the cross-menu executive summary.
+10. Preserve dual-side rail routing and premium/service visibility.
+
+## Verification gate
+Run: git fetch origin; git pull --ff-only origin member-intelligence-v3; git rev-parse HEAD; ./gradlew assembleDebug; ./gradlew testDebugUnitTest
+Run lint if configured. Install/run on the physical device.
+Capture screenshots for HOME, Attendance, Plan, Payment, Trainer, Workout, Supplements, Nutrition, Services, History, Insight, More, and Offers if available.
+Specifically verify: no vertical text, no clipping behind rails, no giant empty areas, compact identity remains visible, primary decision metric above fold, CTA visible when action exists, minimal scrolling, charts use actual data, member switching preserves context, urgent payment/problem opens relevant menu, HOME and problem menu agree on priority, no fake data.
+Do not report production-ready until build + tests + device evidence exist.
+
+## Final Antigravity report
+Update docs/reference/ANTIGRAVITY_SYNC_ACK.md with model/provider/configuration, pulled HEAD, exact files inspected, exact files added/modified/deleted, purpose of each, build/test/lint/device result, screenshot evidence, deviations/blockers, and final push SHA.
+Then ChatGPT will review the exact SHA + changed-file inventory.
+
 # 🚨 MEMBER CARD DUAL-SIDE RAIL + PREMIUM ACCESS
 
 **Execution owner: Google Antigravity — Pull & Run.**
