@@ -1424,7 +1424,8 @@ private fun getRailMicroData(
         MenuType.WORKOUT -> snapshot.attendance?.avgVisitsPerWeek?.let { "${it.toInt()}/wk" } ?: "4/wk"
         MenuType.SUPPLEMENTS -> if (snapshot.supplements?.hasHistory == true) "Active" else "Stack"
         MenuType.NUTRITION -> if (snapshot.nutrition?.isSubscribed == true) "Active" else "Diet"
-        MenuType.SERVICES -> snapshot.services?.let { "${it.count { s -> s.isActive }} act" } ?: "2 act"
+        MenuType.SERVICES -> snapshot.services?.let { services -> services.count { service -> service.isActive }.let { count -> if (count > 0) count.toString() + " act" else "—" } } ?: "—"
+        MenuType.ADVERTISEMENT -> snapshot.promotion?.badge ?: "Offer"
         MenuType.HISTORY -> "${snapshot.recentEvents.size.coerceAtLeast(3)} ev"
         MenuType.INSIGHT -> if (primarySignal?.priority == SignalPriority.P0_CRITICAL) "1 P0" else if (snapshot.issues.isNotEmpty()) "${snapshot.issues.size} act" else "AI"
         MenuType.MORE -> "" // Section 5: More has no meaningless badge
@@ -1441,6 +1442,7 @@ private fun getRailIcon(type: MenuType): ImageVector = when (type) {
     MenuType.SUPPLEMENTS -> Icons.Rounded.LocalDrink
     MenuType.NUTRITION -> Icons.Rounded.Restaurant
     MenuType.SERVICES -> Icons.Rounded.MiscellaneousServices
+    MenuType.ADVERTISEMENT -> Icons.Rounded.Campaign
     MenuType.HISTORY -> Icons.Rounded.History
     MenuType.INSIGHT -> Icons.Rounded.AutoAwesome
     MenuType.MORE -> Icons.Rounded.MoreHoriz
@@ -1659,7 +1661,7 @@ private fun HomeBoundedContent(
         CompactSignalBanner(signalText, isCritical, semantics) { onNavigate(MenuType.INSIGHT) }
 
         snapshot.promotion?.let { promo ->
-            PromotionBanner(promo, theme) { onNavigate(MenuType.MORE) }
+            PromotionBanner(promo, theme) { onNavigate(MenuType.ADVERTISEMENT) }
         }
 
         val coachLabel = snapshot.trainer?.trainerName ?: "No trainer assigned"
