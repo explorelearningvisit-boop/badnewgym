@@ -225,13 +225,13 @@ fun CompactMemberCard(
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         // 1. Persistent Identity, Event, and Membership Header
-                        PersistentDetailHeader(
+                        PersistentMemberContextHeader(
                             snapshot = snapshot,
                             currentEvent = currentEvent,
                             theme = theme,
                             semantics = semantics,
                             dimensions = dimensions,
-                            onClose = onCloseDetail,
+                            activeMenu = activeMenu,
                             onIdentityClick = onClick
                         )
 
