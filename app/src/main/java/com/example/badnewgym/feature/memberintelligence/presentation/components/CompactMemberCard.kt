@@ -14,6 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -347,7 +348,7 @@ fun CompactMemberCard(
                 }
             } else {
                 val leftMenus = menus.filter { it.isVisible && it.isEnabled && it.railSide == MenuRailSide.LEFT }
-                val rightMenus = menus.filter { it.isVisible && it.isEnabled && it.railSide == MenuRailSide.RIGHT }
+                val contextualMenus = menus.filter { it.isVisible && it.isEnabled && it.railSide == MenuRailSide.RIGHT }
 
                 Row(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 3.dp, vertical = 3.dp),
@@ -361,14 +362,21 @@ fun CompactMemberCard(
                         modifier = Modifier.fillMaxHeight().width(38.dp)
                     )
 
-                    Spacer(Modifier.width(3.dp))
+                    Spacer(Modifier.width(4.dp))
 
-                    Box(
-                        modifier = Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(18.dp))
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(18.dp)),
+                        verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         if (activeMenu == MenuType.HOME) {
                             Column(
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 7.dp, vertical = 9.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 6.dp, vertical = 6.dp),
                                 verticalArrangement = Arrangement.SpaceBetween
                             ) {
                                 CompactEventHeader(event = currentEvent, theme = theme, onClick = onClick)
@@ -425,32 +433,51 @@ fun CompactMemberCard(
                                 )
                             }
                         } else {
-                            CompactRailMenuContent(
-                                menu = activeMenu,
-                                snapshot = snapshot,
-                                currentEvent = currentEvent,
-                                primarySignal = primarySignal,
-                                secondarySignals = secondarySignals,
-                                cta = cta,
-                                theme = theme,
-                                temporalRange = temporalRange,
-                                onRangeChange = onRangeChange,
-                                onEventClick = onEventClick,
-                                onCtaClick = onCtaClick,
-                                onMenuSelected = onMenuSelected
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                PersistentMemberContextHeader(
+                                    snapshot = snapshot,
+                                    currentEvent = currentEvent,
+                                    theme = theme,
+                                    semantics = semantics,
+                                    dimensions = dimensions,
+                                    activeMenu = activeMenu,
+                                    onIdentityClick = onClick
+                                )
+                                Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                                    CompactRailMenuContent(
+                                        menu = activeMenu,
+                                        snapshot = snapshot,
+                                        currentEvent = currentEvent,
+                                        primarySignal = primarySignal,
+                                        secondarySignals = secondarySignals,
+                                        cta = cta,
+                                        theme = theme,
+                                        temporalRange = temporalRange,
+                                        onRangeChange = onRangeChange,
+                                        onEventClick = onEventClick,
+                                        onCtaClick = onCtaClick,
+                                        onMenuSelected = onMenuSelected
+                                    )
+                                }
+                            }
+                        }
+
+                        if (contextualMenus.isNotEmpty()) {
+                            ContextualBottomNav(
+                                menus = contextualMenus,
+                                activeMenu = activeMenu,
+                                onMenuSelected = onMenuSelected,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
                             )
                         }
-                    }
-
-                    if (rightMenus.isNotEmpty()) {
-                        Spacer(Modifier.width(3.dp))
-                        MemberCardRail(
-                            menus = rightMenus,
-                            activeMenu = activeMenu,
-                            side = MenuRailSide.RIGHT,
-                            onMenuSelected = onMenuSelected,
-                            modifier = Modifier.fillMaxHeight().width(38.dp)
-                        )
                     }
                 }
             }
@@ -519,6 +546,74 @@ private fun MemberCardRail(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContextualBottomNav(
+    menus: List<MemberMenu>,
+    activeMenu: MenuType,
+    onMenuSelected: (MenuType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = BADGymTheme.colors
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(11.dp))
+            .background(colors.surfaceMuted.copy(alpha = 0.88f))
+            .border(0.8.dp, colors.border.copy(alpha = 0.45f), RoundedCornerShape(11.dp))
+            .padding(horizontal = 4.dp, vertical = 3.dp)
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        menus.forEach { menuItem ->
+            val isSelected = menuItem.id == activeMenu
+            Box(
+                modifier = Modifier
+                    .height(28.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (isSelected) colors.accent.copy(alpha = 0.16f) else Color.Transparent)
+                    .border(
+                        if (isSelected) 1.dp else 0.dp,
+                        if (isSelected) colors.accent.copy(alpha = 0.5f) else Color.Transparent,
+                        RoundedCornerShape(8.dp)
+                    )
+                    .clickable(
+                        onClickLabel = "Open " + menuItem.label,
+                        onClick = { onMenuSelected(menuItem.id) }
+                    )
+                    .padding(horizontal = 7.dp, vertical = 3.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = menuIcon(menuItem.id),
+                        contentDescription = menuItem.label,
+                        tint = if (isSelected) colors.accent else colors.textSecondary,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Text(
+                        text = menuItem.label,
+                        color = if (isSelected) colors.accent else colors.textSecondary,
+                        fontSize = 9.sp,
+                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+                        maxLines = 1
+                    )
+                    if (menuItem.badgeCount > 0 || menuItem.hasAlert) {
+                        Box(
+                            modifier = Modifier
+                                .size(5.dp)
+                                .clip(CircleShape)
+                                .background(if (menuItem.hasAlert) colors.danger else colors.accent)
+                        )
+                    }
                 }
             }
         }

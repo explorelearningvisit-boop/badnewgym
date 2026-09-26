@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.BADGymTheme
@@ -364,8 +365,23 @@ fun PaymentPanel(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Transaction Records (${temporalRange.formatPeriodLabel()})", color = colors.textPrimary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
-                    Text("Tap for Receipt", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "Transactions (${temporalRange.formatPeriodLabel()})",
+                        color = colors.textPrimary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "Tap for Receipt",
+                        color = colors.accent,
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1
+                    )
                 }
 
                 val transactions = pay?.history.orEmpty()

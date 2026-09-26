@@ -100,3 +100,19 @@ STATUS: CANONICAL-MEMBER-CARD-VERTICAL-RAIL-RESTORE COMPLETED
 
 STATUS: MEMBER-CARD-DUAL-SIDE-RAIL COMPLETED
 
+
+## Concept F — Hybrid Adaptive Navigation & Dense Menu IA
+
+- **Concept Gate & User Selection**: User locked **Concept F (Hybrid Adaptive Navigation)** from the Menu Concept Board.
+- **Left Rail (Core Operational)**: Preserved high-frequency operational items (`Home`, `Attend`, `Plan`, `Pay`, `Workou`, `Histor`, `Insigh`, `More`).
+- **Bottom Contextual Navigation**: Replaced the cramped right vertical rail with a space-efficient bottom pill bar (`ContextualBottomNav`) surfacing active capabilities (`Trainer`, `Supplements`, `Nutrition`, `Services`, `Offers`).
+- **Persistent Member Context**: Integrated `PersistentMemberContextHeader` at the top of every non-HOME menu view, maintaining persistent identity context (photo, name, code, plan, event badge, urgent indicator) across all drill-down panels.
+- **Full Viewport Width & Zero Text Stacking**: Restored full card width to center content, eliminating vertical letter stacking in `PaymentPanel` and other detailed views.
+- **Verification Evidence**:
+  - Unit tests: `./gradlew testDebugUnitTest` passed (46 actionable tasks, 0 test failures).
+  - Build: `./gradlew assembleDebug` passed.
+  - Physical Device: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) with active bottom contextual pills and persistent header. Screenshot captured at `docs/reference/current-device-output.png`.
+
+STATUS: MEMBER-INTELLIGENCE-MENU-IA-CONCEPT-F COMPLETED
+
+

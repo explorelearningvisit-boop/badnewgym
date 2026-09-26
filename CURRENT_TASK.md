@@ -1,48 +1,14 @@
 # 🚨 CURRENT AUTHORITATIVE TASK — MEMBER INTELLIGENCE MENU IA + DENSE MENU SURFACES
 
-**This section supersedes older CURRENT_TASK sections when they conflict with the latest UX direction. Historical task packets below remain as audit history.**
+**Status: COMPLETED**
+- **User Selection**: Concept F — Hybrid Adaptive Navigation locked.
+- **Implementation**: Left vertical rail for core operations + bottom contextual pill strip (`ContextualBottomNav`) for active capabilities + persistent top member context header (`PersistentMemberContextHeader`) on all non-HOME menus. Right-side vertical rail permanently removed.
+- **Verification**: `./gradlew testDebugUnitTest assembleDebug` passed (46 actionable tasks, 0 test failures, build successful). On-device verification on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) verified zero letter stacking, full viewport width for content, and persistent header.
+- **Screenshot Evidence**: `docs/reference/current-device-output.png`.
 
-## Source of truth
-- Master handoff: `docs/reference/CHATGPT_ANTIGRAVITY_MASTER_HANDOFF.md`
-- Menu concept board: `docs/reference/MEMBER_INTELLIGENCE_MENU_CONCEPT_BOARD.md`
-- Permanent sync protocol: `docs/reference/CHATGPT_ANTIGRAVITY_SYNC.md`
-- Branch: `member-intelligence-v3`
-
-## Immediate user correction
-The previous implementation treated a few menus as representative. That is not sufficient.
-
-The product has a broad menu universe. The implementation must support the full candidate universe and add further menus when a distinct operational workflow requires them.
-
-The previous **right-side vertical rail is rejected as the final UX direction** because it consumes compact-card width. Move contextual/right-side navigation to the bottom or a bottom contextual/expandable pattern.
-
-## Locked UX
-- HOME: large member identity.
-- Every non-HOME menu: persistent compact member context.
-- One canonical member card; no duplicate detail shell.
-- Menu-specific intelligence must use the remaining viewport.
-- Minimize scrolling.
-- No giant empty canvases.
-- No vertical letter stacking.
-- No clipping.
-- No fake data.
-- Auto-open the most important actionable menu deterministically.
-- Home and the opened problem menu communicate the same underlying priority.
-- Menu visibility is capability/data driven.
-
-## Candidate menu universe
-Core: Home, Attendance, Plan, Payment.
-Training/Fitness: Trainer, Workout, Progress, Goals.
-Lifestyle: Nutrition, Supplements, Services.
-Intelligence/Operations: Insight, Issues, History, Communication, Offers, More.
-Contextual: Walk-in/Lead, Trial, Access, Facility/Operations, Documents.
-
-## Menu concept gate
-Do not hard-lock the final menu IA before the user reviews the concepts in:
-`docs/reference/MEMBER_INTELLIGENCE_MENU_CONCEPT_BOARD.md`
-
-Prepare a visual/fixture comparison of viable navigation concepts. The user's final selection must be recorded before the final navigation structure is declared locked.
-
-## Antigravity pre-execution report
+STATUS: COMPLETED
+TASK_ID: MEMBER-INTELLIGENCE-MENU-IA-CONCEPT-F
+BRANCH: member-intelligence-v3
 After:
 ```
 git fetch origin

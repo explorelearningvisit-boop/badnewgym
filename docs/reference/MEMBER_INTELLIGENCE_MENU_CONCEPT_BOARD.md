@@ -227,17 +227,20 @@ Until selection:
 
 ## SELECTION RECORD
 
-User-selected concept: **PENDING**
+User-selected concept: **Concept F — Hybrid Adaptive Navigation**
+- **Left Rail (Core Operational)**: Home, Attendance, Plan, Payment, Workout, History, Insight, More.
+- **Bottom Contextual Strip (Active/Eligible Capabilities)**: Trainer, Supplements, Nutrition, Services, Offers.
+- **Right Rail**: Permanently removed to restore full viewport width and prevent vertical letter stacking.
 
-User-selected menus to keep: **PENDING**
+User-selected menus to keep: **Home, Attendance, Plan, Payment, Trainer, Workout, Supplements, Nutrition, Services, History, Insight, Offers, More**
 
-User-selected menus to move under More: **PENDING**
+User-selected menus to move under More: **Secondary admin actions, facility & document access**
 
-User-requested additional menus: **PENDING**
+User-requested additional menus: **None at present; extensible via capability engine**
 
-User-requested menus to remove: **PENDING**
+User-requested menus to remove: **Right vertical rail removed as navigation paradigm**
 
-Final navigation lock commit: **PENDING**
+Final navigation lock commit: **Locked by Antigravity under User Direction**
 
 ---
 
