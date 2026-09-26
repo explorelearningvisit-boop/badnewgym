@@ -300,7 +300,7 @@ fun PaymentPanel(
                 TemporalGranularity.HALF_YEAR,
                 TemporalGranularity.YEAR
             ),
-            eventCount = 3,
+            eventCount = pay?.history?.size ?: snapshot.recentEvents.count { it.eventType == EventType.PAYMENT || it.eventType.name.startsWith("PAYMENT") },
             onRangeChange = onRangeChange
         )
 
@@ -455,7 +455,7 @@ fun WorkoutPanel(
                 TemporalGranularity.MONTH,
                 TemporalGranularity.YEAR
             ),
-            eventCount = 14,
+            eventCount = workoutEvents.size,
             onRangeChange = onRangeChange
         )
 
@@ -567,7 +567,7 @@ fun HistoryPanel(
                 TemporalGranularity.MONTH,
                 TemporalGranularity.YEAR
             ),
-            eventCount = 48,
+            eventCount = snapshot.recentEvents.size,
             onRangeChange = onRangeChange
         )
 
@@ -823,8 +823,15 @@ fun NutritionPanel(
 
                 HorizontalDivider(color = colors.divider)
 
-                // Macros Row (Protein, Carbs, Fats)
-                Text("Macro targets appear here when nutrition tracking is connected.", color = colors.textMuted, fontSize = 10.5.sp)
+                // Truthful state: this snapshot currently exposes enrollment only, not macro logs.
+                Text(
+                    if (nut?.isSubscribed == true)
+                        "Nutrition tracking is active; meal and macro records are unavailable for this period."
+                    else
+                        "NO DATA • No active nutrition tracking record for this member.",
+                    color = colors.textMuted,
+                    fontSize = 10.5.sp
+                )
             }
         }
     }
