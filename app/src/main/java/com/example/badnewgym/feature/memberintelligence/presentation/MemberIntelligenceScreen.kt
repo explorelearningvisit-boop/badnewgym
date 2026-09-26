@@ -108,10 +108,6 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     BackHandler(enabled = success?.isQaGalleryOpen == true) {
         viewModel.closeQaGallery()
     }
-    BackHandler(enabled = success?.isDetailExpanded == true && success.isQaGalleryOpen != true) {
-        viewModel.closeMemberDetail()
-    }
-
     if (success == null) {
         Box(
             modifier = Modifier
@@ -245,40 +241,6 @@ private fun BrowseMemberIntelligenceSurface(
                         onCloseDetail = viewModel::closeMemberDetail,
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
-                if (!success.isDetailExpanded) {
-                    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(colors.surface.copy(alpha = 0.96f))
-                                .border(1.dp, colors.border, RoundedCornerShape(16.dp))
-                                .padding(horizontal = 12.dp, vertical = 9.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            MemberPhoto(
-                                photoUrl = selectedMember.identity.photoUrl,
-                                tier = selectedMember.identity.tier,
-                                width = 34.dp,
-                                height = 34.dp,
-                                showVerified = false,
-                                memberName = selectedMember.identity.name
-                            )
-                            Spacer(Modifier.width(9.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(selectedMember.identity.name, color = colors.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 2)
-                                Text(
-                                    listOfNotNull(selectedMember.membership?.planName, selectedMember.trainer?.trainerName)
-                                        .joinToString(" • ").ifBlank { "Open member detail" },
-                                    color = colors.textSecondary,
-                                    fontSize = 10.sp,
-                                    maxLines = 1
-                                )
-                            }
-                            Text("OPEN", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Black)
-                        }
-                    }
                 }
                 Spacer(Modifier.height(4.dp))
                 BadGymBottomBar(modifier = Modifier.fillMaxWidth(), onItemClick = { })
