@@ -295,3 +295,115 @@ This is the communication contract for Stage 8 and subsequent Member Intelligenc
 - **OPEN QUESTIONS FOR CHATGPT**:
   - Next planned enriched surface: Payment timeline drilldown vs Workout progression vs Trainer schedule?
 
+
+
+---
+
+## CHATGPT LUNA IMPLEMENTATION CYCLE — IMAGE → PRODUCT
+
+### ChatGPT / GPT-5.6 Luna
+
+Intent: convert the approved high-density Member Intelligence concept image into production architecture, not a static mockup.
+
+### Product reasoning
+
+The concept image demonstrates several distinct information personalities inside one member workspace:
+
+- identity + current event;
+- attendance behavior;
+- membership lifecycle;
+- payment collection;
+- trainer/workout progression;
+- nutrition/supplements;
+- service usage;
+- audit/history;
+- evidence-backed insight;
+- social-style member status;
+- approval workflow;
+- recognition/rewards;
+- gym-wide positive recognition;
+- communication pulse;
+- contextual monetization.
+
+The implementation must preserve the product law:
+
+EVENT → MEMBER → TIME → STATE → EVIDENCE → PATTERN → FORECAST → DECISION → ACTION
+
+Visual density must come from real information architecture, not fake metrics.
+
+### ChatGPT changes already pushed
+
+1. MemberSnapshot.kt
+   - optional engagement contract.
+
+2. MemberIntelligenceEngagementModels.kt
+   - status stories;
+   - approval requests;
+   - recognitions;
+   - gym-wide recognition entries;
+   - communications;
+   - reward points/tier;
+   - unread notifications.
+
+3. MemberEngagementHub.kt
+   - social-style status stories;
+   - Gmail-style approval inbox;
+   - recognition/rewards;
+   - gym recognition board;
+   - notification count.
+
+4. CompactMemberCard.kt
+   - integrated engagement hub into HOME;
+   - removed decorative fabricated workout bars.
+
+5. CompactCardDimensions.kt
+   - increased vertical geometry to make the richer card usable without widening it.
+
+6. MenuContentPanels.kt
+   - removed hardcoded payment/workout/history event counts;
+   - bound counts to actual snapshot/event records;
+   - replaced nutrition placeholder language with truthful data state.
+
+7. MemberScenarios.kt
+   - added a clearly marked synthetic preview fixture so the new engagement UI can be visually QA'd without pretending those records are production data.
+
+8. CHATGPT_LUNA_IMAGE_TO_PRODUCT_CONTRACT.md
+   - full mapping from concept image to existing product architecture.
+
+### Critical distinction
+
+Preview fixtures are allowed for visual QA. Production data must come from the repository/backend.
+
+No production screen may invent:
+- attendance;
+- payment;
+- ranking;
+- rewards;
+- social content;
+- approval requests;
+- health/nutrition metrics;
+- media;
+- advertisements.
+
+### Antigravity next responsibility
+
+Pull the exact latest branch state, inspect these changes, compile, test, run on device, and then continue the remaining menu-by-menu implementation.
+
+Antigravity must specifically validate:
+- the new models compile across every MemberSnapshot constructor;
+- engagement hub does not consume excessive Home viewport;
+- card height increase is visually safe;
+- approval buttons have real action wiring;
+- status/recognition visibility obeys capability and permission rules;
+- leaderboard is gym-wide data, never derived from one member;
+- every retained menu reaches the same information depth as the concept reference;
+- no fake values survive in existing panels;
+- ads remain secondary to critical member actions.
+
+### Exchange rule
+
+Antigravity must return:
+
+MODEL → PROVIDER/CONFIGURATION → PULLED_HEAD → FILES_FOUND → FILES_CHANGED → IMPLEMENTATION_REASONING → TESTS → DEVICE → SCREENSHOTS → FINAL_SHA → BLOCKERS → OPEN QUESTIONS
+
+ChatGPT then reviews the exact SHA/diff and issues the next focused correction contract.
