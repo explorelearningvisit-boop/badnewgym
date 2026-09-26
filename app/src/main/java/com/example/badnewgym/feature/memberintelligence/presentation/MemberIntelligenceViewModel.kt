@@ -126,19 +126,21 @@ class MemberIntelligenceViewModel(
         loadMenuTemporalData(current.activeMenu, currentTemporalRange)
     }
 
+    /**
+     * Member Intelligence is a single canonical card surface.
+     * Selecting a member must never replace it with a second detail interface.
+     * Contextual evidence belongs inside the canonical card/menu state.
+     */
     fun openMemberDetail(index: Int? = null) {
+        if (index != null) selectMember(index)
+        isDetailExpanded = false
         val current = _state.value as? MemberIntelligenceUiState.Success ?: return
-        if (index != null && index in current.members.indices) {
-            selectMember(index)
-        }
-        isDetailExpanded = true
-        val updated = _state.value as? MemberIntelligenceUiState.Success ?: return
-        _state.value = updated.copy(isDetailExpanded = true)
+        _state.value = current.copy(isDetailExpanded = false)
     }
 
     fun closeMemberDetail() {
-        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
         isDetailExpanded = false
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
         _state.value = current.copy(isDetailExpanded = false)
     }
 
