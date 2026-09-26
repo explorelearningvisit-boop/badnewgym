@@ -123,4 +123,51 @@ class EventCardCatalogTest {
         assertEquals(EventType.MACHINE_FAULT, faultRoute.eventType)
         assertEquals(MenuType.SERVICES, faultRoute.defaultMenu)
     }
+
+    @Test
+    fun testEventCardVariantResolver() {
+        // Late check-in
+        val lateCheckIn = MemberEvent("e1", "m1", "g1", EventType.CHECK_IN, System.currentTimeMillis(), metadata = mapOf("latenessMinutes" to "15"))
+        val latePres = EventCardVariantResolver.resolve(lateCheckIn)
+        assertEquals(EventCardVariant.LATE_CHECK_IN, latePres.variant)
+        assertEquals("Late check-in (15 min)", latePres.headlineOverride)
+
+        // Early check-in
+        val earlyCheckIn = MemberEvent("e2", "m1", "g1", EventType.CHECK_IN, System.currentTimeMillis(), metadata = mapOf("earlyMinutes" to "20"))
+        val earlyPres = EventCardVariantResolver.resolve(earlyCheckIn)
+        assertEquals(EventCardVariant.EARLY_CHECK_IN, earlyPres.variant)
+        assertEquals("Early check-in (20 min)", earlyPres.headlineOverride)
+
+        // Overdue payment
+        val overduePayment = MemberEvent("e3", "m1", "g1", EventType.PAYMENT_OVERDUE, System.currentTimeMillis(), metadata = mapOf("overdueDays" to "7"))
+        val overduePres = EventCardVariantResolver.resolve(overduePayment)
+        assertEquals(EventCardVariant.OVERDUE, overduePres.variant)
+        assertEquals("Payment overdue (7 days)", overduePres.headlineOverride)
+
+        // Payment failed
+        val failedPayment = MemberEvent("e4", "m1", "g1", EventType.PAYMENT_FAILED, System.currentTimeMillis())
+        val failedPres = EventCardVariantResolver.resolve(failedPayment)
+        assertEquals(EventCardVariant.FAILED, failedPres.variant)
+
+        // Trial converted
+        val trialConverted = MemberEvent("e5", "m1", "g1", EventType.TRIAL_CONVERTED, System.currentTimeMillis())
+        val convertedPres = EventCardVariantResolver.resolve(trialConverted)
+        assertEquals(EventCardVariant.CONVERTED, convertedPres.variant)
+
+        // Trial expired
+        val trialExpired = MemberEvent("e6", "m1", "g1", EventType.TRIAL_EXPIRED, System.currentTimeMillis())
+        val expiredPres = EventCardVariantResolver.resolve(trialExpired)
+        assertEquals(EventCardVariant.EXPIRED, expiredPres.variant)
+
+        // Ban active
+        val banned = MemberEvent("e7", "m1", "g1", EventType.BANNED, System.currentTimeMillis())
+        val bannedPres = EventCardVariantResolver.resolve(banned)
+        assertEquals(EventCardVariant.BLOCKED, bannedPres.variant)
+
+        // Ban lifted
+        val banLifted = MemberEvent("e8", "m1", "g1", EventType.BAN_LIFTED, System.currentTimeMillis())
+        val banLiftedPres = EventCardVariantResolver.resolve(banLifted)
+        assertEquals(EventCardVariant.RESOLVED, banLiftedPres.variant)
+    }
 }
+
