@@ -1,3 +1,129 @@
+# 🚨 CURRENT AUTHORITATIVE TASK — MEMBER INTELLIGENCE MENU IA + DENSE MENU SURFACES
+
+**This section supersedes older CURRENT_TASK sections when they conflict with the latest UX direction. Historical task packets below remain as audit history.**
+
+## Source of truth
+- Master handoff: `docs/reference/CHATGPT_ANTIGRAVITY_MASTER_HANDOFF.md`
+- Menu concept board: `docs/reference/MEMBER_INTELLIGENCE_MENU_CONCEPT_BOARD.md`
+- Permanent sync protocol: `docs/reference/CHATGPT_ANTIGRAVITY_SYNC.md`
+- Branch: `member-intelligence-v3`
+
+## Immediate user correction
+The previous implementation treated a few menus as representative. That is not sufficient.
+
+The product has a broad menu universe. The implementation must support the full candidate universe and add further menus when a distinct operational workflow requires them.
+
+The previous **right-side vertical rail is rejected as the final UX direction** because it consumes compact-card width. Move contextual/right-side navigation to the bottom or a bottom contextual/expandable pattern.
+
+## Locked UX
+- HOME: large member identity.
+- Every non-HOME menu: persistent compact member context.
+- One canonical member card; no duplicate detail shell.
+- Menu-specific intelligence must use the remaining viewport.
+- Minimize scrolling.
+- No giant empty canvases.
+- No vertical letter stacking.
+- No clipping.
+- No fake data.
+- Auto-open the most important actionable menu deterministically.
+- Home and the opened problem menu communicate the same underlying priority.
+- Menu visibility is capability/data driven.
+
+## Candidate menu universe
+Core: Home, Attendance, Plan, Payment.
+Training/Fitness: Trainer, Workout, Progress, Goals.
+Lifestyle: Nutrition, Supplements, Services.
+Intelligence/Operations: Insight, Issues, History, Communication, Offers, More.
+Contextual: Walk-in/Lead, Trial, Access, Facility/Operations, Documents.
+
+## Menu concept gate
+Do not hard-lock the final menu IA before the user reviews the concepts in:
+`docs/reference/MEMBER_INTELLIGENCE_MENU_CONCEPT_BOARD.md`
+
+Prepare a visual/fixture comparison of viable navigation concepts. The user's final selection must be recorded before the final navigation structure is declared locked.
+
+## Antigravity pre-execution report
+After:
+```
+git fetch origin
+git pull --ff-only origin member-intelligence-v3
+git rev-parse HEAD
+```
+
+Report:
+```
+MODEL
+PROVIDER / CONFIGURATION
+BRANCH
+PULLED_HEAD
+FILES_FOUND
+EXPECTED_WORK
+EXECUTION_PLAN
+BLOCKERS
+```
+
+The exact Antigravity model is UNKNOWN until it reports it. Do not invent it.
+
+## Required implementation
+1. Inspect the master handoff and menu concept board.
+2. Inspect all current Member Intelligence menu/panel/card/rail files.
+3. Prototype/compare viable bottom/contextual navigation concepts.
+4. After user menu selection, implement the selected IA across the complete retained menu universe.
+5. Keep compact member identity visible on every non-HOME menu.
+6. Give each retained menu a distinct information personality.
+7. Use actual snapshot/temporal data only.
+8. Fix responsive width/height, clipping, empty space, text stacking and scroll issues.
+9. Verify deterministic auto-open and cross-menu priority consistency.
+10. Add/update tests for menu availability, routing, priority, CTA, and relevant fixture coverage.
+
+## Verification
+At minimum:
+```
+./gradlew assembleDebug
+./gradlew testDebugUnitTest
+```
+Run lint if configured and physical-device QA where available.
+
+Verify:
+- Home
+- Attendance
+- Plan
+- Payment
+- Trainer
+- Workout
+- Supplements
+- Nutrition
+- Services
+- History
+- Insight
+- More
+- Offers
+- contextual menus where supported
+
+Do not claim complete/production-ready without actual evidence.
+
+## Final ACK
+Antigravity must update:
+`docs/reference/ANTIGRAVITY_SYNC_ACK.md`
+
+with:
+- exact model/provider/configuration;
+- pulled HEAD;
+- files found/inspected;
+- files added/modified/deleted;
+- purpose;
+- build/test/lint/device evidence;
+- screenshots;
+- deviations;
+- blockers;
+- final SHA.
+
+## User visibility
+Every meaningful cycle must be summarized as:
+**FOUND → PLAN → CHANGED → VERIFIED → SHA → BLOCKERS**
+
+---
+
 # 🚨 ACTIVE TASK — MEMBER INTELLIGENCE UX V2 DENSE DECISION SURFACES
 
 Execution owner: Google Antigravity — Pull, Inspect, Run, Fix, Verify, Push.
