@@ -81,6 +81,20 @@ data class EventCardSpec(
  */
 object EventCardCatalog {
     val all: List<EventCardSpec> = listOf(
+        // LEGACY / GENERALIZED EVENTS — kept as first-class variants so every EventType has a catalog entry
+        spec(EventType.PAYMENT, EventCardKind.PAYMENT, MenuType.PAYMENT, SignalPriority.P3_BACKGROUND, "Payment event", "PAYMENT", CardDecision.OPEN_DETAIL, CardMediaMode.MEMBER_AVATAR, "View payment"),
+        spec(EventType.NEW_MEMBER, EventCardKind.MEMBERSHIP, MenuType.PLAN, SignalPriority.P2_IMPORTANT, "New member", "LEAD → MEMBER", CardDecision.OPEN_DETAIL, CardMediaMode.MEMBER_PHOTO, "Open member"),
+        spec(EventType.RENEWAL, EventCardKind.MEMBERSHIP, MenuType.PLAN, SignalPriority.P2_IMPORTANT, "Renewal", "RENEWAL", CardDecision.RENEW_PLAN, CardMediaMode.MEMBER_AVATAR, "View renewal"),
+        spec(EventType.EXPIRED, EventCardKind.MEMBERSHIP, MenuType.PLAN, SignalPriority.P1_ACTION_REQUIRED, "Membership expired", "ACTIVE → EXPIRED", CardDecision.RENEW_PLAN, CardMediaMode.MEMBER_PHOTO, "Renew plan"),
+        spec(EventType.FREEZE, EventCardKind.FREEZE, MenuType.PLAN, SignalPriority.P2_IMPORTANT, "Membership frozen", "ACTIVE → FROZEN", CardDecision.UNFREEZE, CardMediaMode.MEMBER_AVATAR, "View freeze"),
+        spec(EventType.REACTIVATION, EventCardKind.MEMBERSHIP, MenuType.PLAN, SignalPriority.P2_IMPORTANT, "Membership reactivated", "FROZEN → ACTIVE", CardDecision.OPEN_DETAIL, CardMediaMode.MEMBER_AVATAR, "View plan"),
+        spec(EventType.TRAINER_SESSION, EventCardKind.TRAINER, MenuType.TRAINER, SignalPriority.P2_IMPORTANT, "PT session", "COACHING", CardDecision.OPEN_TRAINER, CardMediaMode.STAFF_AVATAR, "Open session"),
+        spec(EventType.WORKOUT, EventCardKind.WORKOUT, MenuType.WORKOUT, SignalPriority.P3_BACKGROUND, "Workout", "WORKOUT", CardDecision.OPEN_WORKOUT, CardMediaMode.MEMBER_AVATAR, "Open workout"),
+        spec(EventType.SUPPLEMENT_PURCHASE, EventCardKind.SERVICE, MenuType.SUPPLEMENTS, SignalPriority.P3_BACKGROUND, "Supplement purchase", "SUPPLEMENTS", CardDecision.OPEN_DETAIL, CardMediaMode.SERVICE_IMAGE, "View purchase"),
+        spec(EventType.NUTRITION, EventCardKind.SERVICE, MenuType.NUTRITION, SignalPriority.P2_IMPORTANT, "Nutrition update", "NUTRITION", CardDecision.OPEN_DETAIL, CardMediaMode.MEMBER_AVATAR, "View nutrition"),
+        spec(EventType.SERVICE_PURCHASE, EventCardKind.SERVICE, MenuType.SERVICES, SignalPriority.P2_IMPORTANT, "Service purchase", "SERVICE", CardDecision.OPEN_SERVICE, CardMediaMode.SERVICE_IMAGE, "View service"),
+        spec(EventType.MAINTENANCE, EventCardKind.FACILITY_OPERATION, MenuType.SERVICES, SignalPriority.P2_IMPORTANT, "Maintenance", "OPERATIONS", CardDecision.OPEN_DETAIL, CardMediaMode.EQUIPMENT_IMAGE, "View maintenance"),
+
         // ACCESS / JOURNEY
         spec(EventType.CHECK_IN, EventCardKind.CHECK_IN, MenuType.ATTENDANCE, SignalPriority.P3_BACKGROUND, "Checked in", "ACCESS", CardDecision.OPEN_ATTENDANCE, CardMediaMode.MEMBER_AVATAR, "Open attendance"),
         spec(EventType.CHECK_OUT, EventCardKind.CHECK_OUT, MenuType.ATTENDANCE, SignalPriority.P3_BACKGROUND, "Checked out", "ACCESS", CardDecision.OPEN_HISTORY, CardMediaMode.MEMBER_AVATAR, "View session"),
