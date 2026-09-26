@@ -1,3 +1,59 @@
+# 🚨 URGENT — CANONICAL MEMBER CARD CONSOLIDATION — PULL AND RUN
+
+**Execution owner: Google Antigravity. No manual prompt paste is required.**
+
+The branch already contains the ChatGPT implementation. On pull, immediately execute the task in:
+`docs/reference/ANTIGRAVITY_CANONICAL_CARD_FIX_PROMPT.md`
+
+Current remote HEAD at handoff:
+`83fef399f377be5ece16bdf2ea50e232c4d19767`
+
+Required first action:
+
+```bash
+git fetch origin
+git pull --ff-only origin member-intelligence-v3
+git rev-parse HEAD
+```
+
+### Non-negotiable product behavior
+
+**ONE canonical Member Intelligence card.**
+
+- Default/browse surface = canonical `CompactMemberCard`.
+- Do NOT replace it with a second detail interface on tap.
+- Event intelligence is integrated inside the same card.
+- Remove the duplicate bottom member `OPEN` row.
+- Exactly one contextual CTA.
+- No fake data.
+- QA Lab remains explicit/optional, never default.
+
+### ChatGPT code commits already pushed
+
+- `59fd7b7f343743d8cf806b11a10f23dc0d4435d6`
+- `acaef6b242c7200c12c377723c5cfe99a35fed4b`
+- `42fe2414938f7289e56a6665ee3e4642ab86c342`
+- `0be3ec4cc91596e83e1bb2f90889f5d26383c925`
+- `4050a912d2dd28d6e76ee162595cb00d156da14d`
+
+### Antigravity must now
+
+1. Pull.
+2. Inspect the resulting diff and compile state.
+3. Fix any actual Kotlin/Compose compile errors or integration regressions.
+4. Run `./gradlew assembleDebug`.
+5. Run `./gradlew testDebugUnitTest`.
+6. Run lint if configured.
+7. Install/run on the connected physical device.
+8. Verify Check-in, Payment overdue, Freeze, Trial, Trainer, Workout, Service and Ban.
+9. Capture representative screenshots.
+10. Push only the required verification/fix changes.
+11. Report exact final SHA + changed-file inventory + build/test/device evidence.
+
+**Do not claim success without actual build/device evidence.**
+
+---
+
 # BAD GYM — Current Task
 
 ## ACTIVE ANTIGRAVITY EXECUTION PACKET
