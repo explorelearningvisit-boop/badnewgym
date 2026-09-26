@@ -1086,15 +1086,19 @@ private fun CompactMetricsGrid(
                 horizontalArrangement = Arrangement.spacedBy(1.5.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
-                val barHeights = listOf(0.4f, 0.7f, 1.0f, 0.65f, 0.9f)
-                val barColor = colors.accent
-                barHeights.forEach { h ->
+                // Render only real workout-duration observations; never fake a trend.
+                val durationBars = remember(workout) {
+                    workout?.let {
+                        listOfNotNull(it.durationMinutes?.toFloat())
+                    }.orEmpty()
+                }
+                durationBars.forEach { durationValue ->
                     Box(
                         modifier = Modifier
-                            .width(2.5.dp)
-                            .fillMaxHeight(h)
+                            .width(3.dp)
+                            .height(12.dp)
                             .clip(RoundedCornerShape(1.dp))
-                            .background(barColor)
+                            .background(colors.accent)
                     )
                 }
             }
