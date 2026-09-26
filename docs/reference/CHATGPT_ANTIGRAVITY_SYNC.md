@@ -176,3 +176,57 @@ Never invent the name, capability, benchmark, or limitation of an Antigravity mo
 ### User-visible communication
 Every pull and every final push must expose:
 MODEL -> FILES FOUND/CHANGED -> PURPOSE -> WORK -> VERIFICATION -> FINAL SHA.
+
+
+## 11. MASTER UX HANDOFF / MENU SELECTION — 2026-09-26
+
+The authoritative cross-conversation UX handoff is now:
+
+`docs/reference/CHATGPT_ANTIGRAVITY_MASTER_HANDOFF.md`
+
+The menu concept/selection board is:
+
+`docs/reference/MEMBER_INTELLIGENCE_MENU_CONCEPT_BOARD.md`
+
+### Locked corrections
+- Do NOT treat three menus as the complete Member Intelligence implementation.
+- The menu universe is extensible and may exceed 15 when distinct operational workflows require it.
+- The previous right-side vertical rail is NOT the final UX.
+- Contextual/right-side navigation must move to the bottom or a bottom contextual/expandable pattern.
+- Non-HOME menus must retain compact member identity/context.
+- Menu content must be operationally distinct and decision-oriented.
+- Minimize horizontal/vertical scrolling and eliminate giant empty canvases.
+- Auto-open the most important actionable menu deterministically.
+- HOME and the opened problem menu must communicate the same underlying state.
+- No fake data or fabricated analytics.
+
+### User-selection gate
+The user wants to review menu varieties/concepts before the final menu IA is locked. Antigravity must not silently decide that the final menu set or bottom navigation concept is approved.
+
+### Two-way execution visibility
+Every cycle must be documented as:
+`FOUND → PLAN → CHANGED → VERIFIED → SHA → BLOCKERS`
+
+The user must be able to understand the cycle without reading raw Git history.
+
+## 12. AGENT MODEL REPORTING — REQUIRED EVERY CYCLE
+
+ChatGPT:
+- Current model: GPT-5.6 Luna.
+
+Antigravity:
+- Exact model/provider/configuration is UNKNOWN until Antigravity reports it.
+- Never infer or invent the model.
+- Report model, provider, configuration/effort when available, task usage, limitations, and any model change.
+
+If another coding agent (including Cursor/Grok) contributes:
+- identify it and its exact known configuration;
+- record its changed files and purpose;
+- preserve the same verification/audit trail.
+
+## 13. CURRENT MASTER FILE
+
+All implementation cycles must read:
+`docs/reference/CHATGPT_ANTIGRAVITY_MASTER_HANDOFF.md`
+
+If it conflicts with an older task packet on menu placement or menu count, the master handoff governs the current UX direction unless the user explicitly changes it.
