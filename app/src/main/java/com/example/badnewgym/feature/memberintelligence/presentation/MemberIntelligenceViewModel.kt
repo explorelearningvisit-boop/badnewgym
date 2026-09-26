@@ -111,6 +111,10 @@ class MemberIntelligenceViewModel(
         val target = current.members[index]
         themeId = target.themeId
         val menus = MenuAvailabilityResolver.resolve(target.snapshot, target.signals)
+        val nextActiveMenu = current.activeMenu.takeIf { active ->
+            menus.any { it.id == active && it.isVisible && it.isEnabled }
+        } ?: MenuType.HOME
+
         _state.value = current.copy(
             snapshot = target.snapshot,
             currentEvent = target.currentEvent,
@@ -121,7 +125,8 @@ class MemberIntelligenceViewModel(
             cta = target.cta,
             themeId = themeId,
             selectedMemberIndex = index,
-            isDetailExpanded = isDetailExpanded
+            activeMenu = nextActiveMenu,
+            isDetailExpanded = false
         )
         loadMenuTemporalData(current.activeMenu, currentTemporalRange)
     }
