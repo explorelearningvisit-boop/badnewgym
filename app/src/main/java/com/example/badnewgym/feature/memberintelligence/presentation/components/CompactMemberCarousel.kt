@@ -83,7 +83,7 @@ fun CompactMemberCarousel(
     }
 
     val rowHeight by animateDpAsState(
-        targetValue = dimensions.detailCardHeight + 16.dp,
+        targetValue = dimensions.cardHeight + 16.dp,
         animationSpec = tween(durationMillis = 220),
         label = "carousel-height"
     )
@@ -153,7 +153,7 @@ fun CompactMemberCarousel(
                     cta = item.cta,
                     dimensions = dimensions,
                     isSelected = isSelected,
-                    isDetail = isSelected,
+                    isDetail = false,
                     menus = menus,
                     activeMenu = activeMenu,
                     temporalRange = temporalRange,

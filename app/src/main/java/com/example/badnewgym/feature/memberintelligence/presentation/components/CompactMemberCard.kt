@@ -322,6 +322,7 @@ fun CompactMemberCard(
                                             theme = theme
                                         )
                                         MenuType.MORE -> MorePanel(snapshot = snapshot, theme = theme)
+                                        MenuType.ADVERTISEMENT -> AdvertisementPanel(snapshot.promotion, theme)
                                     }
                                 }
                             }
@@ -452,7 +453,6 @@ fun CompactMemberCard(
                         )
                     }
                 }
-            }
             }
         }
     }

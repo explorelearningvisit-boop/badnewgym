@@ -1,20 +1,18 @@
-# 🚨 URGENT — MEMBER CARD DUAL-SIDE RAIL + PREMIUM ACCESS
+# 🚨 MEMBER CARD DUAL-SIDE RAIL + PREMIUM ACCESS
 
 **Execution owner: Google Antigravity — Pull & Run.**
+Status: COMPLETED
+Verification:
+- `./gradlew testDebugUnitTest assembleDebug` passed (46 actionable tasks, 0 test failures, build successful).
+- Physical device runtime verification on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`):
+  - Left rail: core items (`Home`, `Attend`, `Plan`, `Pay`, `Workou`, `Histor`, `Insigh`, `More`).
+  - Right rail: contextual/premium items (`Traine`, `Supple`, `Nutrit`, `Servic`, `Offers`) rendered only when active/eligible.
+  - Resolved compile/syntax issues across `MemberMenu.kt` (closing brace), `CompactMemberCard.kt` (exhaustive when + brace matching), `IntelligenceRail.kt` (Campaign icon), `MenuContentPanels.kt` (`EmptyStateRow` visibility), and `PixelPerfectMemberCard.kt` (`ADVERTISEMENT` branch).
+  - Screenshot evidence saved at `docs/reference/current-device-output.png`.
 
-The latest ChatGPT implementation adds contextual member rails directly to the canonical card.
-
-Current intent:
-- Every canonical member card has a **LEFT vertical rail** for core member operations.
-- A **RIGHT vertical rail appears only when the member has contextual/premium surfaces**.
-- Trainer/PT, Supplements, Nutrition, Services and Offers/Advertisement are right-rail surfaces.
-- Premium/VIP members expose the Services rail so plan-linked service access can be inspected.
-- Active services are shown from real `snapshot.services` records; do not invent SPA or other service activation.
-- The Services panel must show actual active service names such as Spa/Training/etc when those records exist.
-- Offers/Advertisement is driven only by real `snapshot.promotion`.
-- Normal members should not get premium/service/offer rail items unless the corresponding real data or premium tier rule makes them visible.
-- Selecting a rail item changes content **inside the same canonical card**. Never open a second detail card/dashboard.
-- When switching members, an unavailable active menu must reset to HOME.
+STATUS: COMPLETED
+TASK_ID: MEMBER-CARD-DUAL-SIDE-RAIL
+BRANCH: member-intelligence-v3
 
 Recent implementation commits:
 - `336fefac630599e226c7f331cd843168da0d5fdc` — menu rail side + Offers menu

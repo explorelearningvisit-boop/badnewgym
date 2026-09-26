@@ -33,4 +33,4 @@ enum class MenuType(val defaultLabel: String) {
     HISTORY("History"),
     INSIGHT("Insight"),
     MORE("More")
-)
+}

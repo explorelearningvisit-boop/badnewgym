@@ -1140,7 +1140,7 @@ fun HomeTrendCard(
 }
 
 @Composable
-private fun EmptyStateRow(message: String) { Text(message, color = BADGymTheme.colors.textMuted, fontSize = 11.sp, modifier = Modifier.padding(vertical = 8.dp)) }
+internal fun EmptyStateRow(message: String) { Text(message, color = BADGymTheme.colors.textMuted, fontSize = 11.sp, modifier = Modifier.padding(vertical = 8.dp)) }
 
 private fun formatterForUi(value: Double): String = NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(value)
 

@@ -80,3 +80,23 @@ STATUS: Stage 7.9 Complete Fixture Coverage & Production Readiness COMPLETED
   - Physical Device: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`) with active vertical rail and menu switching. Screenshot captured at `docs/reference/current-device-output.png`.
 
 STATUS: CANONICAL-MEMBER-CARD-VERTICAL-RAIL-RESTORE COMPLETED
+
+
+## Member Card Dual-Side Rail & Premium Access
+
+- **Dual-Side Navigation Rails**: Integrated Left Rail (`Home`, `Attend`, `Plan`, `Pay`, `Workou`, `Histor`, `Insigh`, `More`) for core operational intelligence, and Right Rail (`Traine`, `Supple`, `Nutrit`, `Servic`, `Offers`) for contextual/premium capabilities.
+- **Data-Driven & Tier-Aware**: Right rail items appear only when real records exist (`trainer`, `supplements`, `nutrition`, `services`, `promotion`) or for Premium/VIP tier members.
+- **Fixed Compile/Syntax Issues**:
+  - `MemberMenu.kt`: Fixed enum syntax closing brace.
+  - `CompactMemberCard.kt`: Fixed exhaustive `when (menu)` for `ADVERTISEMENT` branch, removed extra brace, and formatted dual rail layout.
+  - `IntelligenceRail.kt`: Added `Campaign` icon mapping for `ADVERTISEMENT`.
+  - `MenuContentPanels.kt`: Changed `EmptyStateRow` visibility to `internal`.
+  - `PixelPerfectMemberCard.kt`: Added exhaustive `when` handling for `ADVERTISEMENT`.
+  - `CompactMemberCarousel.kt`: Ensured canonical card renders dual rail layout (`isDetail = false`).
+- **Verification Evidence**:
+  - Unit tests: `./gradlew testDebugUnitTest` passed (46 actionable tasks, 0 test failures).
+  - Build: `./gradlew assembleDebug` passed.
+  - Physical Device: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`). Screenshot captured at `docs/reference/current-device-output.png`.
+
+STATUS: MEMBER-CARD-DUAL-SIDE-RAIL COMPLETED
+

@@ -249,6 +249,7 @@ private fun CardBody(
                         MenuType.HISTORY -> HistoryPanel(snapshot, theme)
                         MenuType.INSIGHT -> InsightPanel(snapshot, signals, theme)
                         MenuType.MORE -> MorePanel(snapshot = snapshot, theme = theme)
+                        MenuType.ADVERTISEMENT -> Unit
                     }
                 }
 

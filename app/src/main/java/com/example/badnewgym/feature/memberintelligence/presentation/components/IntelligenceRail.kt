@@ -135,6 +135,7 @@ private fun getRailIcon(type: MenuType): ImageVector = when (type) {
     MenuType.SUPPLEMENTS -> Icons.Rounded.LocalDrink
     MenuType.NUTRITION -> Icons.Rounded.Restaurant
     MenuType.SERVICES -> Icons.Rounded.MiscellaneousServices
+    MenuType.ADVERTISEMENT -> Icons.Rounded.Campaign
     MenuType.HISTORY -> Icons.Rounded.History
     MenuType.INSIGHT -> Icons.Rounded.AutoAwesome
     MenuType.MORE -> Icons.Rounded.MoreHoriz
