@@ -418,6 +418,16 @@ fun CompactMemberCard(
                                     signalText = signalText,
                                     onClick = onClick
                                 )
+                                // Engagement is optional and backend-driven: social status, approvals,
+                                // recognition, rewards and gym-wide highlights appear only when real records exist.
+                                MemberEngagementHub(
+                                    engagement = snapshot.engagement,
+                                    theme = theme,
+                                    onStatusClick = { onClick() },
+                                    onApprovalAction = { _, _ -> onCtaClick() },
+                                    onRecognitionClick = { onClick() },
+                                    onLeaderboardClick = { onClick() }
+                                )
                                 val ctaLabel = resolveDynamicCtaLabel(
                                     snapshot = snapshot,
                                     currentEvent = currentEvent,
