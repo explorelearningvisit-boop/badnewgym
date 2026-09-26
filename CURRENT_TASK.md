@@ -1,3 +1,76 @@
+# 🚨 URGENT — MEMBER CARD DUAL-SIDE RAIL + PREMIUM ACCESS
+
+**Execution owner: Google Antigravity — Pull & Run.**
+
+The latest ChatGPT implementation adds contextual member rails directly to the canonical card.
+
+Current intent:
+- Every canonical member card has a **LEFT vertical rail** for core member operations.
+- A **RIGHT vertical rail appears only when the member has contextual/premium surfaces**.
+- Trainer/PT, Supplements, Nutrition, Services and Offers/Advertisement are right-rail surfaces.
+- Premium/VIP members expose the Services rail so plan-linked service access can be inspected.
+- Active services are shown from real `snapshot.services` records; do not invent SPA or other service activation.
+- The Services panel must show actual active service names such as Spa/Training/etc when those records exist.
+- Offers/Advertisement is driven only by real `snapshot.promotion`.
+- Normal members should not get premium/service/offer rail items unless the corresponding real data or premium tier rule makes them visible.
+- Selecting a rail item changes content **inside the same canonical card**. Never open a second detail card/dashboard.
+- When switching members, an unavailable active menu must reset to HOME.
+
+Recent implementation commits:
+- `336fefac630599e226c7f331cd843168da0d5fdc` — menu rail side + Offers menu
+- `b5a3ae77a5457da06fd3119ca79a9f4ed11f48bf` — premium/service-aware menu resolver
+- `40e4ba558cb06d5d11d93efde4c0d24aac35ab35` — canonical card left/right rail UI + in-card menu content
+- `22796d044e5b3d1bac6adbb3835cb2726db2d459` — Offers rail routing + badge/icon support
+- `0f906c4bb20e71e6c0206a3de98c722be4a531f3` — reset unavailable menu when switching member
+- `48d04810c883d3e97e6534633f1fff4d2a9d0bfa` — premium/VIP Services rail access
+
+### Mandatory verification
+
+```bash
+git fetch origin
+git pull --ff-only origin member-intelligence-v3
+git rev-parse HEAD
+./gradlew assembleDebug
+./gradlew testDebugUnitTest
+```
+
+Run lint if configured, then install/run on the physical device.
+
+Verify at minimum:
+1. Normal member — LEFT core rail only where no right-side capability exists.
+2. Member with PT — TRAINER appears on RIGHT rail.
+3. Member with supplement history — SUPPLEMENTS appears on RIGHT rail.
+4. Premium/VIP member — SERVICES appears on RIGHT rail.
+5. Member with active services — Services panel lists the actual recorded active services.
+6. Member with promotion — OFFERS appears on RIGHT rail.
+7. Switching between members removes unavailable right-rail items and resets invalid active menu to HOME.
+8. Tapping rail items changes content inside the same card; no duplicate detail interface.
+9. No fake SPA/service/promotion data.
+10. No clipping/overflow on narrow device.
+
+Capture screenshots showing:
+- normal member + left rail
+- PT member + right Trainer rail
+- supplement member + right Supplements rail
+- premium member + right Services rail
+- offer/promotion + right Offers rail
+
+Fix actual compile/runtime issues before reporting success.
+
+Then:
+```bash
+git status --short
+git diff --stat
+git diff --name-only
+git commit -m "feat: add contextual member card rails"
+git push origin member-intelligence-v3
+git rev-parse HEAD
+```
+
+Report exact final SHA, changed files, build/test/lint/device evidence and screenshots.
+
+---
+
 # BAD GYM — Current Task
 
 ## ACTIVE ANTIGRAVITY EXECUTION PACKET
