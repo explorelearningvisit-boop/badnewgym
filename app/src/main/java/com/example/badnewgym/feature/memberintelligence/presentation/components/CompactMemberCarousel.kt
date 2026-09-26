@@ -143,48 +143,35 @@ fun CompactMemberCarousel(
                 },
                 contentAlignment = Alignment.Center
             ) {
-                if (isCardDetail) {
-                    CompactMemberCard(
-                        snapshot = item.snapshot,
-                        currentEvent = item.currentEvent,
-                        theme = effectiveTheme,
-                        primarySignal = item.primarySignal,
-                        secondarySignals = item.secondarySignals,
-                        cta = item.cta,
-                        dimensions = dimensions,
-                        isSelected = isSelected,
-                        isDetail = true,
-                        menus = menus,
-                        activeMenu = activeMenu,
-                        temporalRange = temporalRange,
-                        onRangeChange = onRangeChange,
-                        onEventClick = onEventClick,
-                        onMenuSelected = onMenuSelected,
-                        onCloseDetail = onCloseDetail,
-                        isReducedMotion = isReducedMotion,
-                        onClick = {
-                            if (index != selectedIndex) onMemberSelected(index)
-                        },
-                        onCtaClick = {
-                            item.cta?.let(onCta) ?: onMemberClick(index)
-                        }
-                    )
-                } else {
-                    AdvancedEventMemberCard(
-                        snapshot = item.snapshot,
-                        currentEvent = item.currentEvent,
-                        theme = effectiveTheme,
-                        cta = item.cta,
-                        dimensions = dimensions,
-                        isSelected = isSelected,
-                        onClick = {
-                            onMemberSelected(index)
-                            onMemberClick(index)
-                        },
-                        onCtaClick = {
-                            item.cta?.let(onCta) ?: onMemberClick(index)
-                        }
-                    )
+                // IMPORTANT: the browse carousel always renders the canonical Member Intelligence card.
+                // The old expanded/detail renderer created a second, visually unrelated interface on tap.
+                // Detail navigation is now contextual data inside the canonical card, not a replacement surface.
+                CompactMemberCard(
+                    snapshot = item.snapshot,
+                    currentEvent = item.currentEvent,
+                    theme = effectiveTheme,
+                    primarySignal = item.primarySignal,
+                    secondarySignals = item.secondarySignals,
+                    cta = item.cta,
+                    dimensions = dimensions,
+                    isSelected = isSelected,
+                    isDetail = false,
+                    menus = menus,
+                    activeMenu = activeMenu,
+                    temporalRange = temporalRange,
+                    onRangeChange = onRangeChange,
+                    onEventClick = onEventClick,
+                    onMenuSelected = onMenuSelected,
+                    onCloseDetail = onCloseDetail,
+                    isReducedMotion = isReducedMotion,
+                    onClick = {
+                        onMemberSelected(index)
+                        onMemberClick(index)
+                    },
+                    onCtaClick = {
+                        item.cta?.let(onCta) ?: onMemberClick(index)
+                    }
+                )
                 }
             }
         }
