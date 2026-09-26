@@ -19,7 +19,11 @@ object MenuAvailabilityResolver {
         val hasSupplements = snapshot.supplements?.hasHistory == true
         val hasNutrition = snapshot.nutrition?.isSubscribed == true
         val activeServices = snapshot.services.orEmpty().filter { it.isActive }
-        val hasServices = activeServices.isNotEmpty()
+        val premiumTier = snapshot.identity.tier == com.example.badnewgym.feature.memberintelligence.domain.model.MembershipTier.PREMIUM ||
+            snapshot.identity.tier == com.example.badnewgym.feature.memberintelligence.domain.model.MembershipTier.VIP
+        // Premium/VIP members get the Services rail so their plan-linked access can be inspected;
+        // only recorded active services are labeled "active" inside the Services panel.
+        val hasServices = activeServices.isNotEmpty() || premiumTier
         val hasAdvertisement = snapshot.promotion != null
 
         fun serviceSummary(): String? =
@@ -105,7 +109,7 @@ object MenuAvailabilityResolver {
                 visible = hasServices,
                 defaultPriority = 40,
                 railSide = MenuRailSide.RIGHT,
-                summaryOverride = serviceSummary()
+                summaryOverride = serviceSummary() ?: if (premiumTier) "Premium access" else null
             ),
             menu(
                 MenuType.ADVERTISEMENT,
