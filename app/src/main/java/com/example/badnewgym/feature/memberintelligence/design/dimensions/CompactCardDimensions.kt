@@ -16,9 +16,9 @@ data class CompactCardDimensions(
     val cardWidth: Dp = 312.dp,
     val minCardWidth: Dp = 290.dp,
     val maxCardWidth: Dp = 340.dp,
-    val cardHeight: Dp = 406.dp,
+    val cardHeight: Dp = 480.dp,
     val detailCardWidth: Dp = 340.dp,
-    val detailCardHeight: Dp = 443.dp,
+    val detailCardHeight: Dp = 500.dp,
     val railWidth: Dp = 56.dp,
     val cornerRadius: Dp = 24.dp,
     val outerHorizontalPadding: Dp = 12.dp,
@@ -42,9 +42,9 @@ data class CompactCardDimensions(
 object CompactCardTokens {
     val Compact = CompactCardDimensions(
         cardWidth = 296.dp,
-        cardHeight = 410.dp,
+        cardHeight = 480.dp,
         detailCardWidth = 320.dp,
-        detailCardHeight = 440.dp,
+        detailCardHeight = 500.dp,
         railWidth = 50.dp,
         outerHorizontalPadding = 8.dp,
         carouselGap = 8.dp,
@@ -58,9 +58,9 @@ object CompactCardTokens {
 
     val Default = CompactCardDimensions(
         cardWidth = 312.dp,
-        cardHeight = 426.dp,
+        cardHeight = 496.dp,
         detailCardWidth = 340.dp,
-        detailCardHeight = 463.dp,
+        detailCardHeight = 523.dp,
         railWidth = 56.dp,
         outerHorizontalPadding = 12.dp,
         carouselGap = 12.dp,
@@ -74,9 +74,9 @@ object CompactCardTokens {
 
     val Expanded = CompactCardDimensions(
         cardWidth = 328.dp,
-        cardHeight = 442.dp,
+        cardHeight = 512.dp,
         detailCardWidth = 360.dp,
-        detailCardHeight = 480.dp,
+        detailCardHeight = 540.dp,
         railWidth = 60.dp,
         outerHorizontalPadding = 16.dp,
         carouselGap = 16.dp,
