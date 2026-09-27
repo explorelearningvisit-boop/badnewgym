@@ -127,4 +127,24 @@ STATUS: MEMBER-CARD-DUAL-SIDE-RAIL COMPLETED
 STATUS: STAGE-8-FULL-DATA-VERTICAL-CARD COMPLETED
 
 
+## Luna Image-to-Product Implementation Cycle & Test Synchronization
+
+- **Pulled ChatGPT Handoff**: `b6aeb1888c4f48eb593b189e10125bf4e26c03c8`
+  - Integrated `MemberIntelligenceEngagementModels.kt` (status stories, approval requests, recognitions, gym-wide leaderboards, communications, rewards).
+  - Integrated `MemberEngagementHub.kt` into `CompactMemberCard.kt` (HOME surface).
+  - Bound menu transaction and workout counts to real snapshot events in `MenuContentPanels.kt`.
+  - Added synthetic preview fixture in `MemberScenarios.kt` (`Arjun Mehta`).
+  - Adjusted card geometry tokens in `CompactCardDimensions.kt` to accommodate richer vertical content without widening.
+- **Fixed Geometry Tests**:
+  - Updated `CompactCardDimensionsTest.kt` assertions to synchronize with the new card and detail heights (`CompactCardTokens.Default` 496dp/523dp, `Expanded` 512dp/540dp, `Compact` 480dp/500dp).
+- **Verification Evidence**:
+  - `./gradlew.bat testDebugUnitTest`: SUCCESS (39/39 tests passed, 0 failures).
+  - `./gradlew.bat assembleDebug`: SUCCESS (39 actionable tasks, build completed in 2m 7s).
+  - Physical Device QA: Installed and verified on Xiaomi Redmi Note 11 (`zxdada69gunb7ls4`). Live app launched, single left vertical rail, persistent member header, dynamic overdue auto-routing to Payment, and side peek carousel verified.
+  - Live Screenshot: `docs/reference/current-device-output.png`.
+
+STATUS: LUNA-IMAGE-TO-PRODUCT-VERIFICATION COMPLETED
+
+
+
 
