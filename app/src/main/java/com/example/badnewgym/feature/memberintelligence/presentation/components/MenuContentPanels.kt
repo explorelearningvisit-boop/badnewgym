@@ -1046,13 +1046,18 @@ fun SubMenuTabBar(
 @Composable
 fun SectionTitle(title: String, theme: ThemeId) {
     val colors = BADGymTheme.colors
-    Text(
-        text = title,
-        color = colors.textPrimary,
-        fontSize = 11.sp,
-        fontWeight = FontWeight.ExtraBold,
-        letterSpacing = 0.5.sp
-    )
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(colors.accent.copy(alpha = 0.055f))
+            .border(0.7.dp, colors.accent.copy(alpha = 0.16f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(Modifier.size(5.dp).clip(CircleShape).background(colors.accent))
+        Spacer(Modifier.width(6.dp))
+        Text(title, color = colors.textPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 0.35.sp)
+    }
 }
 
 @Composable
@@ -1063,12 +1068,12 @@ fun InfoCard(
 ) {
     val colors = BADGymTheme.colors
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border.copy(alpha = 0.75f), RoundedCornerShape(10.dp))
+        modifier = modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(colors.surface.copy(alpha = 0.98f))
+            .border(0.8.dp, colors.border.copy(alpha = 0.82f), RoundedCornerShape(14.dp))
             .padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         content = content
     )
 }
@@ -1077,14 +1082,14 @@ fun InfoCard(
 fun KpiChip(value: String, label: String, color: Color) {
     val colors = BADGymTheme.colors
     Column(
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(colors.surfaceMuted)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+        modifier = Modifier.clip(RoundedCornerShape(10.dp))
+            .background(color.copy(alpha = 0.07f))
+            .border(0.7.dp, color.copy(alpha = 0.18f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 8.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(value, color = color, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-        Text(label, color = colors.textMuted, fontSize = 9.sp)
+        Text(value, color = colors.textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Black, maxLines = 1)
+        Text(label, color = color, fontSize = 8.sp, fontWeight = FontWeight.Black, maxLines = 1)
     }
 }
 
@@ -1093,12 +1098,14 @@ fun BadgeChip(text: String, color: Color) {
     Text(
         text = text,
         color = color,
-        fontSize = 10.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(color.copy(alpha = 0.12f))
-            .padding(horizontal = 6.dp, vertical = 3.dp)
+        fontSize = 8.5.sp,
+        fontWeight = FontWeight.Black,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.clip(RoundedCornerShape(7.dp))
+            .background(color.copy(alpha = 0.10f))
+            .border(0.7.dp, color.copy(alpha = 0.20f), RoundedCornerShape(7.dp))
+            .padding(horizontal = 7.dp, vertical = 4.dp)
     )
 }
 
@@ -1107,13 +1114,13 @@ fun ActionChip(text: String, color: Color, onClick: () -> Unit) {
     Text(
         text = text,
         color = Color.White,
-        fontSize = 10.5.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
+        fontSize = 9.5.sp,
+        fontWeight = FontWeight.Black,
+        maxLines = 1,
+        modifier = Modifier.clip(RoundedCornerShape(8.dp))
             .background(color)
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 9.dp, vertical = 5.dp)
     )
 }
 
