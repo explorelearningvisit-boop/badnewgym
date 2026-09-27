@@ -1,3 +1,39 @@
+# 🚨 AUTHORITATIVE OVERRIDE — USER DIRECTIVE — DUAL RAIL MEMBER INTELLIGENCE
+
+**Effective HEAD:** `26f9964ac30e77376425f0a605107113d8008618`
+
+The current user-approved direction supersedes older navigation sections below when they conflict.
+
+## Navigation law
+- LEFT rail = compact core member operations: Home, Attendance, Plan, Payment, More.
+- RIGHT rail = contextual/premium/intelligence capabilities: PT, Workout/Lift, Supplements, Nutrition/Diet, Services, History/Log, Insight/AI, Offers.
+- RIGHT rail items are capability/data driven. Do not show fake capabilities. If a member has a real PT package, PT appears. If the member has a real service/supplement/nutrition/Flex entitlement, the corresponding destination appears.
+- Both rails must remain visible in the canonical card. No global bottom navigation. No second member-detail shell.
+- Rails must stay short enough to avoid operator scrolling. Labels must remain horizontal/readable.
+
+## Card law
+- Home is the decision cockpit.
+- Non-HOME menus keep compact persistent member context.
+- State-specific card variants must visually distinguish Expired, Frozen, Payment Overdue/Failed, PT, Service, Machine Fault/Maintenance/Cleaning and other high-value business states.
+- Never fabricate member data, charts, forecasts, media, prices, health values or operational facts.
+- Unknown data is shown as unavailable/no-data, not guessed.
+
+## Menu depth
+Every menu should expose useful NOW / PAST / FUTURE evidence where the source supports it, plus patterns/forecasts only when derivable from real records. Use charts and motion only when they answer a decision question.
+
+## Gym business intelligence
+Member Intelligence may surface member-relevant facility/service events, but owner-level machine maintenance, cleaning, installation, utilities/electricity expense and other gym-wide operations must ultimately use gym-level repositories rather than being incorrectly stored as member facts.
+
+## Flex network
+Flex is a cross-gym workflow:
+REQUESTED → ACCEPTED → CHECKED_IN → CHECKED_OUT → CREDITED
+with DECLINED/CANCELLED terminal states. A host-gym credit is created only after the configured completed visit event. All request, acceptance, attendance and settlement records must be auditable and idempotent.
+
+## Verification
+Antigravity must pull the exact HEAD, inspect all changed files, build/test on the physical device, capture screenshots for Home + both rails + critical card variants, and report the exact model/provider/configuration and final SHA.
+
+---
+
 # 🚨 AUTHORITATIVE TASK — STAGE 8 MEMBER INTELLIGENCE FULL-DATA CARD
 
 **Status: COMPLETED (VERIFIED ON PHYSICAL HARDWARE)**
