@@ -77,6 +77,7 @@ import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberS
 import com.example.badnewgym.feature.memberintelligence.design.semantics.MemberStateVisual
 import com.example.badnewgym.feature.memberintelligence.design.shapes
 import com.example.badnewgym.feature.memberintelligence.domain.model.*
+import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberBusinessStateResolver
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -115,6 +116,7 @@ fun CompactMemberCard(
     modifier: Modifier = Modifier
 ) {
     var inspectedEvent by remember { mutableStateOf<TemporalEventRecord?>(null) }
+    val displayEvent = remember(snapshot, currentEvent) { MemberBusinessStateResolver.resolveDisplayEvent(snapshot, currentEvent) }
 
     BADGymTheme(
         colors = theme.colors(),
@@ -348,6 +350,18 @@ fun CompactMemberCard(
                         }
                     }
                 }
+
+                    BoundedDetailRail(
+                        side = RailSide.RIGHT,
+                        snapshot = snapshot,
+                        primarySignal = primarySignal,
+                        menus = menus,
+                        activeMenu = activeMenu,
+                        onMenuSelected = onMenuSelected,
+                        onCloseRail = {},
+                        railWidth = dimensions.railWidth,
+                        modifier = Modifier.fillMaxHeight()
+                    )
             } else {
                 val visibleMenus = menus.filter { it.isVisible && it.isEnabled }
 
@@ -381,7 +395,8 @@ fun CompactMemberCard(
                                     .padding(horizontal = 6.dp, vertical = 6.dp),
                                 verticalArrangement = Arrangement.SpaceBetween
                             ) {
-                                CompactEventHeader(event = currentEvent, theme = theme, onClick = onClick)
+                                CompactEventHeader(event = displayEvent, theme = theme, onClick = onClick)
+                                MemberBusinessStateCard(snapshot = snapshot, event = displayEvent, theme = theme, modifier = Modifier.fillMaxWidth())
                                 CompactHeroIdentity(
                                     identity = snapshot.identity,
                                     theme = theme,
@@ -433,7 +448,7 @@ fun CompactMemberCard(
                                 )
                                 val ctaLabel = resolveDynamicCtaLabel(
                                     snapshot = snapshot,
-                                    currentEvent = currentEvent,
+                                    currentEvent = displayEvent,
                                     semantics = semantics,
                                     cta = cta
                                 )
