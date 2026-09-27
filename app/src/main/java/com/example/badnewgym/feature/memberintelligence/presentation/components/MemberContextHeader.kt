@@ -30,7 +30,7 @@ import kotlin.math.abs
 @Composable
 fun MemberContextHeader(
     snapshot: MemberSnapshot,
-    currentEvent: MemberEvent,
+    currentEvent: MemberEvent?,
     modifier: Modifier = Modifier
 ) {
     val identity = snapshot.identity
@@ -42,9 +42,11 @@ fun MemberContextHeader(
             .padding(vertical = 12.dp)
     ) {
         // Row 1: Check-in button and timestamp
-        val eventColor = ThemeResolver.resolveEventBadgeColor(currentEvent.eventType, BADGymTheme.colors)
-        val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-        val formattedTime = timeFormat.format(Date(currentEvent.occurredAt))
+        val eventColor = currentEvent?.let { ThemeResolver.resolveEventBadgeColor(it.eventType, BADGymTheme.colors) }
+            ?: BADGymTheme.colors.textMuted
+        val formattedTime = currentEvent?.let {
+            SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(it.occurredAt))
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -65,7 +67,7 @@ fun MemberContextHeader(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = currentEvent.eventType.displayLabel().uppercase(),
+                    text = currentEvent?.eventType?.displayLabel()?.uppercase() ?: "NO RECENT EVENT",
                     color = eventColor,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
@@ -78,11 +80,16 @@ fun MemberContextHeader(
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = "Just now",
-                    color = BADGymTheme.colors.textSecondary,
-                    fontSize = 13.sp
-                )
+                currentEvent?.let {
+                    val deltaMinutes = ((System.currentTimeMillis() - it.occurredAt) / 60_000L).coerceAtLeast(0L)
+                    val relative = when {
+                        deltaMinutes < 1L -> "Just now"
+                        deltaMinutes < 60L -> deltaMinutes.toString() + "m ago"
+                        deltaMinutes < 1440L -> (deltaMinutes / 60L).toString() + "h ago"
+                        else -> (deltaMinutes / 1440L).toString() + "d ago"
+                    }
+                    Text(relative, color = BADGymTheme.colors.textSecondary, fontSize = 13.sp)
+                }
             }
         }
 
@@ -148,8 +155,9 @@ fun MemberContextHeader(
         Spacer(modifier = Modifier.height(8.dp))
         
         // Row 5: Membership Plan Card
-        val planName = membership?.planName ?: "Silver Plan"
-        val daysLeft = membership?.daysRemaining ?: 0
+        val planName = membership?.planName ?: "Plan not recorded"
+        val planType = membership?.planType ?: "—"
+        val daysLeft = membership?.daysRemaining
         
         Row(
             modifier = Modifier
@@ -167,7 +175,7 @@ fun MemberContextHeader(
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = "$planName • 6 Months",
+                text = "$planName • $planType",
                 color = BADGymTheme.colors.textPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
@@ -177,7 +185,13 @@ fun MemberContextHeader(
         Spacer(modifier = Modifier.height(6.dp))
         
         // Row 6: Status Chip
-        val statusBgColor = if (daysLeft >= 0) BADGymTheme.colors.success else BADGymTheme.colors.danger
+        val hasRecordedExpiry = daysLeft != null
+        val isActive = membership?.isActive == true
+        val statusBgColor = when {
+            !hasRecordedExpiry -> BADGymTheme.colors.textMuted
+            isActive -> BADGymTheme.colors.success
+            else -> BADGymTheme.colors.danger
+        }
         Row(
             modifier = Modifier
                 .wrapContentWidth()
@@ -194,7 +208,7 @@ fun MemberContextHeader(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (daysLeft >= 0) androidx.compose.material.icons.Icons.Rounded.Check else androidx.compose.material.icons.Icons.Rounded.Close,
+                    imageVector = if (isActive) androidx.compose.material.icons.Icons.Rounded.Check else androidx.compose.material.icons.Icons.Rounded.Close,
                     contentDescription = null,
                     tint = BADGymTheme.colors.surface,
                     modifier = Modifier.size(10.dp)
@@ -202,8 +216,12 @@ fun MemberContextHeader(
             }
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = if (daysLeft >= 0) "ACTIVE • $daysLeft Days Left" else "EXPIRED • ${abs(daysLeft)} Days Ago",
-                color = if (daysLeft >= 0) BADGymTheme.colors.success else BADGymTheme.colors.danger,
+                text = when {
+                    !hasRecordedExpiry -> "STATUS NOT RECORDED"
+                    isActive -> "ACTIVE • " + daysLeft + " Days Left"
+                    else -> "INACTIVE • " + abs(daysLeft ?: 0) + " Days Ago"
+                },
+                color = statusBgColor,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
