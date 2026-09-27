@@ -1352,6 +1352,7 @@ private fun BoundedDetailRail(
         MenuType.entries.mapIndexed { index, type ->
             MemberMenu(type, type.defaultLabel, index, isVisible = true, isEnabled = true, isLocked = false)
         }.filter { menuBelongsToRail(it.id, side) }
+    }
 
     Column(
         modifier = modifier
@@ -1396,7 +1397,7 @@ private fun BoundedDetailRail(
             Spacer(Modifier.height(1.dp))
         }
 
-        visibleMenus.forEach { menu ->
+        for (menu in visibleMenus) {
             val isActive = activeMenu == menu.id
             val isActionNeeded = when (menu.id) {
                 MenuType.PAYMENT -> (snapshot.payment?.totalOutstanding ?: 0.0) > 0 ||
@@ -1447,7 +1448,7 @@ private fun BoundedDetailRail(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = getRailIcon(menu.id),
+                        imageVector = menuIcon(menu.id),
                         contentDescription = menu.label,
                         tint = if (isActionNeeded) colors.danger else if (isActive) colors.railActiveIcon else colors.railInactiveIcon,
                         modifier = Modifier.size(if (isActive) 16.dp else 14.dp)

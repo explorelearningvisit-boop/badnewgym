@@ -48,6 +48,7 @@ import com.example.badnewgym.feature.memberintelligence.presentation.components.
 import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberIntelligenceQaGallery
 import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberPhoto
 import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
+import com.example.badnewgym.feature.deployment.DeploymentProgress
 import com.example.badnewgym.feature.deployment.DeploymentProgressBridge
 import com.example.badnewgym.feature.deployment.DeploymentProgressOverlay
 
@@ -178,7 +179,8 @@ fun MemberIntelligenceScreen(
     BrowseMemberIntelligenceSurface(
         success = success,
         theme = theme,
-        viewModel = viewModel
+        viewModel = viewModel,
+        deploymentProgress = deploymentProgress
     )
 }
 
@@ -186,7 +188,8 @@ fun MemberIntelligenceScreen(
 private fun BrowseMemberIntelligenceSurface(
     success: MemberIntelligenceUiState.Success,
     theme: ThemeId,
-    viewModel: MemberIntelligenceViewModel
+    viewModel: MemberIntelligenceViewModel,
+    deploymentProgress: DeploymentProgress? = null
 ) {
     BADGymTheme(colors = theme.colors(), shapes = theme.shapes(), motion = theme.motion(), elevation = theme.elevation()) {
         val colors = BADGymTheme.colors

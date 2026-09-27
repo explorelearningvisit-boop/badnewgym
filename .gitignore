@@ -17,4 +17,7 @@ local.properties
 .bridge-state.json
 screen_*.png
 .vscode/
+docs/reference/agent_live_stream.py
+docs/reference/mobile_dashboard.ps1
+docs/reference/phone_gallery/
 

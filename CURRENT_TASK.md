@@ -535,3 +535,19 @@ Next verification: GitHub Actions `assembleDebug`, then physical Redmi runtime s
 
 ### Antigravity next action
 Pull `origin/member-intelligence-v3` fully, verify the latest HEAD, build/test, run the complete event-card fixture/gallery, inspect visual hierarchy and CTA visibility, capture runtime screenshots, and push any required corrections with exact SHA + changed-file list. Do not report completion from commit count alone.
+
+
+## Stage — Dual-Side Rail Polish & Measured Streaming Deployment
+- **Status**: COMPLETED (VERIFIED ON PHYSICAL HARDWARE)
+- **Files Modified/Added**:
+  - Added: `app/src/main/java/com/example/badnewgym/feature/deployment/DeploymentProgress.kt`
+  - Modified: `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/MemberIntelligenceScreen.kt`
+  - Modified: `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCard.kt`
+  - Modified: `tools/deploy_debug.ps1`
+  - Screenshot: `docs/reference/current-device-output.png`
+- **Verification Evidence**:
+  - `.\gradlew.bat compileDebugSources`: SUCCESS
+  - `.\gradlew.bat testDebugUnitTest`: SUCCESS (28 actionable tasks, 0 test failures)
+  - `.\gradlew.bat assembleDebug`: SUCCESS (39 actionable tasks)
+  - `tools/deploy_debug.ps1`: Deployed 25.7MB APK stream over USB to Xiaomi 11i (`zxdada69gunb7ls4`) and launched cleanly.
+

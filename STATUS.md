@@ -161,5 +161,33 @@ STATUS: STAGE-8-FULL-DATA-VERTICAL-CARD COMPLETED
 STATUS: LUNA-IMAGE-TO-PRODUCT-VERIFICATION COMPLETED
 
 
+## Dual-Side Rail Polish & Measured Streaming Deployment Implementation
+
+- **Restored Balanced Dual-Side Rails**:
+  - Left rail for core operational navigation (`Home`, `Attend`, `Plan`, `Pay`, `More`).
+  - Right rail for extended intelligence (`PT`, `Lift`, `Supps`, `Diet`, `Serve`, `Log`, `AI`).
+  - Repaired syntax in `CompactMemberCard.kt`: balanced brace closures and replaced invalid non-composable `forEach` lambda with composable-scoped `for (menu in visibleMenus)` loop.
+  - Linked `menuIcon(menu.id)` correctly across both rails.
+- **Implemented Deployment Progress Bridge & Overlay**:
+  - Implemented missing `DeploymentProgress.kt` in `com.example.badnewgym.feature.deployment`:
+    - `DeploymentProgress` data model (phase, title, detail, percent, bytes, totalBytes, sha, isError, isVisible).
+    - `DeploymentProgressBridge` with broadcast receiver listening on `com.example.badnewgym.DEBUG_DEPLOYMENT_PROGRESS`.
+    - `DeploymentProgressOverlay` composable with animated visibility, phase badge, linear progress bar, byte counts, and error styling.
+  - Bound `deploymentProgress` state into `MemberIntelligenceScreen.kt` and propagated to `BrowseMemberIntelligenceSurface`.
+- **Robust Measured Streaming Deployment Script (`tools/deploy_debug.ps1`)**:
+  - Fixed ADB target device discovery to handle multiple devices / unauthorized attachments explicitly (`$targetDevice`).
+  - Fixed argument quoting for `adb shell am broadcast` to eliminate Android `/system/bin/sh` syntax errors when handling spaces, bullets, and parentheses.
+  - Replaced PTY-mangled `adb shell pm install-write` with binary-safe `adb exec-in pm install-write` on Windows, ensuring flawless APK streaming to `PackageInstaller`.
+- **Verification Evidence**:
+  - `./gradlew.bat compileDebugSources`: SUCCESS (BUILD SUCCESSFUL).
+  - `./gradlew.bat testDebugUnitTest`: SUCCESS (28 actionable tasks, 0 failures).
+  - `./gradlew.bat assembleDebug`: SUCCESS (39 actionable tasks, BUILD SUCCESSFUL).
+  - `tools/deploy_debug.ps1`: Full pipeline executed end-to-end (BUILD -> TRANSFER 25.7MB -> VERIFY -> LAUNCH).
+  - Physical Device QA: Verified live running app on Xiaomi 11i (`zxdada69gunb7ls4`). Live screenshot captured at `docs/reference/current-device-output.png`.
+
+STATUS: DUAL-RAIL-POLISH-AND-STREAMING-DEPLOYMENT COMPLETED
+
+
+
 
 
