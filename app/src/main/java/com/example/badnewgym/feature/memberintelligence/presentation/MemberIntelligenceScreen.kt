@@ -1,6 +1,7 @@
 package com.example.badnewgym.feature.memberintelligence.presentation
 
 import android.content.IntentFilter
+import com.example.badnewgym.BuildConfig
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedContent
@@ -41,7 +42,6 @@ import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.design.elevation
 import com.example.badnewgym.feature.memberintelligence.design.motion
 import com.example.badnewgym.feature.memberintelligence.design.shapes
-import com.example.badnewgym.feature.memberintelligence.presentation.components.BadGymBottomBar
 import com.example.badnewgym.feature.memberintelligence.presentation.components.BadGymTopBar
 import com.example.badnewgym.feature.memberintelligence.presentation.components.CompactMemberCarousel
 import com.example.badnewgym.feature.memberintelligence.presentation.components.EventDetailDialog
@@ -176,15 +176,17 @@ private fun BrowseMemberIntelligenceSurface(
                         Text("Member Intelligence • live decision workspace", color = colors.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(colors.accent.copy(alpha = 0.12f))
-                                .border(1.dp, colors.accent.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
-                                .clickable { viewModel.openQaGallery() }
-                                .padding(horizontal = 9.dp, vertical = 5.dp)
-                        ) {
-                            Text("QA LAB [69]", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        if (BuildConfig.DEBUG) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(colors.accent.copy(alpha = 0.12f))
+                                    .border(1.dp, colors.accent.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
+                                    .clickable { viewModel.openQaGallery() }
+                                    .padding(horizontal = 9.dp, vertical = 5.dp)
+                            ) {
+                                Text("QA LAB [69]", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                         Box(
                             modifier = Modifier
@@ -242,8 +244,7 @@ private fun BrowseMemberIntelligenceSurface(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                Spacer(Modifier.height(4.dp))
-                BadGymBottomBar(modifier = Modifier.fillMaxWidth(), onItemClick = { })
+                Spacer(Modifier.height(6.dp))
             }
             success.selectedEventDetail?.let { ev -> EventDetailDialog(event = ev, onDismiss = viewModel::closeEventDetail) }
         }
