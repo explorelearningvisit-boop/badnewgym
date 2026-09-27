@@ -873,19 +873,72 @@ fun ServicesPanel(
     onActionClick: () -> Unit = {}
 ) {
     val colors = BADGymTheme.colors
+    val services = snapshot.services.orEmpty()
+    val operations = snapshot.recentEvents.filter {
+        it.eventType in setOf(
+            EventType.MACHINE_FAULT, EventType.MACHINE_REPORTED, EventType.MACHINE_FIXED,
+            EventType.MAINTENANCE_STARTED, EventType.MAINTENANCE_COMPLETED,
+            EventType.CLEANING_STARTED, EventType.CLEANING_COMPLETED, EventType.STOCK_LOW
+        )
+    }.sortedByDescending { it.occurredAt }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle("FACILITIES & VALUE-ADDED SERVICES", theme)
-
+        SectionTitle("SERVICES • FACILITY • OPERATIONS INTELLIGENCE", theme)
         InfoCard(theme) {
-            val services = snapshot.services.orEmpty()
-            if (services.isEmpty()) Text("No services recorded.", color = colors.textMuted, fontSize = 12.sp)
-            else Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                services.take(5).forEach { service ->
-                    ServiceRow(service.serviceName, if (service.isActive) service.expiryDate?.let { "Active until ${it.let(::formatDate)}" } ?: "Active" else "Expired / inactive", if (service.isActive) colors.success else colors.danger)
+            Text("MEMBER ENTITLEMENTS", color = colors.textMuted, fontSize = 9.sp, fontWeight = FontWeight.Black)
+            Spacer(Modifier.height(4.dp))
+            if (services.isEmpty()) EmptyStateRow("No service entitlement recorded.")
+            else services.take(6).forEach { service ->
+                ServiceRow(service.serviceName, if (service.isActive) service.expiryDate?.let { "Active until " + formatDate(it) } ?: "Active" else "Expired / inactive", if (service.isActive) colors.success else colors.danger)
+            }
+        }
+        snapshot.flexAccess?.let { FlexAccessPanel(it, theme) }
+        InfoCard(theme) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("GYM OPERATIONS", color = colors.textPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.Black)
+                Text(operations.size.toString() + " recorded", color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.height(4.dp))
+            if (operations.isEmpty()) EmptyStateRow("No machine, cleaning, maintenance or stock event is recorded for this member context.")
+            else operations.take(6).forEach { event ->
+                val critical = event.eventType == EventType.MACHINE_FAULT
+                Row(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp)).background((if (critical) colors.danger else colors.surfaceMuted).copy(alpha = if (critical) 0.08f else 0.7f)).padding(horizontal = 8.dp, vertical = 7.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(event.eventType.displayLabel(), color = if (critical) colors.danger else colors.textPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text(event.metadata["asset"] ?: event.metadata["reason"] ?: "Operational record", color = colors.textMuted, fontSize = 9.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    Text(formatDate(event.occurredAt), color = colors.textSecondary, fontSize = 9.sp)
                 }
             }
         }
+        Text("Automation hooks: fault → assignment → repair → verification; cleaning → completion; stock low → replenishment.", color = colors.textMuted, fontSize = 9.5.sp)
+    }
+}
+
+@Composable
+private fun FlexAccessPanel(flex: FlexAccessSummary, theme: ThemeId) {
+    val colors = BADGymTheme.colors
+    val allowance = flex.monthlyVisitAllowance.coerceAtLeast(1)
+    val used = flex.visitsUsed.coerceAtLeast(0)
+    val progress = (used.toFloat() / allowance.toFloat()).coerceIn(0f, 1f)
+    InfoCard(theme) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("FLEX ACCESS NETWORK", color = colors.accent, fontSize = 9.sp, fontWeight = FontWeight.Black)
+                Text(flex.planName, color = colors.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.Black)
+            }
+            BadgeChip(flex.pendingStatus?.name ?: FlexRequestStatus.NONE.name, colors.accent)
+        }
+        Spacer(Modifier.height(6.dp))
+        LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth().height(6.dp), color = colors.accent, trackColor = colors.surfaceMuted)
+        Spacer(Modifier.height(5.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(used.toString() + " / " + allowance + " visits", color = colors.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text(flex.visitsRemaining.toString() + " remaining", color = colors.textSecondary, fontSize = 10.sp)
+        }
+        flex.pendingGymName?.let { Text("Request: " + it, color = colors.textSecondary, fontSize = 10.sp) }
+        flex.lastHostGymName?.let { Text("Last host gym: " + it, color = colors.textMuted, fontSize = 9.5.sp) }
+        flex.currentVisitCredit?.let { Text("Current visit credit: ₹" + NumberFormat.getNumberInstance(Locale("en", "IN")).format(it), color = colors.success, fontSize = 10.sp, fontWeight = FontWeight.Bold) }
     }
 }
 
