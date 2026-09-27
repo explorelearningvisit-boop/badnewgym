@@ -512,7 +512,7 @@ fun CompactMemberCard(
     }
 }
 
-private enum class RailSide { LEFT, RIGHT }
+internal enum class RailSide { LEFT, RIGHT }
 
 private fun menuBelongsToRail(type: MenuType, side: RailSide): Boolean = when (side) {
     RailSide.LEFT -> type in setOf(

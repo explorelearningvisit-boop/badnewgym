@@ -73,7 +73,7 @@ fun RedesignedMemberIntelligenceCard(
         MemberBusinessStateResolver.resolveDisplayEvent(snapshot, currentEvent)
     }
 
-    BADGymTheme(colors = theme.colors(), shapes = theme.shapes(), motion = theme.motion(), elevation = theme.elevation()) {
+    BADGymTheme(colors = theme.colors()) {
         val colors = BADGymTheme.colors
         val accent = v4Accent(event, colors)
         val width = if (isDetail) dimensions.detailCardWidth else dimensions.cardWidth
@@ -270,7 +270,7 @@ fun RedesignedMemberIntelligenceCard(
     }
 }
 
-@Composable private fun V4Action(label: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
+@Composable private fun RowScope.V4Action(label: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
     Column(Modifier.weight(1f).clip(RoundedCornerShape(11.dp)).background(color.copy(alpha = .09f)).border(.8.dp, color.copy(alpha = .24f), RoundedCornerShape(11.dp)).clickable(onClick = onClick).padding(vertical = 7.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, null, tint = color, modifier = Modifier.size(17.dp))
         Text(label, color = color, fontSize = 7.5.sp, fontWeight = FontWeight.Black)

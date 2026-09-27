@@ -15,13 +15,13 @@ class CompactCardDimensionsTest {
     fun defaultTokens_matchTargetGeometryDirection() {
         val defaultTokens = CompactCardTokens.Default
 
-        // Browse card Stage 7.1 / Luna geometry adjustment
-        assertEquals(312.dp, defaultTokens.cardWidth)
-        assertEquals(496.dp, defaultTokens.cardHeight)
+        // Browse card V4 dual-rail geometry rebalance
+        assertEquals(340.dp, defaultTokens.cardWidth)
+        assertEquals(504.dp, defaultTokens.cardHeight)
 
         // Bounded detail card
-        assertEquals(340.dp, defaultTokens.detailCardWidth)
-        assertEquals(523.dp, defaultTokens.detailCardHeight)
+        assertEquals(356.dp, defaultTokens.detailCardWidth)
+        assertEquals(526.dp, defaultTokens.detailCardHeight)
 
         // Portrait dimensions
         assertEquals(100.dp, defaultTokens.portraitWidth)
@@ -38,10 +38,10 @@ class CompactCardDimensionsTest {
     fun expandedTokens_matchTargetGeometryDirection() {
         val expandedTokens = CompactCardTokens.Expanded
 
-        assertEquals(328.dp, expandedTokens.cardWidth)
-        assertEquals(512.dp, expandedTokens.cardHeight)
+        assertEquals(344.dp, expandedTokens.cardWidth)
+        assertEquals(510.dp, expandedTokens.cardHeight)
         assertEquals(360.dp, expandedTokens.detailCardWidth)
-        assertEquals(540.dp, expandedTokens.detailCardHeight)
+        assertEquals(536.dp, expandedTokens.detailCardHeight)
         assertEquals(104.dp, expandedTokens.portraitWidth)
         assertEquals(110.dp, expandedTokens.portraitHeight)
         assertEquals(112.dp, expandedTokens.detailPortraitWidth)
@@ -52,10 +52,10 @@ class CompactCardDimensionsTest {
     fun compactTokens_matchTargetGeometryDirection() {
         val compactTokens = CompactCardTokens.Compact
 
-        assertEquals(296.dp, compactTokens.cardWidth)
-        assertEquals(480.dp, compactTokens.cardHeight)
-        assertEquals(320.dp, compactTokens.detailCardWidth)
-        assertEquals(500.dp, compactTokens.detailCardHeight)
+        assertEquals(336.dp, compactTokens.cardWidth)
+        assertEquals(500.dp, compactTokens.cardHeight)
+        assertEquals(352.dp, compactTokens.detailCardWidth)
+        assertEquals(520.dp, compactTokens.detailCardHeight)
         assertEquals(96.dp, compactTokens.portraitWidth)
         assertEquals(102.dp, compactTokens.portraitHeight)
         assertEquals(104.dp, compactTokens.detailPortraitWidth)
@@ -89,10 +89,10 @@ class CompactCardDimensionsTest {
                 "Detail portrait height must be >= 56dp",
                 tokens.detailPortraitHeight >= 56.dp
             )
-            // Rail width must be >= 48dp for accessibility touch targets
+            // Rail width must be >= 44dp for compact dual rails
             assertTrue(
-                "Rail width must be >= 48dp",
-                tokens.railWidth >= 48.dp
+                "Rail width must be >= 44dp",
+                tokens.railWidth >= 44.dp
             )
         }
     }

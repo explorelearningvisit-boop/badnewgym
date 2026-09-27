@@ -222,6 +222,27 @@ STATUS: LUNA-IMAGE-TO-PRODUCT-VERIFICATION COMPLETED
 
 STATUS: DUAL-RAIL-BUSINESS-STATE-INTELLIGENCE COMPLETED
 
+## Member Intelligence V4 Visual Redesign & Canonical Shell Verification
+
+- **Baseline Pulled**: `1023531` (5 commits on `origin/member-intelligence-v3`).
+- **Architecture & Capabilities Integrated**:
+  - **V4 Light-First Canonical Shell**: Integrated `RedesignedMemberIntelligenceCard.kt` as the primary card renderer in `CompactMemberCarousel.kt`.
+  - **Balanced Dual Rails**: Left rail for core operations (`Home`, `Attend`, `Plan`, `Pay`, `More`), Right rail for contextual/premium capabilities (`PT`, `Lift`, `Supps`, `Diet`, `Serve`, `Log`, `AI`, `Offers`). Both rails kept non-scrolling, compact (44dp width).
+  - **Persistent Identity & KPI Surface**: Header badge (`+ CHECK-IN • 4:03 PM`), persistent portrait, tier badge (`PREMIUM`), code (`BG204`), and 3 rounded KPI tiles (`16/26 ATTENDANCE`, `5 PT LEFT`, `60m WORKOUT`).
+  - **Enriched Menu Content**: Active Payment panel with audit, timeline, and recurring views, monthly date navigation, outstanding balance card (`₹4,500.00`), lifetime payments (`₹22,200.00`), overdue status, and primary action (`Collect ₹4,500 →`).
+- **Compile & Test Repairs by Antigravity**:
+  - `CompactMemberCard.kt`: Changed `RailSide` visibility from `private` to `internal` for cross-file accessibility within the presentation package.
+  - `RedesignedMemberIntelligenceCard.kt`: Simplified `BADGymTheme` invocation to use `colors = theme.colors()`; scoped `V4Action` under `RowScope` to allow `Modifier.weight(1f)`.
+  - `CompactCardDimensionsTest.kt`: Synchronized unit test assertions with V4 rebalanced geometry tokens (Default: 340dp/504dp card, 356dp/526dp detail; Compact: 336dp/500dp card, 352dp/520dp detail; Expanded: 344dp/510dp card, 360dp/536dp detail; railWidth >= 44dp).
+- **Verification Evidence**:
+  - `./gradlew.bat testDebugUnitTest`: 42/42 unit tests passed (0 failures, 0 errors).
+  - `./gradlew.bat assembleDebug`: BUILD SUCCESSFUL (39 actionable tasks).
+  - Physical Device QA: Installed and verified on Xiaomi 11i (`zxdada69gunb7ls4`) via measured streaming installer (`tools/deploy_debug.ps1`).
+  - Live screenshot captured at `docs/reference/current-device-output.png`.
+
+STATUS: MEMBER-INTELLIGENCE-V4-REDESIGN COMPLETED
+
+
 
 
 
