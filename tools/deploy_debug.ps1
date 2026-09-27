@@ -27,7 +27,7 @@ if (-not $deviceLines) { throw "No ADB device connected" }
 Send-Progress "CONNECT" "BAD GYM update" ("Device connected • " + (ElapsedText)) 5
 
 $sha = (& git rev-parse --short=7 HEAD).Trim()
-Send-Progress "BUILD" "Building BAD GYM" ("Gradle assembleDebug • " + (ElapsedText)) 10 -Sha $sha
+Send-Progress "BUILD" "Building BAD GYM" ("Gradle assembleDebug started • " + (ElapsedText)) 10 -Sha $sha
 
 & .\gradlew.bat assembleDebug --console=plain
 if ($LASTEXITCODE -ne 0) {
