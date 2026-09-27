@@ -22,7 +22,7 @@ object MenuAvailabilityResolver {
             snapshot.identity.tier == com.example.badnewgym.feature.memberintelligence.domain.model.MembershipTier.VIP
         // Premium/VIP members get the Services rail so their plan-linked access can be inspected;
         // only recorded active services are labeled "active" inside the Services panel.
-        val hasServices = activeServices.isNotEmpty() || premiumTier
+        val hasServices = activeServices.isNotEmpty() || premiumTier || snapshot.flexAccess != null
         val hasAdvertisement = snapshot.promotion != null
 
         fun serviceSummary(): String? =
@@ -103,7 +103,7 @@ object MenuAvailabilityResolver {
                 MenuType.SERVICES,
                 visible = hasServices,
                 defaultPriority = 90,
-                summaryOverride = serviceSummary() ?: if (premiumTier) "Premium access" else null
+                summaryOverride = serviceSummary() ?: snapshot.flexAccess?.let { "Flex • ${it.visitsRemaining} visits left" } ?: if (premiumTier) "Premium access" else null
             ),
 
             // INTELLIGENCE: History, Insight
