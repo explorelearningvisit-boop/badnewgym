@@ -88,6 +88,20 @@ app/src/main/java/com/example/badnewgym/
 
 ---
 
+## 📡 Remote Mobile Control & Wireless Deployment
+
+This repository includes a full-fledged **remote mobile engineering pipeline** allowing developers to write code, manage terminals, and deploy Android builds directly to physical hardware from anywhere in the world over encrypted mesh networks.
+
+- **📱 Full Mobile IDE (VS Code Tunnel)**: Control the entire workspace and integrated terminal on mobile via [vscode.dev/tunnel/adya](https://vscode.dev/tunnel/adya/C:/Users/User/AndroidStudioProjects/badnewgym/badnewgym.code-workspace).
+- **🔒 Wireless Mesh ADB (Tailscale)**: Deploy to the target physical device (`xiaomi-11i` @ `100.123.18.54:5555`) over 5G/LTE without distance or local Wi-Fi limits.
+- **⚡ 1-Click Wireless Deployment**: Run `.\remote-deploy.bat` to wirelessly stream and launch APK builds on your phone in seconds.
+
+👉 **Complete Setup & Operation Guide**: [Remote Mobile Workflow Guide](docs/reference/REMOTE_MOBILE_WORKFLOW_GUIDE.md)
+
+---
+
 ## 📄 Documentation
+- [Remote Mobile Workflow Guide](docs/reference/REMOTE_MOBILE_WORKFLOW_GUIDE.md)
 - [Design Specification](docs/PIXEL_PERFECT_CARD_SPEC.md)
 - [Walkthrough & Architecture Report](docs/WALKTHROUGH.md)
+
