@@ -156,7 +156,7 @@ fun CompactMemberCarousel(
                     cta = item.cta,
                     dimensions = dimensions,
                     isSelected = isSelected,
-                    isDetail = false,
+                    isDetail = isCardDetail,
                     menus = menus,
                     activeMenu = activeMenu,
                     temporalRange = temporalRange,
