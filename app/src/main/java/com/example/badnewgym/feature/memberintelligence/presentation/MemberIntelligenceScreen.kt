@@ -109,14 +109,35 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
         viewModel.closeQaGallery()
     }
     if (success == null) {
+        val error = state as? MemberIntelligenceUiState.Error
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color(0xFFF4F9F5))
                 .statusBarsPadding()
-                .navigationBarsPadding(),
+                .navigationBarsPadding()
+                .padding(24.dp),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator(color = Color(0xFF16A34A))
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    Icons.Rounded.Close,
+                    contentDescription = null,
+                    tint = Color(0xFFDC2626),
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    text = error?.message ?: "Loading Member Intelligence…",
+                    color = Color(0xFF132A1C),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (error == null) {
+                    Spacer(Modifier.height(10.dp))
+                    CircularProgressIndicator(color = Color(0xFF16A34A), modifier = Modifier.size(22.dp))
+                }
+            }
         }
         return
     }
