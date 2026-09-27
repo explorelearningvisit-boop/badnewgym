@@ -49,7 +49,7 @@ enum class FlexRequestStatus {
     CREDITED,
     DECLINED,
     CANCELLED
-)
+}
 
 data class MembershipHistory(
     val planName: String,

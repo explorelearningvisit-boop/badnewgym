@@ -86,6 +86,49 @@
 ### Blockers
 None.
 
+---
+
+## DUAL-RAIL MEMBER INTELLIGENCE & BUSINESS STATE PRIORITIZATION ACKNOWLEDGMENT
+
+- **MODEL**: Gemini 3.7 Flash (High) / Google Antigravity Agent
+- **PROVIDER / CONFIGURATION**: Google DeepMind Antigravity IDE (Windows x64, Gradle 8.13, Android SDK 35, JDK 21)
+- **BRANCH**: `member-intelligence-v3`
+- **PULLED_HEAD**: `470539a` (11 commits ahead of local base `4823797`)
+- **BASE**: `4823797`
+
+### Files Inspected
+1. `CURRENT_TASK.md`: Authoritative dual-rail directive and execution instructions.
+2. `STATUS.md`: Authoritative status and alignment with current dual-rail direction.
+3. `docs/reference/MEMBER_INTELLIGENCE_PRODUCTION_BLUEPRINT.md`: Comprehensive product blueprint detailing navigation grammar, business-state priority, gym operations, and Flex network rules.
+4. `app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/engine/MemberBusinessStateResolver.kt`: Priority resolution for critical business states over routine check-ins.
+5. `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/MemberBusinessStateCard.kt`: State-specific card hero variants.
+6. `app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/MemberSnapshot.kt`: Member snapshot with optional Flex access summary.
+7. `app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/engine/MenuAvailabilityResolver.kt`: Non-scrolling left/right rail partitioning.
+8. `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCard.kt`: Dual-rail layout with state-specific cards.
+9. `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/MenuContentPanels.kt`: Services, Flex access, and operations intelligence panels.
+10. `app/src/test/java/com/example/badnewgym/feature/memberintelligence/domain/engine/MemberBusinessStateResolverTest.kt`: Unit tests for business state resolution.
+
+### Files Modified by Antigravity
+1. `app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/MemberSnapshot.kt`:
+   - Repaired syntax error: replaced invalid closing parenthesis `)` with closing brace `}` on `FlexRequestStatus` enum definition.
+2. `app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/CompactMemberCard.kt`:
+   - Fixed missing commas after `.padding(...)` modifier chain calls in `MemberCardRail` and `BoundedDetailRail`.
+3. `STATUS.md`: Documented completion of dual-rail and business state priority verification.
+4. `docs/reference/current-device-output.png`: Captured live physical device screenshot over wireless ADB.
+5. `docs/reference/ANTIGRAVITY_SYNC_ACK.md`: Recorded synchronization acknowledgment and verification evidence.
+
+### Build, Test & Device Evidence
+- `./gradlew.bat testDebugUnitTest`: SUCCESS (42/42 unit tests passed, 0 failures).
+- `./gradlew.bat assembleDebug`: SUCCESS (46 actionable tasks, 0 errors).
+- Physical Device QA: Installed and verified on Xiaomi 11i (`100.123.18.54:5555`) via `tools/deploy_debug.ps1`.
+  - Balanced dual rails: Left rail (`Home`, `Attend`, `Plan`, `Pay`, `More`), Right rail (`PT`, `Lift`, `Supps`, `Diet`, `Serve`, `Log`, `AI`).
+  - Active member card rendered with PT session badge, 12/18 attendance, active coach, and contextual CTA.
+  - Live screenshot captured at `docs/reference/current-device-output.png`.
+
+### Blockers
+None.
+
+
 
 
 

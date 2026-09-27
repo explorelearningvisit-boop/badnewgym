@@ -566,7 +566,7 @@ private fun MemberCardRail(
             .clip(RoundedCornerShape(18.dp))
             .background(colors.railBackground.copy(alpha = 0.96f))
             .border(0.8.dp, colors.border.copy(alpha = 0.55f), RoundedCornerShape(18.dp))
-            .padding(vertical = 5.dp, horizontal = 2.dp)
+            .padding(vertical = 5.dp, horizontal = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
@@ -1382,7 +1382,7 @@ private fun BoundedDetailRail(
                 shape = if (side == RailSide.LEFT) RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp)
                 else RoundedCornerShape(topEnd = 22.dp, bottomEnd = 22.dp)
             )
-            .padding(vertical = 4.dp, horizontal = 2.dp)
+            .padding(vertical = 4.dp, horizontal = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {

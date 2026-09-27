@@ -203,7 +203,25 @@ STATUS: LUNA-IMAGE-TO-PRODUCT-VERIFICATION COMPLETED
   - `tools/deploy_debug.ps1`: Full pipeline executed end-to-end (BUILD -> TRANSFER 25.7MB -> VERIFY -> LAUNCH).
   - Physical Device QA: Verified live running app on Xiaomi 11i (`zxdada69gunb7ls4`). Live screenshot captured at `docs/reference/current-device-output.png`.
 
-STATUS: DUAL-RAIL-POLISH-AND-STREAMING-DEPLOYMENT COMPLETED
+## Dual-Rail Member Intelligence & Business State Prioritization
+
+- **Baseline Pulled**: `470539a` (11 commits on `origin/member-intelligence-v3`).
+- **Architecture & Capabilities Integrated**:
+  - **Dual Vertical Rails**: Left rail for core operations (`Home`, `Attend`, `Plan`, `Pay`, `More`) and Right rail for contextual/premium capabilities (`PT`, `Lift`, `Supps`, `Diet`, `Serve`, `Log`, `AI`, `Offers`). Both rails kept non-scrolling and compact.
+  - **Business-State Priority Resolver**: `MemberBusinessStateResolver.kt` prioritizes critical business states (incidents, machine faults, bans, failed/overdue payments, expired memberships, freezes, complaints, service issues, missed PT) over routine check-in/activity events.
+  - **State-Specific Hero Cards**: `MemberBusinessStateCard.kt` renders distinctive semantic cards for Expired, Frozen, Payment Overdue/Failed, PT, Service, and Operations/Machine Fault.
+  - **Flex Network & Operations Intelligence**: `MemberSnapshot.kt` supports optional `FlexAccessSummary` and `FlexRequestStatus`; `MenuContentPanels.kt` surfaces Flex visit allowance/usage/credits, host gym tracking, and facility machine/cleaning/stock operations history.
+- **Compile & Syntax Repairs by Antigravity**:
+  - `MemberSnapshot.kt`: Repaired `FlexRequestStatus` enum definition by replacing invalid closing parenthesis `)` with closing brace `}`.
+  - `CompactMemberCard.kt`: Restored missing commas after `.padding(...)` modifier calls in `MemberCardRail` and `BoundedDetailRail`.
+- **Verification Evidence**:
+  - `./gradlew.bat testDebugUnitTest`: 42/42 unit tests passed (0 failures, 0 errors), including `MemberBusinessStateResolverTest`.
+  - `./gradlew.bat assembleDebug`: BUILD SUCCESSFUL (46 actionable tasks).
+  - Physical Device QA: Deployed and executed live on Xiaomi 11i (`100.123.18.54:5555`) via measured streaming installer (`tools/deploy_debug.ps1`).
+  - Live screenshot captured at `docs/reference/current-device-output.png`.
+
+STATUS: DUAL-RAIL-BUSINESS-STATE-INTELLIGENCE COMPLETED
+
 
 
 
