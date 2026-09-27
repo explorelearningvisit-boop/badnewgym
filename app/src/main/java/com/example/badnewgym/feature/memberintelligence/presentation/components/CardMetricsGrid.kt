@@ -43,7 +43,7 @@ fun CardMetricsGrid(
         // Tile 1: Attendance with circular progress ring
         val visits = attendance?.visits
         val target = attendance?.target?.coerceAtLeast(1)
-        val attendancePercent = if (target > 0) ((visits.toFloat() / target) * 100).toInt() else 0
+        val attendancePercent = if (visits != null && target != null && target > 0) ((visits.toFloat() / target) * 100).toInt() else 0
         MetricTileContainer(
             theme = theme,
             modifier = Modifier

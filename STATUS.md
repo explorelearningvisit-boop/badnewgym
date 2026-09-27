@@ -36,6 +36,21 @@ Implemented directly by ChatGPT on `member-intelligence-v3`.
 STATUS: Stage 7.6 Visual QA COMPLETED
 
 
+## Latest Execution & Wireless Remote Deployment
+
+- **Repository Synchronization**: Pulled latest `origin/member-intelligence-v3` baseline (`94ca614`).
+- **Null Safety & API Signature Repair**:
+  - `MemberIntelligenceEngine.kt`: Fixed `currentEvent` signature to handle nullable `MemberEvent?`.
+  - `MenuAvailabilityResolver.kt`: Cleaned up parameters to match updated `MemberMenu` class definition.
+  - `MemberIntelligenceScreen.kt`: Added default values for `initialMemberId` and `gymId`.
+  - `MemberIntelligenceViewModel.kt`: Updated `resolveInitialMenu` signature for nullability.
+  - `CardMetricsGrid.kt`: Enforced null-safe calculations for attendance target and visit percentages.
+- **Verification & Testing**:
+  - `./gradlew.bat testDebugUnitTest`: 39/39 unit tests compiled and passed cleanly.
+  - `./gradlew.bat installDebug`: Built APK and deployed wirelessly over Tailscale mesh network to Xiaomi 11i (`100.123.18.54:5555`).
+  - Physical screenshot pulled to `docs/reference/current-device-output.png`.
+
+
 ## Stage 7.8 — Event Card Variety Lab & Contextual Resolution
 
 - Implemented `EventCardVariantResolver.kt` supporting `EventCardVariant` (DEFAULT, LATE_CHECK_IN, EARLY_CHECK_IN, OVERDUE, FAILED, PARTIAL, ACTIVE, RESOLVED, CONVERTED, EXPIRED, BLOCKED, REOPENED) and `EventCardPresentation`.

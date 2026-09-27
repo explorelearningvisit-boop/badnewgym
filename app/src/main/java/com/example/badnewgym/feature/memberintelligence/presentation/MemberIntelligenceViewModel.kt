@@ -161,7 +161,7 @@ class MemberIntelligenceViewModel(
 
     private fun resolveInitialMenu(
         snapshot: MemberSnapshot,
-        currentEvent: MemberEvent,
+        currentEvent: MemberEvent?,
         signals: List<IntelligenceSignal>,
         menus: List<MemberMenu>
     ): MenuType {
@@ -171,7 +171,7 @@ class MemberIntelligenceViewModel(
         }?.sourceMenu
         if (urgentSource != null && urgentSource in visible) return urgentSource
 
-        return when (currentEvent.eventType) {
+        return when (currentEvent?.eventType) {
             EventType.PAYMENT_FAILED,
             EventType.PAYMENT_DUE,
             EventType.PAYMENT_OVERDUE,

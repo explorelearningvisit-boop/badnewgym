@@ -37,7 +37,7 @@ class MemberIntelligenceEngine {
 
     fun generateSignals(
         snapshot: MemberSnapshot,
-        currentEvent: MemberEvent,
+        currentEvent: MemberEvent?,
         currentTime: Long,
         gymConfiguration: GymConfiguration? = null
     ): List<IntelligenceSignal> {

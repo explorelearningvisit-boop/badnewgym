@@ -56,22 +56,21 @@ object MenuAvailabilityResolver {
                 badgeCount = menuSignals.size,
                 hasAlert = severity == SignalPriority.P0_CRITICAL || severity == SignalPriority.P1_ACTION_REQUIRED,
                 severity = severity,
-                summary = summary,
-                railSide = railSide
+                summary = summary
             )
         }
 
         return listOf(
             // CORE: Home, Attendance, Plan, Payment
-            menu(MenuType.HOME, true, defaultPriority = 10, railSide = MenuRailSide.LEFT),
-            menu(MenuType.ATTENDANCE, true, defaultPriority = 20, railSide = MenuRailSide.LEFT),
+            menu(MenuType.HOME, true, defaultPriority = 10),
+            menu(MenuType.ATTENDANCE, true, defaultPriority = 20),
             menu(
                 MenuType.PLAN,
                 true,
                 defaultPriority = 30,
                 summaryOverride = snapshot.membership?.planName
             ),
-            menu(MenuType.PAYMENT, true, defaultPriority = 40, railSide = MenuRailSide.LEFT),
+            menu(MenuType.PAYMENT, true, defaultPriority = 40),
 
             // TRAINING: Trainer, Workout
             menu(
@@ -81,7 +80,7 @@ object MenuAvailabilityResolver {
                 defaultPriority = 50,
                 summaryOverride = snapshot.trainer?.trainerName
             ),
-            menu(MenuType.WORKOUT, visible = snapshot.workout != null, defaultPriority = 60, railSide = MenuRailSide.LEFT),
+            menu(MenuType.WORKOUT, visible = snapshot.workout != null, defaultPriority = 60),
 
             // WELLNESS: Supplements, Nutrition
             menu(
@@ -108,11 +107,11 @@ object MenuAvailabilityResolver {
             ),
 
             // INTELLIGENCE: History, Insight
-            menu(MenuType.HISTORY, true, defaultPriority = 100, railSide = MenuRailSide.LEFT),
-            menu(MenuType.INSIGHT, true, locked = !entitlements.allows(FeatureKey.ADVANCED_INSIGHTS), defaultPriority = 110, railSide = MenuRailSide.LEFT),
+            menu(MenuType.HISTORY, true, defaultPriority = 100),
+            menu(MenuType.INSIGHT, true, locked = !entitlements.allows(FeatureKey.ADVANCED_INSIGHTS), defaultPriority = 110),
 
             // UTILITY: More
-            menu(MenuType.MORE, true, defaultPriority = 120, railSide = MenuRailSide.LEFT),
+            menu(MenuType.MORE, true, defaultPriority = 120),
 
             // CONTEXTUAL: Offers
             menu(
