@@ -31,7 +31,7 @@ class MemberIntelligenceViewModel(
     private var isDetailExpanded: Boolean = false
     private var currentTemporalRange: TemporalRange = TemporalRange.forCurrentMonth()
 
-    fun loadMemberData(memberId: String = "BG204", gymId: String = "gym1") {
+    fun loadMemberData(memberId: String, gymId: String) {
         viewModelScope.launch {
             _state.value = MemberIntelligenceUiState.Loading
             val allMembersResult = repository.getAllMembers(gymId)
