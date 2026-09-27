@@ -253,6 +253,7 @@ private fun BrowseMemberIntelligenceSurface(
                         onMemberSelected = viewModel::selectMember,
                         onMemberClick = { viewModel.openMemberDetail(it) },
                         onCta = viewModel::executeCta,
+                        onEngagementApproval = viewModel::executeEngagementApproval,
                         activeTheme = theme,
                         isDetailExpanded = success.isDetailExpanded,
                         activeMenu = success.activeMenu,
