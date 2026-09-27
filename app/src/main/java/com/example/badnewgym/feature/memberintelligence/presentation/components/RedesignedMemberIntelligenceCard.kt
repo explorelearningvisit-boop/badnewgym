@@ -160,7 +160,7 @@ fun RedesignedMemberIntelligenceCard(
 @Composable private fun V4Identity(snapshot: MemberSnapshot, accent: Color, onClick: () -> Unit) {
     val c = BADGymTheme.colors
     Row(Modifier.fillMaxWidth().clickable(onClick = onClick), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-        MemberPhoto(snapshot.identity.photoUrl, snapshot.identity.tier, 84.dp, 86.dp, snapshot.identity.isVerified, snapshot.identity.name)
+        MemberPhoto(photoUrl = snapshot.identity.photoUrl, tier = snapshot.identity.tier, width = 84.dp, height = 86.dp, showVerified = snapshot.identity.isVerified, memberName = snapshot.identity.name)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 V4Pill(snapshot.identity.tier.name.replace('_', ' '), accent)
