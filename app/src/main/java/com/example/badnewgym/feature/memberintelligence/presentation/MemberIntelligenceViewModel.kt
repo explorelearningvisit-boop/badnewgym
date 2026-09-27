@@ -355,6 +355,21 @@ class MemberIntelligenceViewModel(
         navigator.onAction(action)
     }
 
+    fun executeEngagementApproval(request: MemberApprovalRequest, status: ApprovalStatus) {
+        val label = when (status) {
+            ApprovalStatus.APPROVED -> "Approve " + request.subject
+            ApprovalStatus.REJECTED -> "Reject " + request.subject
+            ApprovalStatus.PENDING -> "Review " + request.subject
+            ApprovalStatus.EXPIRED -> "Review expired " + request.subject
+        }
+        navigator.onAction(
+            SignalAction(
+                label = label,
+                actionType = "APPROVAL_" + status.name + ":" + request.id
+            )
+        )
+    }
+
     private fun themeForMember(id: String, code: String?): ThemeId = when {
         code == "BG204" || id == "1" -> ThemeId.NATURAL_FRESH
         code == "BG105" || id == "2" -> ThemeId.FUTURISTIC_NEON
