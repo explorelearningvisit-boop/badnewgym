@@ -256,3 +256,35 @@ Required direction:
 
 Antigravity must read the complete Stage 8 contract before coding and report:
 MODEL -> PROVIDER/CONFIGURATION -> PULLED_HEAD -> FILES_FOUND -> FILES_CHANGED -> WORK -> TESTS -> DEVICE -> SCREENSHOTS -> FINAL_SHA -> BLOCKERS
+
+
+---
+
+## CHATGPT LUNA FORENSIC REVIEW — 2026-09-27
+
+Authoritative review file:
+`docs/reference/CHATGPT_LUNA_FORENSIC_REVIEW_2026-09-27.md`
+
+Current reviewed HEAD:
+`5824979b5d1f1169c72ae3a183d4f74f3a7a0ef1`
+
+Locked navigation:
+- one canonical member card;
+- one LEFT context rail;
+- no RIGHT rail;
+- no global bottom navigation;
+- menu-specific content owns detailed information architecture.
+
+Verification rule:
+Old Antigravity build/device evidence from `b6aeb1888c4f48eb593b189e10125bf4e26c03c8` does not verify the current HEAD. Antigravity must rerun all build/test/device checks against the exact pulled SHA.
+
+Production data rule:
+- synthetic fixtures are DEBUG-only;
+- release builds must never silently use demo repositories;
+- real authenticated/RLS-scoped remote repository is still required before production-ready status.
+
+Model rule:
+Antigravity must report the exact model/provider/configuration from the actual running session. Historical reports of Gemini 3.7 vs Gemini 3.8 must not be guessed or merged.
+
+Required next exchange:
+MODEL → PROVIDER/CONFIGURATION → PULLED_HEAD → FILES_FOUND → FILES_CHANGED → IMPLEMENTATION_REASONING → TESTS → LINT → DEVICE → SCREENSHOTS → FINAL_SHA → BLOCKERS → OPEN_QUESTIONS
