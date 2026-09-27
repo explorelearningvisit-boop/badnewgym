@@ -265,8 +265,10 @@ MODEL -> PROVIDER/CONFIGURATION -> PULLED_HEAD -> FILES_FOUND -> FILES_CHANGED -
 Authoritative review file:
 `docs/reference/CHATGPT_LUNA_FORENSIC_REVIEW_2026-09-27.md`
 
-Current reviewed HEAD:
+Review baseline HEAD:
 `5824979b5d1f1169c72ae3a183d4f74f3a7a0ef1`
+
+Additional identity-hardening commits are present after that review baseline; Antigravity must pull the current branch tip rather than reusing the baseline SHA.
 
 Locked navigation:
 - one canonical member card;
