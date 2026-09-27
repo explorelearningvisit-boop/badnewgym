@@ -20,7 +20,7 @@ class MemberIntelligenceEngine {
 
     fun evaluate(
         snapshot: MemberSnapshot,
-        currentEvent: MemberEvent,
+        currentEvent: MemberEvent?,
         currentTime: Long,
         gymConfiguration: GymConfiguration? = null
     ): IntelligenceResult {
@@ -62,7 +62,7 @@ class MemberIntelligenceEngine {
         }
 
         val payment = snapshot.payment
-        if (paymentLifecycle == PaymentLifecycle.FAILED || currentEvent.eventType == EventType.PAYMENT_FAILED) {
+        if (paymentLifecycle == PaymentLifecycle.FAILED || currentEvent?.eventType == EventType.PAYMENT_FAILED) {
             signals.add(
                 signal(
                     category = SignalCategory.PAYMENT,
@@ -125,7 +125,7 @@ class MemberIntelligenceEngine {
             }
         }
 
-        if (currentEvent.eventType == EventType.NEW_MEMBER) {
+        if (currentEvent?.eventType == EventType.NEW_MEMBER) {
             signals.add(
                 signal(
                     category = SignalCategory.GENERAL,
