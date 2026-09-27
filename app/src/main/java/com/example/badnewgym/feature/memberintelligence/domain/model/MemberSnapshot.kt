@@ -19,7 +19,36 @@ data class MemberSnapshot(
     val promotion: PromotionSlot? = null,
     val membershipHistory: List<MembershipHistory> = emptyList(),
     /** Optional engagement/community/approval data; empty means the capability has no records. */
-    val engagement: MemberEngagementSummary? = null
+    val engagement: MemberEngagementSummary? = null,
+    /**
+     * Optional cross-gym Flex membership state. Null means this member is not enrolled
+     * in the Flex network or the source has not provided the capability record.
+     */
+    val flexAccess: FlexAccessSummary? = null
+)
+
+data class FlexAccessSummary(
+    val planName: String,
+    val monthlyVisitAllowance: Int,
+    val visitsUsed: Int,
+    val visitsRemaining: Int,
+    val lastHostGymName: String? = null,
+    val lastVisitAt: Long? = null,
+    val pendingGymName: String? = null,
+    val pendingStatus: FlexRequestStatus? = null,
+    val currentVisitCredit: Double? = null,
+    val lifetimeCreditsEarned: Double? = null
+)
+
+enum class FlexRequestStatus {
+    NONE,
+    REQUESTED,
+    ACCEPTED,
+    CHECKED_IN,
+    CHECKED_OUT,
+    CREDITED,
+    DECLINED,
+    CANCELLED
 )
 
 data class MembershipHistory(
