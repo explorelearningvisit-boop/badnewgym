@@ -7,6 +7,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,19 +53,17 @@ fun EventHeader(event: MemberEvent, theme: ThemeId, modifier: Modifier = Modifie
                 letterSpacing = 0.5.sp
             )
         }
+        val timeText = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(event.occurredAt))
+        val deltaMinutes = ((System.currentTimeMillis() - event.occurredAt) / 60_000L).coerceAtLeast(0L)
+        val relative = when {
+            deltaMinutes < 1L -> "Just now"
+            deltaMinutes < 60L -> deltaMinutes.toString() + "m ago"
+            deltaMinutes < 1440L -> (deltaMinutes / 60L).toString() + "h ago"
+            else -> (deltaMinutes / 1440L).toString() + "d ago"
+        }
         Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = theme.timeText,
-                color = BADGymTheme.colors.textPrimary,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Black
-            )
-            Text(
-                text = theme.timeRelative,
-                color = BADGymTheme.colors.textMuted,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium
-            )
+            Text(timeText, color = BADGymTheme.colors.textPrimary, fontSize = 15.sp, fontWeight = FontWeight.Black)
+            Text(relative, color = BADGymTheme.colors.textMuted, fontSize = 13.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
