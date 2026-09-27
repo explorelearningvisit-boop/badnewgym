@@ -291,15 +291,16 @@ private fun HomeContent(
         CardMetricsGrid(
             attendance = snapshot.attendance,
             payment = snapshot.payment,
-            workoutsCount = snapshot.workout?.durationMinutes ?: 12,
+            workoutsCount = snapshot.workout?.sessionCount
+                ?: snapshot.recentEvents.count { it.eventType == EventType.WORKOUT || it.eventType == EventType.WORKOUT_COMPLETED }.takeIf { it > 0 },
             theme = theme
         )
 
         // Supporting contextual signals
         ShortcutTriple(
-            trainer = snapshot.trainer?.trainerName ?: "Unassigned",
-            workout = snapshot.workout?.currentRoutine ?: "Rest Day",
-            services = (snapshot.services?.count { it.isActive } ?: 0).toString() + " Active"
+            trainer = snapshot.trainer?.trainerName ?: "Not enrolled",
+            workout = snapshot.workout?.currentRoutine ?: "Not recorded",
+            services = snapshot.services?.count { it.isActive }?.let { "$it Active" } ?: "No records"
         )
 
         (primarySignal ?: signals.firstOrNull())?.let {
