@@ -2,46 +2,86 @@
 
 ## Purpose
 
-The debug build/run workflow now exposes the laptop → device deployment lifecycle inside BAD GYM itself.
+Expose the laptop → device debug deployment lifecycle inside BAD GYM with truthful telemetry.
 
 Flow:
 
-`CONNECT → GRADLE BUILD → APK READY → APK TRANSFER → INSTALL → LAUNCH → VERIFY → COMPLETE`
+CONNECT → GRADLE BUILD → APK GENERATED → TRANSFER → INTEGRITY VERIFY → INSTALL → LAUNCH → RUNTIME VERIFY → COMPLETE
 
-The Android app listens only to the debug deployment broadcast:
+Broadcast:
 
-`com.example.badnewgym.DEBUG_DEPLOYMENT_PROGRESS`
+com.example.badnewgym.DEBUG_DEPLOYMENT_PROGRESS
 
-The Windows helper is:
+Helper:
 
-`tools/deploy_debug.ps1`
+tools/deploy_debug.ps1
 
-Run it from the repository root in PowerShell:
+## Telemetry law
 
-`powershell -ExecutionPolicy Bypass -File .\tools\deploy_debug.ps1`
+Every visible percentage must have a declared measurement source.
 
-## What the user sees
+### Gradle build
 
-- live percentage
+Gradle task/build progress may be reported as task or lifecycle progress. Do not convert unknown dependency-download work into fake byte percentages.
+
+Gradle's Tooling API supports progress listeners and richer task/download events, including file-download progress events. A future implementation may use those events for task/download telemetry when the build environment can host a Tooling API client.
+
+### APK transfer
+
+Once the APK exists, its exact byte size is known.
+
+The deployment helper should expose measured cumulative device-received bytes. A deterministic chunked transfer is acceptable when the normal single adb push operation does not expose a usable byte-progress stream.
+
+Example:
+
+Receiving APK • 18.0 MB / 42.6 MB • 42%
+
+The displayed percentage must be calculated from measured bytes / exact APK size.
+
+### Integrity
+
+Before install, verify:
+
+1. device-side APK size == local APK size
+2. device-side SHA-256 == local APK SHA-256
+
+Only then report integrity verified.
+
+### Process replacement
+
+The install operation may replace the running debug app process. Deployment state must therefore be persisted before the install boundary and restored on relaunch.
+
+## UX
+
+The overlay should show:
+
 - current phase
+- current activity/task
+- measured percentage when available
+- bytes/total when available
 - elapsed time
-- APK size when available
-- transferred/total bytes at the transfer/install boundary
 - build SHA
-- completion or failure state
+- error state
+- integrity state
 
-## Accuracy rule
+Prefer activity text such as:
 
-Gradle's standard console does not expose a reliable total-byte percentage for all dependency downloads. Therefore the UI must **not invent download bytes**.
+Gradle • :app:compileDebugKotlin • task progress
 
-The helper reports deterministic lifecycle progress for the build and exact APK size/transfer completion. The progress bar is a deployment lifecycle indicator, not a fabricated measurement of Gradle dependency-download bytes.
+or:
 
-Gradle's normal lifecycle logging is intended for build progress, while the Tooling API can expose richer build progress events if we later want task-level telemetry. See the official Gradle logging and Tooling API documentation.
+Receiving APK • 18.0 / 42.6 MB • 42%
 
-## Install boundary
+Never show fabricated download MB.
 
-Android's `adb install` can replace the running debug package, so the app process may disappear during installation. Progress is persisted in SharedPreferences before that boundary. On the next launch BAD GYM restores the last deployment state and receives the final `COMPLETE` event from the helper.
+## Sources
+
+Gradle documents that its Tooling API can execute builds while listening to stdout/stderr and progress messages, and receive task/test/build events.
+
+Gradle's public event API also exposes file-download progress events and task progress events.
+
+These capabilities should be preferred over parsing unstable human-readable console output when a Tooling API integration is introduced.
 
 ## Security
 
-This receiver is debug/developer workflow infrastructure. It must not be treated as a production update channel. Do not expose deployment broadcasts or debug deployment scripts in a production OTA/update mechanism.
+This is debug/developer workflow infrastructure only. It is not a production OTA/update mechanism.
