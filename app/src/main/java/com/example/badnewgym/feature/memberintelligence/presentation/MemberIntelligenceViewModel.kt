@@ -46,14 +46,7 @@ class MemberIntelligenceViewModel(
                     return@launch
                 }
                 val snap = singleSnapshotResult.getOrThrow()
-                val ev = snap.recentEvents.firstOrNull() ?: MemberEvent(
-                    id = "init_0",
-                    memberId = memberId,
-                    gymId = gymId,
-                    eventType = EventType.CHECK_IN,
-                    occurredAt = System.currentTimeMillis(),
-                    source = EventSource.SYSTEM
-                )
+                val ev = snap.recentEvents.firstOrNull()
                 listOf(snap to ev)
             }
 
