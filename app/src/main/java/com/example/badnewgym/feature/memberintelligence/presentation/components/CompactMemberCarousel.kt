@@ -18,6 +18,8 @@ import com.example.badnewgym.feature.memberintelligence.design.dimensions.rememb
 import com.example.badnewgym.feature.memberintelligence.design.motion.DepthTokens
 import com.example.badnewgym.feature.memberintelligence.design.motion.rememberIsReducedMotion
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu
+import com.example.badnewgym.feature.memberintelligence.domain.model.MemberApprovalRequest
+import com.example.badnewgym.feature.memberintelligence.domain.model.ApprovalStatus
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.domain.model.SignalAction
 import com.example.badnewgym.feature.memberintelligence.presentation.MemberCardItem
@@ -39,6 +41,7 @@ fun CompactMemberCarousel(
     onMemberSelected: (Int) -> Unit,
     onMemberClick: (Int) -> Unit,
     onCta: (SignalAction) -> Unit,
+    onEngagementApproval: (MemberApprovalRequest, ApprovalStatus) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
     activeTheme: ThemeId? = null,
     isDetailExpanded: Boolean = false,
@@ -166,6 +169,7 @@ fun CompactMemberCarousel(
                         onMemberSelected(index)
                         onMemberClick(index)
                     },
+                    onEngagementApproval = onEngagementApproval,
                     onCtaClick = {
                         item.cta?.let(onCta) ?: onMemberClick(index)
                     }
