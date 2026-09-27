@@ -28,10 +28,10 @@ fun MembershipTierStatus(
     modifier: Modifier = Modifier
 ) {
     val colors = BADGymTheme.colors
-    val planName = membership?.planName ?: "Gold Plan"
-    val planType = membership?.planType ?: "12 Months"
-    val daysRemaining = membership?.daysRemaining ?: 48
-    val isActive = membership?.isActive ?: true
+    val planName = membership?.planName ?: "Plan not recorded"
+    val planType = membership?.planType ?: "—"
+    val daysRemaining = membership?.daysRemaining
+    val isActive = membership?.isActive == true
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -105,7 +105,7 @@ fun MembershipTierStatus(
                     fontWeight = FontWeight.Black
                 )
                 Text(
-                    text = "$daysRemaining Days Left",
+                    text = daysRemaining?.let { "$it Days Left" } ?: "Expiry not recorded",
                     color = activeTint.copy(alpha = 0.9f),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
