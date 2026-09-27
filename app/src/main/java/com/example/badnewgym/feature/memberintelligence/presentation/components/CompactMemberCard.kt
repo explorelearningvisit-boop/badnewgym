@@ -206,8 +206,9 @@ fun CompactMemberCard(
             if (isDetail) {
                 // Bounded Detail Layout: Integrated Vertical Rail + Persistent Header + Content Panel
                 Row(modifier = Modifier.fillMaxSize()) {
-                    // Integrated Navigation Rail on the Left
+                    // LEFT: core member navigation
                     BoundedDetailRail(
+                        side = RailSide.LEFT,
                         snapshot = snapshot,
                         primarySignal = primarySignal,
                         menus = menus,
@@ -218,7 +219,7 @@ fun CompactMemberCard(
                         modifier = Modifier.fillMaxHeight()
                     )
 
-                    // Right Content Column
+                    // CENTER: the single canonical member intelligence surface
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -354,14 +355,16 @@ fun CompactMemberCard(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 3.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // LEFT rail: primary member context
                     MemberCardRail(
+                        side = RailSide.LEFT,
                         menus = visibleMenus,
                         activeMenu = activeMenu,
                         onMenuSelected = onMenuSelected,
                         modifier = Modifier.fillMaxHeight().width(38.dp)
                     )
 
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(3.dp))
 
                     Column(
                         modifier = Modifier
@@ -477,20 +480,45 @@ fun CompactMemberCard(
                             }
                         }
                     }
+
+                    Spacer(Modifier.width(3.dp))
+
+                    // RIGHT rail: training, wellness, services and intelligence
+                    MemberCardRail(
+                        side = RailSide.RIGHT,
+                        menus = visibleMenus,
+                        activeMenu = activeMenu,
+                        onMenuSelected = onMenuSelected,
+                        modifier = Modifier.fillMaxHeight().width(38.dp)
+                    )
                 }
             }
         }
     }
 }
 
+private enum class RailSide { LEFT, RIGHT }
+
+private fun menuBelongsToRail(type: MenuType, side: RailSide): Boolean = when (side) {
+    RailSide.LEFT -> type in setOf(
+        MenuType.HOME, MenuType.ATTENDANCE, MenuType.PLAN, MenuType.PAYMENT, MenuType.MORE
+    )
+    RailSide.RIGHT -> type in setOf(
+        MenuType.TRAINER, MenuType.WORKOUT, MenuType.SUPPLEMENTS, MenuType.NUTRITION,
+        MenuType.SERVICES, MenuType.HISTORY, MenuType.INSIGHT, MenuType.ADVERTISEMENT
+    )
+}
+
 @Composable
 private fun MemberCardRail(
+    side: RailSide,
     menus: List<MemberMenu>,
     activeMenu: MenuType,
     onMenuSelected: (MenuType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = BADGymTheme.colors
+    val railMenus = menus.filter { menuBelongsToRail(it.id, side) }
 
     fun getMenuGroup(type: MenuType): Int = when (type) {
         MenuType.HOME, MenuType.ATTENDANCE, MenuType.PLAN, MenuType.PAYMENT -> 0
@@ -528,8 +556,8 @@ private fun MemberCardRail(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
-        menus.forEachIndexed { index, menuItem ->
-            if (index > 0 && getMenuGroup(menuItem.id) != getMenuGroup(menus[index - 1].id)) {
+        railMenus.forEachIndexed { index, menuItem ->
+            if (index > 0 && getMenuGroup(menuItem.id) != getMenuGroup(railMenus[index - 1].id)) {
                 Box(
                     modifier = Modifier
                         .width(18.dp)
@@ -1307,6 +1335,7 @@ private fun CompactSignalBanner(
  */
 @Composable
 private fun BoundedDetailRail(
+    side: RailSide,
     snapshot: MemberSnapshot,
     primarySignal: IntelligenceSignal?,
     menus: List<MemberMenu>,
@@ -1318,62 +1347,54 @@ private fun BoundedDetailRail(
 ) {
     val colors = BADGymTheme.colors
     val visibleMenus = if (menus.isNotEmpty()) {
-        menus.filter { it.isVisible && it.isEnabled }
+        menus.filter { it.isVisible && it.isEnabled && menuBelongsToRail(it.id, side) }
     } else {
-        listOf(
-            MemberMenu(MenuType.HOME, "Home", 0, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.ATTENDANCE, "Attend", 10, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.PLAN, "Plan", 20, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.PAYMENT, "Pay", 30, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.TRAINER, "Coach", 40, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.WORKOUT, "Workout", 50, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.SUPPLEMENTS, "Supps", 60, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.NUTRITION, "Diet", 70, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.SERVICES, "Services", 80, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.HISTORY, "History", 90, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.INSIGHT, "Insight", 100, isVisible = true, isEnabled = true, isLocked = false),
-            MemberMenu(MenuType.MORE, "More", 110, isVisible = true, isEnabled = true, isLocked = false)
-        )
-    }
+        MenuType.entries.mapIndexed { index, type ->
+            MemberMenu(type, type.defaultLabel, index, isVisible = true, isEnabled = true, isLocked = false)
+        }.filter { menuBelongsToRail(it.id, side) }
 
     Column(
         modifier = modifier
             .width(railWidth)
-            .clip(RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp))
+            .clip(
+                if (side == RailSide.LEFT) RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp)
+                else RoundedCornerShape(topEnd = 22.dp, bottomEnd = 22.dp)
+            )
             .background(colors.railBackground.copy(alpha = 0.96f))
             .border(
                 width = 0.8.dp,
                 color = colors.border.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp)
+                shape = if (side == RailSide.LEFT) RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp)
+                else RoundedCornerShape(topEnd = 22.dp, bottomEnd = 22.dp)
             )
             .padding(vertical = 4.dp, horizontal = 2.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
-        // Collapse affordance at top of rail
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .clip(CircleShape)
-                .background(colors.surfaceMuted)
-                .border(0.6.dp, colors.border.copy(alpha = 0.5f), CircleShape)
-                .clickable(
-                    role = Role.Button,
-                    onClickLabel = "Collapse detail rail",
-                    onClick = onCloseRail
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                contentDescription = "Collapse detail",
-                tint = colors.textPrimary,
-                modifier = Modifier.size(13.dp)
-            )
+        if (side == RailSide.LEFT) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(colors.surfaceMuted)
+                    .border(0.6.dp, colors.border.copy(alpha = 0.5f), CircleShape)
+                    .clickable(
+                        role = Role.Button,
+                        onClickLabel = "Collapse member card",
+                        onClick = onCloseRail
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = "Collapse member card",
+                    tint = colors.textPrimary,
+                    modifier = Modifier.size(13.dp)
+                )
+            }
+            Spacer(Modifier.height(1.dp))
         }
-
-        Spacer(Modifier.height(1.dp))
 
         visibleMenus.forEach { menu ->
             val isActive = activeMenu == menu.id
