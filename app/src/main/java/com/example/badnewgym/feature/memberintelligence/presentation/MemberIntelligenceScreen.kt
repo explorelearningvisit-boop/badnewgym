@@ -48,6 +48,8 @@ import com.example.badnewgym.feature.memberintelligence.presentation.components.
 import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberIntelligenceQaGallery
 import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberPhoto
 import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
+import com.example.badnewgym.feature.deployment.DeploymentProgressBridge
+import com.example.badnewgym.feature.deployment.DeploymentProgressOverlay
 
 @Composable
 fun MemberIntelligenceScreen(
@@ -57,10 +59,17 @@ fun MemberIntelligenceScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val deploymentProgress by DeploymentProgressBridge.state.collectAsState()
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     LaunchedEffect(Unit) {
         viewModel.loadMemberData(initialMemberId, gymId)
+    }
+
+    DisposableEffect(Unit) {
+        DeploymentProgressBridge.initialize(context)
+        val receiver = DeploymentProgressBridge.register(context)
+        onDispose { DeploymentProgressBridge.unregister(context, receiver) }
     }
 
     DisposableEffect(viewModel) {
@@ -192,6 +201,10 @@ private fun BrowseMemberIntelligenceSurface(
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 BadGymTopBar(modifier = Modifier.fillMaxWidth())
+                DeploymentProgressOverlay(
+                    progress = deploymentProgress,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
