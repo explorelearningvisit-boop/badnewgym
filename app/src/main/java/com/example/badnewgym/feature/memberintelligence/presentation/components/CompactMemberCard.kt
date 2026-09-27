@@ -356,7 +356,6 @@ fun CompactMemberCard(
                     MemberCardRail(
                         menus = visibleMenus,
                         activeMenu = activeMenu,
-                        side = MenuRailSide.LEFT,
                         onMenuSelected = onMenuSelected,
                         modifier = Modifier.fillMaxHeight().width(38.dp)
                     )
@@ -487,7 +486,6 @@ fun CompactMemberCard(
 private fun MemberCardRail(
     menus: List<MemberMenu>,
     activeMenu: MenuType,
-    side: MenuRailSide,
     onMenuSelected: (MenuType) -> Unit,
     modifier: Modifier = Modifier
 ) {
