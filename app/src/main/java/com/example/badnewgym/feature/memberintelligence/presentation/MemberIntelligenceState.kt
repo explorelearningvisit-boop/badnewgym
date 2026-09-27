@@ -8,7 +8,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.*
  */
 data class MemberCardItem(
     val snapshot: MemberSnapshot,
-    val currentEvent: MemberEvent,
+    val currentEvent: MemberEvent?,
     val themeId: ThemeId = ThemeId.NATURAL_FRESH,
     val signals: List<IntelligenceSignal> = emptyList(),
     val primarySignal: IntelligenceSignal? = null,
@@ -21,7 +21,7 @@ sealed class MemberIntelligenceUiState {
 
     data class Success(
         val snapshot: MemberSnapshot,
-        val currentEvent: MemberEvent,
+        val currentEvent: MemberEvent?,
         val menus: List<MemberMenu>,
         val signals: List<IntelligenceSignal>,
         val primarySignal: IntelligenceSignal?,
