@@ -35,9 +35,31 @@ graph LR
 
 | Device | Role | Hostname / Model | Tailscale Private IP | Listening Port |
 | :--- | :--- | :--- | :--- | :--- |
-| 💻 **Development Laptop** | Build Host & Tunnel Server | `adya` (Windows 11 x64) | `100.82.49.61` | Tunnel Daemon |
+| 💻 **Development Laptop** | Build Host & RDP / Tunnel Server | `adya` (Windows 11 Pro) | `100.82.49.61` | `3389` (RDP), Tunnel |
 | 📱 **Target Mobile Phone** | Test Hardware & Remote Display | `xiaomi-11i` (Xiaomi 11i 5G) | `100.123.18.54` | `5555` (TCP/IP ADB) |
 | 📱 **Backup Tablet** | Secondary Hardware | `as-tab-a9` (Samsung Tab A9) | `100.66.122.127` | `5555` |
+
+---
+
+## 🖥️ 0. Tailscale + Microsoft Remote Desktop (Ultra-Crisp UI & Full Antigravity Control)
+
+> **Why this is superior to screen-sharing apps**: Unlike video-streaming tools (AnyDesk, TeamViewer) that eat massive mobile data and compress fonts, **Windows RDP transmits native OS drawing commands**. Text is pixel-sharp, latency is near-zero, and data consumption is negligible (< 100 KB/sec).
+
+### How to Connect from Mobile Phone (RD Client):
+
+1. **Install App**:
+   Download **Microsoft Remote Desktop (`RD Client`)** from Google Play Store or Apple App Store.
+2. **Ensure Tailscale is Connected**:
+   Open the **Tailscale app** on your phone and verify the toggle is **ON**.
+3. **Add PC in RD Client**:
+   * Tap **`+`** (top right) → **Add PC**.
+   * **PC name**: `100.82.49.61`
+   * **User account**: Tap "Add user account" →
+     * **User name**: `User` *(or `adya\User`)*
+     * **Password**: *(Your Windows login password)*
+   * **Friendly name**: `BAD GYM Laptop (Adya)`
+4. **Tap Connect**:
+   Your mobile phone screen instantly displays your full Windows desktop with the live **Antigravity IDE, agent chat, active file edits, terminals, and Android tools** regardless of distance or network type!
 
 ---
 
