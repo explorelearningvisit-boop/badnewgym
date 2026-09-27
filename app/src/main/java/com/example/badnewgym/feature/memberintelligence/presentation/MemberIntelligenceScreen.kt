@@ -50,13 +50,13 @@ import com.example.badnewgym.feature.memberintelligence.presentation.components.
 import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
 
 @Composable
-fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
+fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel, initialMemberId: String, gymId: String) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     LaunchedEffect(Unit) {
-        viewModel.loadMemberData("BG204", "gym1")
+        viewModel.loadMemberData(initialMemberId, gymId)
     }
 
     DisposableEffect(viewModel) {
