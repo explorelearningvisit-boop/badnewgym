@@ -147,7 +147,7 @@ fun CompactMemberCarousel(
                 contentAlignment = Alignment.Center
             ) {
                 // Canonical Member Intelligence card with integrated vertical navigation rail on the selected card.
-                CompactMemberCard(
+                RedesignedMemberIntelligenceCard(
                     snapshot = item.snapshot,
                     currentEvent = item.currentEvent,
                     theme = effectiveTheme,
