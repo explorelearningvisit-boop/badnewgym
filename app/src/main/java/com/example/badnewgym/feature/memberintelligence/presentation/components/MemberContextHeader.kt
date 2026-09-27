@@ -75,7 +75,7 @@ fun MemberContextHeader(
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = formattedTime,
+                    text = formattedTime ?: "Time not recorded",
                     color = BADGymTheme.colors.textPrimary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
