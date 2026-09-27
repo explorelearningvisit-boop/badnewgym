@@ -6,7 +6,7 @@ Expose the laptop → device debug deployment lifecycle inside BAD GYM with trut
 
 Flow:
 
-CONNECT → GRADLE BUILD → APK GENERATED → TRANSFER → INTEGRITY VERIFY → INSTALL → LAUNCH → RUNTIME VERIFY → COMPLETE
+CONNECT → GRADLE BUILD → APK GENERATED → STREAM TRANSFER → INTEGRITY/SESSION VERIFY → INSTALL COMMIT → LAUNCH → RUNTIME VERIFY → COMPLETE
 
 Broadcast:
 
@@ -22,34 +22,39 @@ Every visible percentage must have a declared measurement source.
 
 ### Gradle build
 
-Gradle task/build progress may be reported as task or lifecycle progress. Do not convert unknown dependency-download work into fake byte percentages.
+The 10→70 build range is a lifecycle indicator unless a trustworthy task/download denominator is available. It must never be presented as dependency bytes downloaded.
 
-Gradle's Tooling API supports progress listeners and richer task/download events, including file-download progress events. A future implementation may use those events for task/download telemetry when the build environment can host a Tooling API client.
+Gradle's Tooling API supports progress listeners and richer task/download events. If a Tooling API client is introduced later, task and file-download events can be surfaced directly.
 
 ### APK transfer
 
 Once the APK exists, its exact byte size is known.
 
-The deployment helper should expose measured cumulative device-received bytes. A deterministic chunked transfer is acceptable when the normal single adb push operation does not expose a usable byte-progress stream.
+The deployment helper now uses Android PackageInstaller's streaming session:
 
-Example:
+1. create an install session with the exact APK size
+2. stream the local APK through `pm install-write ... -`
+3. count bytes written by the local streaming process
+4. emit measured cumulative bytes after each 1 MiB read
+5. commit the install session only after the stream finishes
+
+Therefore a transfer message such as:
 
 Receiving APK • 18.0 MB / 42.6 MB • 42%
 
-The displayed percentage must be calculated from measured bytes / exact APK size.
+is based on actual bytes read from the exact APK and written into the device install stream.
 
-### Integrity
+This is materially different from the previous opaque single `adb push`, which could only report transfer completion reliably.
 
-Before install, verify:
+### Integrity and installation
 
-1. device-side APK size == local APK size
-2. device-side SHA-256 == local APK SHA-256
+The streaming session uses the exact local APK size. PackageInstaller performs the package validation during commit.
 
-Only then report integrity verified.
+If an additional independent SHA-256 device-file verification is required, it must only be added when the APK is materialized as a device-side file; the streaming-session path intentionally avoids creating a duplicate APK file.
 
 ### Process replacement
 
-The install operation may replace the running debug app process. Deployment state must therefore be persisted before the install boundary and restored on relaunch.
+The install commit may replace the running debug app process. Deployment state must therefore be persisted before the install boundary and restored on relaunch.
 
 ## UX
 
@@ -62,26 +67,21 @@ The overlay should show:
 - elapsed time
 - build SHA
 - error state
-- integrity state
 
-Prefer activity text such as:
+Preferred transfer text:
 
-Gradle • :app:compileDebugKotlin • task progress
-
-or:
-
-Receiving APK • 18.0 / 42.6 MB • 42%
+Receiving APK • 18.0 / 42.6 MB • 42% • Elapsed 00:24
 
 Never show fabricated download MB.
 
-## Sources
+## Future Gradle telemetry
 
-Gradle documents that its Tooling API can execute builds while listening to stdout/stderr and progress messages, and receive task/test/build events.
-
-Gradle's public event API also exposes file-download progress events and task progress events.
-
-These capabilities should be preferred over parsing unstable human-readable console output when a Tooling API integration is introduced.
+Gradle's documented Tooling API can listen to build progress, task execution and file-download progress events. This is the correct future route for richer build-time telemetry instead of parsing unstable console text.
 
 ## Security
 
 This is debug/developer workflow infrastructure only. It is not a production OTA/update mechanism.
+
+## Verification
+
+The implementation must be verified by Antigravity on the physical Xiaomi Redmi Note 11. A code commit alone does not establish that the stream works on the actual device.
