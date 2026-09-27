@@ -193,3 +193,11 @@ Antigravity:
 - final integration and runtime debugging.
 
 Neither side may claim verification from the other side's old evidence.
+
+
+## Final identity hardening in this cycle
+
+- `MemberIntelligenceViewModel.loadMemberData` now requires explicit `memberId` and `gymId`.
+- `MemberIntelligenceScreen` no longer embeds `BG204/gym1`.
+- The debug `MainActivity` is the only current caller supplying the preview identity.
+- This prevents a production screen from silently targeting a demo member.
