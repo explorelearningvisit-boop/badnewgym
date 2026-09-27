@@ -109,6 +109,7 @@ fun CompactMemberCard(
     onMenuSelected: (MenuType) -> Unit = {},
     onClick: () -> Unit = {},
     onCtaClick: () -> Unit = {},
+    onEngagementApproval: (MemberApprovalRequest, ApprovalStatus) -> Unit = { _, _ -> },
     onCloseDetail: () -> Unit = {},
     isReducedMotion: Boolean = false,
     modifier: Modifier = Modifier
@@ -423,7 +424,7 @@ fun CompactMemberCard(
                                     engagement = snapshot.engagement,
                                     theme = theme,
                                     onStatusClick = { onClick() },
-                                    onApprovalAction = { _, _ -> onCtaClick() },
+                                    onApprovalAction = onEngagementApproval,
                                     onRecognitionClick = { onClick() },
                                     onLeaderboardClick = { onClick() }
                                 )
