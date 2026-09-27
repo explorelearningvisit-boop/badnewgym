@@ -1,3 +1,21 @@
+# 🚨 CURRENT USER-APPROVED MEMBER INTELLIGENCE DIRECTION
+
+Latest implementation SHA: `41f2bab676ac92c9d4bfc7b2c7cb0e9036f3c17b`
+
+The user has explicitly re-approved **dual vertical rails** inside the canonical member card.
+
+- LEFT: Home, Attendance, Plan, Payment, More.
+- RIGHT: PT, Workout/Lift, Supplements, Nutrition/Diet, Services, History/Log, Insight/AI, Offers.
+- Right-side destinations are capability/data driven and should distinguish premium/service-enabled members.
+- No global bottom navigation.
+- No second member-detail shell.
+- Rails should not require scrolling for the intended compact menu set.
+- Critical business-state card variants must be visually distinct.
+- Flex, service, maintenance, cleaning and operational concepts must remain truthful and repository-backed; no fake data.
+- Older sections in this file are historical status and must not override this current user-approved direction.
+
+---
+
 # BAD GYM — Current Status
 
 MI-STAGE-7-DEPTH-MOTION-LAYER: COMPLETED
