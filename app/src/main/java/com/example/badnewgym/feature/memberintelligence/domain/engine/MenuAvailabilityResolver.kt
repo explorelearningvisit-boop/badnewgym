@@ -4,7 +4,6 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.FeatureEnti
 import com.example.badnewgym.feature.memberintelligence.domain.model.FeatureKey
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
-import com.example.badnewgym.feature.memberintelligence.domain.model.MenuRailSide
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.domain.model.IntelligenceSignal
 import com.example.badnewgym.feature.memberintelligence.domain.model.SignalPriority
@@ -40,7 +39,6 @@ object MenuAvailabilityResolver {
             visible: Boolean,
             locked: Boolean = false,
             defaultPriority: Int,
-            railSide: MenuRailSide = MenuRailSide.LEFT,
             summaryOverride: String? = null
         ): MemberMenu {
             val menuSignals = signals.filter { it.sourceMenu == type }
@@ -71,7 +69,6 @@ object MenuAvailabilityResolver {
                 MenuType.PLAN,
                 true,
                 defaultPriority = 30,
-                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.membership?.planName
             ),
             menu(MenuType.PAYMENT, true, defaultPriority = 40, railSide = MenuRailSide.LEFT),
@@ -82,7 +79,6 @@ object MenuAvailabilityResolver {
                 visible = hasTrainer,
                 locked = hasTrainer && !entitlements.allows(FeatureKey.TRAINER_MANAGEMENT),
                 defaultPriority = 50,
-                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.trainer?.trainerName
             ),
             menu(MenuType.WORKOUT, visible = snapshot.workout != null, defaultPriority = 60, railSide = MenuRailSide.LEFT),
@@ -93,7 +89,6 @@ object MenuAvailabilityResolver {
                 visible = hasSupplements,
                 locked = hasSupplements && !entitlements.allows(FeatureKey.SUPPLEMENTS),
                 defaultPriority = 70,
-                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.supplements?.lastPurchaseName
             ),
             menu(
@@ -101,7 +96,6 @@ object MenuAvailabilityResolver {
                 visible = hasNutrition,
                 locked = hasNutrition && !entitlements.allows(FeatureKey.NUTRITION),
                 defaultPriority = 80,
-                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.nutrition?.planName
             ),
 
@@ -110,7 +104,6 @@ object MenuAvailabilityResolver {
                 MenuType.SERVICES,
                 visible = hasServices,
                 defaultPriority = 90,
-                railSide = MenuRailSide.LEFT,
                 summaryOverride = serviceSummary() ?: if (premiumTier) "Premium access" else null
             ),
 
@@ -126,7 +119,6 @@ object MenuAvailabilityResolver {
                 MenuType.ADVERTISEMENT,
                 visible = hasAdvertisement,
                 defaultPriority = 130,
-                railSide = MenuRailSide.LEFT,
                 summaryOverride = snapshot.promotion?.badge ?: snapshot.promotion?.title
             )
         ).filter { it.isVisible }.sortedBy { it.priority }
