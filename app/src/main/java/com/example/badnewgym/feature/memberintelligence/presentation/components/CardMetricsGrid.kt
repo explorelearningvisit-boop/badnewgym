@@ -26,7 +26,7 @@ import java.util.Locale
 fun CardMetricsGrid(
     attendance: AttendanceSummary?,
     payment: PaymentSummary?,
-    workoutsCount: Int,
+    workoutsCount: Int?,
     theme: ThemeId,
     trainer: com.example.badnewgym.feature.memberintelligence.domain.model.TrainerSummary? = null,
     onAttendanceClick: () -> Unit = {},
@@ -41,8 +41,8 @@ fun CardMetricsGrid(
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Tile 1: Attendance with circular progress ring
-        val visits = attendance?.visits ?: 16
-        val target = attendance?.target ?: 26
+        val visits = attendance?.visits
+        val target = attendance?.target?.coerceAtLeast(1)
         val attendancePercent = if (target > 0) ((visits.toFloat() / target) * 100).toInt() else 0
         MetricTileContainer(
             theme = theme,
@@ -57,7 +57,7 @@ fun CardMetricsGrid(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "$visits/$target",
+                        text = if (visits != null && target != null) "$visits/$target" else "—",
                         color = colors.textPrimary,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Black
@@ -75,7 +75,7 @@ fun CardMetricsGrid(
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
-                        progress = { (attendancePercent / 100f).coerceIn(0f, 1f) },
+                        progress = { if (visits != null && target != null) (attendancePercent / 100f).coerceIn(0f, 1f) else 0f },
                         modifier = Modifier.fillMaxSize(),
                         color = colors.accent,
                         strokeWidth = 4.dp,
@@ -92,7 +92,7 @@ fun CardMetricsGrid(
         }
 
         // Tile 2: Sessions / PT Remaining
-        val sessionsLeft = if (trainer != null) (trainer.sessionsTotal - trainer.sessionsUsed).coerceAtLeast(0) else 8
+        val sessionsLeft = trainer?.let { (it.sessionsTotal - it.sessionsUsed).coerceAtLeast(0) }
         MetricTileContainer(
             theme = theme,
             modifier = Modifier
@@ -106,7 +106,7 @@ fun CardMetricsGrid(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "$sessionsLeft Left",
+                        text = sessionsLeft?.let { "$it Left" } ?: "—",
                         color = colors.accent,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Black
@@ -127,7 +127,7 @@ fun CardMetricsGrid(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = trainer?.trainerName?.take(8) ?: "Active PT",
+                        text = trainer?.trainerName?.take(10) ?: "Not enrolled",
                         color = colors.accent,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -137,7 +137,7 @@ fun CardMetricsGrid(
         }
 
         // Tile 3: Workouts count with six-bar progression
-        val countDisplay = if (workoutsCount > 0) workoutsCount else 12
+        val countDisplay = workoutsCount
         MetricTileContainer(
             theme = theme,
             modifier = Modifier
@@ -151,7 +151,7 @@ fun CardMetricsGrid(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "$countDisplay",
+                        text = countDisplay?.toString() ?: "—",
                         color = colors.textPrimary,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Black
