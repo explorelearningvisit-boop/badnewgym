@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     temporalRepository = temporalRepository
                 )
             )
-            MemberIntelligenceScreen(viewModel = viewModel)
+            MemberIntelligenceScreen(viewModel = viewModel, initialMemberId = "BG204", gymId = "gym1")
         }
     }
 }
