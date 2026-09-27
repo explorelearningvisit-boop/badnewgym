@@ -98,7 +98,9 @@ data class WorkoutSummary(
     val lastWorkoutDate: Long?,
     val currentRoutine: String?,
     val durationMinutes: Int? = null,
-    val calories: Int? = null
+    val calories: Int? = null,
+    /** Number of workout sessions in the current loaded period, when the source provides it. */
+    val sessionCount: Int? = null
 )
 
 data class SupplementSummary(
