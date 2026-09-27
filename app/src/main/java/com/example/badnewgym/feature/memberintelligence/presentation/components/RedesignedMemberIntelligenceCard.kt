@@ -131,7 +131,7 @@ fun RedesignedMemberIntelligenceCard(
                                     MenuType.HISTORY -> HistoryPanel(snapshot, theme, temporalRange, onRangeChange, onEventClick)
                                     MenuType.INSIGHT -> InsightPanel(snapshot, if (primarySignal != null) listOf(primarySignal) + secondarySignals else secondarySignals, theme)
                                     MenuType.MORE -> MorePanel(snapshot, theme, onMenuSelected)
-                                    MenuType.ADVERTISEMENT -> AdvertisementPanel(snapshot.promotion, theme)
+                                    MenuType.ADVERTISEMENT -> V4AdvertisementPanel(snapshot.promotion)
                                 }
                             }
                         }
@@ -326,6 +326,19 @@ fun RedesignedMemberIntelligenceCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun V4AdvertisementPanel(promotion: PromotionSlot?) {
+    val colors = BADGymTheme.colors
+    if (promotion == null) {
+        V4Evidence("OFFERS", "No active offer recorded", "Commercial content is hidden until a real promotion exists.", colors.textMuted)
+        return
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        V4Evidence("OFFER", promotion.title, promotion.subtitle ?: "Eligible member offer", colors.warning)
+        promotion.badge?.let { V4Pill(it, colors.warning) }
     }
 }
 
