@@ -1,7 +1,9 @@
 {
 	"folders": [
 		{
+			"name": "BAD GYM",
 			"path": "."
 		}
-	]
+	],
+	"settings": {}
 }
