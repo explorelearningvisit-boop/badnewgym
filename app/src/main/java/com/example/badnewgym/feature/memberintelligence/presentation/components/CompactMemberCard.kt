@@ -1497,25 +1497,36 @@ private fun getRailMicroData(
 ): String {
     return when (menuType) {
         MenuType.HOME -> ""
-        MenuType.ATTENDANCE -> snapshot.attendance?.let { "${it.visits}/${it.target ?: 26}" } ?: "16/26"
-        MenuType.PLAN -> snapshot.membership?.let { if (!it.isActive || it.daysRemaining <= 0) "Expired" else "${it.daysRemaining}d" } ?: "48d"
-        MenuType.PAYMENT -> {
-            val due = snapshot.payment?.totalOutstanding ?: 0.0
-            if (due > 0) {
-                if (due >= 1000) "₹${(due / 1000).toInt()}k!" else "₹${due.toInt()}!"
-            } else {
-                "Paid"
+        MenuType.ATTENDANCE -> snapshot.attendance?.let { attendance ->
+            val target = attendance.target?.toString() ?: "—"
+            "${attendance.visits}/$target"
+        } ?: "—"
+        MenuType.PLAN -> snapshot.membership?.let {
+            if (!it.isActive || it.daysRemaining <= 0) "Expired" else "${it.daysRemaining}d"
+        } ?: "—"
+        MenuType.PAYMENT -> snapshot.payment?.let {
+            val due = it.totalOutstanding
+            when {
+                due >= 1000 -> "₹${(due / 1000).toInt()}k!"
+                due > 0 -> "₹${due.toInt()}!"
+                else -> "Paid"
             }
+        } ?: "—"
+        MenuType.TRAINER -> snapshot.trainer?.let {
+            "${(it.sessionsTotal - it.sessionsUsed).coerceAtLeast(0)} PT"
+        } ?: "—"
+        MenuType.WORKOUT -> snapshot.workout?.sessionCount?.toString() ?: "—"
+        MenuType.SUPPLEMENTS -> if (snapshot.supplements?.hasHistory == true) "Active" else "—"
+        MenuType.NUTRITION -> if (snapshot.nutrition?.isSubscribed == true) "Active" else "—"
+        MenuType.SERVICES -> snapshot.services?.count { it.isActive }?.takeIf { it > 0 }?.toString() ?: "—"
+        MenuType.ADVERTISEMENT -> snapshot.promotion?.badge ?: "—"
+        MenuType.HISTORY -> snapshot.recentEvents.size.takeIf { it > 0 }?.toString() ?: "—"
+        MenuType.INSIGHT -> when {
+            primarySignal?.priority == SignalPriority.P0_CRITICAL -> "P0"
+            snapshot.issues.isNotEmpty() -> snapshot.issues.size.toString()
+            else -> "—"
         }
-        MenuType.TRAINER -> snapshot.trainer?.let { "${it.sessionsTotal - it.sessionsUsed} PT" } ?: "8 PT"
-        MenuType.WORKOUT -> snapshot.attendance?.avgVisitsPerWeek?.let { "${it.toInt()}/wk" } ?: "4/wk"
-        MenuType.SUPPLEMENTS -> if (snapshot.supplements?.hasHistory == true) "Active" else "Stack"
-        MenuType.NUTRITION -> if (snapshot.nutrition?.isSubscribed == true) "Active" else "Diet"
-        MenuType.SERVICES -> snapshot.services?.let { services -> services.count { service -> service.isActive }.let { count -> if (count > 0) count.toString() + " act" else "—" } } ?: "—"
-        MenuType.ADVERTISEMENT -> snapshot.promotion?.badge ?: "Offer"
-        MenuType.HISTORY -> "${snapshot.recentEvents.size.coerceAtLeast(3)} ev"
-        MenuType.INSIGHT -> if (primarySignal?.priority == SignalPriority.P0_CRITICAL) "1 P0" else if (snapshot.issues.isNotEmpty()) "${snapshot.issues.size} act" else "AI"
-        MenuType.MORE -> "" // Section 5: More has no meaningless badge
+        MenuType.MORE -> ""
     }
 }
 
