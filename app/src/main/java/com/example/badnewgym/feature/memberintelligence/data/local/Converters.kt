@@ -83,4 +83,12 @@ class Converters {
         val type = object : TypeToken<List<MemberIssue>>() {}.type
         return gson.fromJson(value, type)
     }
+
+    @TypeConverter
+    fun fromMemberEngagementSummary(value: MemberEngagementSummary?): String? =
+        value?.let { gson.toJson(it) }
+
+    @TypeConverter
+    fun toMemberEngagementSummary(value: String?): MemberEngagementSummary? =
+        value?.let { gson.fromJson(it, MemberEngagementSummary::class.java) }
 }
