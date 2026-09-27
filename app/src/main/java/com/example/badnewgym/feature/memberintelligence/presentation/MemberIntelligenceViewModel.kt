@@ -3,8 +3,6 @@ package com.example.badnewgym.feature.memberintelligence.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.badnewgym.feature.memberintelligence.data.repository.StubMemberRepositoryImpl
-import com.example.badnewgym.feature.memberintelligence.data.repository.StubTemporalIntelligenceRepositoryImpl
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
@@ -20,8 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MemberIntelligenceViewModel(
-    private val repository: MemberIntelligenceRepository = StubMemberRepositoryImpl(),
-    private val temporalRepository: TemporalIntelligenceRepository = StubTemporalIntelligenceRepositoryImpl(),
+    private val repository: MemberIntelligenceRepository,
+    private val temporalRepository: TemporalIntelligenceRepository,
     private val navigator: MemberIntelligenceNavigator = MemberIntelligenceNavigator.NoOp
 ) : ViewModel() {
     private val engine = MemberIntelligenceEngine()
@@ -379,8 +377,8 @@ class MemberIntelligenceViewModel(
 
     companion object {
         fun provideFactory(
-            repository: MemberIntelligenceRepository = StubMemberRepositoryImpl(),
-            temporalRepository: TemporalIntelligenceRepository = StubTemporalIntelligenceRepositoryImpl()
+            repository: MemberIntelligenceRepository,
+            temporalRepository: TemporalIntelligenceRepository
         ): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
