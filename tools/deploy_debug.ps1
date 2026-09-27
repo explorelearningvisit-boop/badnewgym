@@ -39,23 +39,55 @@ Send-Progress "BUILD" "Build complete" ("APK generated • " + (ElapsedText)) 70
 if (-not (Test-Path $apk)) { throw "APK not found: $apk" }
 $apkInfo = Get-Item $apk
 $total = [long]$apkInfo.Length
-Send-Progress "TRANSFER" "APK ready" (("APK size " + [math]::Round($total / 1MB, 1) + " MB • transfer/install starting • " + (ElapsedText))) 82 0 $total $sha
-
-Send-Progress "TRANSFER" "Sending APK to device" (("0 / " + [math]::Round($total / 1MB, 1) + " MB • " + (ElapsedText))) 84 0 $total $sha
-& adb -d push $apk /data/local/tmp/badnewgym-debug.apk | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    Send-Progress "ERROR" "APK transfer failed" ("adb push failed • " + (ElapsedText)) 84 -Sha $sha -ErrorState
-    throw "APK transfer failed"
+Send-Progress "TRANSFER" "APK ready" (("APK size " + [math]::Round($total / 1MB, 1) + " MB • measured transfer begins • " + (ElapsedText))) 70 0 $total $sha
+$createOutput = & adb -d shell pm install-create -r -S $total 2>&1
+if ($LASTEXITCODE -ne 0) { Send-Progress "ERROR" "Install session creation failed" ("PackageInstaller session could not be created • " + (ElapsedText)) 70 0 $total $sha -ErrorState; throw "Install session creation failed" }
+$createText = ($createOutput -join " ")
+if ($createText -notmatch 'Success: created install session \[(\d+)\]') { Send-Progress "ERROR" "Install session creation failed" ("Unexpected PackageInstaller response • " + (ElapsedText)) 70 0 $total $sha -ErrorState; throw "Unable to parse install session id" }
+$sessionId = $Matches[1]
+$psi = New-Object System.Diagnostics.ProcessStartInfo
+$psi.FileName = "adb"
+$psi.Arguments = "-d shell pm install-write -S $total $sessionId base.apk -"
+$psi.UseShellExecute = $false
+$psi.RedirectStandardInput = $true
+$psi.RedirectStandardOutput = $true
+$psi.RedirectStandardError = $true
+$psi.CreateNoWindow = $true
+$proc = New-Object System.Diagnostics.Process
+$proc.StartInfo = $psi
+[void]$proc.Start()
+$reader = [System.IO.File]::OpenRead((Resolve-Path $apk))
+$buffer = New-Object byte[] (1MB)
+$sent = 0L
+try {
+    Send-Progress "TRANSFER" "Streaming APK to device" ("0 / " + [math]::Round($total / 1MB, 1) + " MB • 0% • " + (ElapsedText)) 70 0 $total $sha
+    while ($sent -lt $total) {
+        $remaining = $total - $sent
+        $want = [int][math]::Min($buffer.Length, $remaining)
+        $read = $reader.Read($buffer, 0, $want)
+        if ($read -le 0) { throw "Unexpected end of APK stream" }
+        $proc.StandardInput.BaseStream.Write($buffer, 0, $read)
+        $proc.StandardInput.BaseStream.Flush()
+        $sent += $read
+        $transferPercent = [int][math]::Floor(70 + (($sent / $total) * 20))
+        Send-Progress "TRANSFER" "Streaming APK to device" (([math]::Round($sent / 1MB, 1)) + " MB / " + [math]::Round($total / 1MB, 1) + " MB • " + $transferPercent + "% • " + (ElapsedText)) $transferPercent $sent $total $sha
+    }
+    $proc.StandardInput.Close()
+    $proc.WaitForExit()
+    if ($proc.ExitCode -ne 0) { throw "PackageInstaller stream failed: " + $proc.StandardError.ReadToEnd() }
 }
-Send-Progress "TRANSFER" "APK transferred" (([math]::Round($total / 1MB, 1).ToString() + " MB / " + [math]::Round($total / 1MB, 1) + " MB • " + (ElapsedText))) 90 $total $total $sha
-
-Send-Progress "INSTALL" "Installing update" ("Replacing BAD GYM package • " + (ElapsedText)) 94 $total $total $sha
-& adb -d shell pm install -r /data/local/tmp/badnewgym-debug.apk | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    Send-Progress "ERROR" "Install failed" ("Package install failed • " + (ElapsedText)) 94 -Sha $sha -ErrorState
-    throw "Package install failed"
+catch {
+    if (-not $proc.HasExited) { $proc.Kill() }
+    Send-Progress "ERROR" "APK transfer failed" ($_.Exception.Message + " • " + (ElapsedText)) 70 $sent $total $sha -ErrorState
+    throw
 }
-
+finally {
+    $reader.Dispose()
+    if (-not $proc.HasExited) { $proc.WaitForExit() }
+}
+Send-Progress "VERIFY" "APK bytes received" (($sent / 1MB).ToString("0.0") + " MB / " + [math]::Round($total / 1MB, 1) + " MB • exact byte count reached • " + (ElapsedText)) 91 $sent $total $sha
+$remoteInstallResult = & adb -d shell pm install-commit $sessionId 2>&1
+if ($LASTEXITCODE -ne 0) { Send-Progress "ERROR" "Install commit failed" (($remoteInstallResult -join " ") + " • " + (ElapsedText)) 94 $sent $total $sha -ErrorState; throw "Install commit failed" }
 Send-Progress "LAUNCH" "Launching BAD GYM" ("Starting fresh APK • " + (ElapsedText)) 97 $total $total $sha
 & adb -d shell am force-stop $package
 & adb -d shell monkey -p $package 1 | Out-Null
