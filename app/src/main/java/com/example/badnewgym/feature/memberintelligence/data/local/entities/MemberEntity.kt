@@ -18,7 +18,8 @@ data class MemberEntity(
     val nutrition: NutritionSummary?,
     val services: List<ServiceSummary>?,
     val recentEvents: List<MemberEvent>,
-    val issues: List<MemberIssue>
+    val issues: List<MemberIssue>,
+    val engagement: MemberEngagementSummary? = null
 )
 
 fun MemberEntity.toDomain(): MemberSnapshot {
@@ -35,7 +36,8 @@ fun MemberEntity.toDomain(): MemberSnapshot {
         nutrition = nutrition,
         services = services,
         recentEvents = recentEvents,
-        issues = issues
+        issues = issues,
+        engagement = engagement
     )
 }
 
@@ -53,6 +55,7 @@ fun MemberSnapshot.toEntity(): MemberEntity {
         nutrition = nutrition,
         services = services,
         recentEvents = recentEvents,
-        issues = issues
+        issues = issues,
+        engagement = engagement
     )
 }
