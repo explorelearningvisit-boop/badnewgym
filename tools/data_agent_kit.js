@@ -13,7 +13,9 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const PROXY_BUNDLE = 'c:\\Users\\User\\.antigravity-ide\\extensions\\googlecloudtools.datacloud-0.11.0-universal\\mcp_servers\\cli\\mcp_proxy_bundle.js';
+const RESILIENT_PROXY = path.join(process.env.USERPROFILE || 'C:\\Users\\User', '.gemini', 'config', 'datacloud_mcp_proxy.js');
+const EXTENSION_PROXY = 'c:\\Users\\User\\.antigravity-ide\\extensions\\googlecloudtools.datacloud-0.11.0-universal\\mcp_servers\\cli\\mcp_proxy_bundle.js';
+const PROXY_BUNDLE = fs.existsSync(RESILIENT_PROXY) ? RESILIENT_PROXY : EXTENSION_PROXY;
 
 const TARGET_MAP = {
     'data-agent-kit': 'dataAgentKit-antigravityide',
@@ -28,6 +30,7 @@ function executeRpc(method, params = {}, target = 'dataAgentKit-antigravityide')
         if (!fs.existsSync(PROXY_BUNDLE)) {
             return reject(new Error(`MCP proxy bundle not found at: ${PROXY_BUNDLE}`));
         }
+
 
         const child = spawn('node', [PROXY_BUNDLE, target], {
             stdio: ['pipe', 'pipe', 'pipe']
