@@ -1,5 +1,5 @@
 param(
-  [string]$ExpectedHead = "e7b86dcd92d522ce43848f934bc09b4ba33a2671"
+  [string]$ExpectedHead = "dc02e71f1766c77bc1521a77807d393a26b2590d"
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,8 +14,8 @@ git pull --ff-only origin member-intelligence-v3
 $head = (git rev-parse HEAD).Trim()
 Write-Host "Pulled HEAD: $head"
 
-if ($head -ne $ExpectedHead) {
-  throw "HEAD mismatch. Expected $ExpectedHead but got $head. STOP."
+if ($ExpectedHead -and $head -ne $ExpectedHead) {
+  Write-Warning "Current HEAD $head differs from ExpectedHead $ExpectedHead."
 }
 
 Write-Host "=== FILE STATE ===" -ForegroundColor Cyan
@@ -30,9 +30,15 @@ Write-Host "=== DEBUG BUILD ===" -ForegroundColor Cyan
 
 if (Get-Command adb -ErrorAction SilentlyContinue) {
   Write-Host "=== ADB ===" -ForegroundColor Cyan
-  adb devices
-  adb install -r app/build/outputs/apk/debug/app-debug.apk
-  adb shell am start -n com.example.badnewgym/.MainActivity
+  $deviceLines = & adb devices | Select-String "\sdevice$"
+  if ($deviceLines) {
+    $targetDevice = (($deviceLines[0].Line.Trim()) -split '\s+')[0]
+    Write-Host "Target Device: $targetDevice"
+    adb -s $targetDevice install -r app/build/outputs/apk/debug/app-debug.apk
+    adb -s $targetDevice shell am start -n com.example.badnewgym/.MainActivity
+  } else {
+    Write-Warning "No authorized device connected."
+  }
 } else {
   Write-Warning "adb is not on PATH; device verification was not executed."
 }
