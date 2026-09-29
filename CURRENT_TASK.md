@@ -587,3 +587,96 @@ Pull `origin/member-intelligence-v3` fully, verify the latest HEAD, build/test, 
   - `.\gradlew.bat assembleDebug`: SUCCESS (39 actionable tasks)
   - `tools/deploy_debug.ps1`: Deployed 25.7MB APK stream over USB to Xiaomi 11i (`zxdada69gunb7ls4`) and launched cleanly.
 
+
+
+---
+
+# CURRENT — Cellular Multi-Device Sync Verification — 2026-09-29
+
+**Specification:** `docs/reference/CELLULAR_MULTI_DEVICE_SYNC_VERIFICATION.md`
+
+## User-directed verification goal
+
+Run BAD GYM on multiple Android phones using the **cellular/mobile-data path** for application data rather than USB data transport.
+
+Required logical path:
+
+`Android phone → Teliskol/mobile-data network → Internet → HTTPS/TLS API → backend → database/realtime → authorized BAD GYM devices`
+
+USB may be used only to install/debug the APK if necessary. It must not be the application sync/data path.
+
+## Transport contract
+
+- Application transport: HTTPS/TLS.
+- Default secure destination: TCP 443.
+- No inbound phone listener is required.
+- Do not assume a carrier exposes an inbound port because the phone is on cellular data; NAT/CGNAT commonly prevents that.
+- Exact carrier/provider/APN must be recorded during physical testing and must not be guessed.
+- Runtime backend host/environment must come from configuration; never commit secrets.
+
+## Runtime data vs GitHub
+
+GitHub stores the durable engineering context: source, schema, sync contract, environment-variable names, tests, verification reports and safe evidence.
+
+GitHub is **not** the runtime database and must never receive:
+- access tokens or service-role keys;
+- passwords/private API keys;
+- SIM/IMEI/phone-number lists;
+- production member PII;
+- raw authentication/session logs.
+
+Runtime member/device/sync state belongs in the configured backend, with Room/outbox for local offline state.
+
+## Device registration
+
+Every installation must use a stable app-generated `installationId` and record only the required operational metadata:
+
+`installationId, appVersion, platform, deviceModel, osVersion, lastSeenAt, connectionState, lastSuccessfulSyncAt, syncCursor/version, backend/environment`
+
+Do not use IMEI, SIM serial, phone number or MAC address as the application identity.
+
+Flow:
+
+`INSTALL → AUTHENTICATE → REGISTER DEVICE → INITIAL SYNC → DELTA/REALTIME SYNC → LAST-SEEN`
+
+Already-registered devices reuse their registration. New devices create a registration and perform an authorized initial sync.
+
+## Multi-device test
+
+After Pull & Run:
+
+1. Confirm BAD GYM opens.
+2. Put Device A on cellular/mobile data.
+3. Verify application traffic is not using USB/network-over-USB.
+4. Register Device A and run the initial sync.
+5. Display truthful sync progress where measurable.
+6. Create controlled test event/data on Device A.
+7. Confirm backend persistence.
+8. Put Device B on its own cellular/mobile-data path and register it.
+9. Confirm Device B receives the authorized data.
+10. Create a second controlled event on Device B.
+11. Confirm Device A receives the delta.
+12. Toggle mobile data off/on and verify outbox/reconnect behavior.
+13. Verify idempotency prevents duplicate events.
+14. Record device/network/environment/test IDs and the final Git SHA.
+
+## Progress UI
+
+Progress must represent real work, not a decorative percentage:
+
+`Connecting → Authenticating → Registering → Initial Sync 0–100% → Syncing → Up to date`
+
+Failure states:
+
+`Offline / Retrying / Sync failed`
+
+After initial sync, use cursor-based deltas/realtime updates and on-demand detail fetches; do not continuously reload the whole dataset.
+
+## Verification report
+
+Antigravity must report:
+
+`MODEL → PROVIDER/CONFIG → BRANCH → PULLED_HEAD → DEVICES → NETWORK_PATH → BACKEND_ENV → TEST_CASES → BUILD → TESTS → RUNTIME → SYNC_RESULT → SCREENSHOTS → FINAL_SHA → BLOCKERS`
+
+Do not claim cellular multi-device sync is physically verified until that test has actually been run and evidence exists.
+
