@@ -33,6 +33,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -218,6 +222,7 @@ private fun CardBody(
     onCta: (SignalAction) -> Unit
 ) {
     val colors = BADGymTheme.colors
+    var homeExpanded by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -225,108 +230,112 @@ private fun CardBody(
             .background(colors.surface)
             .border(1.dp, colors.border.copy(alpha = 0.6f), RoundedCornerShape(24.dp))
     ) {
-        Row(modifier = Modifier.fillMaxSize()) {
-            // Left: 54dp Navigation Rail
-            IntelligenceRail(
-                menus = menus,
-                activeMenu = activeMenu,
-                onMenuSelected = onMenuSelected,
-                modifier = Modifier.fillMaxHeight()
+        if (activeMenu == MenuType.HOME && homeExpanded) {
+            MobileHomeIntelligence(
+                snapshot = snapshot,
+                currentEvent = currentEvent,
+                signals = signals,
+                primarySignal = primarySignal,
+                secondarySignals = secondarySignals,
+                cta = cta,
+                theme = theme,
+                expanded = true,
+                onExpand = {},
+                onCollapse = { homeExpanded = false },
+                onCta = onCta,
+                modifier = Modifier.fillMaxSize()
             )
-
-            // Right: Content Area
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                // Header (BAD GYM Branding + Slogan)
-                CardHeader(theme = theme)
-
-                // Hero Member Info (Verified, ID, Motto, Photo)
-                HeroMemberSection(
-                    identity = snapshot.identity,
-                    theme = theme
+        } else {
+            Row(modifier = Modifier.fillMaxSize()) {
+                IntelligenceRail(
+                    menus = menus,
+                    activeMenu = activeMenu,
+                    onMenuSelected = { menu ->
+                        if (menu == MenuType.HOME) {
+                            homeExpanded = true
+                            onMenuSelected(MenuType.HOME)
+                        } else {
+                            homeExpanded = false
+                            onMenuSelected(menu)
+                        }
+                    },
+                    modifier = Modifier.fillMaxHeight()
                 )
 
-                // Animated Menu Switcher (Fade + Horizontal Slide)
-                AnimatedContent(
-                    targetState = activeMenu,
-                    transitionSpec = {
-                        slideInHorizontally(tween(220)) + fadeIn(tween(180)) togetherWith
-                            slideOutHorizontally(tween(160)) + fadeOut(tween(120))
-                    },
-                    label = "menuContent"
-                ) { targetMenu ->
-                    when (targetMenu) {
-                        MenuType.HOME -> HomeContent(
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 10.dp, vertical = 9.dp),
+                    verticalArrangement = Arrangement.spacedBy(9.dp)
+                ) {
+                    if (activeMenu == MenuType.HOME) {
+                        MobileHomeIntelligence(
                             snapshot = snapshot,
+                            currentEvent = currentEvent,
                             signals = signals,
                             primarySignal = primarySignal,
                             secondarySignals = secondarySignals,
                             cta = cta,
                             theme = theme,
+                            expanded = false,
+                            onExpand = { homeExpanded = true },
+                            onCollapse = { homeExpanded = false },
                             onCta = onCta,
-                            onNavigate = onMenuSelected
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 420.dp)
                         )
-
-                        MenuType.ATTENDANCE -> AttendancePanel(
-                            snapshot = snapshot,
+                    } else {
+                        CardHeader(theme = theme)
+                        HeroMemberSection(
+                            identity = snapshot.identity,
                             theme = theme
                         )
 
-                        MenuType.PLAN -> PlanPanel(
-                            snapshot = snapshot,
-                            theme = theme
-                        )
-
-                        MenuType.PAYMENT -> PaymentPanel(
-                            snapshot = snapshot,
-                            theme = theme,
-                            onCtaClick = {
-                                cta?.let(onCta) ?: onMenuSelected(MenuType.PAYMENT)
+                        AnimatedContent(
+                            targetState = activeMenu,
+                            transitionSpec = {
+                                slideInHorizontally(tween(220)) + fadeIn(tween(180)) togetherWith
+                                    slideOutHorizontally(tween(160)) + fadeOut(tween(120))
+                            },
+                            label = "menuContent"
+                        ) { targetMenu ->
+                            when (targetMenu) {
+                                MenuType.ATTENDANCE -> AttendancePanel(snapshot = snapshot, theme = theme)
+                                MenuType.PLAN -> PlanPanel(snapshot = snapshot, theme = theme)
+                                MenuType.PAYMENT -> PaymentPanel(
+                                    snapshot = snapshot,
+                                    theme = theme,
+                                    onCtaClick = {
+                                        cta?.let(onCta) ?: onMenuSelected(MenuType.PAYMENT)
+                                    }
+                                )
+                                MenuType.TRAINER -> TrainerPanel(snapshot = snapshot, theme = theme)
+                                MenuType.WORKOUT -> WorkoutPanel(snapshot = snapshot, theme = theme)
+                                MenuType.SERVICES -> ServicesPanel(snapshot = snapshot, theme = theme)
+                                MenuType.INSIGHT -> InsightPanel(snapshot = snapshot, signals = signals, theme = theme)
+                                else -> MobileHomeIntelligence(
+                                    snapshot = snapshot,
+                                    currentEvent = currentEvent,
+                                    signals = signals,
+                                    primarySignal = primarySignal,
+                                    secondarySignals = secondarySignals,
+                                    cta = cta,
+                                    theme = theme,
+                                    expanded = false,
+                                    onExpand = { homeExpanded = true },
+                                    onCollapse = { homeExpanded = false },
+                                    onCta = onCta,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
-                        )
+                        }
 
-                        MenuType.TRAINER -> TrainerPanel(
-                            snapshot = snapshot,
-                            theme = theme
-                        )
-
-                        MenuType.WORKOUT -> WorkoutPanel(
-                            snapshot = snapshot,
-                            theme = theme
-                        )
-
-                        MenuType.SERVICES -> ServicesPanel(
-                            snapshot = snapshot,
-                            theme = theme
-                        )
-
-                        MenuType.INSIGHT -> InsightPanel(
-                            snapshot = snapshot,
-                            signals = signals,
-                            theme = theme
-                        )
-
-                        else -> HomeContent(
-                            snapshot = snapshot,
-                            signals = signals,
-                            primarySignal = primarySignal,
-                            secondarySignals = secondarySignals,
-                            cta = cta,
-                            theme = theme,
-                            onCta = onCta,
-                            onNavigate = onMenuSelected
-                        )
+                        CardFooterSection(theme = theme)
                     }
                 }
-
-                // Motivational Footer
-                CardFooterSection(theme = theme)
             }
         }
     }
