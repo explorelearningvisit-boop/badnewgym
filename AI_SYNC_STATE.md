@@ -28,3 +28,17 @@ No hidden/background execution. No force-push/reset/discard.
 - Latest ChatGPT source commits in this packet: `7112c48f090ab57d0abe05780c03742ad5feb2b2`, `e43fac3dd6e3b93d6effbdde2d2433884cd1c6e5`, `d5138a056c65d1995e10143491b523bfb142d2f3`, `41b4db9de51640a8fcfdab1e4ec162f1c4e08d22`.
 - Antigravity must pull the complete branch, inspect the latest HEAD, build/test, exercise the event-card gallery, capture runtime evidence, and push only necessary corrections.
 - Commit count is never treated as file count. Exact HEAD + changed-file list is authoritative.
+
+
+## DEVICE TRANSPORT + DEPLOYMENT PROTOCOL — 2026-09-29
+
+- Authoritative protocol: `docs/reference/AI_DEVICE_TRANSPORT_AND_PROGRESS_PROTOCOL.md`
+- Transport priority: wired USB/ADB → local Wi-Fi/LAN → Tailscale/private network → Internet/cellular.
+- Wired/local paths are preferred to reduce unnecessary Internet/mobile-data consumption.
+- Before multi-device deployment, resolve the requested target scope: specific device, all mobiles, all devices, or ask if ambiguous. Never silently broadcast.
+- For every meaningful cycle expose: FOUND → PLAN → CHANGED → VERIFIED → SHA → BLOCKERS.
+- Measure and report APK/artifact size and transfer bytes/progress whenever the platform exposes them; never invent percentages.
+- In-app update/sync UI should expose real phases such as Connecting → Authenticating → Downloading → Installing → Verifying → Syncing → Up to date, with honest unavailable-progress states.
+- Maintain a chronological, user-visible operation log where technically supported; do not log secrets, tokens, raw auth/session logs, production PII or biometric data.
+- When an AI is told to read/understand/continue/pull-and-run the project, first read `CURRENT_TASK.md`, `AI_SYNC_STATE.md`, the active reference handoff/spec, latest HEAD/changed-file inventory, relevant source, and current verification evidence.
+- GitHub is the durable engineering context/hand-off boundary; runtime member/device state remains in the backend.
