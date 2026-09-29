@@ -1,4 +1,4 @@
-name: Member Intelligence Build
+name: BAD GYM Android Build
 
 on:
   push:
@@ -6,17 +6,44 @@ on:
       - member-intelligence-v3
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   android-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
-      - name: Assemble debug
+
+      - name: Assemble debug APK
         run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Verify APK exists
+        run: |
+          test -f app/build/outputs/apk/debug/app-debug.apk
+          ls -lh app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Generate APK SHA-256
+        run: sha256sum app/build/outputs/apk/debug/app-debug.apk | tee app/build/outputs/apk/debug/app-debug.apk.sha256
+
+      - name: Upload installable APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: badgym-debug-apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/debug/app-debug.apk.sha256
+          retention-days: 7
