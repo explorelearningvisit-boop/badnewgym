@@ -299,7 +299,7 @@ private fun WeekOverview(snapshot:MemberSnapshot,compact:Boolean) {
 @Composable private fun BodyProgress(snapshot:MemberSnapshot,compact:Boolean){
     val c=BADGymTheme.colors
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surfaceElevated).border(1.dp,c.border.copy(alpha=.5f),RoundedCornerShape(16.dp)).padding(if(compact)9.dp else 11.dp),verticalAlignment=Alignment.CenterVertically){
-        MemberPhoto(snapshot.identity.photoUrl,snapshot.identity.tier,if(compact)45.dp else 52.dp,false)
+        MemberPhoto(photoUrl = snapshot.identity.photoUrl, tier = snapshot.identity.tier, size = if(compact)45.dp else 52.dp, showVerified = false)
         Text("→",color=c.textSecondary,fontSize=17.sp,modifier=Modifier.padding(horizontal=6.dp))
         MemberPhoto(snapshot.identity.photoUrl,snapshot.identity.tier,if(compact)45.dp else 52.dp,false)
         Spacer(Modifier.width(8.dp))
