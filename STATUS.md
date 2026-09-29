@@ -298,6 +298,24 @@ STATUS: MEMBER-INTELLIGENCE-V4-REDESIGN COMPLETED
 
 STATUS: MCP-BRIDGES-DATA-CLOUD-COMPLETED
 
+## Multi-Device Tailscale Wireless Deployment & Verification
+
+- **Multi-Device Target Environment**:
+  - **Device A (Xiaomi 11i / pissarroin / `zxdada69gunb7ls4`)**: Connected via USB & Tailscale mesh (`100.123.18.54:5555`).
+  - **Device B (Oppo A53 / CPH2127 / `bed8856e`)**: Connected via USB & Tailscale mesh (`100.80.18.55:5555` on `tun1`).
+- **Wireless Tailscale Deployment**:
+  - Enabled wireless ADB over TCP/IP port 5555 on the Oppo device.
+  - Successfully deployed the streamed debug APK (`app-debug.apk`) directly over the Tailscale network interface (`100.80.18.55:5555`).
+  - Launched `com.example.badnewgym/.MainActivity` wirelessly.
+- **Physical Device QA on Oppo**:
+  - Full canonical Member Intelligence UI rendered on Oppo screen (720x1600).
+  - Dual vertical rails (Left: `Home`, `Attend`, `Plan`, `Pay`, `More`; Right: `PT`, `Lift`, `Supps`, `Diet`, `Serve`, `Log`, `AI`).
+  - Overdue payment attention state auto-routing (`Yash Singh` / `₹4,500.00`) and QA Lab access verified.
+  - Captured live screenshot: `docs/reference/oppo-device-output.png`.
+
+STATUS: MULTI-DEVICE-TAILSCALE-DEPLOYMENT COMPLETED
+
+
 
 
 
