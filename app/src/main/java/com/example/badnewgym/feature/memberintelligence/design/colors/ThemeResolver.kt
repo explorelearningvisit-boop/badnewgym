@@ -19,7 +19,7 @@ object ThemeResolver {
             EventType.SUPPLEMENT_PURCHASE -> Color(0xFFF97316) // Orange
             EventType.NUTRITION -> Color(0xFFF43F5E) // Coral
             EventType.SERVICE_PURCHASE, EventType.NEW_MEMBER, EventType.WALK_IN -> themeColors.accent
-            EventType.UNKNOWN -> themeColors.textMuted
+            else -> themeColors.textMuted
         }
     }
 

@@ -263,32 +263,33 @@ private fun CardBody(
                     modifier = Modifier.fillMaxHeight()
                 )
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 10.dp, vertical = 9.dp),
-                    verticalArrangement = Arrangement.spacedBy(9.dp)
-                ) {
-                    if (activeMenu == MenuType.HOME) {
-                        MobileHomeIntelligence(
-                            snapshot = snapshot,
-                            currentEvent = currentEvent,
-                            signals = signals,
-                            primarySignal = primarySignal,
-                            secondarySignals = secondarySignals,
-                            cta = cta,
-                            theme = theme,
-                            expanded = false,
-                            onExpand = { homeExpanded = true },
-                            onCollapse = { homeExpanded = false },
-                            onCta = onCta,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 420.dp)
-                        )
-                    } else {
+                if (activeMenu == MenuType.HOME) {
+                    MobileHomeIntelligence(
+                        snapshot = snapshot,
+                        currentEvent = currentEvent,
+                        signals = signals,
+                        primarySignal = primarySignal,
+                        secondarySignals = secondarySignals,
+                        cta = cta,
+                        theme = theme,
+                        expanded = false,
+                        onExpand = { homeExpanded = true },
+                        onCollapse = { homeExpanded = false },
+                        onCta = onCta,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(4.dp)
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 10.dp, vertical = 9.dp),
+                        verticalArrangement = Arrangement.spacedBy(9.dp)
+                    ) {
                         CardHeader(theme = theme)
                         HeroMemberSection(
                             identity = snapshot.identity,

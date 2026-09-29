@@ -1,22 +1,14 @@
 package com.example.badnewgym.feature.memberintelligence.domain.model
 
-/**
- * Contextual presentation variants layered on top of the 68 typed event variants.
- *
- * We intentionally do NOT create a new Composable for every variant. A late check-in
- * is still a Check-in card; its evidence/state/CTA/emphasis changes. This keeps the
- * UI reusable while preserving strong visual and semantic variety.
- */
 enum class EventCardVariant {
     DEFAULT,
-    LATE,
-    EARLY,
+    LATE_CHECK_IN,
+    EARLY_CHECK_IN,
     OVERDUE,
     FAILED,
     PARTIAL,
-    RESOLVED,
     ACTIVE,
-    EXPIRING,
+    RESOLVED,
     CONVERTED,
     EXPIRED,
     BLOCKED,
@@ -24,115 +16,109 @@ enum class EventCardVariant {
 }
 
 data class EventCardPresentation(
-    val variant: EventCardVariant,
-    val headlineOverride: String? = null,
-    val emphasisKey: String? = null
+    val variant: EventCardVariant = EventCardVariant.DEFAULT,
+    val headlineOverride: String? = null
 )
 
 object EventCardVariantResolver {
-
     fun resolve(event: MemberEvent): EventCardPresentation {
-        val metadata = event.metadata
-
-        fun bool(key: String): Boolean = metadata[key]?.equals("true", ignoreCase = true) == true
-        fun minutes(key: String): Long = metadata[key]?.toLongOrNull() ?: 0L
-
+        val meta = event.metadata
         return when (event.eventType) {
-            EventType.CHECK_IN -> when {
-                minutes("latenessMinutes") > 0L || bool("late") -> EventCardPresentation(
-                    EventCardVariant.LATE,
-                    "Late check-in",
-                    "late-arrival"
-                )
-                minutes("earlinessMinutes") > 0L || bool("early") -> EventCardPresentation(
-                    EventCardVariant.EARLY,
-                    "Early check-in",
-                    "early-arrival"
-                )
-                else -> EventCardPresentation(EventCardVariant.DEFAULT)
-            }
+            EventType.CHECK_IN -> {
+                val lateMinutes = meta["latenessMinutes"]?.toLongOrNull() ?: 0L
+                val isLate = lateMinutes > 0L || meta["late"]?.equals("true", ignoreCase = true) == true
+                val earlyMinutes = meta["earlyMinutes"]?.toLongOrNull() ?: 0L
+                val isEarly = earlyMinutes > 0L || meta["early"]?.equals("true", ignoreCase = true) == true
 
-            EventType.PAYMENT_SUCCESS, EventType.PAYMENT -> when {
-                bool("wasOverdue") || bool("latePayment") || minutes("overdueDays") > 0L -> EventCardPresentation(
-                    EventCardVariant.OVERDUE,
-                    "Late payment received",
-                    "late-payment"
-                )
-                else -> EventCardPresentation(EventCardVariant.DEFAULT)
+                when {
+                    isLate -> EventCardPresentation(
+                        variant = EventCardVariant.LATE_CHECK_IN,
+                        headlineOverride = if (lateMinutes > 0L) "Late check-in ($lateMinutes min)" else "Late check-in"
+                    )
+                    isEarly -> EventCardPresentation(
+                        variant = EventCardVariant.EARLY_CHECK_IN,
+                        headlineOverride = if (earlyMinutes > 0L) "Early check-in ($earlyMinutes min)" else "Early check-in"
+                    )
+                    else -> EventCardPresentation(EventCardVariant.DEFAULT)
+                }
             }
-
+            EventType.PAYMENT_OVERDUE -> {
+                val overdueDays = meta["overdueDays"] ?: meta["daysOverdue"]
+                EventCardPresentation(
+                    variant = EventCardVariant.OVERDUE,
+                    headlineOverride = if (overdueDays != null) "Payment overdue ($overdueDays days)" else "Payment overdue"
+                )
+            }
             EventType.PAYMENT_FAILED -> EventCardPresentation(
-                EventCardVariant.FAILED,
-                "Payment failed",
-                "payment-failed"
+                variant = EventCardVariant.FAILED,
+                headlineOverride = "Payment failed"
             )
-
             EventType.PAYMENT_PARTIAL -> EventCardPresentation(
-                EventCardVariant.PARTIAL,
-                "Partial payment",
-                "payment-partial"
+                variant = EventCardVariant.PARTIAL,
+                headlineOverride = "Partial payment"
             )
-
-            EventType.PAYMENT_OVERDUE -> EventCardPresentation(
-                EventCardVariant.OVERDUE,
-                "Payment overdue",
-                "payment-overdue"
+            EventType.TRIAL_STARTED -> EventCardPresentation(
+                variant = EventCardVariant.ACTIVE,
+                headlineOverride = "Trial active"
             )
-
+            EventType.TRIAL_CONVERTED -> EventCardPresentation(
+                variant = EventCardVariant.CONVERTED,
+                headlineOverride = "Trial converted"
+            )
+            EventType.TRIAL_EXPIRED -> EventCardPresentation(
+                variant = EventCardVariant.EXPIRED,
+                headlineOverride = "Trial expired"
+            )
+            EventType.FREEZE_STARTED, EventType.FREEZE -> EventCardPresentation(
+                variant = EventCardVariant.ACTIVE,
+                headlineOverride = "Membership frozen"
+            )
+            EventType.FREEZE_ENDED, EventType.REACTIVATION -> EventCardPresentation(
+                variant = EventCardVariant.RESOLVED,
+                headlineOverride = "Membership reactivated"
+            )
+            EventType.BANNED -> EventCardPresentation(
+                variant = EventCardVariant.BLOCKED,
+                headlineOverride = "Member access banned"
+            )
+            EventType.BAN_LIFTED -> EventCardPresentation(
+                variant = EventCardVariant.RESOLVED,
+                headlineOverride = "Ban lifted"
+            )
+            EventType.EXPIRED, EventType.MEMBERSHIP_EXPIRED, EventType.SERVICE_EXPIRED -> EventCardPresentation(
+                variant = EventCardVariant.EXPIRED,
+                headlineOverride = if (event.eventType == EventType.SERVICE_EXPIRED) "Service expired" else "Membership expired"
+            )
+            EventType.MEMBERSHIP_CANCELLED -> EventCardPresentation(
+                variant = EventCardVariant.BLOCKED,
+                headlineOverride = "Membership cancelled"
+            )
+            EventType.TRAINER_SESSION_MISSED -> EventCardPresentation(
+                variant = EventCardVariant.FAILED,
+                headlineOverride = "PT session missed"
+            )
+            EventType.WORKOUT_SKIPPED -> EventCardPresentation(
+                variant = EventCardVariant.FAILED,
+                headlineOverride = "Workout skipped"
+            )
+            EventType.COMPLAINT_RESOLVED,
+            EventType.INCIDENT_RESOLVED,
             EventType.MACHINE_FIXED,
             EventType.MAINTENANCE_COMPLETED,
-            EventType.CLEANING_COMPLETED,
-            EventType.INCIDENT_RESOLVED,
-            EventType.COMPLAINT_RESOLVED,
-            EventType.SERVICE_DEACTIVATED -> EventCardPresentation(
-                EventCardVariant.RESOLVED,
-                emphasisKey = "resolved"
+            EventType.CLEANING_COMPLETED -> EventCardPresentation(
+                variant = EventCardVariant.RESOLVED,
+                headlineOverride = event.eventType.displayLabel()
             )
-
-            EventType.MACHINE_FAULT,
-            EventType.MACHINE_REPORTED,
-            EventType.SERVICE_ISSUE,
-            EventType.INCIDENT_REPORTED,
-            EventType.COMPLAINT -> EventCardPresentation(
-                EventCardVariant.ACTIVE,
-                emphasisKey = "issue-active"
-            )
-
-            EventType.TRIAL_STARTED,
-            EventType.FREEZE_STARTED,
-            EventType.FREEZE -> EventCardPresentation(
-                EventCardVariant.ACTIVE,
-                emphasisKey = "state-active"
-            )
-
-            EventType.TRIAL_CONVERTED -> EventCardPresentation(
-                EventCardVariant.CONVERTED,
-                "Trial converted",
-                "trial-converted"
-            )
-
-            EventType.TRIAL_EXPIRED,
-            EventType.MEMBERSHIP_EXPIRED,
-            EventType.EXPIRED,
-            EventType.SERVICE_EXPIRED -> EventCardPresentation(
-                EventCardVariant.EXPIRED,
-                emphasisKey = "expired"
-            )
-
-            EventType.BANNED -> EventCardPresentation(
-                EventCardVariant.BLOCKED,
-                "Access banned",
-                "access-blocked"
-            )
-
-            EventType.BAN_LIFTED,
-            EventType.FREEZE_ENDED,
-            EventType.REACTIVATION -> EventCardPresentation(
-                EventCardVariant.REOPENED,
-                emphasisKey = "access-restored"
-            )
-
-            else -> EventCardPresentation(EventCardVariant.DEFAULT)
+            else -> {
+                if (meta["reopened"]?.equals("true", ignoreCase = true) == true) {
+                    EventCardPresentation(
+                        variant = EventCardVariant.REOPENED,
+                        headlineOverride = "${event.eventType.displayLabel()} (Reopened)"
+                    )
+                } else {
+                    EventCardPresentation(EventCardVariant.DEFAULT)
+                }
+            }
         }
     }
 }

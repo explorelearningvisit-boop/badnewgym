@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -228,7 +229,7 @@ private fun Kpis(snapshot: MemberSnapshot, compact: Boolean) {
 }
 
 @Composable
-private fun Kpi(label:String,value:String,sub:String,accent:Color,compact:Boolean) {
+private fun RowScope.Kpi(label:String,value:String,sub:String,accent:Color,compact:Boolean) {
     val c=BADGymTheme.colors
     Column(Modifier.weight(1f).height(if(compact)75.dp else 83.dp).clip(RoundedCornerShape(14.dp)).background(c.surfaceElevated).border(1.dp,c.border.copy(alpha=.5f),RoundedCornerShape(14.dp)).padding(horizontal=3.dp,vertical=7.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.SpaceBetween) {
         Text(label,color=c.textSecondary,fontSize=7.sp,fontWeight=FontWeight.SemiBold,maxLines=1)
@@ -301,7 +302,7 @@ private fun WeekOverview(snapshot:MemberSnapshot,compact:Boolean) {
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surfaceElevated).border(1.dp,c.border.copy(alpha=.5f),RoundedCornerShape(16.dp)).padding(if(compact)9.dp else 11.dp),verticalAlignment=Alignment.CenterVertically){
         MemberPhoto(photoUrl = snapshot.identity.photoUrl, tier = snapshot.identity.tier, size = if(compact)45.dp else 52.dp, showVerified = false)
         Text("→",color=c.textSecondary,fontSize=17.sp,modifier=Modifier.padding(horizontal=6.dp))
-        MemberPhoto(snapshot.identity.photoUrl,snapshot.identity.tier,if(compact)45.dp else 52.dp,false)
+        MemberPhoto(photoUrl = snapshot.identity.photoUrl, tier = snapshot.identity.tier, size = if(compact)45.dp else 52.dp, showVerified = false)
         Spacer(Modifier.width(8.dp))
         Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(3.dp)){Progress("Weight","− 1.8 kg",c.success);Progress("Body Fat","− 3.2%",c.success);Progress("Muscle","+ 2.1 kg",c.info)}
     }
@@ -347,7 +348,7 @@ private fun WeekOverview(snapshot:MemberSnapshot,compact:Boolean) {
         Row(verticalAlignment=Alignment.CenterVertically){Icon(Icons.Rounded.AutoAwesome,null,tint=c.accent,modifier=Modifier.size(14.dp));Spacer(Modifier.width(4.dp));Text("AI Insights",color=c.textPrimary,fontSize=10.sp,fontWeight=FontWeight.Black);Spacer(Modifier.weight(1f));Text("View All ›",color=c.textSecondary,fontSize=7.5.sp)}
         Spacer(Modifier.height(6.dp))
         if(list.isEmpty())Text("Good time to start • member data is stable",color=c.textSecondary,fontSize=8.sp)
-        else list.forEachIndexed{i,s->Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp)).background(c.accentSoft.copy(alpha=.25f)).padding(6.dp),verticalAlignment=Alignment.CenterVertically){Box(Modifier.size(19.dp).clip(CircleShape).background(if(i==0)c.danger else c.info),contentAlignment=Alignment.Center){Text("!",color=Color.White,fontSize=8.sp,fontWeight=FontWeight.Black)};Spacer(Modifier.width(5.dp));Column(Modifier.weight(1f)){Text(s.title,color=c.textPrimary,fontSize=8.sp,fontWeight=FontWeight.Bold,maxLines=1,overflow=TextOverflow.Ellipsis);Text(s.subtitle,color=c.textSecondary,fontSize=6.8.sp,maxLines=1,overflow=TextOverflow.Ellipsis)};Icon(Icons.Rounded.ArrowForward,null,tint=c.textMuted,modifier=Modifier.size(11.dp))};if(i<list.lastIndex)Spacer(Modifier.height(4.dp))}
+        else list.forEachIndexed{i,s->Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp)).background(c.accentSoft.copy(alpha=.25f)).padding(6.dp),verticalAlignment=Alignment.CenterVertically){Box(Modifier.size(19.dp).clip(CircleShape).background(if(i==0)c.danger else c.info),contentAlignment=Alignment.Center){Text("!",color=Color.White,fontSize=8.sp,fontWeight=FontWeight.Black)};Spacer(Modifier.width(5.dp));Column(Modifier.weight(1f)){Text(s.title,color=c.textPrimary,fontSize=8.sp,fontWeight=FontWeight.Bold,maxLines=1,overflow=TextOverflow.Ellipsis);Text(s.subtitle ?: "",color=c.textSecondary,fontSize=6.8.sp,maxLines=1,overflow=TextOverflow.Ellipsis)};Icon(Icons.Rounded.ArrowForward,null,tint=c.textMuted,modifier=Modifier.size(11.dp))};if(i<list.lastIndex)Spacer(Modifier.height(4.dp))}
     }
 }
 
