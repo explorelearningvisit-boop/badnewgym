@@ -23,9 +23,9 @@ except ImportError:
 NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
 
 PRESET_DEVICES = [
+    ("OPPO A53 [Tailscale]", "100.80.18.55:5555"),
     ("Xiaomi 11i [USB Fast]", "zxdada69gunb7ls4"),
     ("Xiaomi 11i [Tailscale]", "100.123.18.54:5555"),
-    ("OPPO A53 [Tailscale]", "100.80.18.55:5555"),
 ]
 
 DEFAULT_PKG = "com.example.badnewgym"
@@ -54,7 +54,7 @@ class DeviceDevStudio(tk.Tk):
         self.minsize(1100, 740)
         self.configure(bg="#0f172a")
 
-        self.target_device = PRESET_DEVICES[0][1]
+        self.target_device = PRESET_DEVICES[0][1] # Default: OPPO A53 Tailscale
         self.connected = False
         self.pulling = False
         self.pull_thread = None
@@ -196,9 +196,98 @@ class DeviceDevStudio(tk.Tk):
         sel = self.device_combo.get()
         if " - " in sel:
             addr = sel.split(" - ")[-1].strip()
-            self.target_device = addr
-            self.log(f"Switched target device to: {sel}")
-            self.toggle_connection(force_connect=True)
+            if addr != self.target_device or not self.connected:
+                self.target_device = addr
+                self.log(f"Switched target device to: {sel}")
+                self._clear_device_data()
+                self.toggle_connection(force_connect=True)
+
+    def _clear_device_data(self):
+        """Completely clears previously loaded mobile data, gallery, calls, contacts, apps, and previews so devices never mix"""
+        self.all_gallery_items = []
+        self.filtered_gallery_items = []
+        self.card_widgets = {}
+        self.card_image_cache = {}
+        self.previewing_item = None
+        self.gallery_preview_img = None
+        with self.thumb_queue_lock:
+            self.thumb_queue = []
+            self.thumb_worker_active = False
+
+        self.all_call_logs = []
+        self.filtered_call_logs = []
+        self.all_contacts = []
+        self.filtered_contacts = []
+
+        self.all_installed_apps = []
+        self.filtered_installed_apps = []
+        self.selected_app_pkg = None
+        self.selected_app_apk = None
+
+        self.current_remote_items = []
+
+        def _reset_ui():
+            try:
+                # Gallery UI reset
+                if hasattr(self, 'gallery_tree'):
+                    self.gallery_tree.delete(*self.gallery_tree.get_children())
+                if hasattr(self, 'grid_inner_frame'):
+                    for w in self.grid_inner_frame.winfo_children():
+                        w.destroy()
+                if hasattr(self, 'gallery_summary_lbl'):
+                    self.gallery_summary_lbl.config(text="Switching device... click 'Scan Mobile' to refresh")
+                if hasattr(self, 'gallery_sel_count_lbl'):
+                    self.gallery_sel_count_lbl.config(text="Selected: 0 files")
+                if hasattr(self, 'gallery_preview_lbl'):
+                    self.gallery_preview_lbl.config(image="", text="Click any photo card\nor list row to preview")
+                if hasattr(self, 'preview_info_lbl'):
+                    self.preview_info_lbl.config(text="No image selected")
+                if hasattr(self, 'page_info_lbl'):
+                    self.page_info_lbl.config(text="Page 0 of 0 (0 items)")
+
+                # Calls & Contacts UI reset
+                if hasattr(self, 'calls_tree'):
+                    self.calls_tree.delete(*self.calls_tree.get_children())
+                if hasattr(self, 'contacts_tree'):
+                    self.contacts_tree.delete(*self.contacts_tree.get_children())
+                if hasattr(self, 'calls_summary_lbl'):
+                    self.calls_summary_lbl.config(text="Click 'Fetch Live Calls' to load")
+
+                # Apps UI reset
+                if hasattr(self, 'apps_tree'):
+                    self.apps_tree.delete(*self.apps_tree.get_children())
+                if hasattr(self, 'apps_summary_lbl'):
+                    self.apps_summary_lbl.config(text="Click 'Scan Apps' to list")
+                if hasattr(self, 'selected_app_lbl'):
+                    self.selected_app_lbl.config(text="Select an app below")
+
+                # Files UI reset
+                if hasattr(self, 'file_listbox'):
+                    self.file_listbox.delete(0, "end")
+
+                # Battery & Screen UI reset
+                if hasattr(self, 'batt_level_lbl'):
+                    self.batt_level_lbl.config(text="Battery Level: Checking...")
+                if hasattr(self, 'batt_status_lbl'):
+                    self.batt_status_lbl.config(text="Charging State: Unknown")
+                if hasattr(self, 'screen_lbl') and not self.pulling:
+                    self.screen_lbl.config(image="", text="Connecting to target device...\nClick 'Snapshot' or 'Start 1s Stream'")
+            except Exception:
+                pass
+
+        try:
+            self.after(0, _reset_ui)
+        except Exception:
+            _reset_ui()
+
+    def _get_thumb_path(self, remote_path, fname):
+        """Isolates thumbnail cache per target device name so devices never share cached thumbnails"""
+        dev_name = self.get_device_clean_name()
+        thumb_dir = os.path.join(PULLED_MEDIA_DIR, "thumbs", dev_name)
+        os.makedirs(thumb_dir, exist_ok=True)
+        path_hash = hashlib.md5(f"{dev_name}_{remote_path}".encode('utf-8', errors='ignore')).hexdigest()[:10]
+        safe_name = "".join(ch for ch in fname if ch.isalnum() or ch in ('_', '-', '.'))
+        return os.path.join(thumb_dir, f"thumb_{path_hash}_{safe_name}.jpg")
 
     def get_device_clean_name(self):
         """Clean mobile name for organizing folder structure without illegal path chars"""
@@ -572,12 +661,12 @@ class DeviceDevStudio(tk.Tk):
 
     def _build_files_tab(self, parent):
         top_lbl_frame = tk.Frame(parent, bg="#0f172a")
-        top_lbl_frame.pack(fill="x", pady=(0, 6))
+        top_lbl_frame.pack(fill="x", pady=(0, 4))
         tk.Label(top_lbl_frame, text="Device Storage File Explorer", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left")
-        tk.Label(top_lbl_frame, text="(Double-click folders to enter, files to open)", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="right")
+        tk.Label(top_lbl_frame, text="(One-click shortcuts to mobile directories)", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="right")
 
         sc_row1 = tk.Frame(parent, bg="#0f172a")
-        sc_row1.pack(fill="x", pady=2)
+        sc_row1.pack(fill="x", pady=1)
         shortcuts_1 = [
             ("📸 Camera", "/sdcard/DCIM/Camera"),
             ("📱 Screenshots", "/sdcard/DCIM/Screenshots"),
@@ -589,15 +678,29 @@ class DeviceDevStudio(tk.Tk):
             tk.Button(sc_row1, text=name, bg="#334155", fg="white", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 8), command=lambda p=pth: self.load_path(p)).pack(side="left", padx=2)
 
         sc_row2 = tk.Frame(parent, bg="#0f172a")
-        sc_row2.pack(fill="x", pady=2)
+        sc_row2.pack(fill="x", pady=1)
         shortcuts_2 = [
             ("💬 WA Images", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images"),
             ("💬 WA Docs", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Documents"),
             ("💬 WA Video", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video"),
-            ("📁 Root /sdcard", "/sdcard"),
+            ("🎥 Movies", "/sdcard/Movies"),
+            ("🎵 Music", "/sdcard/Music"),
         ]
         for name, pth in shortcuts_2:
             tk.Button(sc_row2, text=name, bg="#1e293b", fg="#cbd5e1", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 8), command=lambda p=pth: self.load_path(p)).pack(side="left", padx=2)
+
+        sc_row3 = tk.Frame(parent, bg="#0f172a")
+        sc_row3.pack(fill="x", pady=1)
+        shortcuts_3 = [
+            ("📁 Root /sdcard", "/sdcard"),
+            ("💾 /storage/emulated/0", "/storage/emulated/0"),
+            ("🟢 ColorOS / OPPO", "/sdcard/ColorOS"),
+            ("🗂 DCIM Root", "/sdcard/DCIM"),
+            ("📦 Android Media", "/sdcard/Android/media"),
+            ("✈️ Telegram", "/sdcard/Telegram"),
+        ]
+        for name, pth in shortcuts_3:
+            tk.Button(sc_row3, text=name, bg="#0f172a", fg="#94a3b8", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7, "bold"), bd=1, relief="solid", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=2)
 
         nav_frame = tk.Frame(parent, bg="#0f172a")
         nav_frame.pack(fill="x", pady=6)
@@ -807,26 +910,9 @@ class DeviceDevStudio(tk.Tk):
 
     def auto_detect_and_connect(self):
         def task():
-            try:
-                res = subprocess.run(["adb", "devices"], capture_output=True, timeout=5, creationflags=NO_WINDOW)
-                lines = res.stdout.decode('utf-8', errors='replace').strip().splitlines()
-                online_devs = [l.split()[0] for l in lines[1:] if len(l.split()) >= 2 and l.split()[1] == "device"]
-                
-                # Check preset devices priority (prefer Oppo Tailscale if reachable, or attached devices)
-                matched = False
-                for idx, (label, addr) in enumerate(PRESET_DEVICES):
-                    if addr in online_devs:
-                        self.target_device = addr
-                        self.after(0, lambda i=idx: self.device_combo.current(i))
-                        matched = True
-                        break
-                
-                if not matched and online_devs:
-                    self.target_device = online_devs[0]
-                    self.after(0, lambda: self.device_combo.set(f"Device - {online_devs[0]}"))
-            except Exception:
-                pass
-
+            # Strict default: OPPO A53 [Tailscale] (PRESET_DEVICES[0])
+            self.target_device = PRESET_DEVICES[0][1]
+            self.after(0, lambda: self.device_combo.current(0))
             if ":" in self.target_device:
                 try:
                     subprocess.run(["adb", "connect", self.target_device], capture_output=True, timeout=6, creationflags=NO_WINDOW)
@@ -845,6 +931,7 @@ class DeviceDevStudio(tk.Tk):
                     except Exception:
                         pass
                 self.connected = False
+                self._clear_device_data()
                 self.after(0, lambda: self.status_lbl.config(text="● Disconnected", fg="#ef4444"))
                 self.after(0, lambda: self.btn_connect.config(text="Connect ADB", bg="#0284c7"))
                 self.log(f"Disconnected from {addr}")
@@ -852,6 +939,7 @@ class DeviceDevStudio(tk.Tk):
             return
 
         def task():
+            self._clear_device_data()
             self.log(f"Connecting to {addr}...")
             out = "connected"
             if ":" in addr:
@@ -1541,8 +1629,10 @@ class DeviceDevStudio(tk.Tk):
             find_cmd = (
                 "find /sdcard/DCIM /sdcard/Pictures /sdcard/Download /sdcard/Downloads "
                 "/sdcard/Android/media /sdcard/Documents /sdcard/Movies /sdcard/Music "
-                "/sdcard/Bluetooth /sdcard/Browser /sdcard/Telegram /sdcard/MIUI /sdcard/ColorOS "
-                "/sdcard/Snapchat /sdcard/WhatsApp -type f -exec stat -c '%s %Y %n' {} + 2>/dev/null; "
+                "/sdcard/Bluetooth /sdcard/Browser /sdcard/Telegram /sdcard/ColorOS "
+                "/sdcard/Snapchat /sdcard/WhatsApp /sdcard/MIUI /sdcard/tencent "
+                "/sdcard/Recordings /sdcard/Audiobooks /sdcard/Podcasts /sdcard/Ringtones "
+                "/sdcard/Alarms /sdcard/Notifications -type f -exec stat -c '%s %Y %n' {} + 2>/dev/null; "
                 "stat -c '%s %Y %n' /sdcard/* /sdcard/.* /storage/emulated/0/* 2>/dev/null"
             )
             code, out, err = self.run_adb(["shell", find_cmd], timeout=35)
@@ -1831,7 +1921,7 @@ class DeviceDevStudio(tk.Tk):
 
             path_hash = hashlib.md5(item["path"].encode('utf-8', errors='ignore')).hexdigest()[:10]
             safe_name = "".join(ch for ch in item["name"] if ch.isalnum() or ch in ('_', '-', '.'))
-            local_thumb = os.path.join(PULLED_MEDIA_DIR, "thumbs", f"thumb_{path_hash}_{safe_name}.jpg")
+            local_thumb = self._get_thumb_path(item["path"], item["name"])
 
             img_lbl = tk.Label(img_container, text="⏳ Loading...", bg="#000000", fg="#64748b", font=("Segoe UI", 7))
             img_lbl.pack(expand=True)
@@ -2069,7 +2159,7 @@ class DeviceDevStudio(tk.Tk):
         
         path_hash = hashlib.md5(remote_path.encode('utf-8', errors='ignore')).hexdigest()[:10]
         safe_name = "".join(c for c in item["name"] if c.isalnum() or c in ('_', '-', '.'))
-        local_thumb = os.path.join(PULLED_MEDIA_DIR, "thumbs", f"thumb_{path_hash}_{safe_name}.jpg")
+        local_thumb = self._get_thumb_path(remote_path, item["name"])
 
         self.preview_info_lbl.config(
             text=f"📁 {item['category']}\n📄 {item['name']}\n💾 {item['size']} | {item['date']}\n⏳ Loading clear preview..."
@@ -2362,7 +2452,7 @@ class DeviceDevStudio(tk.Tk):
                     deleted_paths.append(p)
                     path_hash = hashlib.md5(p.encode('utf-8', errors='ignore')).hexdigest()[:10]
                     safe_name = "".join(c for c in it["name"] if c.isalnum() or c in ('_', '-', '.'))
-                    loc_t = os.path.join(PULLED_MEDIA_DIR, "thumbs", f"thumb_{path_hash}_{safe_name}.jpg")
+                    loc_t = self._get_thumb_path(p, it["name"])
                     if os.path.exists(loc_t):
                         try: os.remove(loc_t)
                         except Exception: pass
