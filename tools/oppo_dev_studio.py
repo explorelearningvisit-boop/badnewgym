@@ -84,8 +84,11 @@ class DeviceDevStudio(tk.Tk):
         self.card_image_cache = {}       # path_hash -> PhotoImage
         self.card_widgets = {}           # global_idx -> dict of card widgets
         self.gallery_page = 0
-        self.gallery_page_size = 36
+        self.gallery_page_size = 60
         self.gallery_total_pages = 1
+        self.gallery_stream_loaded_count = 0
+        self.gallery_is_loading_more = False
+        self.gallery_infinite_scroll = True
         self.thumb_queue = []
         self.thumb_queue_lock = threading.Lock()
         self.thumb_worker_active = False
@@ -751,14 +754,14 @@ class DeviceDevStudio(tk.Tk):
 
         tk.Button(self.grid_page_bar, text="Go", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=self._jump_to_page).pack(side="left", padx=1)
 
-        tk.Label(self.grid_page_bar, text="Per Page:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7)).pack(side="right", padx=(4, 1))
-        self.page_size_combo = ttk.Combobox(self.grid_page_bar, values=["24", "36", "60", "120"], width=3, state="readonly")
-        self.page_size_combo.set("36")
+        tk.Label(self.grid_page_bar, text="Batch / Mode:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7)).pack(side="right", padx=(4, 1))
+        self.page_size_combo = ttk.Combobox(self.grid_page_bar, values=["60", "120", "240", "500", "♾️ Endless Stream"], width=13, state="readonly")
+        self.page_size_combo.set("60")
         self.page_size_combo.pack(side="right", padx=1)
         self.page_size_combo.bind("<<ComboboxSelected>>", self._on_page_size_change)
         
         self.grid_canvas = tk.Canvas(self.gallery_grid_frame, bg="#0f172a", highlightthickness=0, bd=0)
-        self.grid_scroll = tk.Scrollbar(self.gallery_grid_frame, orient="vertical", command=self.grid_canvas.yview)
+        self.grid_scroll = tk.Scrollbar(self.gallery_grid_frame, orient="vertical", command=self._on_grid_scroll_command)
         self.grid_canvas.configure(yscrollcommand=self.grid_scroll.set)
 
         self.grid_inner_frame = tk.Frame(self.grid_canvas, bg="#0f172a")
@@ -2409,14 +2412,59 @@ class DeviceDevStudio(tk.Tk):
 
     def _on_grid_canvas_configure(self, event):
         self.grid_canvas.itemconfig(self.grid_window, width=event.width)
+        self._check_infinite_scroll_trigger()
+
+    def _on_grid_scroll_command(self, *args):
+        self.grid_canvas.yview(*args)
+        self._check_infinite_scroll_trigger()
 
     def _bind_mousewheel_to_grid(self, widget):
         def _on_mousewheel(event):
             try:
                 self.grid_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+                self._check_infinite_scroll_trigger()
             except Exception:
                 pass
         widget.bind("<MouseWheel>", _on_mousewheel)
+
+    def _check_infinite_scroll_trigger(self):
+        if not getattr(self, 'gallery_infinite_scroll', True):
+            return
+        if self.gallery_view_mode != "GRID":
+            return
+        if getattr(self, 'gallery_is_loading_more', False):
+            return
+        
+        try:
+            fraction_tuple = self.grid_canvas.yview()
+            if not fraction_tuple or len(fraction_tuple) < 2:
+                return
+            y_bottom = fraction_tuple[1]
+        except Exception:
+            return
+
+        total_items = len(self.filtered_gallery_items)
+        if self.gallery_stream_loaded_count < total_items and y_bottom >= 0.70:
+            self._load_next_stream_batch()
+
+    def _load_next_stream_batch(self):
+        if self.gallery_is_loading_more:
+            return
+        total_items = len(self.filtered_gallery_items)
+        if self.gallery_stream_loaded_count >= total_items:
+            return
+
+        self.gallery_is_loading_more = True
+        start_idx = self.gallery_stream_loaded_count
+        batch_size = max(36, self.gallery_page_size if self.gallery_page_size != 999999 else 60)
+        end_idx = min(start_idx + batch_size, total_items)
+        self.gallery_stream_loaded_count = end_idx
+
+        self._render_grid_cards_range(self.filtered_gallery_items, start_idx, end_idx)
+        self.page_info_lbl.config(
+            text=f"📜 Continuous Stream: {end_idx} of {total_items} items (Auto-loading on scroll)"
+        )
+        self.gallery_is_loading_more = False
 
     def _go_gallery_page(self, page_num):
         if page_num < 0:
@@ -2432,15 +2480,21 @@ class DeviceDevStudio(tk.Tk):
 
     def _on_page_size_change(self, event=None):
         try:
-            sz = int(self.page_size_combo.get())
-            if sz > 0:
-                self.gallery_page_size = sz
-                self.gallery_page = 0
-                self._render_grid_cards(self.filtered_gallery_items)
-                try:
-                    self.grid_canvas.yview_moveto(0)
-                except Exception:
-                    pass
+            val = self.page_size_combo.get().strip()
+            if "Endless" in val or "Stream" in val:
+                self.gallery_page_size = 60
+                self.gallery_infinite_scroll = True
+            else:
+                sz = int(val)
+                if sz > 0:
+                    self.gallery_page_size = sz
+                    self.gallery_infinite_scroll = True
+            self.gallery_page = 0
+            self._render_grid_cards(self.filtered_gallery_items)
+            try:
+                self.grid_canvas.yview_moveto(0)
+            except Exception:
+                pass
         except Exception:
             pass
 
@@ -2546,18 +2600,22 @@ class DeviceDevStudio(tk.Tk):
         self.card_widgets = {}
 
         total_items = len(items)
+        batch_size = max(36, self.gallery_page_size if self.gallery_page_size != 999999 else total_items)
+        self.gallery_stream_loaded_count = min(batch_size, total_items)
+        
         self.gallery_total_pages = max(1, (total_items + self.gallery_page_size - 1) // self.gallery_page_size)
         if self.gallery_page >= self.gallery_total_pages:
             self.gallery_page = max(0, self.gallery_total_pages - 1)
 
-        start_idx = self.gallery_page * self.gallery_page_size
-        end_idx = min(start_idx + self.gallery_page_size, total_items)
-        page_items = items[start_idx:end_idx]
-
         if total_items > 0:
-            self.page_info_lbl.config(
-                text=f"Page {self.gallery_page + 1} of {self.gallery_total_pages} ({start_idx + 1}-{end_idx} of {total_items})"
-            )
+            if getattr(self, 'gallery_infinite_scroll', True):
+                self.page_info_lbl.config(
+                    text=f"📜 Continuous Stream: {self.gallery_stream_loaded_count} of {total_items} items (Auto-loading on scroll)"
+                )
+            else:
+                self.page_info_lbl.config(
+                    text=f"Page {self.gallery_page + 1} of {self.gallery_total_pages} (1-{self.gallery_stream_loaded_count} of {total_items})"
+                )
         else:
             self.page_info_lbl.config(text="Page 0 of 0 (0 items)")
 
@@ -2568,6 +2626,9 @@ class DeviceDevStudio(tk.Tk):
             except Exception:
                 pass
 
+        self._render_grid_cards_range(items, 0, self.gallery_stream_loaded_count)
+
+    def _render_grid_cards_range(self, items, start_idx, end_idx):
         card_w = self.gallery_thumb_size
         img_h = int(card_w * 0.85)
 
@@ -2579,10 +2640,10 @@ class DeviceDevStudio(tk.Tk):
 
         new_queue = []
 
-        for p_idx, item in enumerate(page_items):
-            global_idx = start_idx + p_idx
-            r = p_idx // cols
-            c = p_idx % cols
+        for global_idx in range(start_idx, end_idx):
+            item = items[global_idx]
+            r = global_idx // cols
+            c = global_idx % cols
 
             is_sel = item["selected"]
             is_locked = item.get("is_locked") or item["category"] == "Locked/Private Safe"
@@ -2646,7 +2707,6 @@ class DeviceDevStudio(tk.Tk):
                 "sz_lbl": sz_lbl,
                 "item": item,
                 "global_idx": global_idx,
-                "page_idx": p_idx,
                 "path_hash": path_hash,
                 "safe_name": safe_name,
                 "local_thumb": local_thumb,
@@ -2667,7 +2727,7 @@ class DeviceDevStudio(tk.Tk):
                 new_queue.append(card_info)
 
         with self.thumb_queue_lock:
-            self.thumb_queue = new_queue
+            self.thumb_queue.extend(new_queue)
 
         if new_queue and not self.thumb_worker_active:
             self._start_thumb_workers()
@@ -2739,7 +2799,7 @@ class DeviceDevStudio(tk.Tk):
                             self._apply_cached_thumb_to_card(self.card_widgets[gi])
                     self.after(0, update_card)
 
-        for i in range(2):
+        for i in range(4):
             threading.Thread(target=lambda w=i: worker_loop(w), daemon=True).start()
 
     def _toggle_card_selection(self, idx, item):
