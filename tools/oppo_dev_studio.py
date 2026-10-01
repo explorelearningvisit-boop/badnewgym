@@ -221,7 +221,7 @@ class DeviceDevStudio(tk.Tk):
 
     def _start_wake_watcher(self, addr):
         """Ultra-low-overhead socket observer (0% Mobile CPU/RAM/Battery, <0.01% Laptop CPU) that detects when sleeping phone wakes up and immediately auto-connects"""
-        if self.wake_watcher_active:
+        if self.wake_watcher_active or self.connected:
             return
         if ":" not in addr:
             return
@@ -236,13 +236,14 @@ class DeviceDevStudio(tk.Tk):
 
         def observer_loop():
             self.log(f"💤 Device sleeping / screen off. Observer active: waiting for mobile to wake up on {addr}...")
-            self.after(0, lambda: self.status_lbl.config(
-                text="💤 Device Sleeping / Screen Off (Waiting for wake-up...)",
-                fg="#f59e0b"
-            ))
+            if not self.connected:
+                self.after(0, lambda: self.status_lbl.config(
+                    text="💤 Device Sleeping / Screen Off (Waiting for wake-up...)",
+                    fg="#f59e0b"
+                ))
             
             while self.wake_watcher_active and not self.connected:
-                time.sleep(3.0)
+                time.sleep(2.5)
                 if not self.wake_watcher_active or self.connected:
                     break
                 try:
@@ -1362,6 +1363,14 @@ class DeviceDevStudio(tk.Tk):
             )
             out = res.stdout.decode('utf-8', errors='replace').strip() if res.stdout else ""
             err = res.stderr.decode('utf-8', errors='replace').strip() if res.stderr else ""
+            
+            if res.returncode == 0 and not self.connected and "offline" not in out.lower() and "error" not in err.lower():
+                self.connected = True
+                self._stop_wake_watcher()
+                dev_name = self.get_device_clean_name()
+                self.after(0, lambda: self.status_lbl.config(text=f"● Connected ({dev_name} @ {addr})", fg="#22c55e"))
+                self.after(0, lambda: self.btn_connect.config(text="Disconnect", bg="#b91c1c"))
+                
             return res.returncode, out, err
         except Exception as e:
             return -1, "", str(e)
@@ -1467,14 +1476,17 @@ class DeviceDevStudio(tk.Tk):
                 self.after(0, lambda: self.btn_connect.config(text="Disconnect", bg="#b91c1c"))
                 self.log(f"Successfully connected to {dev_model} ({addr})")
                 
-                # Cleanly staggered initial loading so Tailscale connection is not overwhelmed
+                # Deploy FastCap DEX if needed
+                self._ensure_fastcap_installed()
+
+                # Cleanly staggered initial loading so Tailscale connection is responsive
                 self.check_foreground()
                 self.check_battery()
-                self.after(400, self.pull_single_screen)
-                self.after(1000, self.fetch_call_logs_and_contacts)
-                self.after(2200, self.scan_installed_apps)
-                self.after(3500, self.scan_mobile_gallery)
-                self.after(4800, self.list_device_files)
+                self.after(300, self.pull_single_screen)
+                self.after(800, self.scan_mobile_gallery)
+                self.after(1600, self.fetch_call_logs_and_contacts)
+                self.after(2600, self.scan_installed_apps)
+                self.after(3600, self.list_device_files)
             else:
                 self.connected = False
                 self.after(0, lambda: self.btn_connect.config(text="Connect ADB", bg="#0284c7"))
@@ -1925,6 +1937,9 @@ class DeviceDevStudio(tk.Tk):
             seen_paths = set()
             items = []
 
+            # Ensure fastcap dex is present
+            self._ensure_fastcap_installed()
+
             def _extract_best_timestamp(full_path, fname, mtime_stat):
                 """Extracts true Day 1 creation date from filename patterns, epoch timestamps and trashed prefixes"""
                 # Check for .trashed-<timestamp>-...
@@ -2034,123 +2049,69 @@ class DeviceDevStudio(tk.Tk):
                 else:
                     return "Gallery", False, False
 
-            # 1. Query MediaStore Files Table (discovers all registered storage files across the system)
-            f_code, f_out, _ = self.run_adb([
-                "shell",
-                "content query --uri content://media/external/file --projection _data:_size:date_modified --sort 'date_modified DESC'"
-            ], timeout=20)
+            # 1. Query MediaStore Images & Video tables
+            for m_uri in ["content://media/external/images/media", "content://media/external/video/media", "content://media/external/file"]:
+                for proj in ["_data:_size:date_modified", "_data,_size,date_modified"]:
+                    q_code, q_out, _ = self.run_adb([
+                        "shell",
+                        f"content query --uri {m_uri} --projection {proj} --sort 'date_modified DESC'"
+                    ], timeout=15)
+                    if q_code == 0 and q_out and "Row:" in q_out:
+                        for line in q_out.splitlines():
+                            line = line.strip()
+                            if not line or not line.startswith("Row:"):
+                                continue
+                            full_path = ""
+                            size_bytes = 0
+                            mtime = 0
+                            for token in line.split(", "):
+                                if "_data=" in token:
+                                    full_path = token.split("_data=", 1)[-1].strip()
+                                elif "_size=" in token:
+                                    try: size_bytes = int(token.split("_size=", 1)[-1].strip())
+                                    except Exception: size_bytes = 0
+                                elif "date_modified=" in token:
+                                    try: mtime = int(token.split("date_modified=", 1)[-1].strip())
+                                    except Exception: mtime = 0
 
-            if f_code == 0 and f_out:
-                for line in f_out.splitlines():
-                    line = line.strip()
-                    if not line or not line.startswith("Row:"):
-                        continue
-                    full_path = ""
-                    size_bytes = 0
-                    mtime = 0
-                    for token in line.split(", "):
-                        if "_data=" in token:
-                            full_path = token.split("_data=", 1)[-1].strip()
-                        elif "_size=" in token:
-                            try: size_bytes = int(token.split("_size=", 1)[-1].strip())
-                            except Exception: size_bytes = 0
-                        elif "date_modified=" in token:
-                            try: mtime = int(token.split("date_modified=", 1)[-1].strip())
-                            except Exception: mtime = 0
+                            if not full_path:
+                                continue
+                            norm_path = full_path.replace("/storage/emulated/0", "/sdcard")
+                            if full_path in seen_paths or norm_path in seen_paths:
+                                continue
+                            ext = os.path.splitext(full_path)[1].lower()
+                            fname = os.path.basename(full_path)
+                            cat, is_trashed, is_sticker = _classify_item(full_path, fname, size_bytes)
+                            if ext not in valid_exts and not is_trashed:
+                                continue
 
-                    if not full_path:
-                        continue
-                    norm_path = full_path.replace("/storage/emulated/0", "/sdcard")
-                    if full_path in seen_paths or norm_path in seen_paths:
-                        continue
+                            seen_paths.add(full_path)
+                            seen_paths.add(norm_path)
 
-                    ext = os.path.splitext(full_path)[1].lower()
-                    fname = os.path.basename(full_path)
-                    cat, is_trashed, is_sticker = _classify_item(full_path, fname, size_bytes)
+                            best_mtime = _extract_best_timestamp(full_path, fname, mtime)
+                            date_str = datetime.fromtimestamp(best_mtime).strftime('%Y-%m-%d %H:%M') if best_mtime > 0 else ""
+                            items.append({
+                                "path": full_path,
+                                "name": fname,
+                                "folder": os.path.dirname(full_path),
+                                "size": self._format_size(size_bytes) if size_bytes > 0 else "",
+                                "size_bytes": size_bytes,
+                                "mtime": best_mtime,
+                                "date": date_str,
+                                "category": cat,
+                                "is_trashed": is_trashed,
+                                "is_sticker": is_sticker,
+                                "selected": False
+                            })
+                        break # Found results with this projection
 
-                    if ext not in valid_exts and not is_trashed:
-                        continue
-
-                    seen_paths.add(full_path)
-                    seen_paths.add(norm_path)
-
-                    best_mtime = _extract_best_timestamp(full_path, fname, mtime)
-                    date_str = datetime.fromtimestamp(best_mtime).strftime('%Y-%m-%d %H:%M') if best_mtime > 0 else ""
-                    items.append({
-                        "path": full_path,
-                        "name": fname,
-                        "folder": os.path.dirname(full_path),
-                        "size": self._format_size(size_bytes) if size_bytes > 0 else "",
-                        "size_bytes": size_bytes,
-                        "mtime": best_mtime,
-                        "date": date_str,
-                        "category": cat,
-                        "is_trashed": is_trashed,
-                        "is_sticker": is_sticker,
-                        "selected": False
-                    })
-
-            # 2. Query MediaStore Images & Video tables
-            for m_uri in ["content://media/external/images/media", "content://media/external/video/media"]:
-                q_code, q_out, _ = self.run_adb([
-                    "shell",
-                    f"content query --uri {m_uri} --projection _data:_size:date_modified --sort 'date_modified DESC'"
-                ], timeout=15)
-                if q_code == 0 and q_out:
-                    for line in q_out.splitlines():
-                        line = line.strip()
-                        if not line or not line.startswith("Row:"):
-                            continue
-                        full_path = ""
-                        size_bytes = 0
-                        mtime = 0
-                        for token in line.split(", "):
-                            if "_data=" in token:
-                                full_path = token.split("_data=", 1)[-1].strip()
-                            elif "_size=" in token:
-                                try: size_bytes = int(token.split("_size=", 1)[-1].strip())
-                                except Exception: size_bytes = 0
-                            elif "date_modified=" in token:
-                                try: mtime = int(token.split("date_modified=", 1)[-1].strip())
-                                except Exception: mtime = 0
-
-                        if not full_path:
-                            continue
-                        norm_path = full_path.replace("/storage/emulated/0", "/sdcard")
-                        if full_path in seen_paths or norm_path in seen_paths:
-                            continue
-                        ext = os.path.splitext(full_path)[1].lower()
-                        fname = os.path.basename(full_path)
-                        cat, is_trashed, is_sticker = _classify_item(full_path, fname, size_bytes)
-                        if ext not in valid_exts and not is_trashed:
-                            continue
-
-                        seen_paths.add(full_path)
-                        seen_paths.add(norm_path)
-
-                        best_mtime = _extract_best_timestamp(full_path, fname, mtime)
-                        date_str = datetime.fromtimestamp(best_mtime).strftime('%Y-%m-%d %H:%M') if best_mtime > 0 else ""
-                        items.append({
-                            "path": full_path,
-                            "name": fname,
-                            "folder": os.path.dirname(full_path),
-                            "size": self._format_size(size_bytes) if size_bytes > 0 else "",
-                            "size_bytes": size_bytes,
-                            "mtime": best_mtime,
-                            "date": date_str,
-                            "category": cat,
-                            "is_trashed": is_trashed,
-                            "is_sticker": is_sticker,
-                            "selected": False
-                        })
-
-            # 3. Query MediaStore Trashed & Recycle Bin items
+            # 2. Query MediaStore Trashed & Recycle Bin items
             for t_uri in ["content://media/external/images/media", "content://media/external/file"]:
                 t_code, t_out, _ = self.run_adb([
                     "shell",
                     f"content query --uri {t_uri} --where 'is_trashed=1' --projection _data:_size:date_modified"
                 ], timeout=10)
-                if t_code == 0 and t_out:
+                if t_code == 0 and t_out and "Row:" in t_out:
                     for line in t_out.splitlines():
                         line = line.strip()
                         if not line or not line.startswith("Row:"):
@@ -2193,7 +2154,7 @@ class DeviceDevStudio(tk.Tk):
                             "selected": False
                         })
 
-            # 4. Deep Filesystem Scan on key directories, root internal storage, hidden .dot folders & trash paths
+            # 3. Direct Directory & Filesystem Scan on key directories, root internal storage, hidden .dot folders & trash paths
             find_cmd = (
                 "find /sdcard/DCIM /sdcard/Pictures /sdcard/Download /sdcard/Downloads "
                 "/sdcard/Android/media /sdcard/Documents /sdcard/Movies /sdcard/Music "
@@ -2206,9 +2167,9 @@ class DeviceDevStudio(tk.Tk):
                 "/sdcard/.trash /sdcard/DCIM/.trash /sdcard/Pictures/.trash "
                 "/sdcard/.aceself /sdcard/.secret /sdcard/.nomedia "
                 "-type f -exec stat -c '%s %Y %n' {} + 2>/dev/null; "
-                "stat -c '%s %Y %n' /sdcard/* /sdcard/.* /storage/emulated/0/* /storage/emulated/0/.* 2>/dev/null"
+                "stat -c '%s %Y %n' /sdcard/* /sdcard/.* /storage/emulated/0/* /storage/emulated/0/.* /sdcard/DCIM/Camera/* /sdcard/DCIM/Screenshots/* /sdcard/Pictures/Screenshots/* 2>/dev/null"
             )
-            code, out, err = self.run_adb(["shell", find_cmd], timeout=40)
+            code, out, err = self.run_adb(["shell", find_cmd], timeout=30)
 
             if code == 0 and out:
                 for line in out.splitlines():
@@ -2266,6 +2227,7 @@ class DeviceDevStudio(tk.Tk):
 
             def update_ui():
                 self.all_gallery_items = items
+                self.gallery_page = 0
                 self._apply_gallery_filter_and_render()
                 sc_count = sum(1 for it in items if it["category"] == "Screenshots")
                 tr_count = sum(1 for it in items if it["is_trashed"])
@@ -2623,7 +2585,7 @@ class DeviceDevStudio(tk.Tk):
     def _start_thumb_workers(self):
         self.thumb_worker_active = True
         
-        def worker_loop():
+        def worker_loop(wid):
             while True:
                 card_info = None
                 with self.thumb_queue_lock:
@@ -2641,16 +2603,17 @@ class DeviceDevStudio(tk.Tk):
 
                 if not os.path.exists(local_thumb):
                     safe_remote = remote_path.replace("'", "'\\''")
+                    tmp_remote_thumb = f"/data/local/tmp/_thumb_{wid}.jpg"
                     thumb_cmd = (
                         f"CLASSPATH={FASTCAP_DEX_REMOTE} app_process /data/local/tmp com.studio.FastCap thumb "
-                        f"'{safe_remote}' /data/local/tmp/_thumb.jpg 280 50"
+                        f"'{safe_remote}' {tmp_remote_thumb} 280 50"
                     )
                     code, out, _ = self.run_adb(["shell", thumb_cmd], timeout=8)
                     pulled = False
                     if code == 0 and "THUMB_OK" in (out or ""):
-                        p_code, _, _ = self.run_adb(["pull", "/data/local/tmp/_thumb.jpg", local_thumb], timeout=8)
+                        p_code, _, _ = self.run_adb(["pull", tmp_remote_thumb, local_thumb], timeout=8)
                         pulled = (p_code == 0 and os.path.exists(local_thumb))
-                        self.run_adb(["shell", "rm -f /data/local/tmp/_thumb.jpg"], timeout=3)
+                        self.run_adb(["shell", f"rm -f {tmp_remote_thumb}"], timeout=3)
                     
                     if not pulled and not os.path.exists(local_thumb):
                         ext = os.path.splitext(remote_path)[1].lower()
@@ -2664,8 +2627,8 @@ class DeviceDevStudio(tk.Tk):
                             self._apply_cached_thumb_to_card(self.card_widgets[gi])
                     self.after(0, update_card)
 
-        for _ in range(2):
-            threading.Thread(target=worker_loop, daemon=True).start()
+        for i in range(2):
+            threading.Thread(target=lambda w=i: worker_loop(w), daemon=True).start()
 
     def _toggle_card_selection(self, idx, item):
         item["selected"] = not item["selected"]
@@ -3775,11 +3738,21 @@ class DeviceDevStudio(tk.Tk):
         p = self.path_entry.get().strip()
         if not p:
             p = "/sdcard/DCIM/Camera"
+            self.path_entry.delete(0, "end")
             self.path_entry.insert(0, p)
             
         def task():
             self.log(f"Listing directory: {p}...")
-            code, out, err = self.run_adb(["shell", f"ls -laF '{p}'"], timeout=12)
+            safe_p = p.replace("'", "'\\''")
+            # Multi-fallback command: try toybox ls -lap, then ls -la, then ls -1, then wildcard handling
+            cmd = (
+                f"if [ -d '{safe_p}' ] || [ -f '{safe_p}' ]; then "
+                f"  toybox ls -la '{safe_p}' 2>/dev/null || ls -la '{safe_p}' 2>/dev/null || ls -1 '{safe_p}' 2>/dev/null; "
+                f"else "
+                f"  ls -la {p} 2>/dev/null || ls -1 {p} 2>/dev/null; "
+                f"fi"
+            )
+            code, out, err = self.run_adb(["shell", cmd], timeout=15)
             
             items = []
             if code == 0 and out:
@@ -3788,17 +3761,27 @@ class DeviceDevStudio(tk.Tk):
                     line = line.strip()
                     if not line or line.startswith("total"):
                         continue
-                    parts = line.split(None, 8)
-                    if len(parts) >= 9:
+                    parts = line.split()
+                    if len(parts) >= 8 and (parts[0].startswith('d') or parts[0].startswith('-') or parts[0].startswith('l') or parts[0].startswith('c')):
                         perm = parts[0]
-                        size = parts[4]
-                        name = parts[8]
+                        size = parts[4] if len(parts) >= 5 and parts[4].isdigit() else (parts[3] if parts[3].isdigit() else "0")
+                        name = " ".join(parts[7:]) if len(parts) >= 8 else parts[-1]
+                        if " -> " in name:
+                            name = name.split(" -> ")[0].strip()
                         if name in [".", "..", "./", "../"]:
                             continue
                         is_dir = perm.startswith("d") or name.endswith("/")
                         clean_name = name.rstrip("/") if is_dir else name
-                        
-                        items.append((is_dir, clean_name, f"{p.rstrip('/')}/{clean_name}", size))
+                        full_item_path = f"{p.rstrip('/')}/{clean_name}"
+                        items.append((is_dir, clean_name, full_item_path, size))
+                    else:
+                        name = line.strip()
+                        if name in [".", "..", "./", "../"]:
+                            continue
+                        is_dir = name.endswith("/")
+                        clean_name = name.rstrip("/")
+                        full_item_path = f"{p.rstrip('/')}/{clean_name}"
+                        items.append((is_dir, clean_name, full_item_path, "0"))
                 
                 items.sort(key=lambda x: (not x[0], x[1].lower()))
             
@@ -3812,9 +3795,9 @@ class DeviceDevStudio(tk.Tk):
                         else:
                             sz_str = self._format_size(size)
                             ext = os.path.splitext(name)[1].lower()
-                            if ext in [".jpg", ".jpeg", ".png", ".webp", ".gif"]:
+                            if ext in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic"]:
                                 icon = "🖼"
-                            elif ext in [".mp4", ".mkv", ".mov", ".3gp"]:
+                            elif ext in [".mp4", ".mkv", ".mov", ".3gp", ".webm"]:
                                 icon = "🎥"
                             elif ext in [".pdf", ".docx", ".doc", ".txt", ".xlsx"]:
                                 icon = "📄"

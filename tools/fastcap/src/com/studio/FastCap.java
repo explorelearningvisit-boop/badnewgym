@@ -83,23 +83,46 @@ public class FastCap {
                 }
             }
 
-            BitmapFactory.Options opts = new BitmapFactory.Options();
-            opts.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(inPath, opts);
+            Bitmap bmp = null;
+            String lower = inPath.toLowerCase();
 
-            if (opts.outWidth <= 0 || opts.outHeight <= 0) {
-                return null;
+            // 1. Video files: extract frame thumbnail via MediaMetadataRetriever
+            if (lower.endsWith(".mp4") || lower.endsWith(".mkv") || lower.endsWith(".mov") || 
+                lower.endsWith(".3gp") || lower.endsWith(".webm") || lower.endsWith(".avi")) {
+                try {
+                    android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+                    mmr.setDataSource(inPath);
+                    bmp = mmr.getFrameAtTime(1000000, android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                    if (bmp == null) {
+                        bmp = mmr.getFrameAtTime();
+                    }
+                    mmr.release();
+                } catch (Throwable t) {
+                    // fallback to standard decoding
+                }
             }
 
-            int sampleSize = 1;
-            while (opts.outWidth / (sampleSize * 2) >= targetWidth) {
-                sampleSize *= 2;
-            }
-            opts.inJustDecodeBounds = false;
-            opts.inSampleSize = sampleSize;
-            opts.inPreferredConfig = targetWidth >= 200 ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
+            // 2. Image files or video fallback: sub-sampled BitmapFactory decoding
+            if (bmp == null) {
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(inPath, opts);
 
-            Bitmap bmp = BitmapFactory.decodeFile(inPath, opts);
+                if (opts.outWidth <= 0 || opts.outHeight <= 0) {
+                    return null;
+                }
+
+                int sampleSize = 1;
+                while (opts.outWidth / (sampleSize * 2) >= targetWidth) {
+                    sampleSize *= 2;
+                }
+                opts.inJustDecodeBounds = false;
+                opts.inSampleSize = sampleSize;
+                opts.inPreferredConfig = targetWidth >= 200 ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
+
+                bmp = BitmapFactory.decodeFile(inPath, opts);
+            }
+
             if (bmp == null) {
                 return null;
             }
