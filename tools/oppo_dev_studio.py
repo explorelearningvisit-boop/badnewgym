@@ -1439,6 +1439,11 @@ class DeviceDevStudio(tk.Tk):
 
     def toggle_connection(self, force_connect=False):
         addr = self.target_device
+        if not hasattr(self, '_connect_session_id'):
+            self._connect_session_id = 0
+        self._connect_session_id += 1
+        current_session = self._connect_session_id
+
         if not force_connect and self.connected:
             def dc_task():
                 self._stop_wake_watcher()
@@ -1466,8 +1471,14 @@ class DeviceDevStudio(tk.Tk):
                 except Exception as e:
                     out = f"connect timeout: {e}"
 
+            if current_session != self._connect_session_id or addr != self.target_device:
+                return # Abort obsolete connection attempt
+
             # Verify actual device connection
             c_test, m_test, _ = self.run_adb(["shell", "getprop ro.product.model"], timeout=5)
+            if current_session != self._connect_session_id or addr != self.target_device:
+                return
+
             if c_test == 0 and m_test:
                 self.connected = True
                 self._stop_wake_watcher()
@@ -1488,6 +1499,8 @@ class DeviceDevStudio(tk.Tk):
                 self.after(2600, self.scan_installed_apps)
                 self.after(3600, self.list_device_files)
             else:
+                if current_session != self._connect_session_id or addr != self.target_device:
+                    return
                 self.connected = False
                 self.after(0, lambda: self.btn_connect.config(text="Connect ADB", bg="#0284c7"))
                 if ":" in addr and any(k in out for k in ("10061", "refused", "offline", "timeout", "actively")):
