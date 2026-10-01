@@ -567,6 +567,7 @@ class DeviceDevStudio(tk.Tk):
                 "📸 Camera Photos",
                 "📱 Screenshots",
                 "💬 WhatsApp",
+                "🔒 Locked / Private Safe",
                 "📥 Downloads & Purchases",
                 "📁 Root Storage",
                 "🗑️ Trashed & Hidden",
@@ -587,6 +588,8 @@ class DeviceDevStudio(tk.Tk):
         self.btn_f_camera.pack(side="left", padx=1)
         self.btn_f_screens = tk.Button(filter_bar1, text="📱 Screen", bg="#334155", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_filter("SCREENSHOTS"))
         self.btn_f_screens.pack(side="left", padx=1)
+        self.btn_f_locked = tk.Button(filter_bar1, text="🔒 Safe", bg="#581c87", fg="#f0abfc", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_filter("LOCKED"))
+        self.btn_f_locked.pack(side="left", padx=1)
         self.btn_f_trash = tk.Button(filter_bar1, text="🗑️ Trash", bg="#7f1d1d", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_filter("TRASHED"))
         self.btn_f_trash.pack(side="left", padx=1)
         self.btn_f_day1 = tk.Button(filter_bar1, text="🕰️ Day 1", bg="#475569", fg="#fcd34d", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_filter("DAY1"))
@@ -653,6 +656,7 @@ class DeviceDevStudio(tk.Tk):
         tk.Button(sel_bar, text="☑ All", bg="#334155", fg="white", font=("Segoe UI", 7), padx=3, relief="flat", command=self._select_all_gallery).pack(side="left", padx=1)
         tk.Button(sel_bar, text="☐ None", bg="#334155", fg="white", font=("Segoe UI", 7), padx=3, relief="flat", command=self._deselect_all_gallery).pack(side="left", padx=1)
         tk.Button(sel_bar, text="📱 Screen", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=3, relief="flat", command=self._select_screenshots_only).pack(side="left", padx=1)
+        tk.Button(sel_bar, text="🔒 Safe", bg="#581c87", fg="#f0abfc", font=("Segoe UI", 7, "bold"), padx=3, relief="flat", command=self._select_locked_only).pack(side="left", padx=1)
         tk.Button(sel_bar, text="🗑️ Trash", bg="#7f1d1d", fg="white", font=("Segoe UI", 7, "bold"), padx=3, relief="flat", command=self._select_trashed_only).pack(side="left", padx=1)
 
         self.top_btn_del = tk.Button(sel_bar, text="🗑️ Delete (0)", bg="#dc2626", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=self.delete_selected_gallery_images)
@@ -806,6 +810,7 @@ class DeviceDevStudio(tk.Tk):
             "📸 Camera Photos": "CAMERA",
             "📱 Screenshots": "SCREENSHOTS",
             "💬 WhatsApp": "WHATSAPP",
+            "🔒 Locked / Private Safe": "LOCKED",
             "📥 Downloads & Purchases": "DOWNLOADS",
             "📁 Root Storage": "ROOT",
             "🗑️ Trashed & Hidden": "TRASHED",
@@ -2031,15 +2036,30 @@ class DeviceDevStudio(tk.Tk):
                     (ext == ".webp" and any(k in p_lower for k in ("sticker", "emoticon", "emoji", "gif_temp")))
                 )
 
+                is_locked_safe = (
+                    ".aceself" in p_lower or
+                    ".secret" in p_lower or
+                    "privatesafe" in p_lower or
+                    "safebox" in p_lower or
+                    "security" in p_lower or
+                    "coloros_safe" in p_lower or
+                    "applock" in p_lower or
+                    "/999/" in p_lower or
+                    "emulated/999" in p_lower or
+                    "com.coloros.safebox" in p_lower or
+                    "com.heytap.gallery" in p_lower or
+                    "com.oppo.gallery" in p_lower or
+                    "dual_app" in p_lower or
+                    "parallel" in p_lower
+                )
+
                 is_trashed = (
                     ".trashed" in p_lower or 
                     ".trash" in p_lower or 
                     "globaltrash" in p_lower or 
                     ".nomedia" in p_lower or 
                     "/.hidden" in p_lower or
-                    "/.secret" in p_lower or
                     "/.thumbnails" in p_lower or
-                    "/.aceself" in p_lower or
                     "/.face" in p_lower or
                     "/.statuses" in p_lower or
                     "/.temp" in p_lower or
@@ -2051,23 +2071,25 @@ class DeviceDevStudio(tk.Tk):
                 )
 
                 if is_sticker:
-                    return "Stickers/WebP", is_trashed, True
+                    return "Stickers/WebP", is_trashed, False, True
+                elif is_locked_safe:
+                    return "Locked/Private Safe", False, True, False
                 elif is_trashed:
-                    return "Trashed/Hidden", True, False
+                    return "Trashed/Hidden", True, False, False
                 elif any(k in f_lower or k in folder_lower for k in ("screenshot", "screen_cap", "screencap", "gui_cap", "snap_")):
-                    return "Screenshots", False, False
+                    return "Screenshots", False, False, False
                 elif "/camera" in p_lower or "dcim/camera" in p_lower or f_lower.startswith("img_20") or f_lower.startswith("vid_20"):
-                    return "Camera", False, False
+                    return "Camera", False, False, False
                 elif "whatsapp" in p_lower or "com.whatsapp" in p_lower:
-                    return "WhatsApp", False, False
+                    return "WhatsApp", False, False, False
                 elif any(k in p_lower for k in ("/download", "/downloads", "purchase", "bill", "invoice", "receipt", "order", "cart", "payment")):
-                    return "Downloads & Purchases", False, False
-                elif folder_lower in ("/sdcard", "/storage/emulated/0", "/storage/self/primary"):
-                    return "Root Storage", False, False
+                    return "Downloads & Purchases", False, False, False
+                elif folder_lower in ("/sdcard", "/storage/emulated/0", "/storage/self/primary", "/storage/emulated/999"):
+                    return "Root Storage", False, False, False
                 elif "/pictures" in p_lower:
-                    return "Pictures", False, False
+                    return "Pictures", False, False, False
                 else:
-                    return "Gallery", False, False
+                    return "Gallery", False, False, False
 
             # 1. Query MediaStore Images & Video tables
             for m_uri in ["content://media/external/images/media", "content://media/external/video/media", "content://media/external/file"]:
@@ -2101,8 +2123,8 @@ class DeviceDevStudio(tk.Tk):
                                 continue
                             ext = os.path.splitext(full_path)[1].lower()
                             fname = os.path.basename(full_path)
-                            cat, is_trashed, is_sticker = _classify_item(full_path, fname, size_bytes)
-                            if ext not in valid_exts and not is_trashed:
+                            cat, is_trashed, is_locked_safe, is_sticker = _classify_item(full_path, fname, size_bytes)
+                            if ext not in valid_exts and not is_trashed and not is_locked_safe:
                                 continue
 
                             seen_paths.add(full_path)
@@ -2120,6 +2142,7 @@ class DeviceDevStudio(tk.Tk):
                                 "date": date_str,
                                 "category": cat,
                                 "is_trashed": is_trashed,
+                                "is_locked": is_locked_safe,
                                 "is_sticker": is_sticker,
                                 "selected": False
                             })
@@ -2170,6 +2193,7 @@ class DeviceDevStudio(tk.Tk):
                             "date": date_str,
                             "category": "Trashed/Hidden",
                             "is_trashed": True,
+                            "is_locked": False,
                             "is_sticker": False,
                             "selected": False
                         })
@@ -2180,12 +2204,20 @@ class DeviceDevStudio(tk.Tk):
                 "/sdcard/DCIM/Camera",
                 "/sdcard/DCIM/Screenshots",
                 "/sdcard/DCIM/100MEDIA",
+                "/sdcard/DCIM/Restored",
+                "/sdcard/DCIM/Raw",
+                "/sdcard/DCIM/.face",
                 "/sdcard/Pictures",
                 "/sdcard/Pictures/Screenshots",
                 "/sdcard/Pictures/Camera",
+                "/sdcard/Pictures/Restored",
                 "/sdcard/Download",
                 "/sdcard/Downloads",
                 "/sdcard/Android/media",
+                "/sdcard/Android/media/com.whatsapp",
+                "/sdcard/Android/media/com.snapchat.android",
+                "/sdcard/Android/media/com.instagram.android",
+                "/sdcard/Android/media/org.telegram.messenger",
                 "/sdcard/WhatsApp",
                 "/sdcard/WhatsApp/Media",
                 "/sdcard/ColorOS",
@@ -2197,21 +2229,40 @@ class DeviceDevStudio(tk.Tk):
                 "/sdcard/MIUI",
                 "/sdcard/.thumbnails",
                 "/sdcard/DCIM/.thumbnails",
+                "/sdcard/Pictures/.thumbnails",
                 "/sdcard/.trashed-*",
                 "/sdcard/DCIM/.trashed-*",
                 "/sdcard/Pictures/.trashed-*",
                 "/sdcard/Download/.trashed-*",
                 "/sdcard/.trash",
+                "/sdcard/.recycle",
+                "/sdcard/.globaltrash",
+                "/sdcard/.gallery",
+                "/sdcard/.cloud",
                 "/sdcard/.aceself",
                 "/sdcard/.secret",
-                "/sdcard/.nomedia"
+                "/sdcard/.nomedia",
+                "/storage/emulated/999",
+                "/storage/emulated/999/DCIM",
+                "/storage/emulated/999/Pictures",
+                "/storage/emulated/999/Download",
+                "/storage/emulated/999/WhatsApp",
+                "/storage/emulated/999/Snapchat",
+                "/storage/emulated/999/ColorOS",
+                "/storage/emulated/999/.aceself",
+                "/sdcard/Android/data/com.coloros.safebox",
+                "/sdcard/Android/data/com.heytap.gallery",
+                "/sdcard/Android/data/com.coloros.gallery3d",
+                "/sdcard/Android/data/com.oppo.camera"
             ]
             scan_dirs_str = " ".join(f"'{d}'" for d in scan_dirs)
 
-            # Ultra-compatible find command that works on standard toybox/toolbox without GNU find flags
+            # Deep find traversal across SDCard and Dual App spaces
             find_cmd = (
                 f"find {scan_dirs_str} -type f 2>/dev/null; "
-                f"ls -1 /sdcard/* /sdcard/.* /storage/emulated/0/* 2>/dev/null"
+                f"find /sdcard -maxdepth 4 -type f 2>/dev/null; "
+                f"find /storage/emulated/999 -maxdepth 4 -type f 2>/dev/null; "
+                f"ls -1 /sdcard/* /sdcard/.* /storage/emulated/0/* /storage/emulated/999/* 2>/dev/null"
             )
             code, out, err = self.run_adb(["shell", find_cmd], timeout=35)
 
@@ -2229,9 +2280,9 @@ class DeviceDevStudio(tk.Tk):
 
                     ext = os.path.splitext(full_path)[1].lower()
                     fname = os.path.basename(full_path)
-                    cat, is_trashed, is_sticker = _classify_item(full_path, fname, 0)
+                    cat, is_trashed, is_locked_safe, is_sticker = _classify_item(full_path, fname, 0)
 
-                    if ext not in valid_exts and not is_trashed:
+                    if ext not in valid_exts and not is_trashed and not is_locked_safe:
                         continue
 
                     seen_paths.add(full_path)
@@ -2250,6 +2301,7 @@ class DeviceDevStudio(tk.Tk):
                         "date": date_str,
                         "category": cat,
                         "is_trashed": is_trashed,
+                        "is_locked": is_locked_safe,
                         "is_sticker": is_sticker,
                         "selected": False
                     })
@@ -2266,12 +2318,13 @@ class DeviceDevStudio(tk.Tk):
                 self._apply_gallery_filter_and_render()
                 sc_count = sum(1 for it in items if it["category"] == "Screenshots")
                 tr_count = sum(1 for it in items if it["is_trashed"])
+                lock_count = sum(1 for it in items if it.get("is_locked") or it["category"] == "Locked/Private Safe")
                 rt_count = sum(1 for it in items if it["category"] == "Root Storage")
                 stk_count = sum(1 for it in items if it.get("is_sticker"))
                 self.gallery_summary_lbl.config(
-                    text=f"Total: {len(items)} | 📸 Photos: {len(items) - stk_count} | 📱 Screens: {sc_count} | 🗑️ Trashed: {tr_count} | 🎨 Stickers: {stk_count}"
+                    text=f"Total: {len(items)} | 📸 Photos: {len(items) - stk_count} | 📱 Screens: {sc_count} | 🔒 Locked: {lock_count} | 🗑️ Trashed: {tr_count} | 🎨 Stickers: {stk_count}"
                 )
-                self.log(f"Gallery scan complete: Found {len(items)} total items (Photos/Videos: {len(items) - stk_count}, Screens: {sc_count}, Trashed: {tr_count}, Stickers: {stk_count}) with Day 1 timeline recovery.")
+                self.log(f"Gallery scan complete: Found {len(items)} total items (Photos/Videos: {len(items) - stk_count}, Screens: {sc_count}, Locked Safe: {lock_count}, Trashed: {tr_count}, Stickers: {stk_count}) with Day 1 timeline recovery.")
 
             try:
                 self.after(0, update_ui)
@@ -2382,6 +2435,7 @@ class DeviceDevStudio(tk.Tk):
         if hasattr(self, 'btn_f_wa'): self.btn_f_wa.config(bg="#0284c7" if filter_type == "WHATSAPP" else "#334155")
         if hasattr(self, 'btn_f_dl'): self.btn_f_dl.config(bg="#0284c7" if filter_type == "DOWNLOADS" else "#334155")
         if hasattr(self, 'btn_f_root'): self.btn_f_root.config(bg="#0284c7" if filter_type == "ROOT" else "#334155")
+        if hasattr(self, 'btn_f_locked'): self.btn_f_locked.config(bg="#9333ea" if filter_type == "LOCKED" else "#581c87")
         if hasattr(self, 'btn_f_trash'): self.btn_f_trash.config(bg="#dc2626" if filter_type == "TRASHED" else "#7f1d1d")
         if hasattr(self, 'btn_f_day1'): self.btn_f_day1.config(bg="#0284c7" if filter_type == "DAY1" else "#475569")
         if hasattr(self, 'btn_f_stickers'): self.btn_f_stickers.config(bg="#0284c7" if filter_type == "STICKERS" else "#334155")
@@ -2414,6 +2468,8 @@ class DeviceDevStudio(tk.Tk):
             elif ft == "DOWNLOADS" and "DOWNLOAD" not in cat:
                 continue
             elif ft == "ROOT" and cat != "ROOT STORAGE":
+                continue
+            elif ft == "LOCKED" and (cat != "LOCKED/PRIVATE SAFE" and not item.get("is_locked")):
                 continue
             elif ft == "TRASHED" and (cat != "TRASHED/HIDDEN" and not item.get("is_trashed")):
                 continue
@@ -2509,10 +2565,11 @@ class DeviceDevStudio(tk.Tk):
             c = p_idx % cols
 
             is_sel = item["selected"]
+            is_locked = item.get("is_locked") or item["category"] == "Locked/Private Safe"
             is_trash = item.get("is_trashed") or item["category"] == "Trashed/Hidden"
             
-            card_bg = "#1e3a8a" if is_sel else ("#3b1818" if is_trash else "#1e293b")
-            border_c = "#38bdf8" if is_sel else ("#ef4444" if is_trash else "#334155")
+            card_bg = "#1e3a8a" if is_sel else ("#3b0764" if is_locked else ("#3b1818" if is_trash else "#1e293b"))
+            border_c = "#38bdf8" if is_sel else ("#c084fc" if is_locked else ("#ef4444" if is_trash else "#334155"))
 
             card = tk.Frame(
                 self.grid_inner_frame,
@@ -2534,8 +2591,8 @@ class DeviceDevStudio(tk.Tk):
             chk_lbl = tk.Label(hdr_frame, text=chk_icon, bg=card_bg, fg="#38bdf8" if is_sel else "#94a3b8", font=("Segoe UI", 9, "bold"))
             chk_lbl.pack(side="left")
 
-            cat_short = "🗑️" if is_trash else ("📸" if item["category"] == "Camera" else ("📱" if item["category"] == "Screenshots" else ("💬" if item["category"] == "WhatsApp" else "🖼")))
-            cat_lbl = tk.Label(hdr_frame, text=f"{cat_short} {item['category'][:6]}", bg=card_bg, fg="#fca5a5" if is_trash else "#cbd5e1", font=("Segoe UI", 7))
+            cat_short = "🔒" if is_locked else ("🗑️" if is_trash else ("📸" if item["category"] == "Camera" else ("📱" if item["category"] == "Screenshots" else ("💬" if item["category"] == "WhatsApp" else "🖼"))))
+            cat_lbl = tk.Label(hdr_frame, text=f"{cat_short} {item['category'][:6]}", bg=card_bg, fg="#e9d5ff" if is_locked else ("#fca5a5" if is_trash else "#cbd5e1"), font=("Segoe UI", 7))
             cat_lbl.pack(side="right")
 
             # Photo Thumbnail Label
@@ -2773,6 +2830,13 @@ class DeviceDevStudio(tk.Tk):
         self._deselect_all_gallery()
         for item in self.filtered_gallery_items:
             if item.get("is_trashed") or item["category"] == "Trashed/Hidden":
+                item["selected"] = True
+        self._apply_gallery_filter_and_render()
+
+    def _select_locked_only(self):
+        self._deselect_all_gallery()
+        for item in self.filtered_gallery_items:
+            if item.get("is_locked") or item["category"] == "Locked/Private Safe":
                 item["selected"] = True
         self._apply_gallery_filter_and_render()
 

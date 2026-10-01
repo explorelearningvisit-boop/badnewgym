@@ -1,6 +1,6 @@
 #!/bin/sh
-# Scan all files on /storage/emulated/0
-find /storage/emulated/0 -type f 2>/dev/null | while IFS= read -r file; do
+# Scan all files on /storage/emulated/0 and /storage/emulated/999 (OPPO App Cloner / Dual Apps)
+find /storage/emulated/0 /storage/emulated/999 /sdcard 2>/dev/null | while IFS= read -r file; do
     # Check extension or special cache files
     ext="$(echo "$file" | awk -F. '{if (NF>1) print tolower($NF)}')"
     is_img=0
