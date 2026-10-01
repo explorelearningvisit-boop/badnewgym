@@ -14,3 +14,13 @@
 .cxx
 local.properties
 *.log
+pulled_screens/
+tools/pulled_media/
+__pycache__/
+*.pyc
+window_dump.xml
+screen*.png
+oppo_live_screen*.png
+current_screen.png
+tmp_screen.png
+tools/badgym-agent-bridge/

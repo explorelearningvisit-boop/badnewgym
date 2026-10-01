@@ -3,5 +3,8 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"claudeCodeChat.permissions.yoloMode": true
+	}
 }
