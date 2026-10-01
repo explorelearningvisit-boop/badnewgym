@@ -388,17 +388,20 @@ class DeviceDevStudio(tk.Tk):
         filter_bar = tk.Frame(parent, bg="#0f172a")
         filter_bar.pack(fill="x", pady=2)
         
-        self.btn_app_user = tk.Button(filter_bar, text="👤 User Apps (3rd-Party)", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_apps_filter("USER"))
-        self.btn_app_user.pack(side="left", padx=2)
+        self.btn_app_user = tk.Button(filter_bar, text="👤 User Apps", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=5, relief="flat", command=lambda: self._set_apps_filter("USER"))
+        self.btn_app_user.pack(side="left", padx=1)
 
-        self.btn_app_disabled = tk.Button(filter_bar, text="🚫 Disabled / Hidden", bg="#334155", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_apps_filter("DISABLED"))
-        self.btn_app_disabled.pack(side="left", padx=2)
+        self.btn_app_dual = tk.Button(filter_bar, text="🔒 Dual / Cloned", bg="#581c87", fg="#f0abfc", font=("Segoe UI", 8, "bold"), padx=5, relief="flat", command=lambda: self._set_apps_filter("DUAL"))
+        self.btn_app_dual.pack(side="left", padx=1)
 
-        self.btn_app_system = tk.Button(filter_bar, text="⚙️ System Apps", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_apps_filter("SYSTEM"))
-        self.btn_app_system.pack(side="left", padx=2)
+        self.btn_app_disabled = tk.Button(filter_bar, text="🚫 Hidden / Frozen", bg="#334155", fg="white", font=("Segoe UI", 8, "bold"), padx=5, relief="flat", command=lambda: self._set_apps_filter("DISABLED"))
+        self.btn_app_disabled.pack(side="left", padx=1)
 
-        self.btn_app_all = tk.Button(filter_bar, text="📦 All Packages", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_apps_filter("ALL"))
-        self.btn_app_all.pack(side="left", padx=2)
+        self.btn_app_system = tk.Button(filter_bar, text="⚙️ System Apps", bg="#334155", fg="white", font=("Segoe UI", 8), padx=5, relief="flat", command=lambda: self._set_apps_filter("SYSTEM"))
+        self.btn_app_system.pack(side="left", padx=1)
+
+        self.btn_app_all = tk.Button(filter_bar, text="📦 All Packages", bg="#334155", fg="white", font=("Segoe UI", 8), padx=5, relief="flat", command=lambda: self._set_apps_filter("ALL"))
+        self.btn_app_all.pack(side="left", padx=1)
 
         tk.Button(filter_bar, text="🔄 Scan Apps", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.scan_installed_apps).pack(side="right", padx=2)
 
@@ -884,6 +887,23 @@ class DeviceDevStudio(tk.Tk):
         ]
         for name, pth in shortcuts_2:
             tk.Button(sc_row2, text=name, bg="#1e293b", fg="#cbd5e1", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=1)
+
+        # App Storage & Locked Space Bookmarks
+        sc_row3 = tk.Frame(parent, bg="#0f172a")
+        sc_row3.pack(fill="x", pady=1)
+        shortcuts_3 = [
+            ("👻 Snapchat", "/sdcard/Snapchat"),
+            ("📸 Instagram", "/sdcard/Pictures/Instagram"),
+            ("✈️ Telegram", "/sdcard/Telegram"),
+            ("👥 Facebook", "/sdcard/Pictures/Facebook"),
+            ("🎵 TikTok", "/sdcard/Pictures/TikTok"),
+            ("🔒 Private Safe", "/sdcard/.aceself"),
+            ("🔒 Dual Apps 999", "/storage/emulated/999"),
+            ("📦 App Media", "/sdcard/Android/media"),
+            ("📂 App Data", "/sdcard/Android/data"),
+        ]
+        for name, pth in shortcuts_3:
+            tk.Button(sc_row3, text=name, bg="#3b0764", fg="#f0abfc", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=1)
 
         # Path Navigation Bar
         nav_frame = tk.Frame(parent, bg="#0f172a")
@@ -3561,19 +3581,33 @@ class DeviceDevStudio(tk.Tk):
     # =========================================================================
 
     def scan_installed_apps(self):
-        """Scans 3rd party user apps, disabled/hidden apps, and system apps from device"""
+        """Scans 3rd party user apps, dual/cloned profiles (User 999/10/11), disabled/hidden apps, and system apps from device"""
         def task():
-            self.log("Scanning installed and hidden applications on mobile...")
+            self.log("Scanning installed, hidden, and dual/cloned applications on mobile...")
             try:
                 self.after(0, lambda: self.apps_summary_lbl.config(text="Scanning packages on mobile..."))
             except Exception:
                 pass
 
-            # 1. User packages (3rd party)
+            # 1. Check multi-user / dual app profiles
+            u_code, u_out, _ = self.run_adb(["shell", "pm list users"], timeout=8)
+            user_ids = [0]
+            if u_code == 0 and u_out:
+                for match in re.finditer(r'UserInfo\{(\d+):', u_out):
+                    try:
+                        uid = int(match.group(1))
+                        if uid not in user_ids:
+                            user_ids.append(uid)
+                    except Exception:
+                        pass
+            if 999 not in user_ids:
+                user_ids.append(999) # OPPO / Xiaomi Dual Apps profile fallback
+
+            # 2. User packages (3rd party primary)
             code3, out3, _ = self.run_adb(["shell", "pm list packages -3 -f"], timeout=12)
-            # 2. Disabled/Hidden packages
+            # 3. Disabled/Hidden packages
             coded, outd, _ = self.run_adb(["shell", "pm list packages -d -f"], timeout=12)
-            # 3. System packages
+            # 4. System packages
             codes, outs, _ = self.run_adb(["shell", "pm list packages -s -f"], timeout=12)
 
             disabled_set = set()
@@ -3586,7 +3620,7 @@ class DeviceDevStudio(tk.Tk):
             apps = []
             seen_pkg = set()
 
-            def parse_block(out, type_label):
+            def parse_block(out, type_label, is_dual_user=False, uid=0):
                 if not out:
                     return
                 for line in out.splitlines():
@@ -3598,45 +3632,84 @@ class DeviceDevStudio(tk.Tk):
                     parts = clean_l.rsplit("=", 1)
                     if len(parts) == 2:
                         apk_path, pkg_name = parts[0].strip(), parts[1].strip()
-                        if pkg_name in seen_pkg:
+                        key = f"{pkg_name}_{uid}" if is_dual_user else pkg_name
+                        if key in seen_pkg:
                             continue
-                        seen_pkg.add(pkg_name)
+                        seen_pkg.add(key)
                         is_dis = pkg_name in disabled_set
-                        status_str = "🚫 Hidden/Frozen" if is_dis else "🟢 Active"
-                        cat = "Disabled/Hidden" if is_dis else type_label
+
+                        # Detect private vault / safe app packages across brands
+                        is_vault = any(k in pkg_name.lower() for k in (
+                            "safebox", "privatesafe", "securefolder", "securitycenter",
+                            "privatespace", "safecenter", "applock", "coloros.safe"
+                        ))
+
+                        if is_dual_user:
+                            status_str = f"🔒 Dual (User {uid})"
+                            cat = f"🔒 Dual/Clone (User {uid})"
+                        elif is_dis:
+                            status_str = "🚫 Hidden/Frozen"
+                            cat = "Disabled/Hidden"
+                        elif is_vault:
+                            status_str = "🔒 Private Vault"
+                            cat = "🔒 Vault/Security"
+                        else:
+                            status_str = "🟢 Active"
+                            cat = type_label
+
                         apps.append({
                             "pkg": pkg_name,
                             "apk": apk_path,
                             "type": cat,
                             "is_disabled": is_dis,
+                            "is_dual": is_dual_user,
+                            "is_vault": is_vault,
+                            "user_id": uid,
                             "status": status_str
                         })
 
-            parse_block(out3, "User (3rd Party)")
-            parse_block(outd, "Disabled/Hidden")
-            parse_block(outs, "System")
+            parse_block(out3, "User (3rd Party)", False, 0)
 
-            apps.sort(key=lambda x: (x["type"] != "Disabled/Hidden", x["type"] != "User (3rd Party)", x["pkg"].lower()))
+            # Query secondary user profiles (Dual Apps / Parallel Space / Work Profile)
+            for uid in user_ids:
+                if uid == 0:
+                    continue
+                c_dual, o_dual, _ = self.run_adb(["shell", f"pm list packages --user {uid} -3 -f"], timeout=8)
+                if c_dual == 0 and o_dual and "=" in o_dual:
+                    parse_block(o_dual, f"🔒 Dual/Clone", True, uid)
+
+            parse_block(outd, "Disabled/Hidden", False, 0)
+            parse_block(outs, "System", False, 0)
+
+            apps.sort(key=lambda x: (
+                not x.get("is_dual", False),
+                x["type"] != "Disabled/Hidden",
+                not x.get("is_vault", False),
+                x["type"] != "User (3rd Party)",
+                x["pkg"].lower()
+            ))
 
             def update_ui():
                 self.all_installed_apps = apps
                 self._apply_apps_filter_and_render()
                 u_cnt = sum(1 for a in apps if "User" in a["type"])
+                dual_cnt = sum(1 for a in apps if a.get("is_dual"))
                 d_cnt = sum(1 for a in apps if a["is_disabled"])
                 self.apps_summary_lbl.config(
-                    text=f"Total: {len(apps)} apps | 👤 User: {u_cnt} | 🚫 Hidden/Disabled: {d_cnt}"
+                    text=f"Total: {len(apps)} | 👤 User: {u_cnt} | 🔒 Dual: {dual_cnt} | 🚫 Hidden: {d_cnt}"
                 )
-                self.log(f"Found {len(apps)} installed packages (User: {u_cnt}, Hidden/Disabled: {d_cnt}).")
+                self.log(f"Found {len(apps)} installed packages (User: {u_cnt}, Dual/Cloned: {dual_cnt}, Hidden/Disabled: {d_cnt}).")
 
             self.after(0, update_ui)
         threading.Thread(target=task, daemon=True).start()
 
     def _set_apps_filter(self, filter_type):
         self.current_apps_filter = filter_type
-        self.btn_app_user.config(bg="#0284c7" if filter_type == "USER" else "#334155")
-        self.btn_app_disabled.config(bg="#0284c7" if filter_type == "DISABLED" else "#334155")
-        self.btn_app_system.config(bg="#0284c7" if filter_type == "SYSTEM" else "#334155")
-        self.btn_app_all.config(bg="#0284c7" if filter_type == "ALL" else "#334155")
+        if hasattr(self, 'btn_app_user'): self.btn_app_user.config(bg="#0284c7" if filter_type == "USER" else "#334155")
+        if hasattr(self, 'btn_app_dual'): self.btn_app_dual.config(bg="#9333ea" if filter_type == "DUAL" else "#581c87")
+        if hasattr(self, 'btn_app_disabled'): self.btn_app_disabled.config(bg="#0284c7" if filter_type == "DISABLED" else "#334155")
+        if hasattr(self, 'btn_app_system'): self.btn_app_system.config(bg="#0284c7" if filter_type == "SYSTEM" else "#334155")
+        if hasattr(self, 'btn_app_all'): self.btn_app_all.config(bg="#0284c7" if filter_type == "ALL" else "#334155")
         self._apply_apps_filter_and_render()
 
     def _apply_apps_filter_and_render(self):
@@ -3646,7 +3719,9 @@ class DeviceDevStudio(tk.Tk):
         filtered = []
         for app in self.all_installed_apps:
             t = app["type"].upper()
-            if ft == "USER" and "USER" not in t:
+            if ft == "USER" and ("USER" not in t and not app.get("is_dual")):
+                continue
+            elif ft == "DUAL" and (not app.get("is_dual") and "DUAL" not in t and "CLONE" not in t):
                 continue
             elif ft == "DISABLED" and not app["is_disabled"]:
                 continue
@@ -3801,29 +3876,115 @@ class DeviceDevStudio(tk.Tk):
         threading.Thread(target=task, daemon=True).start()
 
     def explore_selected_app_files(self):
-        """Jumps directly to Files Explorer and loads the app's media/storage directory"""
+        """Jumps directly to Files Explorer and loads the app's media/storage directory across SDCard and Dual App spaces"""
         if not self.selected_app_pkg:
             messagebox.showinfo("Select App", "Please select an app from the list first.")
             return
         pkg = self.selected_app_pkg
+        pkg_lower = pkg.lower()
         
         candidates = [
             f"/sdcard/Android/media/{pkg}",
             f"/sdcard/Android/data/{pkg}",
             f"/storage/emulated/0/Android/media/{pkg}",
+            f"/storage/emulated/999/Android/media/{pkg}",
+            f"/storage/emulated/999/Android/data/{pkg}",
         ]
-        if "snapchat" in pkg.lower():
+        if "snapchat" in pkg_lower:
             candidates = [
                 "/sdcard/Snapchat",
                 "/sdcard/Movies/Snapchat",
                 "/sdcard/Pictures/Snapchat",
+                "/sdcard/DCIM/Snapchat",
+                "/storage/emulated/999/Snapchat",
                 f"/sdcard/Android/media/{pkg}",
                 f"/sdcard/Android/data/{pkg}",
             ] + candidates
-        elif "whatsapp" in pkg.lower():
+        elif "whatsapp" in pkg_lower:
             candidates = [
                 "/sdcard/Android/media/com.whatsapp/WhatsApp/Media",
                 "/sdcard/WhatsApp/Media",
+                "/storage/emulated/999/WhatsApp/Media",
+                "/storage/emulated/999/Android/media/com.whatsapp",
+                "/sdcard/WhatsApp",
+            ] + candidates
+        elif "instagram" in pkg_lower:
+            candidates = [
+                "/sdcard/Pictures/Instagram",
+                "/sdcard/Movies/Instagram",
+                "/storage/emulated/999/Pictures/Instagram",
+                f"/sdcard/Android/media/{pkg}",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif "telegram" in pkg_lower:
+            candidates = [
+                "/sdcard/Telegram",
+                "/sdcard/Telegram/Telegram Images",
+                "/sdcard/Telegram/Telegram Video",
+                "/sdcard/Telegram/Telegram Documents",
+                "/storage/emulated/999/Telegram",
+                f"/sdcard/Android/media/{pkg}",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif any(k in pkg_lower for k in ("facebook", "katana", "orca", "messenger")):
+            candidates = [
+                "/sdcard/Pictures/Facebook",
+                "/sdcard/Pictures/Messenger",
+                "/sdcard/Movies/Facebook",
+                f"/sdcard/Android/media/{pkg}",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif any(k in pkg_lower for k in ("tiktok", "musically", "trill")):
+            candidates = [
+                "/sdcard/Pictures/TikTok",
+                "/sdcard/Movies/TikTok",
+                f"/sdcard/Android/media/{pkg}",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif any(k in pkg_lower for k in ("twitter", "x.android", "threads")):
+            candidates = [
+                "/sdcard/Pictures/Twitter",
+                "/sdcard/Pictures/X",
+                f"/sdcard/Android/media/{pkg}",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif any(k in pkg_lower for k in ("youtube", "vlc", "mxplayer", "videoplayer")):
+            candidates = [
+                "/sdcard/Movies",
+                "/sdcard/Download",
+                f"/sdcard/Android/media/{pkg}",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif any(k in pkg_lower for k in ("capcut", "kinemaster", "inshot", "lightroom", "snapseed")):
+            candidates = [
+                "/sdcard/DCIM/Camera/CapCut",
+                "/sdcard/Movies/CapCut",
+                "/sdcard/DCIM/Kinemaster",
+                "/sdcard/Pictures/Lightroom",
+                "/sdcard/Pictures/Snapseed",
+                f"/sdcard/Android/media/{pkg}",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif any(k in pkg_lower for k in ("miui", "xiaomi")):
+            candidates = [
+                "/sdcard/MIUI/Gallery",
+                "/sdcard/MIUI/sound_recorder",
+                "/sdcard/MIUI/video",
+                "/sdcard/MIUI",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif any(k in pkg_lower for k in ("sec.android", "samsung", "knox")):
+            candidates = [
+                "/sdcard/Samsung",
+                "/sdcard/Voice Recorder",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif any(k in pkg_lower for k in ("coloros", "heytap", "oppo")):
+            candidates = [
+                "/sdcard/ColorOS",
+                "/sdcard/.aceself",
+                "/storage/emulated/999/ColorOS",
+                f"/sdcard/Android/data/{pkg}",
             ] + candidates
 
         def task():
@@ -3876,11 +4037,32 @@ class DeviceDevStudio(tk.Tk):
                             if "/" in p and pkg in p:
                                 activities.append(p)
 
-            # Standard preset schemes for popular apps
-            if "snapchat" in pkg.lower():
-                schemes.update(["snapchat://", "https://www.snapchat.com/add/"])
-            elif "whatsapp" in pkg.lower():
-                schemes.update(["whatsapp://send", "https://api.whatsapp.com/send"])
+            # Comprehensive preset schemes for popular Android apps
+            pkg_lower = pkg.lower()
+            if "snapchat" in pkg_lower:
+                schemes.update(["snapchat://", "https://www.snapchat.com/add/", "snapchat://creativeKitWeb/camera"])
+            elif "whatsapp" in pkg_lower:
+                schemes.update(["whatsapp://send", "https://api.whatsapp.com/send", "whatsapp://chat"])
+            elif "instagram" in pkg_lower:
+                schemes.update(["instagram://user?username=", "instagram://camera", "instagram://direct-inbox", "https://instagram.com/"])
+            elif "telegram" in pkg_lower:
+                schemes.update(["tg://resolve?domain=", "tg://msg?text=", "https://t.me/"])
+            elif any(k in pkg_lower for k in ("facebook", "katana")):
+                schemes.update(["fb://profile/", "fb://facewebmodal/f?href=https://facebook.com", "https://facebook.com/"])
+            elif any(k in pkg_lower for k in ("messenger", "orca")):
+                schemes.update(["fb-messenger://user-thread/", "https://m.me/"])
+            elif any(k in pkg_lower for k in ("twitter", "x.android", "threads")):
+                schemes.update(["twitter://user?screen_name=", "twitter://timeline", "https://twitter.com/"])
+            elif "youtube" in pkg_lower:
+                schemes.update(["vnd.youtube://", "https://youtube.com/watch?v="])
+            elif any(k in pkg_lower for k in ("tiktok", "musically")):
+                schemes.update(["snssdk1233://", "https://www.tiktok.com/"])
+            elif "spotify" in pkg_lower:
+                schemes.update(["spotify:track:", "spotify:playlist:", "spotify:search:"])
+            elif any(k in pkg_lower for k in ("chrome", "browser")):
+                schemes.update(["googlechrome://", "https://google.com"])
+            elif "maps" in pkg_lower:
+                schemes.update(["geo:0,0?q=", "google.navigation:q="])
 
             def show_modal():
                 dlg = tk.Toplevel(self)
