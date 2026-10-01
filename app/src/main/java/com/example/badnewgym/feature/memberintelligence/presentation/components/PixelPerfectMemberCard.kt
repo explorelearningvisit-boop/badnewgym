@@ -315,6 +315,7 @@ private fun CardBody(
             }
         }
     }
+}
 
 @Composable
 private fun HomeContent(
