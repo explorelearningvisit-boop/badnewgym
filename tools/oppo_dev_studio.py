@@ -2174,47 +2174,62 @@ class DeviceDevStudio(tk.Tk):
                             "selected": False
                         })
 
-            # 3. Direct Directory & Filesystem Scan on key directories, root internal storage, hidden .dot folders & trash paths
+            # 3. Direct Filesystem Walk for 100% A-to-Z file discovery across all OPPO & Xiaomi folders
+            scan_dirs = [
+                "/sdcard/DCIM",
+                "/sdcard/DCIM/Camera",
+                "/sdcard/DCIM/Screenshots",
+                "/sdcard/DCIM/100MEDIA",
+                "/sdcard/Pictures",
+                "/sdcard/Pictures/Screenshots",
+                "/sdcard/Pictures/Camera",
+                "/sdcard/Download",
+                "/sdcard/Downloads",
+                "/sdcard/Android/media",
+                "/sdcard/WhatsApp",
+                "/sdcard/WhatsApp/Media",
+                "/sdcard/ColorOS",
+                "/sdcard/Snapchat",
+                "/sdcard/Movies",
+                "/sdcard/Documents",
+                "/sdcard/Bluetooth",
+                "/sdcard/Telegram",
+                "/sdcard/MIUI",
+                "/sdcard/.thumbnails",
+                "/sdcard/DCIM/.thumbnails",
+                "/sdcard/.trashed-*",
+                "/sdcard/DCIM/.trashed-*",
+                "/sdcard/Pictures/.trashed-*",
+                "/sdcard/Download/.trashed-*",
+                "/sdcard/.trash",
+                "/sdcard/.aceself",
+                "/sdcard/.secret",
+                "/sdcard/.nomedia"
+            ]
+            scan_dirs_str = " ".join(f"'{d}'" for d in scan_dirs)
+
+            # Ultra-compatible find command that works on standard toybox/toolbox without GNU find flags
             find_cmd = (
-                "find /sdcard/DCIM /sdcard/Pictures /sdcard/Download /sdcard/Downloads "
-                "/sdcard/Android/media /sdcard/Documents /sdcard/Movies /sdcard/Music "
-                "/sdcard/Bluetooth /sdcard/Browser /sdcard/Telegram /sdcard/ColorOS "
-                "/sdcard/Snapchat /sdcard/WhatsApp /sdcard/MIUI /sdcard/tencent "
-                "/sdcard/Recordings /sdcard/Audiobooks /sdcard/Podcasts /sdcard/Ringtones "
-                "/sdcard/Alarms /sdcard/Notifications "
-                "/sdcard/.thumbnails /sdcard/DCIM/.thumbnails /sdcard/Pictures/.thumbnails "
-                "/sdcard/.trashed-* /sdcard/DCIM/.trashed-* /sdcard/Pictures/.trashed-* /sdcard/Download/.trashed-* "
-                "/sdcard/.trash /sdcard/DCIM/.trash /sdcard/Pictures/.trash "
-                "/sdcard/.aceself /sdcard/.secret /sdcard/.nomedia "
-                "-type f -exec stat -c '%s %Y %n' {} + 2>/dev/null; "
-                "stat -c '%s %Y %n' /sdcard/* /sdcard/.* /storage/emulated/0/* /storage/emulated/0/.* /sdcard/DCIM/Camera/* /sdcard/DCIM/Screenshots/* /sdcard/Pictures/Screenshots/* 2>/dev/null"
+                f"find {scan_dirs_str} -type f 2>/dev/null; "
+                f"ls -1 /sdcard/* /sdcard/.* /storage/emulated/0/* 2>/dev/null"
             )
-            code, out, err = self.run_adb(["shell", find_cmd], timeout=30)
+            code, out, err = self.run_adb(["shell", find_cmd], timeout=35)
 
             if code == 0 and out:
                 for line in out.splitlines():
-                    line = line.strip()
-                    if not line:
+                    full_path = line.strip()
+                    if not full_path or full_path.startswith("ls:") or full_path.startswith("find:"):
                         continue
-                    parts = line.split(' ', 2)
-                    if len(parts) < 3:
-                        continue
-                    try:
-                        size_bytes = int(parts[0])
-                        mtime = int(parts[1])
-                        full_path = parts[2].strip()
-                    except Exception:
-                        continue
-
-                    if not full_path:
+                    if full_path.endswith("/"):
                         continue
 
                     norm_path = full_path.replace("/storage/emulated/0", "/sdcard")
                     if full_path in seen_paths or norm_path in seen_paths:
                         continue
+
                     ext = os.path.splitext(full_path)[1].lower()
                     fname = os.path.basename(full_path)
-                    cat, is_trashed, is_sticker = _classify_item(full_path, fname, size_bytes)
+                    cat, is_trashed, is_sticker = _classify_item(full_path, fname, 0)
 
                     if ext not in valid_exts and not is_trashed:
                         continue
@@ -2222,15 +2237,15 @@ class DeviceDevStudio(tk.Tk):
                     seen_paths.add(full_path)
                     seen_paths.add(norm_path)
 
-                    best_mtime = _extract_best_timestamp(full_path, fname, mtime)
+                    best_mtime = _extract_best_timestamp(full_path, fname, 0)
                     date_str = datetime.fromtimestamp(best_mtime).strftime('%Y-%m-%d %H:%M') if best_mtime > 0 else ""
 
                     items.append({
                         "path": full_path,
                         "name": fname,
                         "folder": os.path.dirname(full_path),
-                        "size": self._format_size(size_bytes) if size_bytes > 0 else "",
-                        "size_bytes": size_bytes,
+                        "size": "",
+                        "size_bytes": 0,
                         "mtime": best_mtime,
                         "date": date_str,
                         "category": cat,
