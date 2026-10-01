@@ -177,24 +177,24 @@ class DeviceDevStudio(tk.Tk):
         left_col = tk.Frame(main_paned, bg="#0f172a")
         main_paned.add(left_col, minsize=520)
 
-        tabs = ttk.Notebook(left_col)
-        tabs.pack(fill="both", expand=True)
+        self.main_tabs = ttk.Notebook(left_col)
+        self.main_tabs.pack(fill="both", expand=True)
 
-        tab_gallery = ttk.Frame(tabs, padding=6)
-        tab_calls = ttk.Frame(tabs, padding=6)
-        tab_apps = ttk.Frame(tabs, padding=6)
-        tab_files = ttk.Frame(tabs, padding=6)
-        tab_analytics = ttk.Frame(tabs, padding=6)
-        tab_power = ttk.Frame(tabs, padding=6)
-        tab_log = ttk.Frame(tabs, padding=6)
+        tab_gallery = ttk.Frame(self.main_tabs, padding=6)
+        tab_calls = ttk.Frame(self.main_tabs, padding=6)
+        tab_apps = ttk.Frame(self.main_tabs, padding=6)
+        tab_files = ttk.Frame(self.main_tabs, padding=6)
+        tab_analytics = ttk.Frame(self.main_tabs, padding=6)
+        tab_power = ttk.Frame(self.main_tabs, padding=6)
+        tab_log = ttk.Frame(self.main_tabs, padding=6)
 
-        tabs.add(tab_gallery, text=" 🖼️ Gallery ")
-        tabs.add(tab_calls, text=" 📞 Calls ")
-        tabs.add(tab_apps, text=" ⚡ Apps ")
-        tabs.add(tab_files, text=" 📁 Files ")
-        tabs.add(tab_analytics, text=" 📊 Analytics ")
-        tabs.add(tab_power, text=" 🔋 Power ")
-        tabs.add(tab_log, text=" 📋 ADB Log ")
+        self.main_tabs.add(tab_gallery, text=" 🖼️ Gallery ")
+        self.main_tabs.add(tab_calls, text=" 📞 Calls ")
+        self.main_tabs.add(tab_apps, text=" ⚡ Apps ")
+        self.main_tabs.add(tab_files, text=" 📁 Files ")
+        self.main_tabs.add(tab_analytics, text=" 📊 Analytics ")
+        self.main_tabs.add(tab_power, text=" 🔋 Power ")
+        self.main_tabs.add(tab_log, text=" 📋 ADB Log ")
 
         self._build_gallery_tab(tab_gallery)
         self._build_calls_tab(tab_calls)
@@ -412,17 +412,24 @@ class DeviceDevStudio(tk.Tk):
         self.selected_app_lbl = tk.Label(search_bar, text="Select an app below", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 8, "bold"))
         self.selected_app_lbl.pack(side="right", padx=4)
 
-        # Action Toolbar (packed at bottom of container before table for guaranteed visibility)
-        app_act_bar = tk.Frame(parent, bg="#0f172a")
-        app_act_bar.pack(side="bottom", fill="x", pady=(4, 0))
+        # Action Toolbars (packed at bottom of container before table for guaranteed visibility)
+        app_act_bar2 = tk.Frame(parent, bg="#0f172a")
+        app_act_bar2.pack(side="bottom", fill="x", pady=(2, 0))
 
-        tk.Button(app_act_bar, text="▶ Launch App", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=4, relief="flat", command=self.launch_selected_app).pack(side="left", padx=2)
-        tk.Button(app_act_bar, text="⏹ Force Stop", bg="#dc2626", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=4, relief="flat", command=self.stop_selected_app).pack(side="left", padx=2)
-        tk.Button(app_act_bar, text="🚫 Freeze / Hide", bg="#7f1d1d", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=4, relief="flat", command=self.freeze_selected_app).pack(side="left", padx=2)
-        tk.Button(app_act_bar, text="🟢 Unfreeze / Enable", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.unfreeze_selected_app).pack(side="left", padx=2)
-        tk.Button(app_act_bar, text="📥 Pull APK to PC", bg="#0891b2", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.pull_selected_app_apk).pack(side="left", padx=2)
-        tk.Button(app_act_bar, text="🧹 Clear Data", bg="#475569", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=self.clear_selected_app_data).pack(side="left", padx=2)
-        tk.Button(app_act_bar, text="🗑️ Uninstall", bg="#b91c1c", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.uninstall_selected_app).pack(side="right", padx=2)
+        tk.Button(app_act_bar2, text="🚫 Freeze / Hide", bg="#7f1d1d", fg="white", font=("Segoe UI", 7, "bold"), padx=5, pady=3, relief="flat", command=self.freeze_selected_app).pack(side="left", padx=1)
+        tk.Button(app_act_bar2, text="🟢 Unfreeze / Enable", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=5, pady=3, relief="flat", command=self.unfreeze_selected_app).pack(side="left", padx=1)
+        tk.Button(app_act_bar2, text="📥 Pull APK to PC", bg="#0891b2", fg="white", font=("Segoe UI", 7, "bold"), padx=5, pady=3, relief="flat", command=self.pull_selected_app_apk).pack(side="left", padx=1)
+        tk.Button(app_act_bar2, text="🧹 Clear Data", bg="#475569", fg="white", font=("Segoe UI", 7), padx=5, pady=3, relief="flat", command=self.clear_selected_app_data).pack(side="left", padx=1)
+        tk.Button(app_act_bar2, text="🗑️ Uninstall App", bg="#b91c1c", fg="white", font=("Segoe UI", 7, "bold"), padx=5, pady=3, relief="flat", command=self.uninstall_selected_app).pack(side="right", padx=1)
+
+        app_act_bar1 = tk.Frame(parent, bg="#0f172a")
+        app_act_bar1.pack(side="bottom", fill="x", pady=(3, 1))
+
+        tk.Button(app_act_bar1, text="▶ Launch App", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.launch_selected_app).pack(side="left", padx=1)
+        tk.Button(app_act_bar1, text="⏹ Force Stop", bg="#dc2626", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.stop_selected_app).pack(side="left", padx=1)
+        tk.Button(app_act_bar1, text="📁 Explore Files", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.explore_selected_app_files).pack(side="left", padx=1)
+        tk.Button(app_act_bar1, text="🔗 Deep Links & Intents", bg="#7c3aed", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.inspect_selected_app_deeplinks).pack(side="left", padx=1)
+        tk.Button(app_act_bar1, text="📤 Push Media to App", bg="#0d9488", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.push_media_to_selected_app).pack(side="left", padx=1)
 
         # Main Apps Table
         table_frame = tk.Frame(parent, bg="#1e293b")
@@ -3712,6 +3719,201 @@ class DeviceDevStudio(tk.Tk):
             self.log(f"Uninstall result: {out or err}")
             self.after(0, lambda: messagebox.showinfo("Uninstalled", f"Uninstalled {pkg}: {out or err}"))
             self.scan_installed_apps()
+        threading.Thread(target=task, daemon=True).start()
+
+    def explore_selected_app_files(self):
+        """Jumps directly to Files Explorer and loads the app's media/storage directory"""
+        if not self.selected_app_pkg:
+            messagebox.showinfo("Select App", "Please select an app from the list first.")
+            return
+        pkg = self.selected_app_pkg
+        
+        candidates = [
+            f"/sdcard/Android/media/{pkg}",
+            f"/sdcard/Android/data/{pkg}",
+            f"/storage/emulated/0/Android/media/{pkg}",
+        ]
+        if "snapchat" in pkg.lower():
+            candidates = [
+                "/sdcard/Snapchat",
+                "/sdcard/Movies/Snapchat",
+                "/sdcard/Pictures/Snapchat",
+                f"/sdcard/Android/media/{pkg}",
+                f"/sdcard/Android/data/{pkg}",
+            ] + candidates
+        elif "whatsapp" in pkg.lower():
+            candidates = [
+                "/sdcard/Android/media/com.whatsapp/WhatsApp/Media",
+                "/sdcard/WhatsApp/Media",
+            ] + candidates
+
+        def task():
+            target_path = f"/sdcard/Android/media/{pkg}"
+            for c in candidates:
+                code, out, _ = self.run_adb(["shell", f"[ -d '{c}' ] && echo EXISTS"], timeout=4)
+                if "EXISTS" in (out or ""):
+                    target_path = c
+                    break
+            
+            def jump():
+                self.main_tabs.select(3) # Switch to Files tab
+                self.load_path(target_path)
+                self.log(f"Navigated to app storage folder: {target_path}")
+            self.after(0, jump)
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def inspect_selected_app_deeplinks(self):
+        """Inspects package manifest, deep links, URL schemes, exported activities and allows testing intent packets"""
+        if not self.selected_app_pkg:
+            messagebox.showinfo("Select App", "Please select an app from the list first.")
+            return
+        pkg = self.selected_app_pkg
+
+        def task():
+            self.log(f"Inspecting package manifest, activities & deep links for {pkg}...")
+            code, out, err = self.run_adb(["shell", f"dumpsys package {pkg}"], timeout=15)
+            
+            schemes = set()
+            activities = []
+            main_act = ""
+
+            if code == 0 and out:
+                # Find main activity
+                m_act = re.search(r'android\.intent\.action\.MAIN:\s*\n\s*([^\s]+)\s+([^\s/]+)/([^\s]+)', out)
+                if m_act:
+                    main_act = m_act.group(3)
+
+                # Extract URL schemes
+                for line in out.splitlines():
+                    line = line.strip()
+                    if "Scheme:" in line:
+                        sch = line.split("Scheme:", 1)[-1].strip().strip('"').strip("'")
+                        if sch:
+                            schemes.add(sch)
+                    if "Activity" in line and "/" in line:
+                        parts = line.split()
+                        for p in parts:
+                            if "/" in p and pkg in p:
+                                activities.append(p)
+
+            # Standard preset schemes for popular apps
+            if "snapchat" in pkg.lower():
+                schemes.update(["snapchat://", "https://www.snapchat.com/add/"])
+            elif "whatsapp" in pkg.lower():
+                schemes.update(["whatsapp://send", "https://api.whatsapp.com/send"])
+
+            def show_modal():
+                dlg = tk.Toplevel(self)
+                dlg.title(f"Deep Links, Intents & Manifest Inspector - {pkg}")
+                dlg.geometry("640x520")
+                dlg.configure(bg="#0f172a")
+                dlg.transient(self)
+
+                tk.Label(dlg, text=f"📦 {pkg}", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(anchor="w", padx=12, pady=(10, 2))
+                if main_act:
+                    tk.Label(dlg, text=f"Main Activity: {main_act}", bg="#0f172a", fg="#94a3b8", font=("Consolas", 8)).pack(anchor="w", padx=12, pady=(0, 6))
+
+                # Deep Link Schemes frame
+                sch_frame = tk.LabelFrame(dlg, text="🔗 Detected Deep Link Schemes & URLs", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 9, "bold"), padx=8, pady=8)
+                sch_frame.pack(fill="x", padx=12, pady=4)
+
+                sch_list = list(schemes) if schemes else [f"{pkg}://", "https://"]
+                sch_combo = ttk.Combobox(sch_frame, values=sch_list, font=("Consolas", 9), width=45)
+                sch_combo.set(sch_list[0])
+                sch_combo.pack(side="left", fill="x", expand=True, padx=(0, 6))
+
+                def launch_deep_link():
+                    uri = sch_combo.get().strip()
+                    if not uri:
+                        return
+                    safe_uri = uri.replace("'", "'\\''")
+                    cmd = f"am start -a android.intent.action.VIEW -d '{safe_uri}'"
+                    self.log(f"Launching deep link: {cmd}")
+                    c, o, e = self.run_adb(["shell", cmd], timeout=8)
+                    self.log(f"Deep link output: {o or e or 'Triggered'}")
+                    self.check_foreground()
+
+                tk.Button(sch_frame, text="🚀 Test & Launch", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=launch_deep_link).pack(side="right")
+
+                # Custom Intent & Broadcast Sender frame
+                intent_frame = tk.LabelFrame(dlg, text="📨 Send Custom Intent / Packet to Mobile App", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 9, "bold"), padx=8, pady=8)
+                intent_frame.pack(fill="x", padx=12, pady=6)
+
+                tk.Label(intent_frame, text="Action:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8)).grid(row=0, column=0, sticky="w", pady=2)
+                action_combo = ttk.Combobox(intent_frame, values=[
+                    "android.intent.action.VIEW",
+                    "android.intent.action.MAIN",
+                    "android.intent.action.SEND",
+                    "android.intent.action.BOOT_COMPLETED"
+                ], width=35, font=("Consolas", 8))
+                action_combo.set("android.intent.action.VIEW")
+                action_combo.grid(row=0, column=1, sticky="w", pady=2)
+
+                tk.Label(intent_frame, text="Data URI:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8)).grid(row=1, column=0, sticky="w", pady=2)
+                data_entry = tk.Entry(intent_frame, bg="#334155", fg="white", insertbackground="white", font=("Consolas", 8), width=37)
+                data_entry.insert(0, sch_list[0])
+                data_entry.grid(row=1, column=1, sticky="w", pady=2)
+
+                def send_intent():
+                    act = action_combo.get().strip()
+                    d_uri = data_entry.get().strip()
+                    cmd = f"am start -a {act}"
+                    if d_uri:
+                        cmd += f" -d '{d_uri}'"
+                    cmd += f" -p {pkg}"
+                    self.log(f"Sending intent command: {cmd}")
+                    c, o, e = self.run_adb(["shell", cmd], timeout=8)
+                    self.log(f"Intent result: {o or e or 'Success'}")
+                    self.check_foreground()
+
+                tk.Button(intent_frame, text="⚡ Send Intent", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=send_intent).grid(row=2, column=1, sticky="e", pady=6)
+
+                # Raw Manifest / Activities Log frame
+                raw_frame = tk.LabelFrame(dlg, text="📋 Exported Components & Package Details", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8), padx=6, pady=6)
+                raw_frame.pack(fill="both", expand=True, padx=12, pady=4)
+
+                txt = tk.Text(raw_frame, bg="#0f172a", fg="#f8fafc", insertbackground="white", font=("Consolas", 8), wrap="none")
+                sc_y = tk.Scrollbar(raw_frame, orient="vertical", command=txt.yview)
+                txt.configure(yscrollcommand=sc_y.set)
+                txt.pack(side="left", fill="both", expand=True)
+                sc_y.pack(side="right", fill="y")
+                txt.insert("1.0", out if out else f"Package: {pkg}\nNo detailed manifest output returned.")
+                txt.config(state="disabled")
+
+            self.after(0, show_modal)
+        threading.Thread(target=task, daemon=True).start()
+
+    def push_media_to_selected_app(self):
+        """Pushes an image, video, or file from laptop directly to the app storage on mobile"""
+        if not self.selected_app_pkg:
+            messagebox.showinfo("Select App", "Please select an app first.")
+            return
+        pkg = self.selected_app_pkg
+        file_path = filedialog.askopenfilename(title=f"Select Media to push to {pkg}")
+        if not file_path:
+            return
+
+        fname = os.path.basename(file_path)
+        dest_dir = f"/sdcard/Android/media/{pkg}"
+        if "snapchat" in pkg.lower():
+            dest_dir = "/sdcard/Snapchat"
+        elif "whatsapp" in pkg.lower():
+            dest_dir = "/sdcard/Android/media/com.whatsapp/WhatsApp/Media"
+
+        dest_remote = f"{dest_dir}/{fname}"
+        def task():
+            self.log(f"Pushing {fname} to {dest_remote}...")
+            self.run_adb(["shell", f"mkdir -p '{dest_dir}'"], timeout=6)
+            code, _, err = self.run_adb(["push", file_path, dest_remote], timeout=60)
+            if code == 0:
+                self.log(f"Successfully pushed {fname} to mobile {dest_remote}!")
+                # Trigger media scanner
+                self.run_adb(["shell", f"am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d 'file://{dest_remote}'"], timeout=4)
+                self.after(0, lambda: messagebox.showinfo("File Pushed", f"File successfully stored on device:\n{dest_remote}\n\nMedia scanner updated!"))
+            else:
+                self.log(f"Push error: {err}")
+                self.after(0, lambda: messagebox.showerror("Push Error", f"Failed to push file:\n{err}"))
         threading.Thread(target=task, daemon=True).start()
 
     # =========================================================================
