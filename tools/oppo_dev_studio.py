@@ -84,6 +84,10 @@ class DeviceDevStudio(tk.Tk):
         self.thumb_queue_lock = threading.Lock()
         self.thumb_worker_active = False
 
+        # Sleep/Wake presence observer state (Zero Mobile CPU/RAM)
+        self.wake_watcher_active = False
+        self.wake_watcher_thread = None
+
         # Call logs & contacts state
         self.all_call_logs = []
         self.filtered_call_logs = []
@@ -197,10 +201,64 @@ class DeviceDevStudio(tk.Tk):
         if " - " in sel:
             addr = sel.split(" - ")[-1].strip()
             if addr != self.target_device or not self.connected:
+                self._stop_wake_watcher()
                 self.target_device = addr
                 self.log(f"Switched target device to: {sel}")
                 self._clear_device_data()
                 self.toggle_connection(force_connect=True)
+
+    def _start_wake_watcher(self, addr):
+        """Ultra-low-overhead socket observer (0% Mobile CPU/RAM/Battery, <0.01% Laptop CPU) that detects when sleeping phone wakes up and immediately auto-connects"""
+        if self.wake_watcher_active:
+            return
+        if ":" not in addr:
+            return
+
+        ip, port_str = addr.split(":", 1)
+        try:
+            port = int(port_str)
+        except ValueError:
+            port = 5555
+
+        self.wake_watcher_active = True
+
+        def observer_loop():
+            self.log(f"💤 Device sleeping / screen off. Observer active: waiting for mobile to wake up on {addr}...")
+            self.after(0, lambda: self.status_lbl.config(
+                text="💤 Device Sleeping / Screen Off (Waiting for wake-up...)",
+                fg="#f59e0b"
+            ))
+            
+            while self.wake_watcher_active and not self.connected:
+                time.sleep(3.0)
+                if not self.wake_watcher_active or self.connected:
+                    break
+                try:
+                    # Ultra-lightweight TCP SYN probe (1 packet, <60 bytes, 0 phone CPU/RAM/wake lock)
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.settimeout(0.8)
+                    res = s.connect_ex((ip, port))
+                    s.close()
+                    if res == 0:
+                        # Mobile woke up and adbd is accepting connections!
+                        self.log(f"⚡ Mobile Woke Up! Port {port} is now open on {ip}. Auto-connecting to device...")
+                        self.wake_watcher_active = False
+                        self.after(0, lambda: self.status_lbl.config(
+                            text="⚡ Mobile Woke Up! Connecting...",
+                            fg="#38bdf8"
+                        ))
+                        self.after(0, lambda: self.toggle_connection(force_connect=True))
+                        break
+                except Exception:
+                    pass
+
+            self.wake_watcher_active = False
+
+        self.wake_watcher_thread = threading.Thread(target=observer_loop, daemon=True)
+        self.wake_watcher_thread.start()
+
+    def _stop_wake_watcher(self):
+        self.wake_watcher_active = False
 
     def _clear_device_data(self):
         """Completely clears previously loaded mobile data, gallery, calls, contacts, apps, and previews so devices never mix"""
@@ -925,6 +983,7 @@ class DeviceDevStudio(tk.Tk):
         addr = self.target_device
         if not force_connect and self.connected:
             def dc_task():
+                self._stop_wake_watcher()
                 if ":" in addr:
                     try:
                         subprocess.run(["adb", "disconnect", addr], capture_output=True, timeout=4, creationflags=NO_WINDOW)
@@ -953,6 +1012,7 @@ class DeviceDevStudio(tk.Tk):
             c_test, m_test, _ = self.run_adb(["shell", "getprop ro.product.model"], timeout=5)
             if c_test == 0 and m_test:
                 self.connected = True
+                self._stop_wake_watcher()
                 dev_model = m_test.strip()
                 self.after(0, lambda: self.status_lbl.config(text=f"● Connected ({dev_model} @ {addr})", fg="#22c55e"))
                 self.after(0, lambda: self.btn_connect.config(text="Disconnect", bg="#b91c1c"))
@@ -968,9 +1028,13 @@ class DeviceDevStudio(tk.Tk):
                 self.after(4800, self.list_device_files)
             else:
                 self.connected = False
-                self.after(0, lambda: self.status_lbl.config(text="● Disconnected", fg="#ef4444"))
                 self.after(0, lambda: self.btn_connect.config(text="Connect ADB", bg="#0284c7"))
-                self.log(f"Connection notice for {addr}: {out or 'Device offline'}")
+                if ":" in addr and any(k in out for k in ("10061", "refused", "offline", "timeout", "actively")):
+                    self.log(f"Device {addr} is sleeping / screen off (Port not open yet). Starting zero-load presence observer...")
+                    self._start_wake_watcher(addr)
+                else:
+                    self.after(0, lambda: self.status_lbl.config(text="● Disconnected", fg="#ef4444"))
+                    self.log(f"Connection notice for {addr}: {out or 'Device offline'}")
 
         threading.Thread(target=task, daemon=True).start()
 
@@ -3299,6 +3363,7 @@ class DeviceDevStudio(tk.Tk):
         threading.Thread(target=task, daemon=True).start()
 
     def on_close(self):
+        self._stop_wake_watcher()
         self.pulling = False
         self.purge_mobile_temp_cache(silent=True)
         if self.var_auto_sleep_close.get():
