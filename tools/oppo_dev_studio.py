@@ -69,9 +69,11 @@ class DeviceDevStudio(tk.Tk):
         self.current_remote_items = []
 
         # Gallery media state
-        self.all_gallery_items = []      # list of dicts: {path, name, folder, size, size_bytes, date, category, selected}
+        self.all_gallery_items = []      # list of dicts: {path, name, folder, size, size_bytes, date, category, selected, is_sticker, is_trashed}
         self.filtered_gallery_items = []
         self.current_gallery_filter = "ALL"
+        self.exclude_stickers = True     # Exclude WhatsApp stickers & junk webp by default
+        self.gallery_sort_order = "DESC" # "DESC" (Today ➔ Day 1) or "ASC" (Day 1 Purchasing Photo ➔ Today)
         self.previewing_item = None
         self.gallery_view_mode = "GRID"  # "GRID" or "TABLE"
         self.gallery_thumb_size = 140    # 100 (Small), 140 (Medium), 185 (Large)
@@ -535,51 +537,68 @@ class DeviceDevStudio(tk.Tk):
         self.gallery_summary_lbl = tk.Label(top_row, text="Scanning...", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8))
         self.gallery_summary_lbl.pack(side="right")
 
-        # Category filters & View switcher bar
-        filter_bar = tk.Frame(parent, bg="#0f172a")
-        filter_bar.pack(fill="x", pady=2)
+        # Category filters & View switcher bar (Row 1: Categories, Row 2: Sorts & Exclusions)
+        filter_bar1 = tk.Frame(parent, bg="#0f172a")
+        filter_bar1.pack(fill="x", pady=(2, 1))
         
-        self.btn_f_all = tk.Button(filter_bar, text="🖼️ All Images", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("ALL"))
+        self.btn_f_all = tk.Button(filter_bar1, text="🖼️ All Media", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("ALL"))
         self.btn_f_all.pack(side="left", padx=2)
 
-        self.btn_f_screens = tk.Button(filter_bar, text="📱 Screenshots", bg="#334155", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("SCREENSHOTS"))
-        self.btn_f_screens.pack(side="left", padx=2)
-
-        self.btn_f_camera = tk.Button(filter_bar, text="📸 Camera", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("CAMERA"))
+        self.btn_f_camera = tk.Button(filter_bar1, text="📸 Camera", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("CAMERA"))
         self.btn_f_camera.pack(side="left", padx=2)
 
-        self.btn_f_wa = tk.Button(filter_bar, text="💬 WhatsApp", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("WHATSAPP"))
+        self.btn_f_screens = tk.Button(filter_bar1, text="📱 Screenshots", bg="#334155", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("SCREENSHOTS"))
+        self.btn_f_screens.pack(side="left", padx=2)
+
+        self.btn_f_wa = tk.Button(filter_bar1, text="💬 WhatsApp", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("WHATSAPP"))
         self.btn_f_wa.pack(side="left", padx=2)
 
-        self.btn_f_dl = tk.Button(filter_bar, text="📥 Downloads & Purchases", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("DOWNLOADS"))
+        self.btn_f_dl = tk.Button(filter_bar1, text="📥 Downloads & Purchases", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("DOWNLOADS"))
         self.btn_f_dl.pack(side="left", padx=2)
 
-        self.btn_f_root = tk.Button(filter_bar, text="📁 Root Storage", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("ROOT"))
+        self.btn_f_root = tk.Button(filter_bar1, text="📁 Root Storage", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("ROOT"))
         self.btn_f_root.pack(side="left", padx=2)
 
-        self.btn_f_trash = tk.Button(filter_bar, text="🗑️ Trashed & Hidden", bg="#7f1d1d", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("TRASHED"))
+        self.btn_f_trash = tk.Button(filter_bar1, text="🗑️ Trashed & Hidden", bg="#7f1d1d", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("TRASHED"))
         self.btn_f_trash.pack(side="left", padx=2)
 
-        # View Mode Switcher
-        v_sep = tk.Label(filter_bar, text="|", bg="#0f172a", fg="#475569", font=("Segoe UI", 9))
-        v_sep.pack(side="left", padx=4)
+        self.btn_f_day1 = tk.Button(filter_bar1, text="🕰️ Day 1 Archive", bg="#475569", fg="#fcd34d", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("DAY1"))
+        self.btn_f_day1.pack(side="left", padx=2)
 
-        self.btn_v_grid = tk.Button(filter_bar, text="🖼️ Grid View", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_view_mode("GRID"))
+        self.btn_f_stickers = tk.Button(filter_bar1, text="🎨 Stickers/WebP", bg="#334155", fg="#94a3b8", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._set_gallery_filter("STICKERS"))
+        self.btn_f_stickers.pack(side="left", padx=2)
+
+        tk.Button(filter_bar1, text="🔄 Deep Scan Mobile", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.scan_mobile_gallery).pack(side="right", padx=2)
+
+        # Row 2: Sort Controls, Sticker Exclusion, View Switcher & Tile Sizes
+        filter_bar2 = tk.Frame(parent, bg="#0f172a")
+        filter_bar2.pack(fill="x", pady=(1, 3))
+
+        self.btn_exclude_stickers = tk.Button(filter_bar2, text="🚫 Exclude Stickers: ON", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self._toggle_exclude_stickers)
+        self.btn_exclude_stickers.pack(side="left", padx=2)
+
+        self.btn_sort_newest = tk.Button(filter_bar2, text="📅 Newest (Today ➔ Day 1)", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_sort("DESC"))
+        self.btn_sort_newest.pack(side="left", padx=2)
+
+        self.btn_sort_oldest = tk.Button(filter_bar2, text="🕰️ Day 1 (Oldest ➔ Today)", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_sort("ASC"))
+        self.btn_sort_oldest.pack(side="left", padx=2)
+
+        v_sep = tk.Label(filter_bar2, text="|", bg="#0f172a", fg="#475569", font=("Segoe UI", 9))
+        v_sep.pack(side="left", padx=3)
+
+        self.btn_v_grid = tk.Button(filter_bar2, text="🖼️ Grid", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=5, relief="flat", command=lambda: self._set_gallery_view_mode("GRID"))
         self.btn_v_grid.pack(side="left", padx=2)
 
-        self.btn_v_table = tk.Button(filter_bar, text="📋 Table View", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_view_mode("TABLE"))
+        self.btn_v_table = tk.Button(filter_bar2, text="📋 Table", bg="#334155", fg="white", font=("Segoe UI", 8), padx=5, relief="flat", command=lambda: self._set_gallery_view_mode("TABLE"))
         self.btn_v_table.pack(side="left", padx=2)
 
-        # Tile size selector
-        tk.Label(filter_bar, text="Tile:", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(6, 2))
-        self.btn_sz_s = tk.Button(filter_bar, text="S", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._set_thumb_size(100))
+        tk.Label(filter_bar2, text="Tile:", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(4, 1))
+        self.btn_sz_s = tk.Button(filter_bar2, text="S", bg="#334155", fg="white", font=("Segoe UI", 7), padx=3, relief="flat", command=lambda: self._set_thumb_size(100))
         self.btn_sz_s.pack(side="left", padx=1)
-        self.btn_sz_m = tk.Button(filter_bar, text="M", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_thumb_size(140))
+        self.btn_sz_m = tk.Button(filter_bar2, text="M", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=3, relief="flat", command=lambda: self._set_thumb_size(140))
         self.btn_sz_m.pack(side="left", padx=1)
-        self.btn_sz_l = tk.Button(filter_bar, text="L", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._set_thumb_size(185))
+        self.btn_sz_l = tk.Button(filter_bar2, text="L", bg="#334155", fg="white", font=("Segoe UI", 7), padx=3, relief="flat", command=lambda: self._set_thumb_size(185))
         self.btn_sz_l.pack(side="left", padx=1)
-
-        tk.Button(filter_bar, text="🔄 Scan Mobile", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.scan_mobile_gallery).pack(side="right", padx=2)
 
         # Search & Selection Bar WITH DIRECT VISIBLE DELETE & BACKUP BUTTONS
         sel_bar = tk.Frame(parent, bg="#1e293b", padx=6, pady=4, relief="solid", bd=1)
@@ -670,6 +689,15 @@ class DeviceDevStudio(tk.Tk):
 
         self.btn_page_last = tk.Button(self.grid_page_bar, text="Last ⏭", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._go_gallery_page(self.gallery_total_pages - 1))
         self.btn_page_last.pack(side="left", padx=2)
+
+        # Direct Page Jump Box
+        tk.Label(self.grid_page_bar, text="|  Go:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(6, 2))
+        self.page_jump_entry = tk.Entry(self.grid_page_bar, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 8, "bold"), width=5, justify="center")
+        self.page_jump_entry.insert(0, "1")
+        self.page_jump_entry.pack(side="left", padx=2)
+        self.page_jump_entry.bind("<Return>", lambda e: self._jump_to_page())
+
+        tk.Button(self.grid_page_bar, text="Jump ➔", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self._jump_to_page).pack(side="left", padx=2)
 
         tk.Label(self.grid_page_bar, text="Per Page:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="right", padx=(6, 2))
         self.page_size_combo = ttk.Combobox(self.grid_page_bar, values=["24", "36", "60", "120"], width=4, state="readonly")
@@ -1476,10 +1504,76 @@ class DeviceDevStudio(tk.Tk):
             seen_paths = set()
             items = []
 
-            def _classify_item(full_path, fname):
+            def _extract_best_timestamp(full_path, fname, mtime_stat):
+                """Extracts true Day 1 creation date from filename patterns, epoch timestamps and trashed prefixes"""
+                # Check for .trashed-<timestamp>-...
+                trashed_match = re.search(r'\.trashed[-_](\d{10,13})', full_path, re.IGNORECASE)
+                if trashed_match:
+                    ts_val = trashed_match.group(1)
+                    try:
+                        ts = int(ts_val)
+                        if len(ts_val) == 13:
+                            ts = ts // 1000
+                        if 946684800 <= ts <= 2000000000:
+                            return ts
+                    except Exception:
+                        pass
+
+                # Check for standard date pattern: YYYYMMDD_HHMMSS or YYYY-MM-DD
+                m_date = re.search(r'(20\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})?[-_]?(\d{2})?[-_]?(\d{2})?', fname)
+                if m_date:
+                    try:
+                        g = m_date.groups()
+                        yr, mo, dy = int(g[0]), int(g[1]), int(g[2])
+                        if 1 <= mo <= 12 and 1 <= dy <= 31:
+                            hr = int(g[3]) if g[3] else 12
+                            mn = int(g[4]) if g[4] else 0
+                            sc = int(g[5]) if g[5] else 0
+                            dt = datetime(yr, mo, dy, hr, mn, sc)
+                            return int(dt.timestamp())
+                    except Exception:
+                        pass
+
+                # Check for 13-digit millisecond epoch in filename (15..., 16..., 17...)
+                epoch13 = re.search(r'(1[56789]\d{11})', fname)
+                if epoch13:
+                    try:
+                        ts = int(epoch13.group(1)) // 1000
+                        if 946684800 <= ts <= 2000000000:
+                            return ts
+                    except Exception:
+                        pass
+
+                # Check for 10-digit Unix epoch in filename
+                epoch10 = re.search(r'(1[56789]\d{8})', fname)
+                if epoch10:
+                    try:
+                        ts = int(epoch10.group(1))
+                        if 946684800 <= ts <= 2000000000:
+                            return ts
+                    except Exception:
+                        pass
+
+                if mtime_stat > 0:
+                    return mtime_stat
+                return 0
+
+            def _classify_item(full_path, fname, size_bytes=0):
                 p_lower = full_path.lower()
                 f_lower = fname.lower()
                 folder_lower = os.path.dirname(p_lower)
+                ext = os.path.splitext(f_lower)[1]
+
+                # WhatsApp Stickers / Junk WebP detection
+                is_sticker = (
+                    "whatsapp stickers" in p_lower or
+                    "/stickers/" in p_lower or
+                    "animated stickers" in p_lower or
+                    "stickers_thumbs" in p_lower or
+                    "sticker" in f_lower or
+                    (ext == ".webp" and size_bytes > 0 and size_bytes < 150000 and "whatsapp" in p_lower) or
+                    (ext == ".webp" and any(k in p_lower for k in ("sticker", "emoticon", "emoji", "gif_temp")))
+                )
 
                 is_trashed = (
                     ".trashed" in p_lower or 
@@ -1490,25 +1584,34 @@ class DeviceDevStudio(tk.Tk):
                     "/.secret" in p_lower or
                     "/.thumbnails" in p_lower or
                     "/.aceself" in p_lower or
+                    "/.face" in p_lower or
+                    "/.statuses" in p_lower or
+                    "/.temp" in p_lower or
+                    "/.backup" in p_lower or
+                    "/.lost+found" in p_lower or
+                    "/.cache" in p_lower or
+                    "/.recovery" in p_lower or
                     "recycle" in p_lower
                 )
 
-                if is_trashed:
-                    return "Trashed/Hidden", True
+                if is_sticker:
+                    return "Stickers/WebP", is_trashed, True
+                elif is_trashed:
+                    return "Trashed/Hidden", True, False
                 elif any(k in f_lower or k in folder_lower for k in ("screenshot", "screen_cap", "screencap", "gui_cap", "snap_")):
-                    return "Screenshots", False
-                elif "/camera" in p_lower or "dcim/camera" in p_lower or f_lower.startswith("img_20"):
-                    return "Camera", False
+                    return "Screenshots", False, False
+                elif "/camera" in p_lower or "dcim/camera" in p_lower or f_lower.startswith("img_20") or f_lower.startswith("vid_20"):
+                    return "Camera", False, False
                 elif "whatsapp" in p_lower or "com.whatsapp" in p_lower:
-                    return "WhatsApp", False
+                    return "WhatsApp", False, False
                 elif any(k in p_lower for k in ("/download", "/downloads", "purchase", "bill", "invoice", "receipt", "order", "cart", "payment")):
-                    return "Downloads & Purchases", False
+                    return "Downloads & Purchases", False, False
                 elif folder_lower in ("/sdcard", "/storage/emulated/0", "/storage/self/primary"):
-                    return "Root Storage", False
+                    return "Root Storage", False, False
                 elif "/pictures" in p_lower:
-                    return "Pictures", False
+                    return "Pictures", False, False
                 else:
-                    return "Gallery", False
+                    return "Gallery", False, False
 
             # 1. Query MediaStore Files Table (discovers all registered storage files across the system)
             f_code, f_out, _ = self.run_adb([
@@ -1542,7 +1645,7 @@ class DeviceDevStudio(tk.Tk):
 
                     ext = os.path.splitext(full_path)[1].lower()
                     fname = os.path.basename(full_path)
-                    cat, is_trashed = _classify_item(full_path, fname)
+                    cat, is_trashed, is_sticker = _classify_item(full_path, fname, size_bytes)
 
                     if ext not in valid_exts and not is_trashed:
                         continue
@@ -1550,30 +1653,19 @@ class DeviceDevStudio(tk.Tk):
                     seen_paths.add(full_path)
                     seen_paths.add(norm_path)
 
-                    if mtime <= 0:
-                        m_date = re.search(r'(20\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})?[-_]?(\d{2})?', fname)
-                        if m_date:
-                            try:
-                                g = m_date.groups()
-                                yr, mo, dy = int(g[0]), int(g[1]), int(g[2])
-                                hr = int(g[3]) if g[3] else 12
-                                mn = int(g[4]) if g[4] else 0
-                                sc = int(g[5]) if g[5] else 0
-                                dt = datetime(yr, mo, dy, hr, mn, sc)
-                                mtime = int(dt.timestamp())
-                            except Exception: pass
-
-                    date_str = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M') if mtime > 0 else ""
+                    best_mtime = _extract_best_timestamp(full_path, fname, mtime)
+                    date_str = datetime.fromtimestamp(best_mtime).strftime('%Y-%m-%d %H:%M') if best_mtime > 0 else ""
                     items.append({
                         "path": full_path,
                         "name": fname,
                         "folder": os.path.dirname(full_path),
                         "size": self._format_size(size_bytes) if size_bytes > 0 else "",
                         "size_bytes": size_bytes,
-                        "mtime": mtime,
+                        "mtime": best_mtime,
                         "date": date_str,
                         "category": cat,
                         "is_trashed": is_trashed,
+                        "is_sticker": is_sticker,
                         "selected": False
                     })
 
@@ -1608,37 +1700,26 @@ class DeviceDevStudio(tk.Tk):
                             continue
                         ext = os.path.splitext(full_path)[1].lower()
                         fname = os.path.basename(full_path)
-                        cat, is_trashed = _classify_item(full_path, fname)
+                        cat, is_trashed, is_sticker = _classify_item(full_path, fname, size_bytes)
                         if ext not in valid_exts and not is_trashed:
                             continue
 
                         seen_paths.add(full_path)
                         seen_paths.add(norm_path)
 
-                        if mtime <= 0:
-                            m_date = re.search(r'(20\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})?[-_]?(\d{2})?', fname)
-                            if m_date:
-                                try:
-                                    g = m_date.groups()
-                                    yr, mo, dy = int(g[0]), int(g[1]), int(g[2])
-                                    hr = int(g[3]) if g[3] else 12
-                                    mn = int(g[4]) if g[4] else 0
-                                    sc = int(g[5]) if g[5] else 0
-                                    dt = datetime(yr, mo, dy, hr, mn, sc)
-                                    mtime = int(dt.timestamp())
-                                except Exception: pass
-
-                        date_str = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M') if mtime > 0 else ""
+                        best_mtime = _extract_best_timestamp(full_path, fname, mtime)
+                        date_str = datetime.fromtimestamp(best_mtime).strftime('%Y-%m-%d %H:%M') if best_mtime > 0 else ""
                         items.append({
                             "path": full_path,
                             "name": fname,
                             "folder": os.path.dirname(full_path),
                             "size": self._format_size(size_bytes) if size_bytes > 0 else "",
                             "size_bytes": size_bytes,
-                            "mtime": mtime,
+                            "mtime": best_mtime,
                             "date": date_str,
                             "category": cat,
                             "is_trashed": is_trashed,
+                            "is_sticker": is_sticker,
                             "selected": False
                         })
 
@@ -1674,7 +1755,8 @@ class DeviceDevStudio(tk.Tk):
                         seen_paths.add(full_path)
                         seen_paths.add(norm_path)
                         fname = os.path.basename(full_path)
-                        date_str = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M') if mtime > 0 else ""
+                        best_mtime = _extract_best_timestamp(full_path, fname, mtime)
+                        date_str = datetime.fromtimestamp(best_mtime).strftime('%Y-%m-%d %H:%M') if best_mtime > 0 else ""
 
                         items.append({
                             "path": full_path,
@@ -1682,24 +1764,30 @@ class DeviceDevStudio(tk.Tk):
                             "folder": os.path.dirname(full_path),
                             "size": self._format_size(size_bytes) if size_bytes > 0 else "",
                             "size_bytes": size_bytes,
-                            "mtime": mtime,
+                            "mtime": best_mtime,
                             "date": date_str,
                             "category": "Trashed/Hidden",
                             "is_trashed": True,
+                            "is_sticker": False,
                             "selected": False
                         })
 
-            # 4. Deep Filesystem Scan on key directories, root internal storage, hidden & trash paths
+            # 4. Deep Filesystem Scan on key directories, root internal storage, hidden .dot folders & trash paths
             find_cmd = (
                 "find /sdcard/DCIM /sdcard/Pictures /sdcard/Download /sdcard/Downloads "
                 "/sdcard/Android/media /sdcard/Documents /sdcard/Movies /sdcard/Music "
                 "/sdcard/Bluetooth /sdcard/Browser /sdcard/Telegram /sdcard/ColorOS "
                 "/sdcard/Snapchat /sdcard/WhatsApp /sdcard/MIUI /sdcard/tencent "
                 "/sdcard/Recordings /sdcard/Audiobooks /sdcard/Podcasts /sdcard/Ringtones "
-                "/sdcard/Alarms /sdcard/Notifications -type f -exec stat -c '%s %Y %n' {} + 2>/dev/null; "
-                "stat -c '%s %Y %n' /sdcard/* /sdcard/.* /storage/emulated/0/* 2>/dev/null"
+                "/sdcard/Alarms /sdcard/Notifications "
+                "/sdcard/.thumbnails /sdcard/DCIM/.thumbnails /sdcard/Pictures/.thumbnails "
+                "/sdcard/.trashed-* /sdcard/DCIM/.trashed-* /sdcard/Pictures/.trashed-* /sdcard/Download/.trashed-* "
+                "/sdcard/.trash /sdcard/DCIM/.trash /sdcard/Pictures/.trash "
+                "/sdcard/.aceself /sdcard/.secret /sdcard/.nomedia "
+                "-type f -exec stat -c '%s %Y %n' {} + 2>/dev/null; "
+                "stat -c '%s %Y %n' /sdcard/* /sdcard/.* /storage/emulated/0/* /storage/emulated/0/.* 2>/dev/null"
             )
-            code, out, err = self.run_adb(["shell", find_cmd], timeout=35)
+            code, out, err = self.run_adb(["shell", find_cmd], timeout=40)
 
             if code == 0 and out:
                 for line in out.splitlines():
@@ -1724,7 +1812,7 @@ class DeviceDevStudio(tk.Tk):
                         continue
                     ext = os.path.splitext(full_path)[1].lower()
                     fname = os.path.basename(full_path)
-                    cat, is_trashed = _classify_item(full_path, fname)
+                    cat, is_trashed, is_sticker = _classify_item(full_path, fname, size_bytes)
 
                     if ext not in valid_exts and not is_trashed:
                         continue
@@ -1732,20 +1820,8 @@ class DeviceDevStudio(tk.Tk):
                     seen_paths.add(full_path)
                     seen_paths.add(norm_path)
 
-                    if mtime <= 0:
-                        m_date = re.search(r'(20\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})?[-_]?(\d{2})?', fname)
-                        if m_date:
-                            try:
-                                g = m_date.groups()
-                                yr, mo, dy = int(g[0]), int(g[1]), int(g[2])
-                                hr = int(g[3]) if g[3] else 12
-                                mn = int(g[4]) if g[4] else 0
-                                sc = int(g[5]) if g[5] else 0
-                                dt = datetime(yr, mo, dy, hr, mn, sc)
-                                mtime = int(dt.timestamp())
-                            except Exception: pass
-
-                    date_str = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M') if mtime > 0 else ""
+                    best_mtime = _extract_best_timestamp(full_path, fname, mtime)
+                    date_str = datetime.fromtimestamp(best_mtime).strftime('%Y-%m-%d %H:%M') if best_mtime > 0 else ""
 
                     items.append({
                         "path": full_path,
@@ -1753,32 +1829,70 @@ class DeviceDevStudio(tk.Tk):
                         "folder": os.path.dirname(full_path),
                         "size": self._format_size(size_bytes) if size_bytes > 0 else "",
                         "size_bytes": size_bytes,
-                        "mtime": mtime,
+                        "mtime": best_mtime,
                         "date": date_str,
                         "category": cat,
                         "is_trashed": is_trashed,
+                        "is_sticker": is_sticker,
                         "selected": False
                     })
 
-            # Always sort strictly by recent to older (newest first)
-            items.sort(key=lambda x: (-x["mtime"], x["name"].lower()), reverse=False)
+            # Sort items according to active sort order
+            if self.gallery_sort_order == "ASC":
+                items.sort(key=lambda x: (x["mtime"] if x["mtime"] > 0 else 9999999999, x["name"].lower()))
+            else:
+                items.sort(key=lambda x: (-x["mtime"], x["name"].lower()))
 
             def update_ui():
                 self.all_gallery_items = items
                 self._apply_gallery_filter_and_render()
                 sc_count = sum(1 for it in items if it["category"] == "Screenshots")
-                tr_count = sum(1 for it in items if it["category"] == "Trashed/Hidden")
+                tr_count = sum(1 for it in items if it["is_trashed"])
                 rt_count = sum(1 for it in items if it["category"] == "Root Storage")
+                stk_count = sum(1 for it in items if it.get("is_sticker"))
                 self.gallery_summary_lbl.config(
-                    text=f"Total: {len(items)} media | 📱 Screenshots: {sc_count} | 📁 Root Storage: {rt_count} | 🗑️ Trashed/Hidden: {tr_count}"
+                    text=f"Total: {len(items)} | 📸 Photos: {len(items) - stk_count} | 📱 Screens: {sc_count} | 🗑️ Trashed: {tr_count} | 🎨 Stickers: {stk_count}"
                 )
-                self.log(f"Gallery scan complete: Found {len(items)} items (Screenshots: {sc_count}, Root: {rt_count}, Trashed/Hidden: {tr_count}) sorted Recent ➔ Older.")
+                self.log(f"Gallery scan complete: Found {len(items)} total items (Photos/Videos: {len(items) - stk_count}, Screens: {sc_count}, Trashed: {tr_count}, Stickers: {stk_count}) with Day 1 timeline recovery.")
 
             try:
                 self.after(0, update_ui)
             except Exception:
                 pass
         threading.Thread(target=task, daemon=True).start()
+
+    def _set_gallery_sort(self, order):
+        self.gallery_sort_order = order
+        if hasattr(self, 'btn_sort_newest'):
+            self.btn_sort_newest.config(bg="#0284c7" if order == "DESC" else "#334155", font=("Segoe UI", 8, "bold" if order == "DESC" else "normal"))
+        if hasattr(self, 'btn_sort_oldest'):
+            self.btn_sort_oldest.config(bg="#0284c7" if order == "ASC" else "#334155", font=("Segoe UI", 8, "bold" if order == "ASC" else "normal"))
+        self.gallery_page = 0
+        self._apply_gallery_filter_and_render()
+
+    def _toggle_exclude_stickers(self):
+        self.exclude_stickers = not self.exclude_stickers
+        if hasattr(self, 'btn_exclude_stickers'):
+            if self.exclude_stickers:
+                self.btn_exclude_stickers.config(text="🚫 Exclude Stickers: ON", bg="#0284c7")
+            else:
+                self.btn_exclude_stickers.config(text="🎨 Include Stickers: OFF", bg="#334155")
+        self.gallery_page = 0
+        self._apply_gallery_filter_and_render()
+
+    def _jump_to_page(self):
+        try:
+            val = self.page_jump_entry.get().strip()
+            if not val:
+                return
+            target_p = int(val) - 1
+            if target_p < 0:
+                target_p = 0
+            if target_p >= self.gallery_total_pages:
+                target_p = max(0, self.gallery_total_pages - 1)
+            self._go_gallery_page(target_p)
+        except Exception:
+            pass
 
     def _set_gallery_view_mode(self, mode):
         self.gallery_view_mode = mode
@@ -1844,14 +1958,15 @@ class DeviceDevStudio(tk.Tk):
         self.gallery_page = 0
 
         # Update button highlights
-        self.btn_f_all.config(bg="#0284c7" if filter_type == "ALL" else "#334155")
-        self.btn_f_screens.config(bg="#0284c7" if filter_type == "SCREENSHOTS" else "#334155")
-        self.btn_f_camera.config(bg="#0284c7" if filter_type == "CAMERA" else "#334155")
-        self.btn_f_wa.config(bg="#0284c7" if filter_type == "WHATSAPP" else "#334155")
-        self.btn_f_dl.config(bg="#0284c7" if filter_type == "DOWNLOADS" else "#334155")
-        if hasattr(self, 'btn_f_root'):
-            self.btn_f_root.config(bg="#0284c7" if filter_type == "ROOT" else "#334155")
-        self.btn_f_trash.config(bg="#dc2626" if filter_type == "TRASHED" else "#7f1d1d")
+        if hasattr(self, 'btn_f_all'): self.btn_f_all.config(bg="#0284c7" if filter_type == "ALL" else "#334155")
+        if hasattr(self, 'btn_f_screens'): self.btn_f_screens.config(bg="#0284c7" if filter_type == "SCREENSHOTS" else "#334155")
+        if hasattr(self, 'btn_f_camera'): self.btn_f_camera.config(bg="#0284c7" if filter_type == "CAMERA" else "#334155")
+        if hasattr(self, 'btn_f_wa'): self.btn_f_wa.config(bg="#0284c7" if filter_type == "WHATSAPP" else "#334155")
+        if hasattr(self, 'btn_f_dl'): self.btn_f_dl.config(bg="#0284c7" if filter_type == "DOWNLOADS" else "#334155")
+        if hasattr(self, 'btn_f_root'): self.btn_f_root.config(bg="#0284c7" if filter_type == "ROOT" else "#334155")
+        if hasattr(self, 'btn_f_trash'): self.btn_f_trash.config(bg="#dc2626" if filter_type == "TRASHED" else "#7f1d1d")
+        if hasattr(self, 'btn_f_day1'): self.btn_f_day1.config(bg="#0284c7" if filter_type == "DAY1" else "#475569")
+        if hasattr(self, 'btn_f_stickers'): self.btn_f_stickers.config(bg="#0284c7" if filter_type == "STICKERS" else "#334155")
 
         self._apply_gallery_filter_and_render()
 
@@ -1866,6 +1981,12 @@ class DeviceDevStudio(tk.Tk):
         filtered = []
         for item in self.all_gallery_items:
             cat = item["category"].upper()
+            is_stk = item.get("is_sticker", False)
+
+            # Exclusion of WhatsApp stickers & junk webp when toggle is ON
+            if self.exclude_stickers and is_stk and ft != "STICKERS":
+                continue
+
             if ft == "SCREENSHOTS" and cat != "SCREENSHOTS":
                 continue
             elif ft == "CAMERA" and cat != "CAMERA":
@@ -1878,12 +1999,26 @@ class DeviceDevStudio(tk.Tk):
                 continue
             elif ft == "TRASHED" and (cat != "TRASHED/HIDDEN" and not item.get("is_trashed")):
                 continue
+            elif ft == "STICKERS" and (not is_stk and cat != "STICKERS/WEBP"):
+                continue
 
             if query:
                 if query not in item["name"].lower() and query not in item["folder"].lower():
                     continue
 
             filtered.append(item)
+
+        # Handle Day 1 Archive Filter (Earliest purchasing photos / oldest quartile)
+        if ft == "DAY1" and filtered:
+            sorted_by_earliest = sorted(filtered, key=lambda x: (x["mtime"] if x["mtime"] > 0 else 9999999999, x["name"].lower()))
+            day1_count = max(50, len(sorted_by_earliest) // 4)
+            filtered = sorted_by_earliest[:day1_count]
+
+        # Apply Sort Order (DESC = Today ➔ Day 1, ASC = Day 1 Purchasing Photo ➔ Today)
+        if self.gallery_sort_order == "ASC":
+            filtered.sort(key=lambda x: (x["mtime"] if x["mtime"] > 0 else 9999999999, x["name"].lower()))
+        else:
+            filtered.sort(key=lambda x: (-x["mtime"], x["name"].lower()))
 
         self.filtered_gallery_items = filtered
 
@@ -1931,6 +2066,13 @@ class DeviceDevStudio(tk.Tk):
             )
         else:
             self.page_info_lbl.config(text="Page 0 of 0 (0 items)")
+
+        if hasattr(self, 'page_jump_entry'):
+            try:
+                self.page_jump_entry.delete(0, "end")
+                self.page_jump_entry.insert(0, str(self.gallery_page + 1))
+            except Exception:
+                pass
 
         card_w = self.gallery_thumb_size
         img_h = int(card_w * 0.85)
