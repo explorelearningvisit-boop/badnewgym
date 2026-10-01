@@ -50,8 +50,8 @@ class DeviceDevStudio(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Android Multi-Device Dev Studio (OPPO & Xiaomi)")
-        self.geometry("1280x880")
-        self.minsize(1100, 740)
+        self.geometry("1360x880")
+        self.minsize(1050, 700)
         self.configure(bg="#0f172a")
 
         self.target_device = PRESET_DEVICES[0][1] # Default: OPPO A53 Tailscale
@@ -60,6 +60,7 @@ class DeviceDevStudio(tk.Tk):
         self.pull_thread = None
         self.screen_img = None
         self.gallery_preview_img = None
+        self.file_preview_img = None
         self.last_raw_bytes = None
         self.current_scale_factor = 3
         self.pull_counter = 0
@@ -67,14 +68,17 @@ class DeviceDevStudio(tk.Tk):
         self.last_saved_path = None
         self.last_saved_folder = None
         self.current_remote_items = []
+        self.file_preview_selected_path = None
 
         # Gallery media state
         self.all_gallery_items = []      # list of dicts: {path, name, folder, size, size_bytes, date, category, selected, is_sticker, is_trashed}
         self.filtered_gallery_items = []
         self.current_gallery_filter = "ALL"
+        self.gallery_group_by = "NONE"   # "NONE", "DATE_MONTH", "FOLDER", "SIZE", "EXT"
         self.exclude_stickers = True     # Exclude WhatsApp stickers & junk webp by default
         self.gallery_sort_order = "DESC" # "DESC" (Today ➔ Day 1) or "ASC" (Day 1 Purchasing Photo ➔ Today)
         self.previewing_item = None
+        self.preview_panel_visible = True
         self.gallery_view_mode = "GRID"  # "GRID" or "TABLE"
         self.gallery_thumb_size = 140    # 100 (Small), 140 (Medium), 185 (Large)
         self.card_image_cache = {}       # path_hash -> PhotoImage
@@ -102,6 +106,9 @@ class DeviceDevStudio(tk.Tk):
         self.current_apps_filter = "USER"
         self.selected_app_pkg = None
         self.selected_app_apk = None
+
+        # Analytics cached metrics
+        self.analytics_data = {}
 
         self._setup_styles()
         self._build_layout()
@@ -135,67 +142,70 @@ class DeviceDevStudio(tk.Tk):
         style.map("Treeview", background=[("selected", "#0284c7")], foreground=[("selected", "#ffffff")])
 
     def _build_layout(self):
-        top_bar = tk.Frame(self, bg="#1e293b", padx=16, pady=10, relief="solid", bd=1)
+        top_bar = tk.Frame(self, bg="#1e293b", padx=12, pady=8, relief="solid", bd=1)
         top_bar.pack(fill="x", side="top")
 
-        tk.Label(top_bar, text="📱 Android Dev Studio", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 12, "bold")).pack(side="left", padx=(0, 16))
+        tk.Label(top_bar, text="📱 Android Dev Studio", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left", padx=(0, 10))
 
-        tk.Label(top_bar, text="Device:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 9, "bold")).pack(side="left", padx=4)
+        tk.Label(top_bar, text="Device:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8, "bold")).pack(side="left", padx=2)
         
         self.device_combo = ttk.Combobox(
             top_bar, 
             values=[f"{label} - {addr}" for label, addr in PRESET_DEVICES],
-            width=36,
+            width=32,
             state="readonly"
         )
         self.device_combo.current(0)
-        self.device_combo.pack(side="left", padx=4)
+        self.device_combo.pack(side="left", padx=3)
         self.device_combo.bind("<<ComboboxSelected>>", self._on_device_combo_select)
 
-        self.btn_refresh_devs = tk.Button(top_bar, text="🔄 Scan", bg="#334155", fg="white", activebackground="#475569", activeforeground="white", font=("Segoe UI", 8), padx=6, relief="flat", command=self.refresh_devices_list)
-        self.btn_refresh_devs.pack(side="left", padx=4)
+        self.btn_refresh_devs = tk.Button(top_bar, text="🔄 Scan", bg="#334155", fg="white", activebackground="#475569", activeforeground="white", font=("Segoe UI", 8), padx=5, relief="flat", command=self.refresh_devices_list)
+        self.btn_refresh_devs.pack(side="left", padx=2)
 
-        self.btn_connect = tk.Button(top_bar, text="Connect ADB", bg="#0284c7", fg="white", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 9, "bold"), padx=12, relief="flat", command=self.toggle_connection)
-        self.btn_connect.pack(side="left", padx=10)
+        self.btn_connect = tk.Button(top_bar, text="Connect ADB", bg="#0284c7", fg="white", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=10, relief="flat", command=self.toggle_connection)
+        self.btn_connect.pack(side="left", padx=6)
 
-        self.status_lbl = tk.Label(top_bar, text="● Disconnected", bg="#1e293b", fg="#ef4444", font=("Segoe UI", 10, "bold"))
-        self.status_lbl.pack(side="left", padx=10)
+        self.status_lbl = tk.Label(top_bar, text="● Disconnected", bg="#1e293b", fg="#ef4444", font=("Segoe UI", 9, "bold"))
+        self.status_lbl.pack(side="left", padx=6)
 
-        tk.Button(top_bar, text="💤 Sleep Mobile", bg="#475569", fg="#f8fafc", activebackground="#334155", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.put_device_to_sleep).pack(side="right", padx=6)
-        tk.Button(top_bar, text="⚡ Wake Mobile", bg="#0284c7", fg="#f8fafc", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.wake_device).pack(side="right", padx=6)
+        tk.Button(top_bar, text="💤 Sleep", bg="#475569", fg="#f8fafc", activebackground="#334155", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.put_device_to_sleep).pack(side="right", padx=3)
+        tk.Button(top_bar, text="⚡ Wake", bg="#0284c7", fg="#f8fafc", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.wake_device).pack(side="right", padx=3)
 
         main_paned = tk.PanedWindow(self, orient="horizontal", bg="#0f172a", sashwidth=4, bd=0)
-        main_paned.pack(fill="both", expand=True, padx=12, pady=12)
+        main_paned.pack(fill="both", expand=True, padx=8, pady=8)
 
         left_col = tk.Frame(main_paned, bg="#0f172a")
-        main_paned.add(left_col, minsize=540)
+        main_paned.add(left_col, minsize=520)
 
         tabs = ttk.Notebook(left_col)
         tabs.pack(fill="both", expand=True)
 
-        tab_gallery = ttk.Frame(tabs, padding=8)
-        tab_calls = ttk.Frame(tabs, padding=8)
-        tab_apps = ttk.Frame(tabs, padding=8)
-        tab_files = ttk.Frame(tabs, padding=8)
-        tab_power = ttk.Frame(tabs, padding=8)
-        tab_log = ttk.Frame(tabs, padding=8)
+        tab_gallery = ttk.Frame(tabs, padding=6)
+        tab_calls = ttk.Frame(tabs, padding=6)
+        tab_apps = ttk.Frame(tabs, padding=6)
+        tab_files = ttk.Frame(tabs, padding=6)
+        tab_analytics = ttk.Frame(tabs, padding=6)
+        tab_power = ttk.Frame(tabs, padding=6)
+        tab_log = ttk.Frame(tabs, padding=6)
 
-        tabs.add(tab_gallery, text=" 🖼️ Gallery & Recovery ")
-        tabs.add(tab_calls, text=" 📞 Calls & Contacts ")
-        tabs.add(tab_apps, text=" ⚡ Apps & Hidden ")
-        tabs.add(tab_files, text=" 📁 File Explorer ")
-        tabs.add(tab_power, text=" 🔋 Power & Battery ")
+        tabs.add(tab_gallery, text=" 🖼️ Gallery ")
+        tabs.add(tab_calls, text=" 📞 Calls ")
+        tabs.add(tab_apps, text=" ⚡ Apps ")
+        tabs.add(tab_files, text=" 📁 Files ")
+        tabs.add(tab_analytics, text=" 📊 Analytics ")
+        tabs.add(tab_power, text=" 🔋 Power ")
         tabs.add(tab_log, text=" 📋 ADB Log ")
 
         self._build_gallery_tab(tab_gallery)
         self._build_calls_tab(tab_calls)
         self._build_apps_tab(tab_apps)
         self._build_files_tab(tab_files)
+        self._build_analytics_tab(tab_analytics)
         self._build_power_tab(tab_power)
         self._build_log_tab(tab_log)
 
-        right_col = tk.Frame(main_paned, bg="#1e293b", padx=14, pady=14, relief="solid", bd=1)
-        main_paned.add(right_col, minsize=460)
+        right_col = tk.Frame(main_paned, bg="#1e293b", padx=10, pady=10, relief="solid", bd=1)
+        main_paned.add(right_col, minsize=420)
         self._build_screen_panel(right_col)
 
     def _on_device_combo_select(self, event=None):
@@ -529,117 +539,144 @@ class DeviceDevStudio(tk.Tk):
         self.contacts_tree.bind("<<TreeviewSelect>>", self._on_contact_tree_select)
 
     def _build_gallery_tab(self, parent):
-        """Dedicated Gallery & Screenshot Manager with Interactive Thumbnail Grid & Table Views"""
+        """Dedicated Gallery & Screenshot Manager with Interactive Thumbnail Grid, Grouping & Table Views"""
         top_row = tk.Frame(parent, bg="#0f172a")
-        top_row.pack(fill="x", pady=(0, 4))
-        tk.Label(top_row, text="Mobile Gallery, Hidden & Trashed Recovery", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left")
+        top_row.pack(fill="x", pady=(0, 2))
+        tk.Label(top_row, text="Mobile Gallery & Timeline Recovery", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 10, "bold")).pack(side="left")
         
         self.gallery_summary_lbl = tk.Label(top_row, text="Scanning...", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8))
         self.gallery_summary_lbl.pack(side="right")
 
-        # Category filters & View switcher bar (Row 1: Categories, Row 2: Sorts & Exclusions)
+        # Row 1: Category Filter Pills / Dropdown, Grouping Selector, and Deep Scan
         filter_bar1 = tk.Frame(parent, bg="#0f172a")
-        filter_bar1.pack(fill="x", pady=(2, 1))
+        filter_bar1.pack(fill="x", pady=(1, 2))
         
-        self.btn_f_all = tk.Button(filter_bar1, text="🖼️ All Media", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("ALL"))
-        self.btn_f_all.pack(side="left", padx=2)
+        tk.Label(filter_bar1, text="Category:", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8, "bold")).pack(side="left", padx=(0, 2))
+        self.cat_combo = ttk.Combobox(
+            filter_bar1,
+            values=[
+                "🖼️ All Media",
+                "📸 Camera Photos",
+                "📱 Screenshots",
+                "💬 WhatsApp",
+                "📥 Downloads & Purchases",
+                "📁 Root Storage",
+                "🗑️ Trashed & Hidden",
+                "🕰️ Day 1 Archive",
+                "🎨 Stickers & WebP"
+            ],
+            width=20,
+            state="readonly"
+        )
+        self.cat_combo.current(0)
+        self.cat_combo.pack(side="left", padx=2)
+        self.cat_combo.bind("<<ComboboxSelected>>", self._on_cat_combo_change)
 
-        self.btn_f_camera = tk.Button(filter_bar1, text="📸 Camera", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("CAMERA"))
-        self.btn_f_camera.pack(side="left", padx=2)
+        # Quick Pill Filters
+        self.btn_f_all = tk.Button(filter_bar1, text="All", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_filter("ALL"))
+        self.btn_f_all.pack(side="left", padx=1)
+        self.btn_f_camera = tk.Button(filter_bar1, text="📸 Cam", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._set_gallery_filter("CAMERA"))
+        self.btn_f_camera.pack(side="left", padx=1)
+        self.btn_f_screens = tk.Button(filter_bar1, text="📱 Screen", bg="#334155", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_filter("SCREENSHOTS"))
+        self.btn_f_screens.pack(side="left", padx=1)
+        self.btn_f_trash = tk.Button(filter_bar1, text="🗑️ Trash", bg="#7f1d1d", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_filter("TRASHED"))
+        self.btn_f_trash.pack(side="left", padx=1)
+        self.btn_f_day1 = tk.Button(filter_bar1, text="🕰️ Day 1", bg="#475569", fg="#fcd34d", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_filter("DAY1"))
+        self.btn_f_day1.pack(side="left", padx=1)
 
-        self.btn_f_screens = tk.Button(filter_bar1, text="📱 Screenshots", bg="#334155", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("SCREENSHOTS"))
-        self.btn_f_screens.pack(side="left", padx=2)
+        tk.Label(filter_bar1, text="| Group:", bg="#0f172a", fg="#64748b", font=("Segoe UI", 8)).pack(side="left", padx=(4, 2))
+        self.group_combo = ttk.Combobox(
+            filter_bar1,
+            values=[
+                "None (Flat Stream)",
+                "📅 Month / Year",
+                "📁 Folder Source",
+                "📦 File Size",
+                "🏷️ File Type"
+            ],
+            width=15,
+            state="readonly"
+        )
+        self.group_combo.current(0)
+        self.group_combo.pack(side="left", padx=2)
+        self.group_combo.bind("<<ComboboxSelected>>", self._on_group_combo_change)
 
-        self.btn_f_wa = tk.Button(filter_bar1, text="💬 WhatsApp", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("WHATSAPP"))
-        self.btn_f_wa.pack(side="left", padx=2)
+        tk.Button(filter_bar1, text="🔄 Deep Scan", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.scan_mobile_gallery).pack(side="right", padx=1)
 
-        self.btn_f_dl = tk.Button(filter_bar1, text="📥 Downloads & Purchases", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("DOWNLOADS"))
-        self.btn_f_dl.pack(side="left", padx=2)
-
-        self.btn_f_root = tk.Button(filter_bar1, text="📁 Root Storage", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_filter("ROOT"))
-        self.btn_f_root.pack(side="left", padx=2)
-
-        self.btn_f_trash = tk.Button(filter_bar1, text="🗑️ Trashed & Hidden", bg="#7f1d1d", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("TRASHED"))
-        self.btn_f_trash.pack(side="left", padx=2)
-
-        self.btn_f_day1 = tk.Button(filter_bar1, text="🕰️ Day 1 Archive", bg="#475569", fg="#fcd34d", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_filter("DAY1"))
-        self.btn_f_day1.pack(side="left", padx=2)
-
-        self.btn_f_stickers = tk.Button(filter_bar1, text="🎨 Stickers/WebP", bg="#334155", fg="#94a3b8", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._set_gallery_filter("STICKERS"))
-        self.btn_f_stickers.pack(side="left", padx=2)
-
-        tk.Button(filter_bar1, text="🔄 Deep Scan Mobile", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.scan_mobile_gallery).pack(side="right", padx=2)
-
-        # Row 2: Sort Controls, Sticker Exclusion, View Switcher & Tile Sizes
+        # Row 2: Sort Controls, Sticker Exclusion, View Switcher, Tile Sizes & Toggle Preview
         filter_bar2 = tk.Frame(parent, bg="#0f172a")
-        filter_bar2.pack(fill="x", pady=(1, 3))
+        filter_bar2.pack(fill="x", pady=1)
 
-        self.btn_exclude_stickers = tk.Button(filter_bar2, text="🚫 Exclude Stickers: ON", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self._toggle_exclude_stickers)
+        self.btn_sort_newest = tk.Button(filter_bar2, text="📅 Newest (Today ➔ Day 1)", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=lambda: self._set_gallery_sort("DESC"))
+        self.btn_sort_newest.pack(side="left", padx=1)
+
+        self.btn_sort_oldest = tk.Button(filter_bar2, text="🕰️ Day 1 (Oldest ➔ Today)", bg="#334155", fg="white", font=("Segoe UI", 7), padx=5, relief="flat", command=lambda: self._set_gallery_sort("ASC"))
+        self.btn_sort_oldest.pack(side="left", padx=1)
+
+        self.btn_exclude_stickers = tk.Button(filter_bar2, text="🚫 Exclude Stickers: ON", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self._toggle_exclude_stickers)
         self.btn_exclude_stickers.pack(side="left", padx=2)
 
-        self.btn_sort_newest = tk.Button(filter_bar2, text="📅 Newest (Today ➔ Day 1)", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=lambda: self._set_gallery_sort("DESC"))
-        self.btn_sort_newest.pack(side="left", padx=2)
+        self.btn_v_grid = tk.Button(filter_bar2, text="🖼️ Grid", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=lambda: self._set_gallery_view_mode("GRID"))
+        self.btn_v_grid.pack(side="left", padx=1)
 
-        self.btn_sort_oldest = tk.Button(filter_bar2, text="🕰️ Day 1 (Oldest ➔ Today)", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._set_gallery_sort("ASC"))
-        self.btn_sort_oldest.pack(side="left", padx=2)
+        self.btn_v_table = tk.Button(filter_bar2, text="📋 Table", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._set_gallery_view_mode("TABLE"))
+        self.btn_v_table.pack(side="left", padx=1)
 
-        v_sep = tk.Label(filter_bar2, text="|", bg="#0f172a", fg="#475569", font=("Segoe UI", 9))
-        v_sep.pack(side="left", padx=3)
-
-        self.btn_v_grid = tk.Button(filter_bar2, text="🖼️ Grid", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=5, relief="flat", command=lambda: self._set_gallery_view_mode("GRID"))
-        self.btn_v_grid.pack(side="left", padx=2)
-
-        self.btn_v_table = tk.Button(filter_bar2, text="📋 Table", bg="#334155", fg="white", font=("Segoe UI", 8), padx=5, relief="flat", command=lambda: self._set_gallery_view_mode("TABLE"))
-        self.btn_v_table.pack(side="left", padx=2)
-
-        tk.Label(filter_bar2, text="Tile:", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(4, 1))
-        self.btn_sz_s = tk.Button(filter_bar2, text="S", bg="#334155", fg="white", font=("Segoe UI", 7), padx=3, relief="flat", command=lambda: self._set_thumb_size(100))
+        tk.Label(filter_bar2, text="Tile:", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 7)).pack(side="left", padx=(3, 1))
+        self.btn_sz_s = tk.Button(filter_bar2, text="S", bg="#334155", fg="white", font=("Segoe UI", 7), padx=2, relief="flat", command=lambda: self._set_thumb_size(100))
         self.btn_sz_s.pack(side="left", padx=1)
-        self.btn_sz_m = tk.Button(filter_bar2, text="M", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=3, relief="flat", command=lambda: self._set_thumb_size(140))
+        self.btn_sz_m = tk.Button(filter_bar2, text="M", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=2, relief="flat", command=lambda: self._set_thumb_size(140))
         self.btn_sz_m.pack(side="left", padx=1)
-        self.btn_sz_l = tk.Button(filter_bar2, text="L", bg="#334155", fg="white", font=("Segoe UI", 7), padx=3, relief="flat", command=lambda: self._set_thumb_size(185))
+        self.btn_sz_l = tk.Button(filter_bar2, text="L", bg="#334155", fg="white", font=("Segoe UI", 7), padx=2, relief="flat", command=lambda: self._set_thumb_size(185))
         self.btn_sz_l.pack(side="left", padx=1)
 
-        # Search & Selection Bar WITH DIRECT VISIBLE DELETE & BACKUP BUTTONS
-        sel_bar = tk.Frame(parent, bg="#1e293b", padx=6, pady=4, relief="solid", bd=1)
-        sel_bar.pack(fill="x", pady=4)
+        self.btn_toggle_preview = tk.Button(filter_bar2, text="👁 Preview: ON", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=self._toggle_preview_panel)
+        self.btn_toggle_preview.pack(side="right", padx=1)
 
-        tk.Label(sel_bar, text="🔍 Filter:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left")
-        self.gallery_search_entry = tk.Entry(sel_bar, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 8), width=14)
-        self.gallery_search_entry.pack(side="left", padx=4)
+        # Row 3: Search, Quick Selection & Action Counters
+        sel_bar = tk.Frame(parent, bg="#1e293b", padx=4, pady=3, relief="solid", bd=1)
+        sel_bar.pack(fill="x", pady=2)
+
+        tk.Label(sel_bar, text="🔍 Filter:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7)).pack(side="left")
+        self.gallery_search_entry = tk.Entry(sel_bar, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 8), width=12)
+        self.gallery_search_entry.pack(side="left", padx=2)
         self.gallery_search_entry.bind("<KeyRelease>", lambda e: self._apply_gallery_search())
 
-        tk.Button(sel_bar, text="☑ All", bg="#334155", fg="white", font=("Segoe UI", 8), padx=4, relief="flat", command=self._select_all_gallery).pack(side="left", padx=1)
-        tk.Button(sel_bar, text="☐ None", bg="#334155", fg="white", font=("Segoe UI", 8), padx=4, relief="flat", command=self._deselect_all_gallery).pack(side="left", padx=1)
-        tk.Button(sel_bar, text="📱 Screen", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=4, relief="flat", command=self._select_screenshots_only).pack(side="left", padx=1)
-        tk.Button(sel_bar, text="🗑️ Trash", bg="#7f1d1d", fg="white", font=("Segoe UI", 8, "bold"), padx=4, relief="flat", command=self._select_trashed_only).pack(side="left", padx=1)
+        tk.Button(sel_bar, text="☑ All", bg="#334155", fg="white", font=("Segoe UI", 7), padx=3, relief="flat", command=self._select_all_gallery).pack(side="left", padx=1)
+        tk.Button(sel_bar, text="☐ None", bg="#334155", fg="white", font=("Segoe UI", 7), padx=3, relief="flat", command=self._deselect_all_gallery).pack(side="left", padx=1)
+        tk.Button(sel_bar, text="📱 Screen", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=3, relief="flat", command=self._select_screenshots_only).pack(side="left", padx=1)
+        tk.Button(sel_bar, text="🗑️ Trash", bg="#7f1d1d", fg="white", font=("Segoe UI", 7, "bold"), padx=3, relief="flat", command=self._select_trashed_only).pack(side="left", padx=1)
 
-        # Top Quick Delete & Backup buttons
-        self.top_btn_del = tk.Button(sel_bar, text="🗑️ Delete (0)", bg="#dc2626", fg="white", activebackground="#b91c1c", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.delete_selected_gallery_images)
-        self.top_btn_del.pack(side="left", padx=4)
+        self.top_btn_del = tk.Button(sel_bar, text="🗑️ Delete (0)", bg="#dc2626", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=self.delete_selected_gallery_images)
+        self.top_btn_del.pack(side="left", padx=2)
 
-        self.top_btn_bak = tk.Button(sel_bar, text="📥 Backup (0)", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.backup_selected_gallery_images)
-        self.top_btn_bak.pack(side="left", padx=2)
+        self.top_btn_bak = tk.Button(sel_bar, text="📥 Backup (0)", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=self.backup_selected_gallery_images)
+        self.top_btn_bak.pack(side="left", padx=1)
 
-        self.gallery_sel_count_lbl = tk.Label(sel_bar, text="Selected: 0 files", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 8, "bold"))
-        self.gallery_sel_count_lbl.pack(side="right", padx=4)
+        self.gallery_sel_count_lbl = tk.Label(sel_bar, text="Selected: 0 files", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 7, "bold"))
+        self.gallery_sel_count_lbl.pack(side="right", padx=2)
 
-        # BOTTOM ACTION BAR PACKED FIRST (GUARANTEES 100% VISIBILITY)
-        act_bar = tk.Frame(parent, bg="#0f172a")
-        act_bar.pack(side="bottom", fill="x", pady=(4, 0))
+        # BOTTOM ACTION BARS (PACKED FIRST FOR 100% VISIBILITY)
+        act_bar2 = tk.Frame(parent, bg="#0f172a")
+        act_bar2.pack(side="bottom", fill="x", pady=(1, 0))
 
-        tk.Button(act_bar, text="💥 Delete ALL Screenshots", bg="#dc2626", fg="white", activebackground="#b91c1c", activeforeground="white", font=("Segoe UI", 9, "bold"), padx=8, pady=4, relief="flat", command=self.delete_all_screenshots_from_mobile).pack(side="left", padx=2)
-        tk.Button(act_bar, text="🗑️ Delete Selected (+Trash)", bg="#b45309", fg="white", activebackground="#92400e", activeforeground="white", font=("Segoe UI", 9, "bold"), padx=8, pady=4, relief="flat", command=self.delete_selected_gallery_images).pack(side="left", padx=2)
-        tk.Button(act_bar, text="🗑️ Empty Mobile Trash / Bin", bg="#7f1d1d", fg="white", activebackground="#991b1b", activeforeground="white", font=("Segoe UI", 9, "bold"), padx=8, pady=4, relief="flat", command=self.empty_mobile_trash_bin).pack(side="left", padx=2)
-        tk.Button(act_bar, text="📥 Backup Selected to PC...", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=8, pady=4, relief="flat", command=self.backup_selected_gallery_images).pack(side="left", padx=2)
-        tk.Button(act_bar, text="🧹 Purge Temp Cache", bg="#475569", fg="white", font=("Segoe UI", 8), padx=6, pady=4, relief="flat", command=self.purge_mobile_temp_cache).pack(side="right", padx=2)
+        tk.Button(act_bar2, text="📥 Backup Selected to PC...", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.backup_selected_gallery_images).pack(side="left", padx=2)
+        tk.Button(act_bar2, text="🧹 Purge Temp Cache", bg="#475569", fg="white", font=("Segoe UI", 7), padx=5, pady=3, relief="flat", command=self.purge_mobile_temp_cache).pack(side="left", padx=2)
+        tk.Button(act_bar2, text="📊 View Analytics & Charts ➔", bg="#7c3aed", fg="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self._switch_to_analytics_tab).pack(side="right", padx=2)
+
+        act_bar1 = tk.Frame(parent, bg="#0f172a")
+        act_bar1.pack(side="bottom", fill="x", pady=(2, 1))
+
+        tk.Button(act_bar1, text="💥 Delete ALL Screenshots", bg="#dc2626", fg="white", activebackground="#b91c1c", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.delete_all_screenshots_from_mobile).pack(side="left", padx=2)
+        tk.Button(act_bar1, text="🗑️ Delete Selected (+Trash)", bg="#b45309", fg="white", activebackground="#92400e", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.delete_selected_gallery_images).pack(side="left", padx=2)
+        tk.Button(act_bar1, text="🗑️ Empty Mobile Trash / Bin", bg="#7f1d1d", fg="white", activebackground="#991b1b", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=6, pady=3, relief="flat", command=self.empty_mobile_trash_bin).pack(side="left", padx=2)
 
         # Main Split Content: Content Container (Grid or Table) on Left, Preview Panel on Right
-        content_split = tk.PanedWindow(parent, orient="horizontal", bg="#0f172a", sashwidth=3, bd=0)
-        content_split.pack(fill="both", expand=True, pady=4)
+        self.gallery_content_split = tk.PanedWindow(parent, orient="horizontal", bg="#0f172a", sashwidth=3, bd=0)
+        self.gallery_content_split.pack(fill="both", expand=True, pady=2)
 
-        self.gallery_content_container = tk.Frame(content_split, bg="#0f172a")
-        content_split.add(self.gallery_content_container, minsize=340)
+        self.gallery_content_container = tk.Frame(self.gallery_content_split, bg="#0f172a")
+        self.gallery_content_split.add(self.gallery_content_container, minsize=320)
 
         # 1. Table View Frame
         self.gallery_table_frame = tk.Frame(self.gallery_content_container, bg="#1e293b")
@@ -672,37 +709,37 @@ class DeviceDevStudio(tk.Tk):
         self.gallery_grid_frame = tk.Frame(self.gallery_content_container, bg="#0f172a")
 
         # Bottom Pagination Bar
-        self.grid_page_bar = tk.Frame(self.gallery_grid_frame, bg="#1e293b", padx=6, pady=4, relief="solid", bd=1)
+        self.grid_page_bar = tk.Frame(self.gallery_grid_frame, bg="#1e293b", padx=4, pady=3, relief="solid", bd=1)
         self.grid_page_bar.pack(side="bottom", fill="x")
 
-        self.btn_page_first = tk.Button(self.grid_page_bar, text="⏮ First", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._go_gallery_page(0))
-        self.btn_page_first.pack(side="left", padx=2)
+        self.btn_page_first = tk.Button(self.grid_page_bar, text="⏮", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._go_gallery_page(0))
+        self.btn_page_first.pack(side="left", padx=1)
 
-        self.btn_page_prev = tk.Button(self.grid_page_bar, text="◀ Prev", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._go_gallery_page(self.gallery_page - 1))
-        self.btn_page_prev.pack(side="left", padx=2)
+        self.btn_page_prev = tk.Button(self.grid_page_bar, text="◀", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._go_gallery_page(self.gallery_page - 1))
+        self.btn_page_prev.pack(side="left", padx=1)
 
-        self.page_info_lbl = tk.Label(self.grid_page_bar, text="Page 1 of 1 (0 items)", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 8, "bold"), padx=6)
-        self.page_info_lbl.pack(side="left", padx=4)
+        self.page_info_lbl = tk.Label(self.grid_page_bar, text="Page 1 of 1 (0 items)", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 7, "bold"), padx=4)
+        self.page_info_lbl.pack(side="left", padx=2)
 
-        self.btn_page_next = tk.Button(self.grid_page_bar, text="Next ▶", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._go_gallery_page(self.gallery_page + 1))
-        self.btn_page_next.pack(side="left", padx=2)
+        self.btn_page_next = tk.Button(self.grid_page_bar, text="▶", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._go_gallery_page(self.gallery_page + 1))
+        self.btn_page_next.pack(side="left", padx=1)
 
-        self.btn_page_last = tk.Button(self.grid_page_bar, text="Last ⏭", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=lambda: self._go_gallery_page(self.gallery_total_pages - 1))
-        self.btn_page_last.pack(side="left", padx=2)
+        self.btn_page_last = tk.Button(self.grid_page_bar, text="⏭", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda: self._go_gallery_page(self.gallery_total_pages - 1))
+        self.btn_page_last.pack(side="left", padx=1)
 
         # Direct Page Jump Box
-        tk.Label(self.grid_page_bar, text="|  Go:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(6, 2))
-        self.page_jump_entry = tk.Entry(self.grid_page_bar, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 8, "bold"), width=5, justify="center")
+        tk.Label(self.grid_page_bar, text="| Go:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7)).pack(side="left", padx=(4, 1))
+        self.page_jump_entry = tk.Entry(self.grid_page_bar, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 7, "bold"), width=4, justify="center")
         self.page_jump_entry.insert(0, "1")
-        self.page_jump_entry.pack(side="left", padx=2)
+        self.page_jump_entry.pack(side="left", padx=1)
         self.page_jump_entry.bind("<Return>", lambda e: self._jump_to_page())
 
-        tk.Button(self.grid_page_bar, text="Jump ➔", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self._jump_to_page).pack(side="left", padx=2)
+        tk.Button(self.grid_page_bar, text="Go", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, relief="flat", command=self._jump_to_page).pack(side="left", padx=1)
 
-        tk.Label(self.grid_page_bar, text="Per Page:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="right", padx=(6, 2))
-        self.page_size_combo = ttk.Combobox(self.grid_page_bar, values=["24", "36", "60", "120"], width=4, state="readonly")
+        tk.Label(self.grid_page_bar, text="Per Page:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7)).pack(side="right", padx=(4, 1))
+        self.page_size_combo = ttk.Combobox(self.grid_page_bar, values=["24", "36", "60", "120"], width=3, state="readonly")
         self.page_size_combo.set("36")
-        self.page_size_combo.pack(side="right", padx=2)
+        self.page_size_combo.pack(side="right", padx=1)
         self.page_size_combo.bind("<<ComboboxSelected>>", self._on_page_size_change)
         
         self.grid_canvas = tk.Canvas(self.gallery_grid_frame, bg="#0f172a", highlightthickness=0, bd=0)
@@ -724,109 +761,494 @@ class DeviceDevStudio(tk.Tk):
         self.gallery_grid_frame.pack(fill="both", expand=True)
 
         # Right Preview Panel
-        preview_panel = tk.Frame(content_split, bg="#1e293b", padx=8, pady=8, relief="solid", bd=1)
-        content_split.add(preview_panel, minsize=190)
+        self.preview_panel = tk.Frame(self.gallery_content_split, bg="#1e293b", padx=6, pady=6, relief="solid", bd=1)
+        self.gallery_content_split.add(self.preview_panel, minsize=180)
 
-        tk.Label(preview_panel, text="Selected Photo Preview", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 9, "bold")).pack(anchor="w")
+        tk.Label(self.preview_panel, text="Selected Photo Preview", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 8, "bold")).pack(anchor="w")
 
-        self.preview_canvas_frame = tk.Frame(preview_panel, bg="#000000", height=200, relief="sunken", bd=1)
-        self.preview_canvas_frame.pack(fill="x", pady=6)
+        self.preview_canvas_frame = tk.Frame(self.preview_panel, bg="#000000", height=180, relief="sunken", bd=1)
+        self.preview_canvas_frame.pack(fill="x", pady=4)
         self.preview_canvas_frame.pack_propagate(False)
 
         self.gallery_preview_lbl = tk.Label(self.preview_canvas_frame, text="Click any photo card\nor list row to preview", bg="#000000", fg="#64748b", font=("Segoe UI", 8), justify="center")
         self.gallery_preview_lbl.pack(expand=True)
 
-        self.preview_info_lbl = tk.Label(preview_panel, text="No image selected", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8), wraplength=180, justify="left")
+        self.preview_info_lbl = tk.Label(self.preview_panel, text="No image selected", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 7), wraplength=170, justify="left")
         self.preview_info_lbl.pack(anchor="w", pady=2)
 
-        tk.Button(preview_panel, text="👁 Open Full Viewer", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=4, pady=3, relief="flat", command=self.open_previewed_image_on_pc).pack(fill="x", pady=2)
-        tk.Button(preview_panel, text="📥 Pull Image to PC", bg="#334155", fg="white", font=("Segoe UI", 8), padx=4, pady=3, relief="flat", command=self.pull_previewed_image).pack(fill="x", pady=2)
-        tk.Button(preview_panel, text="🗑️ Delete Photo (+Trash)", bg="#dc2626", fg="white", activebackground="#b91c1c", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=4, pady=3, relief="flat", command=self.delete_previewed_image).pack(fill="x", pady=2)
-        self.btn_preview_restore = tk.Button(preview_panel, text="♻️ Restore to Gallery", bg="#16a34a", fg="white", activebackground="#15803d", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=4, pady=3, relief="flat", command=self.restore_previewed_image)
-        self.btn_preview_restore.pack(fill="x", pady=2)
+        tk.Button(self.preview_panel, text="👁 Open Full Viewer", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.open_previewed_image_on_pc).pack(fill="x", pady=1)
+        tk.Button(self.preview_panel, text="📥 Pull Image to PC", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, pady=2, relief="flat", command=self.pull_previewed_image).pack(fill="x", pady=1)
+        tk.Button(self.preview_panel, text="🗑️ Delete Photo (+Trash)", bg="#dc2626", fg="white", activebackground="#b91c1c", activeforeground="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.delete_previewed_image).pack(fill="x", pady=1)
+        self.btn_preview_restore = tk.Button(self.preview_panel, text="♻️ Restore to Gallery", bg="#16a34a", fg="white", activebackground="#15803d", activeforeground="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.restore_previewed_image)
+        self.btn_preview_restore.pack(fill="x", pady=1)
+
+    def _toggle_preview_panel(self):
+        self.preview_panel_visible = not self.preview_panel_visible
+        if self.preview_panel_visible:
+            self.gallery_content_split.add(self.preview_panel, minsize=180)
+            self.btn_toggle_preview.config(text="👁 Preview: ON", bg="#0284c7")
+        else:
+            self.gallery_content_split.forget(self.preview_panel)
+            self.btn_toggle_preview.config(text="👁 Preview: OFF", bg="#334155")
+
+    def _on_cat_combo_change(self, event=None):
+        val = self.cat_combo.get()
+        mapping = {
+            "🖼️ All Media": "ALL",
+            "📸 Camera Photos": "CAMERA",
+            "📱 Screenshots": "SCREENSHOTS",
+            "💬 WhatsApp": "WHATSAPP",
+            "📥 Downloads & Purchases": "DOWNLOADS",
+            "📁 Root Storage": "ROOT",
+            "🗑️ Trashed & Hidden": "TRASHED",
+            "🕰️ Day 1 Archive": "DAY1",
+            "🎨 Stickers & WebP": "STICKERS"
+        }
+        filter_type = mapping.get(val, "ALL")
+        self._set_gallery_filter(filter_type)
+
+    def _on_group_combo_change(self, event=None):
+        val = self.group_combo.get()
+        mapping = {
+            "None (Flat Stream)": "NONE",
+            "📅 Month / Year": "DATE_MONTH",
+            "📁 Folder Source": "FOLDER",
+            "📦 File Size": "SIZE",
+            "🏷️ File Type": "EXT"
+        }
+        self.gallery_group_by = mapping.get(val, "NONE")
+        self.gallery_page = 0
+        self._apply_gallery_filter_and_render()
+
+    def _switch_to_analytics_tab(self):
+        # Programmatically switches to Analytics tab
+        for w in self.winfo_children():
+            if isinstance(w, tk.PanedWindow):
+                for child in w.winfo_children():
+                    for sub in child.winfo_children():
+                        if isinstance(sub, ttk.Notebook):
+                            try:
+                                sub.select(4) # Tab index 4 is Analytics
+                                self.refresh_analytics_data()
+                                return
+                            except Exception:
+                                pass
 
     def _build_files_tab(self, parent):
         top_lbl_frame = tk.Frame(parent, bg="#0f172a")
-        top_lbl_frame.pack(fill="x", pady=(0, 4))
-        tk.Label(top_lbl_frame, text="Device Storage File Explorer", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left")
-        tk.Label(top_lbl_frame, text="(One-click shortcuts to mobile directories)", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="right")
+        top_lbl_frame.pack(fill="x", pady=(0, 2))
+        tk.Label(top_lbl_frame, text="Universal Device Storage & Folder Explorer", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 10, "bold")).pack(side="left")
+        tk.Label(top_lbl_frame, text="Micro-Thumbnail Mode (<40KB Fast DEX, 0 Phone Drain)", bg="#0f172a", fg="#22c55e", font=("Segoe UI", 7, "bold")).pack(side="right")
 
+        # Quick directory bookmarks (Row 1 & Row 2)
         sc_row1 = tk.Frame(parent, bg="#0f172a")
         sc_row1.pack(fill="x", pady=1)
         shortcuts_1 = [
             ("📸 Camera", "/sdcard/DCIM/Camera"),
-            ("📱 Screenshots", "/sdcard/DCIM/Screenshots"),
+            ("📱 Screens", "/sdcard/DCIM/Screenshots"),
             ("🖼 Pictures", "/sdcard/Pictures"),
             ("📥 Downloads", "/sdcard/Download"),
-            ("📄 Documents", "/sdcard/Documents"),
+            ("📄 Docs", "/sdcard/Documents"),
+            ("💬 WhatsApp Media", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media"),
+            ("🎥 Movies", "/sdcard/Movies"),
+            ("🎵 Music", "/sdcard/Music"),
         ]
         for name, pth in shortcuts_1:
-            tk.Button(sc_row1, text=name, bg="#334155", fg="white", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 8), command=lambda p=pth: self.load_path(p)).pack(side="left", padx=2)
+            tk.Button(sc_row1, text=name, bg="#334155", fg="white", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=1)
 
         sc_row2 = tk.Frame(parent, bg="#0f172a")
         sc_row2.pack(fill="x", pady=1)
         shortcuts_2 = [
-            ("💬 WA Images", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images"),
-            ("💬 WA Docs", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Documents"),
-            ("💬 WA Video", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video"),
-            ("🎥 Movies", "/sdcard/Movies"),
-            ("🎵 Music", "/sdcard/Music"),
+            ("📁 Root /sdcard", "/sdcard"),
+            ("💾 Emulated 0", "/storage/emulated/0"),
+            ("🔒 Hidden .thumbnails", "/sdcard/.thumbnails"),
+            ("🗑️ Hidden .trashed", "/sdcard/DCIM/.trashed-*"),
+            ("🟢 ColorOS / OPPO", "/sdcard/ColorOS"),
+            ("⚡ MIUI", "/sdcard/MIUI"),
+            ("⚙️ /data/local/tmp", "/data/local/tmp"),
+            ("📦 /system", "/system"),
+            ("👑 / (Root)", "/"),
         ]
         for name, pth in shortcuts_2:
-            tk.Button(sc_row2, text=name, bg="#1e293b", fg="#cbd5e1", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 8), command=lambda p=pth: self.load_path(p)).pack(side="left", padx=2)
+            tk.Button(sc_row2, text=name, bg="#1e293b", fg="#cbd5e1", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=1)
 
-        sc_row3 = tk.Frame(parent, bg="#0f172a")
-        sc_row3.pack(fill="x", pady=1)
-        shortcuts_3 = [
-            ("📁 Root /sdcard", "/sdcard"),
-            ("💾 /storage/emulated/0", "/storage/emulated/0"),
-            ("🟢 ColorOS / OPPO", "/sdcard/ColorOS"),
-            ("🗂 DCIM Root", "/sdcard/DCIM"),
-            ("📦 Android Media", "/sdcard/Android/media"),
-            ("✈️ Telegram", "/sdcard/Telegram"),
-        ]
-        for name, pth in shortcuts_3:
-            tk.Button(sc_row3, text=name, bg="#0f172a", fg="#94a3b8", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7, "bold"), bd=1, relief="solid", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=2)
-
+        # Path Navigation Bar
         nav_frame = tk.Frame(parent, bg="#0f172a")
-        nav_frame.pack(fill="x", pady=6)
-        tk.Button(nav_frame, text="⬆ Up", bg="#475569", fg="white", font=("Segoe UI", 8, "bold"), padx=6, command=self.navigate_up).pack(side="left", padx=(0, 4))
-        self.path_entry = tk.Entry(nav_frame, bg="#1e293b", fg="#38bdf8", insertbackground="white", font=("Consolas", 9))
+        nav_frame.pack(fill="x", pady=3)
+        tk.Button(nav_frame, text="⬆ Up", bg="#475569", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self.navigate_up).pack(side="left", padx=(0, 2))
+        self.path_entry = tk.Entry(nav_frame, bg="#1e293b", fg="#38bdf8", insertbackground="white", font=("Consolas", 8))
         self.path_entry.insert(0, "/sdcard/DCIM/Camera")
-        self.path_entry.pack(side="left", fill="x", expand=True, padx=4)
-        tk.Button(nav_frame, text="Go", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, command=self.list_device_files).pack(side="left", padx=2)
-        tk.Button(nav_frame, text="🔄 Refresh", bg="#334155", fg="white", font=("Segoe UI", 8), command=self.list_device_files).pack(side="left", padx=2)
+        self.path_entry.pack(side="left", fill="x", expand=True, padx=2)
+        tk.Button(nav_frame, text="Go", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=6, relief="flat", command=self.list_device_files).pack(side="left", padx=1)
+        tk.Button(nav_frame, text="🔄 Refresh", bg="#334155", fg="white", font=("Segoe UI", 7), padx=5, relief="flat", command=self.list_device_files).pack(side="left", padx=1)
 
-        list_frame = tk.Frame(parent, bg="#1e293b")
-        list_frame.pack(fill="both", expand=True, pady=4)
+        # Split: Left File List (68%), Right Micro-Thumbnail & Inspector (32%)
+        files_split = tk.PanedWindow(parent, orient="horizontal", bg="#0f172a", sashwidth=3, bd=0)
+        files_split.pack(fill="both", expand=True, pady=2)
+
+        left_file_pane = tk.Frame(files_split, bg="#1e293b")
+        files_split.add(left_file_pane, minsize=280)
 
         self.file_listbox = tk.Listbox(
-            list_frame, 
+            left_file_pane, 
             bg="#1e293b", 
             fg="#f8fafc", 
             selectbackground="#0284c7", 
             selectforeground="white",
-            font=("Consolas", 9),
+            font=("Consolas", 8),
             bd=0,
             highlightthickness=0
         )
-        scroll_y = tk.Scrollbar(list_frame, orient="vertical", command=self.file_listbox.yview)
+        scroll_y = tk.Scrollbar(left_file_pane, orient="vertical", command=self.file_listbox.yview)
         self.file_listbox.configure(yscrollcommand=scroll_y.set)
 
         self.file_listbox.pack(side="left", fill="both", expand=True)
         scroll_y.pack(side="right", fill="y")
         self.file_listbox.bind("<Double-Button-1>", self._on_item_double_click)
+        self.file_listbox.bind("<<ListboxSelect>>", self._on_file_select_preview)
 
-        file_act = tk.Frame(parent, bg="#0f172a")
-        file_act.pack(fill="x", pady=(6, 0))
-        tk.Button(file_act, text="👁 Open/Preview Selected", bg="#0284c7", fg="white", font=("Segoe UI", 9, "bold"), padx=8, pady=4, relief="flat", command=self.open_selected_item).pack(side="left", padx=2)
-        tk.Button(file_act, text="📥 Pull Selected to PC...", bg="#334155", fg="white", font=("Segoe UI", 8), padx=8, pady=4, relief="flat", command=self.pull_selected_file).pack(side="left", padx=2)
-        tk.Button(file_act, text="📤 Push File to Current Folder...", bg="#334155", fg="white", font=("Segoe UI", 8), padx=8, pady=4, relief="flat", command=self.push_file_to_device).pack(side="left", padx=2)
+        # Right Inspector & Micro-Thumbnail Preview Panel
+        right_insp_pane = tk.Frame(files_split, bg="#1e293b", padx=6, pady=6, relief="solid", bd=1)
+        files_split.add(right_insp_pane, minsize=190)
+
+        tk.Label(right_insp_pane, text="Micro-Thumbnail (<40KB)", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 8, "bold")).pack(anchor="w")
+
+        self.file_preview_canvas_frame = tk.Frame(right_insp_pane, bg="#000000", height=140, relief="sunken", bd=1)
+        self.file_preview_canvas_frame.pack(fill="x", pady=4)
+        self.file_preview_canvas_frame.pack_propagate(False)
+
+        self.file_preview_lbl = tk.Label(self.file_preview_canvas_frame, text="Click any file to inspect\n& generate micro-thumbnail", bg="#000000", fg="#64748b", font=("Segoe UI", 7), justify="center")
+        self.file_preview_lbl.pack(expand=True)
+
+        self.file_info_lbl = tk.Label(right_insp_pane, text="Select a file or folder on the left", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 7), wraplength=170, justify="left")
+        self.file_info_lbl.pack(anchor="w", pady=2)
+
+        tk.Button(right_insp_pane, text="👁 Open on PC", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.open_selected_item).pack(fill="x", pady=1)
+        tk.Button(right_insp_pane, text="📥 Pull File to PC...", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, pady=2, relief="flat", command=self.pull_selected_file).pack(fill="x", pady=1)
+        tk.Button(right_insp_pane, text="⚡ Pull Micro-Thumb (<40KB)", bg="#0891b2", fg="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.pull_micro_thumbnail).pack(fill="x", pady=1)
+        tk.Button(right_insp_pane, text="📤 Push File to Current Folder", bg="#475569", fg="white", font=("Segoe UI", 7), padx=4, pady=2, relief="flat", command=self.push_file_to_device).pack(fill="x", pady=1)
+        tk.Button(right_insp_pane, text="🗑️ Delete from Device", bg="#dc2626", fg="white", activebackground="#b91c1c", activeforeground="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.delete_selected_explorer_item).pack(fill="x", pady=1)
+
+    def _on_file_select_preview(self, event=None):
+        sel = self.file_listbox.curselection()
+        if not sel or sel[0] >= len(self.current_remote_items):
+            return
+        is_dir, name, full_path, size = self.current_remote_items[sel[0]]
+        self.file_preview_selected_path = full_path
+
+        sz_str = self._format_size(size) if not is_dir else "Folder / Directory"
+        ext = os.path.splitext(name)[1].lower()
+        self.file_info_lbl.config(
+            text=f"{'📁 [DIR]' if is_dir else '📄 [FILE]'}: {name}\nSize: {sz_str}\nPath: {full_path}"
+        )
+
+        if not is_dir and ext in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".mkv", ".mov"]:
+            self._fetch_micro_thumbnail_for_file(full_path, name)
+        else:
+            self.file_preview_lbl.config(image="", text=f"📁 {name}" if is_dir else f"📄 {name}")
+
+    def _fetch_micro_thumbnail_for_file(self, remote_path, fname):
+        """Ultra-fast, sub-sampled 40KB thumbnail extractor via FastCap DEX without transferring large raw media"""
+        self.file_preview_lbl.config(image="", text="⚡ Extracting <40KB Micro-Thumb...")
+        local_thumb = self._get_thumb_path(remote_path, fname)
+
+        def task():
+            if not os.path.exists(local_thumb):
+                safe_remote = remote_path.replace("'", "'\\''")
+                thumb_cmd = (
+                    f"CLASSPATH={FASTCAP_DEX_REMOTE} app_process /data/local/tmp com.studio.FastCap thumb "
+                    f"'{safe_remote}' /data/local/tmp/_thumb_f.jpg 240 45"
+                )
+                code, out, _ = self.run_adb(["shell", thumb_cmd], timeout=6)
+                pulled = False
+                if code == 0 and "THUMB_OK" in (out or ""):
+                    p_code, _, _ = self.run_adb(["pull", "/data/local/tmp/_thumb_f.jpg", local_thumb], timeout=6)
+                    pulled = (p_code == 0 and os.path.exists(local_thumb))
+                    self.run_adb(["shell", "rm -f /data/local/tmp/_thumb_f.jpg"], timeout=3)
+                
+                if not pulled and not os.path.exists(local_thumb):
+                    ext = os.path.splitext(remote_path)[1].lower()
+                    if ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+                        self.run_adb(["pull", remote_path, local_thumb], timeout=10)
+
+            if os.path.exists(local_thumb) and HAS_PIL:
+                try:
+                    pil_img = Image.open(local_thumb)
+                    w, h = pil_img.size
+                    max_w, max_h = 160, 130
+                    scale = min(max_w / max(1, w), max_h / max(1, h))
+                    tw, th = max(1, int(w * scale)), max(1, int(h * scale))
+                    resized = pil_img.resize((tw, th), Image.Resampling.LANCZOS)
+                    tk_img = ImageTk.PhotoImage(resized)
+                    thumb_kb = os.path.getsize(local_thumb) / 1024
+
+                    def show():
+                        self.file_preview_img = tk_img
+                        self.file_preview_lbl.config(image=tk_img, text="")
+                        self.file_info_lbl.config(
+                            text=f"📄 {fname}\nMicro-Thumb: {thumb_kb:.1f} KB (Crisp & Light)\n📍 {remote_path}"
+                        )
+                    self.after(0, show)
+                except Exception:
+                    pass
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def pull_micro_thumbnail(self):
+        if not self.file_preview_selected_path:
+            messagebox.showinfo("Select", "Please select an image or video file first.")
+            return
+        fname = os.path.basename(self.file_preview_selected_path)
+        local_thumb = self._get_thumb_path(self.file_preview_selected_path, fname)
+        if not os.path.exists(local_thumb):
+            messagebox.showinfo("Notice", "Extracting thumbnail... please wait a second and retry.")
+            return
+        dest = filedialog.asksaveasfilename(
+            title="Save Micro-Thumbnail (<40KB)",
+            initialfile=f"thumb_{fname}.jpg",
+            defaultextension=".jpg",
+            filetypes=[("JPEG Image", "*.jpg")]
+        )
+        if dest:
+            try:
+                import shutil
+                shutil.copyfile(local_thumb, dest)
+                messagebox.showinfo("Saved", f"Micro-thumbnail saved to:\n{dest}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save thumbnail: {e}")
+
+    def delete_selected_explorer_item(self):
+        if not self.file_preview_selected_path:
+            messagebox.showinfo("Select", "Please select a file or folder to delete.")
+            return
+        p = self.file_preview_selected_path
+        fname = os.path.basename(p)
+        if not messagebox.askyesno("Delete", f"Permanently delete '{fname}' from mobile storage?\n\nPath: {p}"):
+            return
+        def task():
+            self.log(f"Deleting {p} from device...")
+            self.run_adb(["shell", f"rm -rf '{p}'"], timeout=10)
+            self.log(f"Deleted {p}")
+            self.list_device_files()
+        threading.Thread(target=task, daemon=True).start()
+
+    # =========================================================================
+    # DATA ANALYTICS & VISUAL CHARTS TAB
+    # =========================================================================
+
+    def _build_analytics_tab(self, parent):
+        top_bar = tk.Frame(parent, bg="#0f172a")
+        top_bar.pack(fill="x", pady=(0, 4))
+        tk.Label(top_bar, text="📊 Mobile Data Analytics, Storage Charts & Timeline Insights", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left")
+
+        tk.Button(top_bar, text="🔄 Refresh Analytics", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.refresh_analytics_data).pack(side="right")
+
+        # Scrollable Analytics Canvas Container
+        canvas = tk.Canvas(parent, bg="#0f172a", highlightthickness=0)
+        scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        self.analytics_inner_frame = tk.Frame(canvas, bg="#0f172a")
+        self.analytics_canvas_win = canvas.create_window((0, 0), window=self.analytics_inner_frame, anchor="nw")
+
+        self.analytics_inner_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind("<Configure>", lambda e: canvas.itemconfig(self.analytics_canvas_win, width=e.width))
+        self._bind_mousewheel_to_grid(canvas)
+        self._bind_mousewheel_to_grid(self.analytics_inner_frame)
+
+        self._render_analytics_dashboard()
+
+    def refresh_analytics_data(self):
+        """Computes comprehensive storage, timeline, call and battery analytics without any mobile battery/CPU drain"""
+        self.log("Recalculating mobile storage, media timeline, and call analytics...")
+        self._render_analytics_dashboard()
+        self.log("Analytics charts and timeline graphs refreshed!")
+
+    def _render_analytics_dashboard(self):
+        for w in self.analytics_inner_frame.winfo_children():
+            w.destroy()
+
+        items = self.all_gallery_items
+        calls = self.all_call_logs
+        apps = self.all_installed_apps
+
+        total_items = len(items)
+        total_media_bytes = sum(it.get("size_bytes", 0) for it in items)
+
+        # Category breakdown
+        cam_items = [it for it in items if it.get("category") == "Camera"]
+        sc_items = [it for it in items if it.get("category") == "Screenshots"]
+        wa_items = [it for it in items if it.get("category") == "WhatsApp"]
+        dl_items = [it for it in items if "DOWNLOAD" in it.get("category", "").upper()]
+        tr_items = [it for it in items if it.get("is_trashed") or it.get("category") == "Trashed/Hidden"]
+        stk_items = [it for it in items if it.get("is_sticker")]
+        rt_items = [it for it in items if it.get("category") == "Root Storage"]
+
+        # Metric Summary Cards Row
+        cards_row = tk.Frame(self.analytics_inner_frame, bg="#0f172a")
+        cards_row.pack(fill="x", pady=4)
+
+        def make_card(parent, title, val, sub, bg_c, fg_c):
+            c = tk.Frame(parent, bg=bg_c, padx=10, pady=8, relief="solid", bd=1, highlightbackground=fg_c, highlightthickness=1)
+            c.pack(side="left", fill="both", expand=True, padx=3)
+            tk.Label(c, text=title, bg=bg_c, fg="#94a3b8", font=("Segoe UI", 7, "bold")).pack(anchor="w")
+            tk.Label(c, text=val, bg=bg_c, fg=fg_c, font=("Segoe UI", 12, "bold")).pack(anchor="w", pady=1)
+            tk.Label(c, text=sub, bg=bg_c, fg="#cbd5e1", font=("Segoe UI", 7)).pack(anchor="w")
+
+        oldest_date = "Day 1 Unboxing"
+        if items:
+            valid_mtimes = [it["mtime"] for it in items if it["mtime"] > 0]
+            if valid_mtimes:
+                min_ts = min(valid_mtimes)
+                oldest_date = datetime.fromtimestamp(min_ts).strftime('%Y-%m-%d')
+
+        make_card(cards_row, "📦 TOTAL MEDIA SCANNED", f"{total_items:,} Files", f"Total Size: {self._format_size(total_media_bytes)}", "#1e293b", "#38bdf8")
+        make_card(cards_row, "🕰️ DAY 1 EARLIEST PHOTO", oldest_date, "Timeline Origin Date", "#1e293b", "#fcd34d")
+        make_card(cards_row, "🗑️ TRASH & HIDDEN JUNK", f"{len(tr_items):,} Files", f"Size: {self._format_size(sum(it.get('size_bytes',0) for it in tr_items))}", "#1e293b", "#ef4444")
+        make_card(cards_row, "📞 CALL HISTORY STATS", f"{len(calls):,} Logs", f"{len(self.all_contacts):,} Extracted Contacts", "#1e293b", "#a855f7")
+
+        # -------------------------------------------------------------
+        # 1. STORAGE DISTRIBUTION BAR CHART
+        # -------------------------------------------------------------
+        chart1_frame = tk.Frame(self.analytics_inner_frame, bg="#1e293b", padx=10, pady=8, relief="solid", bd=1)
+        chart1_frame.pack(fill="x", pady=6)
+
+        tk.Label(chart1_frame, text="📊 Mobile Media Storage Distribution (Size & File Count)", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 9, "bold")).pack(anchor="w")
+
+        c1 = tk.Canvas(chart1_frame, bg="#1e293b", height=120, highlightthickness=0)
+        c1.pack(fill="x", pady=4)
+
+        categories_data = [
+            ("📸 Camera", sum(it.get("size_bytes",0) for it in cam_items), len(cam_items), "#0284c7"),
+            ("💬 WhatsApp", sum(it.get("size_bytes",0) for it in wa_items), len(wa_items), "#16a34a"),
+            ("📱 Screens", sum(it.get("size_bytes",0) for it in sc_items), len(sc_items), "#06b6d4"),
+            ("📥 Downloads", sum(it.get("size_bytes",0) for it in dl_items), len(dl_items), "#f59e0b"),
+            ("🗑️ Trashed", sum(it.get("size_bytes",0) for it in tr_items), len(tr_items), "#ef4444"),
+            ("🎨 Stickers", sum(it.get("size_bytes",0) for it in stk_items), len(stk_items), "#ec4899"),
+            ("📁 Root/Other", sum(it.get("size_bytes",0) for it in rt_items), len(rt_items), "#8b5cf6"),
+        ]
+
+        max_b = max([x[1] for x in categories_data] + [1])
+
+        def draw_storage_bars(event=None):
+            c1.delete("all")
+            w = c1.winfo_width() or 600
+            y_start = 10
+            bar_h = 12
+            for idx, (label, size_b, count, color) in enumerate(categories_data):
+                y = y_start + (idx * 15)
+                c1.create_text(8, y + 6, text=label, fill="#cbd5e1", font=("Segoe UI", 7, "bold"), anchor="w")
+                
+                bar_x1 = 110
+                max_w = w - 240
+                bar_len = max(4, int((size_b / max_b) * max_w))
+                c1.create_rectangle(bar_x1, y, bar_x1 + bar_len, y + bar_h, fill=color, outline="")
+                
+                sz_str = self._format_size(size_b)
+                c1.create_text(bar_x1 + bar_len + 8, y + 6, text=f"{sz_str} ({count:,} files)", fill="#94a3b8", font=("Segoe UI", 7), anchor="w")
+
+        c1.bind("<Configure>", draw_storage_bars)
+        self.after(50, draw_storage_bars)
+
+        # -------------------------------------------------------------
+        # 2. MEDIA TIMELINE GRAPH (DAY 1 UNBOXING ➔ TODAY)
+        # -------------------------------------------------------------
+        chart2_frame = tk.Frame(self.analytics_inner_frame, bg="#1e293b", padx=10, pady=8, relief="solid", bd=1)
+        chart2_frame.pack(fill="x", pady=6)
+
+        tk.Label(chart2_frame, text="🕰️ Media Acquisition Timeline (Photos & Videos per Year/Month from Day 1 to Today)", bg="#1e293b", fg="#fcd34d", font=("Segoe UI", 9, "bold")).pack(anchor="w")
+
+        c2 = tk.Canvas(chart2_frame, bg="#0f172a", height=130, highlightthickness=0)
+        c2.pack(fill="x", pady=4)
+
+        # Group items by YYYY-MM
+        timeline_counts = {}
+        for it in items:
+            mtime = it.get("mtime", 0)
+            if mtime > 0:
+                dt_key = datetime.fromtimestamp(mtime).strftime('%Y-%m')
+                timeline_counts[dt_key] = timeline_counts.get(dt_key, 0) + 1
+
+        sorted_months = sorted(timeline_counts.keys())
+        # Pick the most active / distributed periods
+        if len(sorted_months) > 20:
+            step = max(1, len(sorted_months) // 20)
+            displayed_months = sorted_months[::step]
+            if sorted_months[-1] not in displayed_months:
+                displayed_months.append(sorted_months[-1])
+        else:
+            displayed_months = sorted_months
+
+        max_t_count = max([timeline_counts[m] for m in displayed_months] + [1])
+
+        def draw_timeline_bars(event=None):
+            c2.delete("all")
+            w = c2.winfo_width() or 600
+            if not displayed_months:
+                c2.create_text(w // 2, 60, text="No date footprint data found. Click 'Scan Mobile' to build timeline.", fill="#64748b", font=("Segoe UI", 8))
+                return
+
+            n = len(displayed_months)
+            slot_w = max(12, (w - 60) / n)
+            bar_w = max(6, slot_w - 4)
+
+            for i, m in enumerate(displayed_months):
+                cnt = timeline_counts[m]
+                x1 = 30 + (i * slot_w)
+                x2 = x1 + bar_w
+                h = int((cnt / max_t_count) * 80)
+                y1 = 100 - h
+                y2 = 100
+
+                # Gradient color based on recency
+                color = "#38bdf8" if i == n - 1 else ("#0284c7" if i > n // 2 else "#475569")
+                c2.create_rectangle(x1, y1, x2, y2, fill=color, outline="")
+                c2.create_text((x1 + x2) / 2, y1 - 6, text=str(cnt), fill="#94a3b8", font=("Segoe UI", 6))
+                
+                # Label
+                label_m = m[2:] # "20-07"
+                c2.create_text((x1 + x2) / 2, 112, text=label_m, fill="#cbd5e1", font=("Segoe UI", 6), angle=0)
+
+        c2.bind("<Configure>", draw_timeline_bars)
+        self.after(60, draw_timeline_bars)
+
+        # -------------------------------------------------------------
+        # 3. CALLS & CONTACTS ACTIVITY BREAKDOWN
+        # -------------------------------------------------------------
+        chart3_frame = tk.Frame(self.analytics_inner_frame, bg="#1e293b", padx=10, pady=8, relief="solid", bd=1)
+        chart3_frame.pack(fill="x", pady=6)
+
+        tk.Label(chart3_frame, text="📞 Call Activity & Contact Distribution", bg="#1e293b", fg="#a855f7", font=("Segoe UI", 9, "bold")).pack(anchor="w")
+
+        in_calls = sum(1 for c in calls if c.get("type_id") == "1")
+        out_calls = sum(1 for c in calls if c.get("type_id") == "2")
+        mis_calls = sum(1 for c in calls if c.get("type_id") == "3")
+        rej_calls = sum(1 for c in calls if c.get("type_id") == "5")
+        tot_c = max(1, len(calls))
+
+        c3_row = tk.Frame(chart3_frame, bg="#1e293b")
+        c3_row.pack(fill="x", pady=4)
+
+        def make_stat_meter(parent, label, count, color):
+            pct = (count / tot_c) * 100
+            f = tk.Frame(parent, bg="#1e293b")
+            f.pack(side="left", fill="both", expand=True, padx=4)
+            tk.Label(f, text=f"{label}: {count} ({pct:.0f}%)", bg="#1e293b", fg=color, font=("Segoe UI", 8, "bold")).pack(anchor="w")
+            pb = ttk.Progressbar(f, value=pct, maximum=100)
+            pb.pack(fill="x", pady=2)
+
+        make_stat_meter(c3_row, "📥 Incoming", in_calls, "#16a34a")
+        make_stat_meter(c3_row, "📤 Outgoing", out_calls, "#0284c7")
+        make_stat_meter(c3_row, "❌ Missed", mis_calls, "#ef4444")
+        make_stat_meter(c3_row, "🚫 Rejected", rej_calls, "#f59e0b")
 
     def _build_power_tab(self, parent):
-        tk.Label(parent, text="Battery Health & Power Save Controls", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(anchor="w", pady=(0, 8))
+        tk.Label(parent, text="Battery Health & Power Save Controls", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(anchor="w", pady=(0, 6))
 
-        p_card = tk.Frame(parent, bg="#1e293b", padx=14, pady=12, relief="solid", bd=1)
+        p_card = tk.Frame(parent, bg="#1e293b", padx=12, pady=10, relief="solid", bd=1)
         p_card.pack(fill="x", pady=4)
 
         self.batt_level_lbl = tk.Label(p_card, text="Battery Level: Checking...", bg="#1e293b", fg="#f8fafc", font=("Segoe UI", 10, "bold"))
@@ -835,16 +1257,16 @@ class DeviceDevStudio(tk.Tk):
         self.batt_status_lbl = tk.Label(p_card, text="Charging State: Unknown", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 9))
         self.batt_status_lbl.pack(anchor="w", pady=2)
 
-        tk.Button(p_card, text="🔄 Check Battery Info", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=8, pady=3, relief="flat", command=self.check_battery).pack(anchor="w", pady=6)
+        tk.Button(p_card, text="🔄 Check Battery Info", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=8, pady=3, relief="flat", command=self.check_battery).pack(anchor="w", pady=4)
 
         p_acts = tk.Frame(parent, bg="#0f172a")
-        p_acts.pack(fill="x", pady=10)
+        p_acts.pack(fill="x", pady=6)
 
-        tk.Button(p_acts, text="💤 Put Mobile To Sleep", bg="#334155", fg="#f8fafc", activebackground="#475569", activeforeground="white", font=("Segoe UI", 9, "bold"), padx=10, pady=6, relief="flat", command=self.put_device_to_sleep).grid(row=0, column=0, padx=4, pady=4, sticky="ew")
-        tk.Button(p_acts, text="⚡ Wake Mobile Screen", bg="#0284c7", fg="#f8fafc", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 9, "bold"), padx=10, pady=6, relief="flat", command=self.wake_device).grid(row=0, column=1, padx=4, pady=4, sticky="ew")
+        tk.Button(p_acts, text="💤 Put Mobile To Sleep", bg="#334155", fg="#f8fafc", activebackground="#475569", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, pady=4, relief="flat", command=self.put_device_to_sleep).grid(row=0, column=0, padx=3, pady=3, sticky="ew")
+        tk.Button(p_acts, text="⚡ Wake Mobile Screen", bg="#0284c7", fg="#f8fafc", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, pady=4, relief="flat", command=self.wake_device).grid(row=0, column=1, padx=3, pady=3, sticky="ew")
 
-        tk.Button(p_acts, text="🔆 Dim Screen to 1", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8), padx=8, pady=4, relief="flat", command=self.dim_screen).grid(row=1, column=0, padx=4, pady=4, sticky="ew")
-        tk.Button(p_acts, text="☀️ Restore Brightness (150)", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8), padx=8, pady=4, relief="flat", command=self.restore_screen).grid(row=1, column=1, padx=4, pady=4, sticky="ew")
+        tk.Button(p_acts, text="🔆 Dim Screen to 1", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8), padx=8, pady=4, relief="flat", command=self.dim_screen).grid(row=1, column=0, padx=3, pady=3, sticky="ew")
+        tk.Button(p_acts, text="☀️ Restore Brightness (150)", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8), padx=8, pady=4, relief="flat", command=self.restore_screen).grid(row=1, column=1, padx=3, pady=3, sticky="ew")
 
         self.var_auto_sleep = tk.BooleanVar(value=False)
         cb1 = tk.Checkbutton(p_card, text="Auto-sleep screen when live monitor is stopped", variable=self.var_auto_sleep, bg="#1e293b", fg="#f8fafc", selectcolor="#0f172a", activebackground="#1e293b", activeforeground="white")
@@ -863,25 +1285,24 @@ class DeviceDevStudio(tk.Tk):
 
     def _build_screen_panel(self, parent):
         top_ctrl = tk.Frame(parent, bg="#1e293b")
-        top_ctrl.pack(fill="x", pady=(0, 8))
+        top_ctrl.pack(fill="x", pady=(0, 6))
 
-        tk.Label(top_ctrl, text="Live Screen", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left")
+        tk.Label(top_ctrl, text="Live Screen", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 10, "bold")).pack(side="left")
 
-        tk.Label(top_ctrl, text="Interval:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(10, 2))
-        self.interval_spin = tk.Spinbox(top_ctrl, from_=1, to=60, width=3, bg="#334155", fg="#ffffff", font=("Segoe UI", 9))
+        tk.Label(top_ctrl, text="Int:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(6, 1))
+        self.interval_spin = tk.Spinbox(top_ctrl, from_=1, to=60, width=2, bg="#334155", fg="#ffffff", font=("Segoe UI", 8))
         self.interval_spin.delete(0, "end")
         self.interval_spin.insert(0, "1")
-        self.interval_spin.pack(side="left", padx=2)
-        tk.Label(top_ctrl, text="s", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left")
+        self.interval_spin.pack(side="left", padx=1)
+        tk.Label(top_ctrl, text="s", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7)).pack(side="left")
 
-        self.btn_pull_live = tk.Button(top_ctrl, text="▶ Start 1s Stream", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.toggle_live_pull)
-        self.btn_pull_live.pack(side="left", padx=6)
+        self.btn_pull_live = tk.Button(top_ctrl, text="▶ Stream", bg="#16a34a", fg="white", font=("Segoe UI", 7, "bold"), padx=6, relief="flat", command=self.toggle_live_pull)
+        self.btn_pull_live.pack(side="left", padx=3)
 
-        tk.Button(top_ctrl, text="📸 Snapshot", bg="#475569", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.pull_single_screen).pack(side="left", padx=2)
+        tk.Button(top_ctrl, text="📸 Snap", bg="#475569", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self.pull_single_screen).pack(side="left", padx=1)
 
-        # Right buttons for opening laptop saved folder and photo viewer
-        tk.Button(top_ctrl, text="📁 Saved Folder", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.open_saved_folder).pack(side="right", padx=2)
-        tk.Button(top_ctrl, text="🖼 Open Photo", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=self.open_image_viewer).pack(side="right", padx=2)
+        tk.Button(top_ctrl, text="📁 Laptop", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self.open_saved_folder).pack(side="right", padx=1)
+        tk.Button(top_ctrl, text="🖼 View", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=self.open_image_viewer).pack(side="right", padx=1)
 
         self.screen_frame = tk.Frame(parent, bg="#000000", bd=2, relief="groove")
         self.screen_frame.pack(fill="both", expand=True)
@@ -896,14 +1317,14 @@ class DeviceDevStudio(tk.Tk):
         self.screen_inner_frame = tk.Frame(self.screen_canvas, bg="#000000")
         self.screen_canvas_win = self.screen_canvas.create_window((0, 0), window=self.screen_inner_frame, anchor="nw")
 
-        self.screen_lbl = tk.Label(self.screen_inner_frame, text="No Screen Captured\nClick 'Snapshot' or 'Start 1s Stream'", bg="#000000", fg="#64748b", font=("Segoe UI", 10), justify="center")
-        self.screen_lbl.pack(pady=40, padx=20)
+        self.screen_lbl = tk.Label(self.screen_inner_frame, text="No Screen Captured\nClick 'Snap' or 'Stream'", bg="#000000", fg="#64748b", font=("Segoe UI", 9), justify="center")
+        self.screen_lbl.pack(pady=40, padx=10)
 
         self.screen_inner_frame.bind("<Configure>", lambda e: self.screen_canvas.configure(scrollregion=self.screen_canvas.bbox("all")))
         self.screen_canvas.bind("<Configure>", self._center_canvas)
 
-        self.screen_status_lbl = tk.Label(parent, text="Screen status: Ready | Saved to laptop date-wise | Phone gallery excluded", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8))
-        self.screen_status_lbl.pack(fill="x", pady=(4, 0))
+        self.screen_status_lbl = tk.Label(parent, text="Status: Ready | Saved to laptop date-wise | Phone gallery excluded", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7))
+        self.screen_status_lbl.pack(fill="x", pady=(2, 0))
 
     def _center_canvas(self, event):
         canvas_width = event.width
