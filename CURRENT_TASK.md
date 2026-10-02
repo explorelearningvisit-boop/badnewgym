@@ -75,5 +75,8 @@ Never skip screenshot comparison when a target device is reachable.
 
 Do not report completion merely because Gradle compiles. Completion requires reference decomposition, shell/rail/identity/event/widgets, Home default behavior, event/entitlement logic, responsive layout, passing build/tests, target-device verification when reachable, and major mismatches fixed or explicitly recorded.
 
+## Project routing
+The active production Android project is the repository-root Gradle project and module `:app`. `BAD_GYM_MEMBER_INTELLIGENCE_READY/` is legacy/reference material, not the production module. `OPPO/` and `Launch_Oppo_Dev_Studio.bat` are out of scope.
+
 ## Scope
-Only BAD GYM application, tests, assets and documentation. Do not modify OPPO/mobile-control tooling or unrelated projects.
+Only the root BAD GYM `:app` application, its tests, assets and BAD GYM documentation are in scope.
