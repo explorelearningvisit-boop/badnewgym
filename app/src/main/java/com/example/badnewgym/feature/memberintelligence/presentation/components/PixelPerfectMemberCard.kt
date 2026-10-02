@@ -1,15 +1,11 @@
 package com.example.badnewgym.feature.memberintelligence.presentation.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,10 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Apps
@@ -32,7 +26,6 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CardMembership
 import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.DragIndicator
 import androidx.compose.material.icons.rounded.EventAvailable
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.History
@@ -41,7 +34,6 @@ import androidx.compose.material.icons.rounded.LocalOffer
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Payment
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.Icon
@@ -60,35 +52,39 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.consume
 import coil.compose.AsyncImage
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.model.*
-import kotlin.math.roundToInt
 
-private val BG = Color(0xFFF1FBF7)
-private val SURFACE = Color.White
-private val TEXT = Color(0xFF102A25)
-private val MUTED = Color(0xFF66807A)
+private val PAGE = Color(0xFFF4FBF8)
+private val SURFACE = Color(0xFFFFFFFF)
+private val TEXT = Color(0xFF102B26)
+private val MUTED = Color(0xFF6C8580)
 private val GREEN = Color(0xFF00B86B)
-private val GREEN_DARK = Color(0xFF007A4B)
-private val BLUE = Color(0xFF2F80ED)
-private val RED = Color(0xFFE63B3B)
-private val AMBER = Color(0xFFF4A11A)
-private val PURPLE = Color(0xFF7A5AF8)
-private val BORDER = Color(0xFFD7EEE7)
+private val GREEN_DARK = Color(0xFF08764F)
+private val MINT = Color(0xFFE5F8F0)
+private val BLUE = Color(0xFF367FE8)
+private val RED = Color(0xFFE54848)
+private val AMBER = Color(0xFFE59A1A)
+private val PURPLE = Color(0xFF7659E8)
+private val LINE = Color(0xFFDCEDE7)
 
 /**
- * Visit Based Member Card v1.
+ * BAD GYM Member Intelligence — canonical visit card.
  *
- * Geometry: 360dp maximum width, 3:4 shell, 16dp safe content, 56dp rail,
- * 288dp content target. Old theme selector/skins are no longer rendered.
+ * The card is intentionally NOT a dashboard full of equal white boxes.
+ * One member, one event, one dominant signal, one active menu.
+ *
+ * Geometry:
+ * - 360dp maximum shell
+ * - 3:4 shell ratio
+ * - 16dp safe content
+ * - 56dp vertical rail
+ * - active menu content is kept inside one practical mobile viewport
  */
 @Composable
 fun PixelPerfectMemberCard(
@@ -109,35 +105,51 @@ fun PixelPerfectMemberCard(
 ) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         if (snapshot == null || currentEvent == null) {
-            Text("Loading Visit Intelligence…", color = MUTED, modifier = Modifier.padding(32.dp))
+            Text(
+                "Loading member intelligence…",
+                color = MUTED,
+                modifier = Modifier.padding(32.dp)
+            )
         } else {
-            VisitBasedCard(
-                snapshot, currentEvent, signals, menus, activeMenu ?: MenuType.HOME,
-                visitWidgetEntitlements, cta, onMenuSelected, onCta
+            CanonicalMemberCard(
+                snapshot = snapshot,
+                event = currentEvent,
+                signals = signals,
+                menus = menus,
+                activeMenu = activeMenu ?: MenuType.HOME,
+                entitlements = visitWidgetEntitlements,
+                primarySignal = primarySignal,
+                secondarySignals = secondarySignals,
+                cta = cta,
+                onMenuSelected = onMenuSelected,
+                onCta = onCta
             )
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun VisitBasedCard(
+private fun CanonicalMemberCard(
     snapshot: MemberSnapshot,
     event: MemberEvent,
     signals: List<IntelligenceSignal>,
     menus: List<MemberMenu>,
     activeMenu: MenuType,
     entitlements: VisitWidgetEntitlements,
+    primarySignal: IntelligenceSignal?,
+    secondarySignals: List<IntelligenceSignal>,
     cta: SignalAction?,
     onMenuSelected: (MenuType) -> Unit,
     onCta: (SignalAction) -> Unit
 ) {
+    var editorOpen by remember { mutableStateOf(false) }
     var layout by remember { mutableStateOf(VisitWidgetLayout()) }
-    var edit by remember { mutableStateOf(false) }
-    var dragging by remember { mutableStateOf<VisitWidgetId?>(null) }
-    var dragOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-    val visible = VisitWidgetConditionResolver.resolve(event, snapshot, entitlements, layout)
+    val accent = eventAccent(event.eventType)
+    val visibleWidgetIds = VisitWidgetConditionResolver
+        .resolve(event, snapshot, entitlements, layout)
+        .map { it.id }
+        .toSet()
 
     Box(
         Modifier
@@ -145,328 +157,1049 @@ private fun VisitBasedCard(
             .fillMaxWidth()
             .aspectRatio(3f / 4f)
             .padding(8.dp)
-            .clip(RoundedCornerShape(28.dp))
-            .background(Brush.verticalGradient(listOf(Color.White, BG, Color(0xFFE6F8F0))))
-            .border(1.dp, BORDER, RoundedCornerShape(28.dp))
-            .shadow(18.dp, RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(30.dp))
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color.White, PAGE, Color(0xFFEAF8F2))
+                )
+            )
+            .border(1.dp, LINE, RoundedCornerShape(30.dp))
+            .shadow(22.dp, RoundedCornerShape(30.dp))
     ) {
         Column(Modifier.fillMaxSize()) {
+            CardHeader(
+                snapshot = snapshot,
+                event = event,
+                accent = accent,
+                subscriptionActive = entitlements.subscriptionActive,
+                onEdit = { editorOpen = !editorOpen }
+            )
+
             Row(
-                Modifier.fillMaxWidth().height(58.dp).padding(horizontal = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 10.dp, vertical = 8.dp)
             ) {
-                Box(
-                    Modifier.size(38.dp).clip(RoundedCornerShape(13.dp))
-                        .background(Brush.linearGradient(listOf(GREEN, GREEN_DARK))),
-                    contentAlignment = Alignment.Center
-                ) { Text("ϟ", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Black) }
+                VerticalRail(
+                    menus = menus,
+                    activeMenu = activeMenu,
+                    accent = accent,
+                    onMenuSelected = onMenuSelected
+                )
 
                 Spacer(Modifier.width(8.dp))
-                Column(Modifier.weight(1f)) {
-                    Text("BAD GYM", color = TEXT, fontSize = 18.sp, fontWeight = FontWeight.Black)
-                    Text(
-                        event.eventType.displayLabel() + " • " + entitlements.subscriptionPlan,
-                        color = MUTED, fontSize = 8.sp, fontWeight = FontWeight.Bold
+
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(Color.White.copy(alpha = 0.74f))
+                        .border(1.dp, LINE, RoundedCornerShape(22.dp))
+                        .padding(10.dp)
+                ) {
+                    ActiveMenuContent(
+                        menu = activeMenu,
+                        snapshot = snapshot,
+                        event = event,
+                        accent = accent,
+                        visibleWidgetIds = visibleWidgetIds,
+                        signals = signals,
+                        primarySignal = primarySignal,
+                        secondarySignals = secondarySignals,
+                        cta = cta,
+                        onCta = onCta
                     )
-                }
-                Icon(
-                    if (entitlements.subscriptionActive) Icons.Rounded.Verified else Icons.Rounded.Lock,
-                    null, tint = if (entitlements.subscriptionActive) GREEN else RED
-                )
-                IconButton(onClick = { edit = !edit }) {
-                    Icon(if (edit) Icons.Rounded.CheckCircle else Icons.Rounded.Tune, "Widget controls", tint = TEXT)
-                }
-            }
-
-            Row(Modifier.fillMaxSize()) {
-                Column(
-                    Modifier.width(56.dp).fillMaxHeight().padding(start = 6.dp, top = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    menus.filter { it.isVisible }.take(10).forEach { menu ->
-                        val selected = menu.id == activeMenu
-                        Box(
-                            Modifier.size(46.dp).clip(RoundedCornerShape(14.dp))
-                                .background(if (selected) GREEN else Color.White.copy(.82f))
-                                .border(1.dp, if (selected) GREEN else BORDER, RoundedCornerShape(14.dp))
-                                .clickable(enabled = menu.isEnabled) { onMenuSelected(menu.id) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(menuIcon(menu.id), menu.label, tint = if (selected) Color.White else TEXT)
-                            if (menu.hasAlert) {
-                                Box(Modifier.align(Alignment.TopEnd).padding(5.dp).size(7.dp).clip(CircleShape).background(RED))
-                            }
-                        }
-                    }
-                }
-
-                FlowRow(
-                    Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())
-                        .padding(start = 8.dp, end = 10.dp, top = 4.dp, bottom = 10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    maxItemsInEachRow = 4
-                ) {
-                    visible.forEachIndexed { index, definition ->
-                        val widthFraction = definition.size.widthUnits / 4f
-                        val height = 58.dp * definition.size.heightUnits
-                        val isDragging = dragging == definition.id
-                        Box(
-                            Modifier
-                                .fillMaxWidth(widthFraction)
-                                .height(height)
-                                .shadow(if (isDragging) 16.dp else 4.dp, RoundedCornerShape(17.dp))
-                                .pointerInput(edit, definition.id) {
-                                    if (!edit) return@pointerInput
-                                    detectDragGesturesAfterLongPress(
-                                        onDragStart = { dragging = definition.id },
-                                        onDrag = { change, amount ->
-                                            change.consume()
-                                            dragOffset += IntOffset(amount.x.roundToInt(), amount.y.roundToInt())
-                                            if (dragOffset.x > 40 || dragOffset.y > 40) {
-                                                if (index < visible.lastIndex) moveWidget(layout, definition.id, visible.getOrNull(index + 1)?.id)?.let { layout = it }
-                                                dragOffset = IntOffset.Zero
-                                            } else if (dragOffset.x < -40 || dragOffset.y < -40) {
-                                                if (index > 0) moveWidget(layout, definition.id, visible.getOrNull(index - 1)?.id)?.let { layout = it }
-                                                dragOffset = IntOffset.Zero
-                                            }
-                                        },
-                                        onDragEnd = { dragging = null; dragOffset = IntOffset.Zero },
-                                        onDragCancel = { dragging = null; dragOffset = IntOffset.Zero }
-                                    )
-                                }
-                        ) {
-                            VisitWidget(definition, snapshot, event, signals, cta, onCta)
-                        }
-                    }
                 }
             }
         }
 
-        if (edit) {
+        if (editorOpen) {
             WidgetEditor(
                 layout = layout,
                 entitlements = entitlements,
                 onToggle = { id ->
-                    val set = layout.locallyDisabled.toMutableSet()
-                    if (!set.add(id)) set.remove(id)
-                    layout = layout.copy(locallyDisabled = set)
-                }
+                    val disabled = layout.locallyDisabled.toMutableSet()
+                    if (!disabled.add(id)) disabled.remove(id)
+                    layout = layout.copy(locallyDisabled = disabled)
+                },
+                onClose = { editorOpen = false }
             )
         }
     }
 }
 
-private fun moveWidget(layout: VisitWidgetLayout, fromId: VisitWidgetId, toId: VisitWidgetId?): VisitWidgetLayout? {
-    if (toId == null || fromId == toId) return null
-    val ids = layout.orderedIds.toMutableList()
-    val from = ids.indexOf(fromId)
-    val to = ids.indexOf(toId)
-    if (from < 0 || to < 0) return null
-    ids.removeAt(from)
-    ids.add(to, fromId)
-    return layout.copy(orderedIds = ids)
+@Composable
+private fun CardHeader(
+    snapshot: MemberSnapshot,
+    event: MemberEvent,
+    accent: Color,
+    subscriptionActive: Boolean,
+    onEdit: () -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(78.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            Modifier
+                .size(54.dp)
+                .clip(RoundedCornerShape(18.dp))
+                .background(Brush.linearGradient(listOf(GREEN, Color(0xFFBDF3DD))))
+        ) {
+            if (!snapshot.identity.photoUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = snapshot.identity.photoUrl,
+                    contentDescription = snapshot.identity.name,
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp))
+                )
+            } else {
+                Icon(
+                    Icons.Rounded.Person,
+                    null,
+                    tint = GREEN_DARK,
+                    modifier = Modifier.align(Alignment.Center).size(27.dp)
+                )
+            }
+            if (snapshot.identity.isVerified) {
+                Box(
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(19.dp)
+                        .clip(CircleShape)
+                        .background(SURFACE)
+                        .border(2.dp, SURFACE, CircleShape)
+                ) {
+                    Icon(
+                        Icons.Rounded.Verified,
+                        null,
+                        tint = GREEN,
+                        modifier = Modifier.fillMaxSize().padding(2.dp)
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.width(10.dp))
+
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    snapshot.identity.name,
+                    color = TEXT,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Black,
+                    maxLines = 1
+                )
+                Spacer(Modifier.width(5.dp))
+                Text(
+                    snapshot.identity.code.orEmpty(),
+                    color = MUTED,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                snapshot.membership?.planName ?: snapshot.identity.tier.name.replace('_', ' '),
+                color = TEXT,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold
+            )
+            EventPill(event.eventType.displayLabel(), accent)
+        }
+
+        Column(horizontalAlignment = Alignment.End) {
+            Icon(
+                if (subscriptionActive) Icons.Rounded.Verified else Icons.Rounded.Lock,
+                null,
+                tint = if (subscriptionActive) GREEN else RED,
+                modifier = Modifier.size(18.dp)
+            )
+            IconButton(onClick = onEdit, modifier = Modifier.size(34.dp)) {
+                Icon(Icons.Rounded.Tune, "Widget controls", tint = TEXT, modifier = Modifier.size(19.dp))
+            }
+        }
+    }
 }
 
 @Composable
-private fun VisitWidget(
-    definition: VisitWidgetDefinition,
+private fun EventPill(label: String, accent: Color) {
+    Box(
+        Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(accent.copy(alpha = 0.10f))
+            .border(1.dp, accent.copy(alpha = 0.20f), RoundedCornerShape(8.dp))
+            .padding(horizontal = 7.dp, vertical = 3.dp)
+    ) {
+        Text(label, color = accent, fontSize = 7.sp, fontWeight = FontWeight.Black)
+    }
+}
+
+@Composable
+private fun VerticalRail(
+    menus: List<MemberMenu>,
+    activeMenu: MenuType,
+    accent: Color,
+    onMenuSelected: (MenuType) -> Unit
+) {
+    val visible = menus
+        .filter { it.isVisible }
+        .sortedBy { it.priority }
+        .take(7)
+
+    Column(
+        Modifier
+            .width(52.dp)
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(18.dp))
+            .background(Color.White.copy(alpha = 0.70f))
+            .border(1.dp, LINE, RoundedCornerShape(18.dp))
+            .padding(5.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        visible.forEach { menu ->
+            val selected = menu.id == activeMenu
+            Box(
+                Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(13.dp))
+                    .background(
+                        if (selected) Brush.linearGradient(listOf(accent, accent.copy(alpha = 0.78f)))
+                        else Brush.verticalGradient(listOf(Color.White, Color(0xFFF3F8F6)))
+                    )
+                    .border(
+                        1.dp,
+                        if (selected) accent.copy(alpha = 0.25f) else LINE,
+                        RoundedCornerShape(13.dp)
+                    )
+                    .clickable(enabled = menu.isEnabled && !menu.isLocked) {
+                        onMenuSelected(menu.id)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    menuIcon(menu.id),
+                    menu.label,
+                    tint = if (selected) Color.White else TEXT,
+                    modifier = Modifier.size(19.dp)
+                )
+                if (menu.hasAlert || menu.badgeCount > 0) {
+                    Box(
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .size(7.dp)
+                            .clip(CircleShape)
+                            .background(if (selected) Color.White else RED)
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        Box(
+            Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(13.dp))
+                .background(MINT)
+                .border(1.dp, LINE, RoundedCornerShape(13.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(Icons.Rounded.Home, "Home", tint = GREEN_DARK, modifier = Modifier.size(18.dp))
+        }
+    }
+}
+
+@Composable
+private fun ActiveMenuContent(
+    menu: MenuType,
     snapshot: MemberSnapshot,
     event: MemberEvent,
+    accent: Color,
+    visibleWidgetIds: Set<VisitWidgetId>,
     signals: List<IntelligenceSignal>,
+    primarySignal: IntelligenceSignal?,
+    secondarySignals: List<IntelligenceSignal>,
     cta: SignalAction?,
     onCta: (SignalAction) -> Unit
 ) {
-    val accent = when (definition.id) {
-        VisitWidgetId.PAYMENT_ALERT -> RED
-        VisitWidgetId.ATTENDANCE -> BLUE
-        VisitWidgetId.PLAN -> AMBER
-        VisitWidgetId.GYM_TIME, VisitWidgetId.INSIGHT -> PURPLE
-        else -> GREEN
-    }
-    Box(
-        Modifier.fillMaxSize().clip(RoundedCornerShape(17.dp)).background(SURFACE)
-            .border(1.dp, BORDER, RoundedCornerShape(17.dp)).padding(9.dp)
+    Column(
+        Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        when (definition.id) {
-            VisitWidgetId.MEMBER_IDENTITY -> IdentityWidget(snapshot)
-            VisitWidgetId.CURRENT_VISIT -> CurrentVisitWidget(event, accent)
-            VisitWidgetId.PAYMENT_ALERT -> PaymentWidget(snapshot, cta, onCta)
-            VisitWidgetId.ATTENDANCE -> AttendanceWidget(snapshot, accent)
-            VisitWidgetId.PLAN -> PlanWidget(snapshot, accent)
-            VisitWidgetId.GYM_TIME -> MetricWidget(Icons.Rounded.AccessTime, "Gym Time", (snapshot.workout?.durationMinutes ?: 0).toString() + " min", accent)
-            VisitWidgetId.WORKOUT -> MetricWidget(Icons.Rounded.FitnessCenter, "Workout", snapshot.workout?.currentRoutine ?: "Workout", accent)
-            VisitWidgetId.TRAINER -> MetricWidget(Icons.Rounded.Person, "Trainer / PT", snapshot.trainer?.trainerName ?: "PT", accent)
-            VisitWidgetId.BODY_PROGRESS -> MetricWidget(Icons.Rounded.AccessTime, "Body Progress", "Progress", accent)
-            VisitWidgetId.SERVICES -> MetricWidget(Icons.Rounded.Apps, "Services", snapshot.services.orEmpty().count { it.isActive }.toString() + " active", accent)
-            VisitWidgetId.OFFERS -> MetricWidget(Icons.Rounded.LocalOffer, "Offers", snapshot.promotion?.title ?: "Available", accent)
-            VisitWidgetId.HISTORY -> MetricWidget(Icons.Rounded.History, "History", snapshot.recentEvents.size.toString() + " events", accent)
-            VisitWidgetId.INSIGHT -> MetricWidget(Icons.Rounded.AutoAwesome, "Insight", signals.firstOrNull()?.title ?: "All clear", accent)
+        MenuTitle(
+            menu = menu,
+            event = event,
+            accent = accent
+        )
+
+        when (menu) {
+            MenuType.HOME -> HomeMenu(
+                snapshot, event, accent, visibleWidgetIds,
+                primarySignal, secondarySignals, cta, onCta
+            )
+            MenuType.ATTENDANCE -> AttendanceMenu(snapshot, accent)
+            MenuType.PLAN -> PlanMenu(snapshot, accent)
+            MenuType.PAYMENT -> PaymentMenu(snapshot, accent, cta, onCta)
+            MenuType.TRAINER -> TrainerMenu(snapshot, accent)
+            MenuType.WORKOUT -> WorkoutMenu(snapshot, accent)
+            MenuType.SUPPLEMENTS -> SupplementsMenu(snapshot, accent)
+            MenuType.NUTRITION -> NutritionMenu(snapshot, accent)
+            MenuType.SERVICES -> ServicesMenu(snapshot, accent)
+            MenuType.HISTORY -> HistoryMenu(snapshot, accent)
+            MenuType.INSIGHT -> InsightMenu(signals, primarySignal, accent)
         }
     }
 }
 
 @Composable
-private fun IdentityWidget(snapshot: MemberSnapshot) {
+private fun MenuTitle(menu: MenuType, event: MemberEvent, accent: Color) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
-            Modifier.size(52.dp).clip(CircleShape)
-                .background(Brush.linearGradient(listOf(GREEN, Color(0xFFB8F5DD))))
+            Modifier
+                .size(34.dp)
+                .clip(RoundedCornerShape(11.dp))
+                .background(accent.copy(alpha = 0.10f)),
+            contentAlignment = Alignment.Center
         ) {
-            if (!snapshot.identity.photoUrl.isNullOrBlank()) {
-                AsyncImage(snapshot.identity.photoUrl, null, Modifier.fillMaxSize().clip(CircleShape))
-            } else Icon(Icons.Rounded.Person, null, tint = GREEN_DARK, modifier = Modifier.align(Alignment.Center))
+            Icon(menuIcon(menu), null, tint = accent, modifier = Modifier.size(18.dp))
         }
         Spacer(Modifier.width(8.dp))
         Column(Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(snapshot.identity.name, color = TEXT, fontSize = 13.sp, fontWeight = FontWeight.Black, maxLines = 1)
-                if (snapshot.identity.isVerified) {
-                    Spacer(Modifier.width(4.dp)); Icon(Icons.Rounded.Verified, null, tint = GREEN, modifier = Modifier.size(14.dp))
-                }
-            }
+            Text(menu.defaultLabel, color = TEXT, fontSize = 15.sp, fontWeight = FontWeight.Black)
             Text(
-                listOfNotNull(snapshot.identity.code, snapshot.identity.tier.name.replace('_', ' ')).joinToString(" • "),
-                color = MUTED, fontSize = 8.sp, fontWeight = FontWeight.Bold
+                if (menu == MenuType.HOME) event.eventType.displayLabel() + " intelligence"
+                else "Member intelligence",
+                color = MUTED,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.Bold
             )
-            snapshot.membership?.let { Text(it.planName + " • " + it.daysRemaining.coerceAtLeast(0) + " days left", color = TEXT, fontSize = 9.sp, fontWeight = FontWeight.Bold) }
-        }
-    }
-}
-
-@Composable
-private fun CurrentVisitWidget(event: MemberEvent, accent: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconBubble(Icons.Rounded.EventAvailable, accent)
-        Spacer(Modifier.width(8.dp))
-        Column(Modifier.weight(1f)) {
-            Text(event.eventType.displayLabel(), color = TEXT, fontSize = 13.sp, fontWeight = FontWeight.Black)
-            Text(timeText(event.occurredAt), color = MUTED, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-            Text(
-                if (event.eventType == EventType.CHECK_OUT) "Visit completed • duration enabled"
-                else "Current visit • live context",
-                color = GREEN_DARK, fontSize = 8.sp, fontWeight = FontWeight.Bold
-            )
-        }
-        Text(if (event.eventType == EventType.CHECK_OUT) "DONE" else "LIVE", color = accent, fontSize = 9.sp, fontWeight = FontWeight.Black)
-    }
-}
-
-@Composable
-private fun PaymentWidget(snapshot: MemberSnapshot, cta: SignalAction?, onCta: (SignalAction) -> Unit) {
-    val payment = snapshot.payment ?: return
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBubble(Icons.Rounded.Payment, RED)
-            Spacer(Modifier.width(7.dp))
-            Column(Modifier.weight(1f)) {
-                Text(if (payment.overdueDays > 0) "Payment Overdue" else "Payment Due", color = RED, fontSize = 10.sp, fontWeight = FontWeight.Black)
-                Text("₹" + payment.totalOutstanding.toInt(), color = TEXT, fontSize = 17.sp, fontWeight = FontWeight.Black)
-            }
         }
         Text(
-            if (payment.overdueDays > 0) payment.overdueDays.toString() + " days late • remains visible after checkout"
-            else "Due " + (payment.dueDate?.let(::dateText) ?: "soon"),
-            color = MUTED, fontSize = 7.sp
+            timeText(event.occurredAt),
+            color = MUTED,
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Bold
         )
-        if (cta != null) {
+    }
+}
+
+@Composable
+private fun HomeMenu(
+    snapshot: MemberSnapshot,
+    event: MemberEvent,
+    accent: Color,
+    visible: Set<VisitWidgetId>,
+    primarySignal: IntelligenceSignal?,
+    secondarySignals: List<IntelligenceSignal>,
+    cta: SignalAction?,
+    onCta: (SignalAction) -> Unit
+) {
+    if (VisitWidgetId.CURRENT_VISIT in visible) {
+        CurrentVisitHero(event, accent)
+    }
+
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        if (VisitWidgetId.ATTENDANCE in visible) {
+            CompactMetric(
+                Modifier.weight(1f),
+                Icons.Rounded.CalendarMonth,
+                "ATTENDANCE",
+                snapshot.attendance?.visits?.toString() ?: "—",
+                (snapshot.attendance?.streakDays ?: 0).toString() + " day streak",
+                BLUE
+            )
+        }
+        if (VisitWidgetId.PLAN in visible) {
+            CompactMetric(
+                Modifier.weight(1f),
+                Icons.Rounded.CardMembership,
+                "PLAN",
+                snapshot.membership?.planName ?: "No plan",
+                (snapshot.membership?.daysRemaining ?: 0).coerceAtLeast(0).toString() + " days left",
+                AMBER
+            )
+        }
+    }
+
+    PrimaryInsight(
+        signal = primarySignal,
+        fallback = secondarySignals.firstOrNull(),
+        accent = accent
+    )
+
+    if (snapshot.payment?.totalOutstanding ?: 0.0 > 0.0 && VisitWidgetId.PAYMENT_ALERT in visible) {
+        PaymentStrip(snapshot, cta, onCta)
+    } else {
+        SmartStatusStrip(snapshot, event, accent)
+    }
+}
+
+@Composable
+private fun CurrentVisitHero(event: MemberEvent, accent: Color) {
+    val checkout = event.eventType == EventType.CHECK_OUT
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(86.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(accent.copy(alpha = 0.13f), Color.White)
+                )
+            )
+            .border(1.dp, accent.copy(alpha = 0.18f), RoundedCornerShape(20.dp))
+            .padding(12.dp)
+    ) {
+        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.fillMaxWidth().height(24.dp).clip(RoundedCornerShape(9.dp))
-                    .background(Brush.horizontalGradient(listOf(RED, Color(0xFFFF7777))))
-                    .clickable { onCta(cta) },
+                Modifier
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(17.dp))
+                    .background(accent),
                 contentAlignment = Alignment.Center
-            ) { Text("Collect Payment →", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black) }
+            ) {
+                Icon(
+                    if (checkout) Icons.Rounded.CheckCircle else Icons.Rounded.EventAvailable,
+                    null,
+                    tint = Color.White,
+                    modifier = Modifier.size(27.dp)
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (checkout) "Visit completed" else "Member is inside",
+                    color = TEXT,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    if (checkout) "CHECK-OUT • duration & history ready"
+                    else "CHECK-IN • live visit context active",
+                    color = MUTED,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                if (checkout) "DONE" else "LIVE",
+                color = accent,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Black
+            )
         }
     }
 }
 
 @Composable
-private fun AttendanceWidget(snapshot: MemberSnapshot, accent: Color) {
-    val a = snapshot.attendance ?: return
-    Column {
-        MetricTitle(Icons.Rounded.CalendarMonth, "Attendance", accent)
-        Text(a.visits.toString() + "/" + (a.target ?: "—") + " visits", color = TEXT, fontSize = 15.sp, fontWeight = FontWeight.Black)
-        LinearProgressIndicator(
-            progress = if ((a.target ?: 0) > 0) (a.visits.toFloat() / a.target!!.toFloat()).coerceIn(0f, 1f) else 0f,
-            modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
-            color = accent, trackColor = Color(0xFFE6F2EE)
-        )
-        Text((a.streakDays ?: 0).toString() + " day streak", color = MUTED, fontSize = 8.sp)
-    }
-}
+private fun PrimaryInsight(
+    signal: IntelligenceSignal?,
+    fallback: IntelligenceSignal?,
+    accent: Color
+) {
+    val title = signal?.title ?: fallback?.title ?: "Member is on track"
+    val detail = signal?.description ?: fallback?.description ?: "No urgent action is required right now."
 
-@Composable
-private fun PlanWidget(snapshot: MemberSnapshot, accent: Color) {
-    val m = snapshot.membership ?: return
-    Column {
-        MetricTitle(Icons.Rounded.CardMembership, "Plan", accent)
-        Text(m.planName, color = TEXT, fontSize = 12.sp, fontWeight = FontWeight.Black)
-        Text(m.daysRemaining.coerceAtLeast(0).toString() + " days remaining", color = MUTED, fontSize = 8.sp)
-    }
-}
-
-@Composable
-private fun MetricWidget(icon: ImageVector, title: String, value: String, accent: Color) {
-    Column {
-        MetricTitle(icon, title, accent)
-        Text(value, color = TEXT, fontSize = 12.sp, fontWeight = FontWeight.Black, maxLines = 2)
-        Text("Visit-based context", color = MUTED, fontSize = 7.sp)
-    }
-}
-
-@Composable
-private fun MetricTitle(icon: ImageVector, title: String, accent: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, tint = accent, modifier = Modifier.size(15.dp))
-        Spacer(Modifier.width(5.dp))
-        Text(title, color = TEXT, fontSize = 9.sp, fontWeight = FontWeight.Black)
-    }
-}
-
-@Composable
-private fun IconBubble(icon: ImageVector, color: Color) {
     Box(
-        Modifier.size(34.dp).clip(CircleShape)
-            .background(Brush.radialGradient(listOf(Color.White, color)))
-            .border(1.dp, color.copy(alpha = .25f), CircleShape),
-        contentAlignment = Alignment.Center
-    ) { Icon(icon, null, tint = color, modifier = Modifier.size(19.dp)) }
+        Modifier
+            .fillMaxWidth()
+            .height(88.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(Brush.linearGradient(listOf(Color(0xFF123D32), Color(0xFF1D6D55))))
+            .padding(12.dp)
+    ) {
+        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.13f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.AutoAwesome, null, tint = Color.White, modifier = Modifier.size(23.dp))
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text("MEMBER INTELLIGENCE", color = Color.White.copy(alpha = 0.68f), fontSize = 7.sp, fontWeight = FontWeight.Black)
+                Text(title, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Black, maxLines = 2)
+                Text(detail, color = Color.White.copy(alpha = 0.78f), fontSize = 8.sp, maxLines = 2)
+            }
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(accent)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SmartStatusStrip(snapshot: MemberSnapshot, event: MemberEvent, accent: Color) {
+    val days = snapshot.membership?.daysRemaining?.coerceAtLeast(0)
+    val message = when {
+        days != null && days <= 7 -> "Membership expires in $days days"
+        snapshot.attendance?.streakDays ?: 0 >= 5 -> "Strong attendance streak"
+        event.eventType == EventType.CHECK_OUT -> "Visit saved • progress can be reviewed"
+        else -> "Everything important is visible from the rail"
+    }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clip(RoundedCornerShape(13.dp))
+            .background(accent.copy(alpha = 0.08f))
+            .border(1.dp, accent.copy(alpha = 0.14f), RoundedCornerShape(13.dp))
+            .padding(horizontal = 10.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(message, color = TEXT, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun PaymentStrip(
+    snapshot: MemberSnapshot,
+    cta: SignalAction?,
+    onCta: (SignalAction) -> Unit
+) {
+    val payment = snapshot.payment ?: return
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clip(RoundedCornerShape(15.dp))
+            .background(RED.copy(alpha = 0.08f))
+            .border(1.dp, RED.copy(alpha = 0.16f), RoundedCornerShape(15.dp))
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(Icons.Rounded.Payment, null, tint = RED, modifier = Modifier.size(19.dp))
+        Spacer(Modifier.width(7.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                if (payment.overdueDays > 0) "Payment overdue" else "Payment due",
+                color = RED,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Black
+            )
+            Text(
+                "₹" + payment.totalOutstanding.toInt() +
+                    if (payment.overdueDays > 0) " • " + payment.overdueDays + " days late" else "",
+                color = TEXT,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        if (cta != null) {
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(RED)
+                    .clickable { onCta(cta) }
+                    .padding(horizontal = 9.dp, vertical = 7.dp)
+            ) {
+                Text("Collect", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AttendanceMenu(snapshot: MemberSnapshot, accent: Color) {
+    val a = snapshot.attendance
+    MetricPanel(
+        title = "Attendance rhythm",
+        icon = Icons.Rounded.CalendarMonth,
+        accent = BLUE
+    ) {
+        Text(
+            (a?.visits ?: 0).toString() + " visits",
+            color = TEXT,
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Black
+        )
+        Text(
+            "Lifetime " + (a?.lifetimeVisits ?: 0) + " • " + (a?.avgVisitsPerWeek ?: 0.0).format1() + "/week",
+            color = MUTED,
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.height(8.dp))
+        ProgressLine(
+            value = if ((a?.target ?: 0) > 0) (a!!.visits.toFloat() / a.target!!.toFloat()).coerceIn(0f, 1f) else 0f,
+            accent = BLUE
+        )
+        Spacer(Modifier.height(7.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            MiniStat("STREAK", (a?.streakDays ?: 0).toString() + "d", BLUE)
+            MiniStat("TARGET", (a?.target ?: 0).toString(), BLUE)
+        }
+    }
+    if (a?.preferredSlot != null || a?.lastVisitAt != null) {
+        InfoPanel("Pattern", Icons.Rounded.AccessTime, BLUE) {
+            Text(
+                listOfNotNull(
+                    a.preferredSlot?.let { "Preferred: $it" },
+                    a.lastVisitAt?.let { "Last visit: " + dateText(it) }
+                ).joinToString(" • "),
+                color = TEXT,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlanMenu(snapshot: MemberSnapshot, accent: Color) {
+    val m = snapshot.membership
+    MetricPanel(title = "Membership", icon = Icons.Rounded.CardMembership, accent = AMBER) {
+        Text(m?.planName ?: "No active plan", color = TEXT, fontSize = 22.sp, fontWeight = FontWeight.Black)
+        Text(m?.planType ?: "—", color = MUTED, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            MiniStat("DAYS LEFT", (m?.daysRemaining ?: 0).coerceAtLeast(0).toString(), AMBER)
+            MiniStat("RENEWALS", (m?.renewalCount ?: 0).toString(), AMBER)
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Expires " + (m?.expiryDate?.let(::dateText) ?: "—"),
+            color = TEXT,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+    m?.previousPlanName?.let {
+        InfoPanel("Previous plan", Icons.Rounded.History, AMBER) {
+            Text(it, color = TEXT, fontSize = 10.sp, fontWeight = FontWeight.Black)
+            Text("Plan history is available from History.", color = MUTED, fontSize = 8.sp)
+        }
+    }
+}
+
+@Composable
+private fun PaymentMenu(
+    snapshot: MemberSnapshot,
+    accent: Color,
+    cta: SignalAction?,
+    onCta: (SignalAction) -> Unit
+) {
+    val p = snapshot.payment
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(122.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(RED.copy(alpha = 0.13f), Color.White)
+                )
+            )
+            .border(1.dp, RED.copy(alpha = 0.18f), RoundedCornerShape(20.dp))
+            .padding(12.dp)
+    ) {
+        Column(Modifier.fillMaxSize()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Rounded.Payment, null, tint = RED, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(7.dp))
+                Text(
+                    if ((p?.overdueDays ?: 0) > 0) "Payment overdue" else "Payment status",
+                    color = RED,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Spacer(Modifier.weight(1f))
+                Text("₹" + (p?.totalOutstanding ?: 0.0).toInt(), color = TEXT, fontSize = 20.sp, fontWeight = FontWeight.Black)
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                when {
+                    p == null -> "No payment record"
+                    p.overdueDays > 0 -> p.overdueDays.toString() + " days late"
+                    p.dueDate != null -> "Due " + dateText(p.dueDate)
+                    else -> "No outstanding due"
+                },
+                color = MUTED,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.weight(1f))
+            if (cta != null) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(29.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(RED)
+                        .clickable { onCta(cta) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Collect payment", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black)
+                }
+            }
+        }
+    }
+
+    InfoPanel("Recent payment", Icons.Rounded.CheckCircle, GREEN) {
+        Text(
+            p?.lastPaymentAmount?.let { "₹" + it.toInt() } ?: "No recent payment",
+            color = TEXT,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Black
+        )
+        Text(
+            p?.lastPaymentDate?.let(::dateText) ?: "—",
+            color = MUTED,
+            fontSize = 8.sp
+        )
+    }
+}
+
+@Composable
+private fun TrainerMenu(snapshot: MemberSnapshot, accent: Color) {
+    val t = snapshot.trainer
+    MetricPanel(title = "Trainer / PT", icon = Icons.Rounded.Person, accent = PURPLE) {
+        Text(t?.trainerName ?: "No trainer assigned", color = TEXT, fontSize = 18.sp, fontWeight = FontWeight.Black)
+        Text(t?.focus ?: "Personal training data will appear here.", color = MUTED, fontSize = 8.sp)
+        Spacer(Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            MiniStat("SESSIONS", (t?.sessionsUsed ?: 0).toString() + "/" + (t?.sessionsTotal ?: 0), PURPLE)
+            MiniStat("NEXT", t?.nextSessionDate?.let(::dateText) ?: "—", PURPLE)
+        }
+    }
+    t?.lastSessionDate?.let {
+        InfoPanel("Last session", Icons.Rounded.FitnessCenter, PURPLE) {
+            Text(dateText(it), color = TEXT, fontSize = 10.sp, fontWeight = FontWeight.Black)
+        }
+    }
+}
+
+@Composable
+private fun WorkoutMenu(snapshot: MemberSnapshot, accent: Color) {
+    val w = snapshot.workout
+    MetricPanel(title = "Workout", icon = Icons.Rounded.FitnessCenter, accent = BLUE) {
+        Text(w?.currentRoutine ?: "No active routine", color = TEXT, fontSize = 18.sp, fontWeight = FontWeight.Black)
+        Text(
+            (w?.durationMinutes?.toString() ?: "—") + " min • " +
+                (w?.calories?.toString() ?: "—") + " kcal",
+            color = MUTED,
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+    InfoPanel("Last workout", Icons.Rounded.History, BLUE) {
+        Text(w?.lastWorkoutDate?.let(::dateText) ?: "No history", color = TEXT, fontSize = 10.sp, fontWeight = FontWeight.Black)
+    }
+}
+
+@Composable
+private fun SupplementsMenu(snapshot: MemberSnapshot, accent: Color) {
+    val s = snapshot.supplements
+    MetricPanel(title = "Supplements", icon = Icons.Rounded.Apps, accent = GREEN) {
+        Text(s?.lastPurchaseName ?: "No purchase history", color = TEXT, fontSize = 16.sp, fontWeight = FontWeight.Black)
+        Text(
+            s?.lastPurchaseDate?.let(::dateText) ?: "No recent purchase",
+            color = MUTED,
+            fontSize = 8.sp
+        )
+        s?.lastPurchasePrice?.let {
+            Spacer(Modifier.height(6.dp))
+            Text("₹" + it.toInt(), color = GREEN_DARK, fontSize = 14.sp, fontWeight = FontWeight.Black)
+        }
+    }
+}
+
+@Composable
+private fun NutritionMenu(snapshot: MemberSnapshot, accent: Color) {
+    val n = snapshot.nutrition
+    MetricPanel(title = "Nutrition", icon = Icons.Rounded.AccessTime, accent = GREEN) {
+        Text(n?.planName ?: "No nutrition plan", color = TEXT, fontSize = 17.sp, fontWeight = FontWeight.Black)
+        Text(
+            if (n?.isSubscribed == true) "Active subscription" else "Not subscribed",
+            color = if (n?.isSubscribed == true) GREEN_DARK else MUTED,
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Bold
+        )
+        n?.renewalDate?.let {
+            Spacer(Modifier.height(7.dp))
+            Text("Renewal " + dateText(it), color = TEXT, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+private fun ServicesMenu(snapshot: MemberSnapshot, accent: Color) {
+    val services = snapshot.services.orEmpty()
+    MetricPanel(title = "Services", icon = Icons.Rounded.Apps, accent = GREEN) {
+        Text(
+            services.count { it.isActive }.toString() + " active services",
+            color = TEXT,
+            fontSize = 19.sp,
+            fontWeight = FontWeight.Black
+        )
+        Spacer(Modifier.height(6.dp))
+        services.take(3).forEach { service ->
+            Row(
+                Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(Modifier.size(6.dp).clip(CircleShape).background(if (service.isActive) GREEN else MUTED))
+                Spacer(Modifier.width(6.dp))
+                Text(service.serviceName, color = TEXT, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.weight(1f))
+                Text(if (service.isActive) "ACTIVE" else "OFF", color = MUTED, fontSize = 7.sp, fontWeight = FontWeight.Black)
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryMenu(snapshot: MemberSnapshot, accent: Color) {
+    val events = snapshot.recentEvents.take(4)
+    MetricPanel(title = "Recent history", icon = Icons.Rounded.History, accent = PURPLE) {
+        if (events.isEmpty()) {
+            Text("No recent events", color = MUTED, fontSize = 9.sp)
+        } else {
+            events.forEach { event ->
+                Row(
+                    Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(Modifier.size(7.dp).clip(CircleShape).background(accent))
+                    Spacer(Modifier.width(7.dp))
+                    Text(event.eventType.displayLabel(), color = TEXT, fontSize = 8.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text(dateText(event.occurredAt), color = MUTED, fontSize = 7.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InsightMenu(
+    signals: List<IntelligenceSignal>,
+    primarySignal: IntelligenceSignal?,
+    accent: Color
+) {
+    MetricPanel(title = "AI insight", icon = Icons.Rounded.AutoAwesome, accent = accent) {
+        Text(
+            primarySignal?.title ?: signals.firstOrNull()?.title ?: "No urgent insight",
+            color = TEXT,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Black
+        )
+        Spacer(Modifier.height(5.dp))
+        Text(
+            primarySignal?.description ?: signals.firstOrNull()?.description ?: "The member currently has no high-priority signal.",
+            color = MUTED,
+            fontSize = 8.sp,
+            maxLines = 4
+        )
+    }
+    signals.drop(1).take(2).forEach { signal ->
+        InfoPanel(signal.title, Icons.Rounded.AutoAwesome, accent) {
+            Text(signal.description, color = TEXT, fontSize = 8.sp, maxLines = 2)
+        }
+    }
+}
+
+@Composable
+private fun MetricPanel(
+    title: String,
+    icon: ImageVector,
+    accent: Color,
+    content: @Composable Column.() -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(SURFACE)
+            .border(1.dp, LINE, RoundedCornerShape(20.dp))
+            .padding(12.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier
+                    .size(30.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(accent.copy(alpha = 0.10f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, null, tint = accent, modifier = Modifier.size(16.dp))
+            }
+            Spacer(Modifier.width(7.dp))
+            Text(title, color = TEXT, fontSize = 9.sp, fontWeight = FontWeight.Black)
+        }
+        Spacer(Modifier.height(8.dp))
+        content()
+    }
+}
+
+@Composable
+private fun InfoPanel(
+    title: String,
+    icon: ImageVector,
+    accent: Color,
+    content: @Composable Column.() -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(15.dp))
+            .background(accent.copy(alpha = 0.055f))
+            .border(1.dp, accent.copy(alpha = 0.12f), RoundedCornerShape(15.dp))
+            .padding(9.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null, tint = accent, modifier = Modifier.size(14.dp))
+            Spacer(Modifier.width(5.dp))
+            Text(title, color = TEXT, fontSize = 8.sp, fontWeight = FontWeight.Black)
+        }
+        Spacer(Modifier.height(5.dp))
+        content()
+    }
+}
+
+@Composable
+private fun CompactMetric(
+    modifier: Modifier,
+    icon: ImageVector,
+    label: String,
+    value: String,
+    detail: String,
+    accent: Color
+) {
+    Column(
+        modifier
+            .height(72.dp)
+            .clip(RoundedCornerShape(17.dp))
+            .background(SURFACE)
+            .border(1.dp, LINE, RoundedCornerShape(17.dp))
+            .padding(9.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null, tint = accent, modifier = Modifier.size(14.dp))
+            Spacer(Modifier.width(5.dp))
+            Text(label, color = MUTED, fontSize = 7.sp, fontWeight = FontWeight.Black)
+        }
+        Spacer(Modifier.height(3.dp))
+        Text(value, color = TEXT, fontSize = 13.sp, fontWeight = FontWeight.Black, maxLines = 1)
+        Text(detail, color = MUTED, fontSize = 7.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+    }
+}
+
+@Composable
+private fun MiniStat(label: String, value: String, accent: Color) {
+    Column(
+        Modifier
+            .clip(RoundedCornerShape(11.dp))
+            .background(accent.copy(alpha = 0.07f))
+            .padding(horizontal = 9.dp, vertical = 7.dp)
+    ) {
+        Text(label, color = MUTED, fontSize = 6.sp, fontWeight = FontWeight.Black)
+        Text(value, color = TEXT, fontSize = 9.sp, fontWeight = FontWeight.Black, maxLines = 1)
+    }
+}
+
+@Composable
+private fun ProgressLine(value: Float, accent: Color) {
+    LinearProgressIndicator(
+        progress = value.coerceIn(0f, 1f),
+        modifier = Modifier.fillMaxWidth().height(7.dp).clip(CircleShape),
+        color = accent,
+        trackColor = Color(0xFFE8F1EE)
+    )
 }
 
 @Composable
 private fun WidgetEditor(
     layout: VisitWidgetLayout,
     entitlements: VisitWidgetEntitlements,
-    onToggle: (VisitWidgetId) -> Unit
+    onToggle: (VisitWidgetId) -> Unit,
+    onClose: () -> Unit
 ) {
-    Box(Modifier.fillMaxSize().background(Color(0xCCFFFFFF)).padding(12.dp)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color(0xD9FFFFFF))
+            .padding(12.dp)
+    ) {
         Column(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Color.White)
-                .border(1.dp, BORDER, RoundedCornerShape(20.dp)).padding(12.dp)
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(22.dp))
+                .background(Color.White)
+                .border(1.dp, LINE, RoundedCornerShape(22.dp))
+                .padding(12.dp)
         ) {
-            Text("Widget Control", color = TEXT, fontSize = 16.sp, fontWeight = FontWeight.Black)
-            Text("Gym layout can be changed only inside server-granted features.", color = MUTED, fontSize = 8.sp)
-            VisitWidgetCatalog.definitions.forEach { definition ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Card layout", color = TEXT, fontSize = 16.sp, fontWeight = FontWeight.Black)
+                    Text(
+                        "Only server-granted features can be enabled.",
+                        color = MUTED,
+                        fontSize = 8.sp
+                    )
+                }
+                IconButton(onClick = onClose) {
+                    Icon(Icons.Rounded.CheckCircle, "Close", tint = GREEN)
+                }
+            }
+
+            VisitWidgetCatalog.definitions.take(9).forEach { definition ->
                 val allowed = entitlements.allows(definition.feature)
-                val on = definition.id !in layout.locallyDisabled
+                val enabled = definition.id !in layout.locallyDisabled
                 Row(
-                    Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    Modifier.fillMaxWidth().padding(vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(if (allowed) Icons.Rounded.DragIndicator else Icons.Rounded.Lock, null, tint = if (allowed) GREEN else RED)
+                    Icon(
+                        if (allowed) Icons.Rounded.Tune else Icons.Rounded.Lock,
+                        null,
+                        tint = if (allowed) GREEN else RED,
+                        modifier = Modifier.size(16.dp)
+                    )
                     Spacer(Modifier.width(6.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(definition.title, color = TEXT, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                        Text(definition.size.name + " • " + if (allowed) "Included" else "Upgrade required", color = MUTED, fontSize = 7.sp)
+                        Text(definition.title, color = TEXT, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                        Text(definition.size.name, color = MUTED, fontSize = 6.sp)
                     }
-                    Switch(checked = allowed && on, onCheckedChange = { if (allowed) onToggle(definition.id) }, enabled = allowed)
+                    Switch(
+                        checked = allowed && enabled,
+                        enabled = allowed,
+                        onCheckedChange = { if (allowed) onToggle(definition.id) }
+                    )
                 }
             }
         }
     }
 }
 
-private fun menuIcon(type: MenuType) = when (type) {
+private fun eventAccent(event: EventType): Color = when (event) {
+    EventType.PAYMENT_OVERDUE, EventType.PAYMENT_FAILED, EventType.EXPIRED,
+    EventType.MEMBERSHIP_EXPIRED -> RED
+    EventType.PAYMENT_DUE, EventType.PAYMENT_PARTIAL, EventType.TRIAL_EXPIRED -> AMBER
+    EventType.TRAINER_SESSION, EventType.TRAINER_SESSION_SCHEDULED,
+    EventType.TRAINER_SESSION_STARTED, EventType.TRAINER_SESSION_COMPLETED,
+    EventType.TRAINER_SESSION_MISSED, EventType.TRAINER_ASSIGNED -> PURPLE
+    EventType.WORKOUT, EventType.WORKOUT_STARTED, EventType.WORKOUT_COMPLETED,
+    EventType.PR_ACHIEVED -> BLUE
+    else -> GREEN
+}
+
+private fun menuIcon(type: MenuType): ImageVector = when (type) {
     MenuType.HOME -> Icons.Rounded.Home
     MenuType.ATTENDANCE -> Icons.Rounded.CalendarMonth
     MenuType.PLAN -> Icons.Rounded.CardMembership
@@ -479,5 +1212,10 @@ private fun menuIcon(type: MenuType) = when (type) {
     MenuType.INSIGHT -> Icons.Rounded.AutoAwesome
 }
 
-private fun timeText(epoch: Long) = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date(epoch))
-private fun dateText(epoch: Long) = java.text.SimpleDateFormat("dd MMM", java.util.Locale.getDefault()).format(java.util.Date(epoch))
+private fun timeText(epoch: Long): String =
+    java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date(epoch))
+
+private fun dateText(epoch: Long): String =
+    java.text.SimpleDateFormat("dd MMM", java.util.Locale.getDefault()).format(java.util.Date(epoch))
+
+private fun Double.format1(): String = String.format(java.util.Locale.getDefault(), "%.1f", this)
