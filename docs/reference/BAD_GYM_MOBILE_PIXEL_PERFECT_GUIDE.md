@@ -481,3 +481,37 @@ The final screen is accepted only when:
 
 The objective is not “looks similar”.
 The objective is a production implementation whose rendered result is demonstrably aligned with the supplied reference.
+
+
+## 21. LOCKED REFERENCE CANVAS — EFFECTIVE FROM NOW
+
+The newly supplied BAD GYM mobile screenshot is the canonical mobile composition reference for future designs.
+
+Reference image display dimensions: **691 × 1536 px**.
+Aspect ratio: **20:9** (approximately 0.4492).
+
+### Mandatory rule
+All future BAD GYM mobile UI/UX designs, wireframes, generated design references, card compositions and screenshot comparisons must use this same **691 × 1536 reference canvas/aspect ratio** unless the user explicitly requests another dimension.
+
+### Device-rendering rule
+Do not confuse the reference/display canvas with the device's native raster resolution. The Xiaomi 11i target is a 20:9 Android viewport; implementation must remain density-independent and responsive, while screenshot comparison should preserve the same 20:9 framing and composition represented by the 691 × 1536 reference.
+
+### No arbitrary resizing
+Do not:
+- switch future mobile designs to 360 × 800, 390 × 844, 411 × 914 or another arbitrary canvas;
+- crop the top/bottom of the 20:9 composition;
+- stretch a design into another aspect ratio;
+- redesign spacing merely to fit a different reference canvas.
+
+When a different physical device density is used, scale the rendering proportionally while preserving the 20:9 composition, component relationships and touch targets.
+
+### Screenshot comparison standard
+Every future visual verification should compare against the same 20:9 framing:
+- full height visible;
+- same top/header position;
+- same bottom navigation/system-area treatment when present;
+- same vertical content rhythm;
+- same rail/content relationship;
+- same card proportions.
+
+This dimension rule supersedes conflicting generic mobile canvas examples in older documentation.
