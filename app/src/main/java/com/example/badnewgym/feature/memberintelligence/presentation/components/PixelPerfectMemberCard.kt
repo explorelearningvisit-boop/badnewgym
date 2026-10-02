@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -81,7 +83,7 @@ private val LINE = Color(0xFFDCEDE7)
  *
  * Geometry:
  * - 360dp maximum shell
- * - 3:4 shell ratio
+ * - full-height mobile shell; the active viewport is the design constraint
  * - 16dp safe content
  * - 56dp vertical rail
  * - active menu content is kept inside one practical mobile viewport
@@ -153,9 +155,9 @@ private fun CanonicalMemberCard(
 
     Box(
         Modifier
-            .widthIn(max = 360.dp)
+            .widthIn(max = 420.dp)
             .fillMaxWidth()
-            .aspectRatio(3f / 4f)
+            .fillMaxHeight()
             .padding(8.dp)
             .clip(RoundedCornerShape(30.dp))
             .background(
@@ -179,7 +181,7 @@ private fun CanonicalMemberCard(
                 Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
             ) {
                 VerticalRail(
                     menus = menus,
@@ -197,7 +199,7 @@ private fun CanonicalMemberCard(
                         .clip(RoundedCornerShape(22.dp))
                         .background(Color.White.copy(alpha = 0.74f))
                         .border(1.dp, LINE, RoundedCornerShape(22.dp))
-                        .padding(10.dp)
+                        .padding(9.dp)
                 ) {
                     ActiveMenuContent(
                         menu = activeMenu,
@@ -241,8 +243,8 @@ private fun CardHeader(
     Row(
         Modifier
             .fillMaxWidth()
-            .height(78.dp)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .height(70.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -431,8 +433,10 @@ private fun ActiveMenuContent(
     onCta: (SignalAction) -> Unit
 ) {
     Column(
-        Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(7.dp)
     ) {
         MenuTitle(
             menu = menu,
@@ -464,8 +468,8 @@ private fun MenuTitle(menu: MenuType, event: MemberEvent, accent: Color) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             Modifier
-                .size(34.dp)
-                .clip(RoundedCornerShape(11.dp))
+                .size(30.dp)
+                .clip(RoundedCornerShape(10.dp))
                 .background(accent.copy(alpha = 0.10f)),
             contentAlignment = Alignment.Center
         ) {
@@ -473,7 +477,7 @@ private fun MenuTitle(menu: MenuType, event: MemberEvent, accent: Color) {
         }
         Spacer(Modifier.width(8.dp))
         Column(Modifier.weight(1f)) {
-            Text(menu.defaultLabel, color = TEXT, fontSize = 15.sp, fontWeight = FontWeight.Black)
+            Text(menu.defaultLabel, color = TEXT, fontSize = 13.sp, fontWeight = FontWeight.Black)
             Text(
                 if (menu == MenuType.HOME) event.eventType.displayLabel() + " intelligence"
                 else "Member intelligence",
@@ -502,33 +506,56 @@ private fun HomeMenu(
     cta: SignalAction?,
     onCta: (SignalAction) -> Unit
 ) {
+    // Home is a command surface, not a dashboard. The order is:
+    // live event -> urgent action + key metrics -> intelligence -> compact status.
     if (VisitWidgetId.CURRENT_VISIT in visible) {
         CurrentVisitHero(event, accent)
     }
 
     Row(
         Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(7.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (VisitWidgetId.ATTENDANCE in visible) {
-            CompactMetric(
-                Modifier.weight(1f),
-                Icons.Rounded.CalendarMonth,
-                "ATTENDANCE",
-                snapshot.attendance?.visits?.toString() ?: "—",
-                (snapshot.attendance?.streakDays ?: 0).toString() + " day streak",
-                BLUE
+        if (VisitWidgetId.PAYMENT_ALERT in visible && (snapshot.payment?.totalOutstanding ?: 0.0) > 0.0) {
+            PaymentStrip(
+                snapshot = snapshot,
+                cta = cta,
+                onCta = onCta,
+                modifier = Modifier.weight(1.25f)
+            )
+        } else {
+            SmartStatusStrip(
+                snapshot = snapshot,
+                event = event,
+                accent = accent,
+                modifier = Modifier.weight(1.25f)
             )
         }
-        if (VisitWidgetId.PLAN in visible) {
-            CompactMetric(
-                Modifier.weight(1f),
-                Icons.Rounded.CardMembership,
-                "PLAN",
-                snapshot.membership?.planName ?: "No plan",
-                (snapshot.membership?.daysRemaining ?: 0).coerceAtLeast(0).toString() + " days left",
-                AMBER
-            )
+
+        Column(
+            Modifier.weight(0.75f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (VisitWidgetId.ATTENDANCE in visible) {
+                CompactMetric(
+                    Modifier.fillMaxWidth(),
+                    Icons.Rounded.CalendarMonth,
+                    "ATTENDANCE",
+                    snapshot.attendance?.visits?.toString() ?: "—",
+                    (snapshot.attendance?.streakDays ?: 0).toString() + " day streak",
+                    BLUE
+                )
+            }
+            if (VisitWidgetId.PLAN in visible) {
+                CompactMetric(
+                    Modifier.fillMaxWidth(),
+                    Icons.Rounded.CardMembership,
+                    "PLAN",
+                    snapshot.membership?.daysRemaining?.coerceAtLeast(0)?.toString() ?: "—",
+                    "days remaining",
+                    AMBER
+                )
+            }
         }
     }
 
@@ -538,10 +565,62 @@ private fun HomeMenu(
         accent = accent
     )
 
-    if (snapshot.payment?.totalOutstanding ?: 0.0 > 0.0 && VisitWidgetId.PAYMENT_ALERT in visible) {
-        PaymentStrip(snapshot, cta, onCta)
-    } else {
-        SmartStatusStrip(snapshot, event, accent)
+    HomeContextStrip(snapshot = snapshot, event = event, accent = accent)
+}
+
+@Composable
+private fun HomeContextStrip(
+    snapshot: MemberSnapshot,
+    event: MemberEvent,
+    accent: Color
+) {
+    val visitLabel = when (event.eventType) {
+        EventType.CHECK_IN -> "IN • LIVE"
+        EventType.CHECK_OUT -> "OUT • SAVED"
+        else -> event.eventType.displayLabel()
+    }
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        ContextChip(
+            modifier = Modifier.weight(1f),
+            label = "VISIT",
+            value = visitLabel,
+            accent = accent
+        )
+        ContextChip(
+            modifier = Modifier.weight(1f),
+            label = "PLAN",
+            value = snapshot.membership?.planName ?: "No plan",
+            accent = AMBER
+        )
+        ContextChip(
+            modifier = Modifier.weight(1f),
+            label = "MEMBER",
+            value = snapshot.identity.tier.name.replace('_', ' '),
+            accent = GREEN
+        )
+    }
+}
+
+@Composable
+private fun ContextChip(
+    modifier: Modifier,
+    label: String,
+    value: String,
+    accent: Color
+) {
+    Column(
+        modifier
+            .height(48.dp)
+            .clip(RoundedCornerShape(13.dp))
+            .background(accent.copy(alpha = 0.055f))
+            .border(1.dp, accent.copy(alpha = 0.12f), RoundedCornerShape(13.dp))
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+    ) {
+        Text(label, color = accent, fontSize = 6.sp, fontWeight = FontWeight.Black)
+        Text(value, color = TEXT, fontSize = 8.sp, fontWeight = FontWeight.Black, maxLines = 1)
     }
 }
 
@@ -551,21 +630,21 @@ private fun CurrentVisitHero(event: MemberEvent, accent: Color) {
     Box(
         Modifier
             .fillMaxWidth()
-            .height(86.dp)
-            .clip(RoundedCornerShape(20.dp))
+            .height(92.dp)
+            .clip(RoundedCornerShape(19.dp))
             .background(
                 Brush.linearGradient(
-                    listOf(accent.copy(alpha = 0.13f), Color.White)
+                    listOf(accent.copy(alpha = 0.12f), Color.White)
                 )
             )
-            .border(1.dp, accent.copy(alpha = 0.18f), RoundedCornerShape(20.dp))
-            .padding(12.dp)
+            .border(1.dp, accent.copy(alpha = 0.18f), RoundedCornerShape(19.dp))
+            .padding(horizontal = 11.dp, vertical = 10.dp)
     ) {
         Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(17.dp))
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(15.dp))
                     .background(accent),
                 contentAlignment = Alignment.Center
             ) {
@@ -573,27 +652,34 @@ private fun CurrentVisitHero(event: MemberEvent, accent: Color) {
                     if (checkout) Icons.Rounded.CheckCircle else Icons.Rounded.EventAvailable,
                     null,
                     tint = Color.White,
-                    modifier = Modifier.size(27.dp)
+                    modifier = Modifier.size(25.dp)
                 )
             }
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(9.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    if (checkout) "Visit completed" else "Member is inside",
+                    if (checkout) "CHECK-OUT" else "CHECK-IN",
                     color = TEXT,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Black
                 )
                 Text(
-                    if (checkout) "CHECK-OUT • duration & history ready"
-                    else "CHECK-IN • live visit context active",
+                    timeText(event.occurredAt),
+                    color = TEXT,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    if (checkout) "Visit completed • history updated"
+                    else "Current visit • live context",
                     color = MUTED,
                     fontSize = 8.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
                 )
             }
             Text(
-                if (checkout) "DONE" else "LIVE",
+                if (checkout) "SAVED" else "LIVE",
                 color = accent,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Black
@@ -672,46 +758,98 @@ private fun SmartStatusStrip(snapshot: MemberSnapshot, event: MemberEvent, accen
 private fun PaymentStrip(
     snapshot: MemberSnapshot,
     cta: SignalAction?,
-    onCta: (SignalAction) -> Unit
+    onCta: (SignalAction) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val payment = snapshot.payment ?: return
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(52.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .background(RED.copy(alpha = 0.08f))
-            .border(1.dp, RED.copy(alpha = 0.16f), RoundedCornerShape(15.dp))
-            .padding(horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier
+            .height(132.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(RED.copy(alpha = 0.12f), Color.White)
+                )
+            )
+            .border(1.dp, RED.copy(alpha = 0.18f), RoundedCornerShape(18.dp))
+            .padding(10.dp)
     ) {
-        Icon(Icons.Rounded.Payment, null, tint = RED, modifier = Modifier.size(19.dp))
-        Spacer(Modifier.width(7.dp))
-        Column(Modifier.weight(1f)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier
+                    .size(30.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(RED.copy(alpha = 0.13f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.Payment, null, tint = RED, modifier = Modifier.size(17.dp))
+            }
+            Spacer(Modifier.width(7.dp))
             Text(
                 if (payment.overdueDays > 0) "Payment overdue" else "Payment due",
                 color = RED,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Black
             )
-            Text(
-                "₹" + payment.totalOutstanding.toInt() +
-                    if (payment.overdueDays > 0) " • " + payment.overdueDays + " days late" else "",
-                color = TEXT,
-                fontSize = 8.sp,
-                fontWeight = FontWeight.Bold
-            )
         }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "₹" + payment.totalOutstanding.toInt(),
+            color = TEXT,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Black
+        )
+        Text(
+            if (payment.overdueDays > 0) payment.overdueDays.toString() + " days late"
+            else "Outstanding amount",
+            color = MUTED,
+            fontSize = 7.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.weight(1f))
         if (cta != null) {
             Box(
                 Modifier
+                    .fillMaxWidth()
+                    .height(30.dp)
                     .clip(RoundedCornerShape(9.dp))
                     .background(RED)
-                    .clickable { onCta(cta) }
-                    .padding(horizontal = 9.dp, vertical = 7.dp)
+                    .clickable { onCta(cta) },
+                contentAlignment = Alignment.Center
             ) {
-                Text("Collect", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black)
+                Text("Collect payment  →", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black)
             }
+        }
+    }
+}
+
+@Composable
+private fun SmartStatusStrip(
+    snapshot: MemberSnapshot,
+    event: MemberEvent,
+    accent: Color,
+    modifier: Modifier = Modifier
+) {
+    val days = snapshot.membership?.daysRemaining?.coerceAtLeast(0)
+    val message = when {
+        days != null && days <= 7 -> "Membership expires in $days days"
+        snapshot.attendance?.streakDays ?: 0 >= 5 -> "Strong attendance streak"
+        event.eventType == EventType.CHECK_OUT -> "Visit saved • progress can be reviewed"
+        else -> "Everything important is visible from the rail"
+    }
+    Box(
+        modifier
+            .height(132.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(accent.copy(alpha = 0.07f))
+            .border(1.dp, accent.copy(alpha = 0.14f), RoundedCornerShape(18.dp))
+            .padding(10.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Icon(Icons.Rounded.CheckCircle, null, tint = accent, modifier = Modifier.size(20.dp))
+            Text("STATUS", color = accent, fontSize = 7.sp, fontWeight = FontWeight.Black)
+            Text(message, color = TEXT, fontSize = 11.sp, fontWeight = FontWeight.Black)
         }
     }
 }
@@ -1084,8 +1222,8 @@ private fun CompactMetric(
 ) {
     Column(
         modifier
-            .height(72.dp)
-            .clip(RoundedCornerShape(17.dp))
+            .height(58.dp)
+            .clip(RoundedCornerShape(15.dp))
             .background(SURFACE)
             .border(1.dp, LINE, RoundedCornerShape(17.dp))
             .padding(9.dp)
@@ -1096,7 +1234,7 @@ private fun CompactMetric(
             Text(label, color = MUTED, fontSize = 7.sp, fontWeight = FontWeight.Black)
         }
         Spacer(Modifier.height(3.dp))
-        Text(value, color = TEXT, fontSize = 13.sp, fontWeight = FontWeight.Black, maxLines = 1)
+        Text(value, color = TEXT, fontSize = 11.sp, fontWeight = FontWeight.Black, maxLines = 1)
         Text(detail, color = MUTED, fontSize = 7.sp, fontWeight = FontWeight.Bold, maxLines = 1)
     }
 }
