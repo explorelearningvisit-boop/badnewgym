@@ -18,7 +18,12 @@ class MainActivity : ComponentActivity() {
         DeviceAgentRuntime.attach(this)
         enableEdgeToEdge()
         if (DeviceAgentRuntime.server == null) {
-            startForegroundService(Intent(this, DeviceAgentForegroundService::class.java))
+            val serviceIntent = Intent(this, DeviceAgentForegroundService::class.java)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
         }
         val repository = StubMemberRepositoryImpl()
         setContent {
