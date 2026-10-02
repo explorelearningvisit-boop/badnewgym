@@ -608,7 +608,7 @@ private fun PrimaryInsight(
     accent: Color
 ) {
     val title = signal?.title ?: fallback?.title ?: "Member is on track"
-    val detail = signal?.description ?: fallback?.description ?: "No urgent action is required right now."
+    val detail = signal?.subtitle ?: signal?.value ?: fallback?.subtitle ?: fallback?.value ?: "No urgent action is required right now."
 
     Box(
         Modifier
@@ -1001,7 +1001,7 @@ private fun InsightMenu(
         )
         Spacer(Modifier.height(5.dp))
         Text(
-            primarySignal?.description ?: signals.firstOrNull()?.description ?: "The member currently has no high-priority signal.",
+            primarySignal?.subtitle ?: primarySignal?.value ?: signals.firstOrNull()?.subtitle ?: signals.firstOrNull()?.value ?: "The member currently has no high-priority signal.",
             color = MUTED,
             fontSize = 8.sp,
             maxLines = 4
@@ -1009,7 +1009,7 @@ private fun InsightMenu(
     }
     signals.drop(1).take(2).forEach { signal ->
         InfoPanel(signal.title, Icons.Rounded.AutoAwesome, accent) {
-            Text(signal.description, color = TEXT, fontSize = 8.sp, maxLines = 2)
+            Text(signal.subtitle ?: signal.value ?: signal.evidence.firstOrNull() ?: "No additional detail", color = TEXT, fontSize = 8.sp, maxLines = 2)
         }
     }
 }
