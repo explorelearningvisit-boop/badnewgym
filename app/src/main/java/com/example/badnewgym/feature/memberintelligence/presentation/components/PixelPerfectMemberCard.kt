@@ -387,7 +387,7 @@ private fun AttendanceWidget(snapshot: MemberSnapshot, accent: Color) {
         MetricTitle(Icons.Rounded.CalendarMonth, "Attendance", accent)
         Text(a.visits.toString() + "/" + (a.target ?: "—") + " visits", color = TEXT, fontSize = 15.sp, fontWeight = FontWeight.Black)
         LinearProgressIndicator(
-            progress = { if ((a.target ?: 0) > 0) (a.visits.toFloat() / a.target!!.toFloat()).coerceIn(0f, 1f) else 0f },
+            progress = if ((a.target ?: 0) > 0) (a.visits.toFloat() / a.target!!.toFloat()).coerceIn(0f, 1f) else 0f,
             modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
             color = accent, trackColor = Color(0xFFE6F2EE)
         )
