@@ -1,47 +1,67 @@
-# BAD GYM — Pixel Perfect Rebuild Walkthrough & Architecture Report
+# BAD GYM — Member Intelligence Card v2
 
-## 1. Overview
-This document records the complete redesign, architectural fixes, and verification for the **BAD GYM Member Intelligence Card** after upstream git pulls.
+## Current implementation
 
----
+The Member Intelligence Card is now a **canonical visit-driven mobile card**, not a dashboard made from a grid of equal white boxes.
 
-## 📸 Verified Running Screenshot
+### Visual hierarchy
 
-![BAD GYM Pixel-Perfect Member Intelligence Card](screenshots/badgym_screenshot.png)
+1. **Member identity header**
+   - photo / fallback avatar
+   - member name and code
+   - current plan
+   - current event pill
+   - subscription state
+2. **56dp-class vertical rail**
+   - only relevant/entitled menus are shown
+   - active menu uses the event accent
+   - alert badges remain visible
+3. **One active menu canvas**
+   - Home is the primary intelligence view
+   - other menus render their own dedicated evidence/detail layout
+   - the card does not dump every widget into the same viewport
+4. **Primary intelligence**
+   - the highest-priority existing IntelligenceSignal is surfaced first
+   - no business-critical state is fabricated when the engine has no signal
+5. **Event-aware status**
+   - CHECK-IN presents live visit context
+   - CHECK-OUT presents completed-visit context
+   - outstanding payment remains visible after checkout
+   - payment, trainer, workout, services and insight content remain entitlement/relevance driven
 
----
+## Geometry
 
-## 2. Issues Encountered & Resolved
+- Maximum card width: 360dp
+- Shell ratio: 3:4
+- Safe content target: 16dp
+- Vertical rail: 56dp target
+- Light premium BAD GYM palette
+- Soft glass/neumorphic surfaces without a black background
+- One practical mobile viewport; no full-card vertical dashboard scroll
 
-1. **Compilation Errors in `PixelPerfectMemberCard.kt`**:
-   - Resolved syntax bracket mismatches, unclosed Composable scopes, missing parameters, and local function modifier violations.
-2. **Missing Component Implementations**:
-   - Replaced temporary/broken one-liners with modular, fully styled panels (`AttendancePanel`, `PlanPanel`, `PaymentPanel`, `TrainerPanel`, `WorkoutPanel`, `ServicesPanel`, `InsightPanel`).
-3. **Broken Previews in `MemberIntelligencePreviews.kt` and `ThemeGalleryScreen.kt`**:
-   - Updated references from deleted `MemberDashboard` to `PixelPerfectMemberCard`.
-4. **Display Cutout / Edge-to-Edge Clipping**:
-   - Added `statusBarsPadding()` and `navigationBarsPadding()` to `MemberIntelligenceScreen.kt` to ensure clean layout without notch or gesture bar overlap.
+## Important behavior
 
----
+- The active menu is now actually used by the renderer.
+- Optional menus such as Trainer, Supplements and Nutrition are hidden when the member does not have the capability **or** the gym does not have the corresponding entitlement.
+- Server entitlement remains authoritative.
+- Local widget controls cannot re-enable a server-revoked feature.
+- Legacy theme selector/skin rendering is not part of the canonical card.
 
-## 3. Architecture & Jetpack Compose Best Practices
+## Verification status
 
-- **Centralized Design Tokens**: Strict adherence to `BADGymColors`, `ThemeId`, and theme-specific motion/shape/elevation definitions.
-- **8 Distinct Themes**:
-  1. *Natural Fresh* (Wellness • Clean • Friendly)
-  2. *Futuristic Neon* (Bold • Energetic • High Tech)
-  3. *Minimal Dark* (Simple • Elegant • Focused)
-  4. *Glassmorphism* (Translucent • Modern • Elegant)
-  5. *Premium 3D* (Luxury • Stylish • Premium)
-  6. *Vibrant Gradient* (Youthful • Dynamic • Colorful)
-  7. *Gym Beast Mode* (Powerful • Intense • Motivational)
-  8. *Purple Royal* (Elegant • Royal • Exclusive)
-- **Unidirectional Data Flow**: State is hoisted to `MemberIntelligenceViewModel` and observed as immutable UI state.
-- **Smooth Animations**: `AnimatedContent` horizontal slides and cross-fades maintain steady 60–120 FPS performance.
+The source has been updated, but this chat environment does **not** have the user's local Android SDK/ADB execution path, so a live Xiaomi 11i build/install/screenshot has not been claimed here.
 
----
+Required local verification:
 
-## 4. Build & Device Validation
+```
+./gradlew clean testDebugUnitTest assembleDebug
+```
 
-- **Gradle Build**: `gradlew clean assembleDebug installDebug` passed with **BUILD SUCCESSFUL**.
-- **Runtime**: Verified on connected Android devices (`CPH2573`, `21091116I`) with zero crash logs.
+Then install/run on the 360dp-class target and verify at minimum:
+
+- CHECK_IN
+- CHECK_OUT
+- PAYMENT / PAYMENT_OVERDUE
+- Trainer hidden when unentitled
+- Optional menus hidden when unavailable
+- Home → rail → dedicated menu transitions
