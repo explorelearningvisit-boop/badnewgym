@@ -31,13 +31,13 @@ The Member Intelligence Card is now a **canonical visit-driven mobile card**, no
 
 ## Geometry
 
-- Maximum card width: 360dp
-- Shell ratio: 3:4
-- Safe content target: 16dp
-- Vertical rail: 56dp target
+- Maximum card width: 420dp
+- Shell uses the full available mobile viewport height
+- Safe content target: 12–16dp
+- Vertical rail: 52dp shell / 40dp controls
 - Light premium BAD GYM palette
 - Soft glass/neumorphic surfaces without a black background
-- One practical mobile viewport; no full-card vertical dashboard scroll
+- One practical mobile command viewport; detailed secondary menus may scroll inside their canvas
 
 ## Important behavior
 
@@ -49,7 +49,7 @@ The Member Intelligence Card is now a **canonical visit-driven mobile card**, no
 
 ## Verification status
 
-The source has been updated, but this chat environment does **not** have the user's local Android SDK/ADB execution path, so a live Xiaomi 11i build/install/screenshot has not been claimed here.
+The full-height mobile redesign is committed at `c2027366a33834f0d7f65052eaaacbbac7c910f2`. Live Xiaomi 11i build/install/screenshot verification is still pending because this chat runtime does not expose the local Android SDK/ADB bridge.
 
 Required local verification:
 
