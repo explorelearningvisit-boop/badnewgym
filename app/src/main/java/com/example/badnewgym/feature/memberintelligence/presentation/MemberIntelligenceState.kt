@@ -8,6 +8,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnaps
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.domain.model.SignalAction
 import com.example.badnewgym.feature.memberintelligence.domain.model.SyncStatus
+import com.example.badnewgym.feature.memberintelligence.domain.model.VisitWidgetEntitlements
 
 sealed class MemberIntelligenceUiState {
     data object Loading : MemberIntelligenceUiState()
@@ -22,7 +23,8 @@ sealed class MemberIntelligenceUiState {
         val cta: SignalAction?,
         val activeMenu: MenuType = MenuType.HOME,
         val themeId: ThemeId = ThemeId.NATURAL_FRESH,
-        val syncStatus: SyncStatus = SyncStatus.SYNCED
+        val syncStatus: SyncStatus = SyncStatus.SYNCED,
+        val visitWidgetEntitlements: VisitWidgetEntitlements = VisitWidgetEntitlements()
     ) : MemberIntelligenceUiState()
 
     data class Error(val message: String) : MemberIntelligenceUiState()
