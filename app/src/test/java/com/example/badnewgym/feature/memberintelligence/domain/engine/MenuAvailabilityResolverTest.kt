@@ -44,6 +44,19 @@ class MenuAvailabilityResolverTest {
     }
 
     @Test
+    fun trainerHiddenWhenNotEntitled() {
+        val snapshot = base().copy(
+            trainer = TrainerSummary("Vikas", null, 12, 4, null, "Hypertrophy")
+        )
+        val menus = MenuAvailabilityResolver.resolve(
+            snapshot,
+            emptyList(),
+            FeatureEntitlement(setOf(FeatureKey.MEMBER_INTELLIGENCE))
+        )
+        assertFalse(menus.any { it.id == MenuType.TRAINER })
+    }
+
+    @Test
     fun supplementsHiddenWithoutHistory() {
         val menus = MenuAvailabilityResolver.resolve(base(), emptyList())
         assertFalse(menus.any { it.id == MenuType.SUPPLEMENTS })
