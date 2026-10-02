@@ -408,7 +408,8 @@ private fun VerticalRail(
                 .size(40.dp)
                 .clip(RoundedCornerShape(13.dp))
                 .background(MINT)
-                .border(1.dp, LINE, RoundedCornerShape(13.dp)),
+                .border(1.dp, LINE, RoundedCornerShape(13.dp))
+                .clickable { onMenuSelected(MenuType.HOME) },
             contentAlignment = Alignment.Center
         ) {
             Icon(Icons.Rounded.Home, "Home", tint = GREEN_DARK, modifier = Modifier.size(18.dp))
