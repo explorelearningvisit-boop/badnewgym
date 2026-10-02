@@ -53,21 +53,18 @@ object MenuAvailabilityResolver {
             menu(MenuType.PAYMENT, true, defaultPriority = 30),
             menu(
                 MenuType.TRAINER,
-                visible = hasTrainer,
-                locked = hasTrainer && !entitlements.allows(FeatureKey.TRAINER_MANAGEMENT),
+                visible = hasTrainer && entitlements.allows(FeatureKey.TRAINER_MANAGEMENT),
                 defaultPriority = 40
             ),
             menu(MenuType.WORKOUT, visible = snapshot.workout != null, defaultPriority = 50),
             menu(
                 MenuType.SUPPLEMENTS,
-                visible = hasSupplements,
-                locked = hasSupplements && !entitlements.allows(FeatureKey.SUPPLEMENTS),
+                visible = hasSupplements && entitlements.allows(FeatureKey.SUPPLEMENTS),
                 defaultPriority = 60
             ),
             menu(
                 MenuType.NUTRITION,
-                visible = hasNutrition,
-                locked = hasNutrition && !entitlements.allows(FeatureKey.NUTRITION),
+                visible = hasNutrition && entitlements.allows(FeatureKey.NUTRITION),
                 defaultPriority = 70
             ),
             menu(MenuType.SERVICES, visible = hasServices, defaultPriority = 80),
