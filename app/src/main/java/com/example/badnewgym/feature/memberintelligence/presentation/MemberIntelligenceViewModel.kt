@@ -11,6 +11,9 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.domain.model.SignalAction
+import com.example.badnewgym.feature.memberintelligence.domain.model.StubGymWidgetAccessRepository
+import com.example.badnewgym.feature.memberintelligence.domain.model.GymWidgetAccessRepository
+import com.example.badnewgym.feature.memberintelligence.domain.model.VisitWidgetEntitlements
 import com.example.badnewgym.feature.memberintelligence.domain.repository.MemberIntelligenceRepository
 import com.example.badnewgym.feature.memberintelligence.data.repository.StubMemberRepositoryImpl
 import com.example.badnewgym.feature.memberintelligence.integration.MemberIntelligenceNavigator
@@ -21,7 +24,8 @@ import kotlinx.coroutines.launch
 
 class MemberIntelligenceViewModel(
     private val repository: MemberIntelligenceRepository = StubMemberRepositoryImpl(),
-    private val navigator: MemberIntelligenceNavigator = MemberIntelligenceNavigator.NoOp
+    private val navigator: MemberIntelligenceNavigator = MemberIntelligenceNavigator.NoOp,
+    private val widgetAccessRepository: GymWidgetAccessRepository = StubGymWidgetAccessRepository()
 ) : ViewModel() {
     private val engine = MemberIntelligenceEngine()
 
@@ -43,6 +47,7 @@ class MemberIntelligenceViewModel(
             }
 
             val snapshot = snapshotResult.getOrThrow()
+            val widgetEntitlements = widgetAccessRepository.getAccess(gymId)
             val event = snapshot.recentEvents.firstOrNull() ?: MemberEvent(
                 id = "init_0",
                 memberId = memberId,
@@ -51,7 +56,7 @@ class MemberIntelligenceViewModel(
                 occurredAt = System.currentTimeMillis(),
                 source = EventSource.SYSTEM
             )
-            publishSuccess(snapshot, event, MenuType.HOME)
+            publishSuccess(snapshot, event, MenuType.HOME, widgetEntitlements)
         }
     }
 
@@ -79,7 +84,8 @@ class MemberIntelligenceViewModel(
     private fun publishSuccess(
         snapshot: com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot,
         event: MemberEvent,
-        menu: MenuType
+        menu: MenuType,
+        widgetEntitlements: VisitWidgetEntitlements
     ) {
         val result = engine.evaluate(snapshot, event, System.currentTimeMillis())
         val menus = MenuAvailabilityResolver.resolve(snapshot, result.signals)
@@ -92,7 +98,8 @@ class MemberIntelligenceViewModel(
             secondarySignals = result.secondary,
             cta = result.cta,
             activeMenu = menu,
-            themeId = themeId
+            themeId = themeId,
+            visitWidgetEntitlements = widgetEntitlements
         )
     }
 
