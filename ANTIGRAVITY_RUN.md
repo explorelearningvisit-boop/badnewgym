@@ -1,108 +1,134 @@
-# BAD GYM — Google Antigravity End-to-End Handoff
+# BAD GYM — Google Antigravity Execution Handoff
 
-## First read
+## STOP: choose the correct project first
 
-Before changing code, read:
+The repository contains legacy/reference material. **The active production project is the repository-root Gradle project with module `:app`.**
 
-1. `AI_COLLABORATION_PROTOCOL.md`
-2. `docs/reference/ANTIGRAVITY_END_TO_END_CONTRACT.md`
-3. `CURRENT_TASK.md` if present
-4. this file
-5. the relevant feature/domain handoff
+Read `AGENTS.md` first.
 
-The end-to-end contract is authoritative for the image-to-implementation workflow.
+### Production code
+- `app/src/main/`
+- package: `com.example.badnewgym`
 
-## Pull and build
+### Do NOT implement current work here
+- `BAD_GYM_MEMBER_INTELLIGENCE_READY/` — legacy/reference package
+- `OPPO/` — unrelated mobile-control tooling
+- `Launch_Oppo_Dev_Studio.bat` — unrelated launcher
 
-Use the active working branch/PR. Do not assume `main` contains unmerged work.
+Do not confuse the existence of those folders with the production module.
+
+## First operation
+
+From the repository root:
 
 ```bash
-git pull
+git checkout main
+git pull --ff-only origin main
+git status
+```
+
+Then inspect the full active project and read, in this order:
+
+1. `AGENTS.md`
+2. `AI_COLLABORATION_PROTOCOL.md`
+3. `CURRENT_TASK.md`
+4. `docs/reference/ANTIGRAVITY_END_TO_END_CONTRACT.md`
+5. `docs/reference/BAD_GYM_REFERENCE_01_SPEC.md`
+6. `docs/reference/BAD_GYM_REFERENCE_01_EXECUTION_LEDGER.md`
+7. this file
+8. relevant production source under `app/src/main/`
+
+## Current task
+
+Implement the supplied BAD GYM Member Card Design System reference, Image 1/24.
+
+The canonical visual reference path is:
+
+`docs/reference/images/reference-01-member-card-design-system.png`
+
+If the file exists, compare screenshots against it directly. Never substitute a newly invented reference.
+
+## Atomic workflow
+
+Do NOT implement the complete screen in one speculative pass.
+
+For each ledger stage:
+
+1. Read the complete current production context.
+2. Inspect the exact source files.
+3. Implement only that stage.
+4. Build.
+5. Run the target screen/state.
+6. Capture a screenshot.
+7. Compare screenshot against the reference.
+8. Record discrepancies:
+   - geometry
+   - spacing
+   - typography
+   - colors
+   - icons/assets
+   - content
+   - state
+   - interaction
+   - animation
+   - responsive behavior
+9. Fix all material discrepancies.
+10. Rebuild.
+11. Capture again.
+12. Compare again.
+13. Mark the stage `VERIFIED` only after verification.
+14. Update `docs/reference/BAD_GYM_REFERENCE_01_EXECUTION_LEDGER.md`.
+15. Continue to the next stage.
+
+## Required build
+
+From repository root:
+
+```bash
 ./gradlew clean testDebugUnitTest assembleDebug
 ```
 
-## Current renderer direction
+The production Android module is **only `:app`**.
 
-The old 360dp / 3:4 / four-column presentation described by older documentation is stale.
+## Reference requirements
 
-The current member-card renderer is a full available mobile viewport surface with:
+The image defines:
+- persistent vertical rail
+- Home default
+- member identity
+- current visit
+- conditional widgets
+- Attendance
+- Payment Due
+- Plan
+- Trainer/PT
+- Gym Time
+- Body Progress
+- bottom actions
+- XS/S/M/L/XL widget ratios
+- nested widgets
+- resize/drag editor behavior where supported
+- responsive 320–360, 360–390, 400–430, 600–800 and 800+ dp behavior
+- event/visit states
+- entitlement-driven visibility
+- premium light visual language
 
-- light premium Material treatment
-- no black/dark workspace
-- maximum content width around 420dp
-- compact header
-- vertical rail navigation
-- compact metrics and event-driven content
-- vertically scrollable secondary menu content
-- Home as the operational command-center
-- visit/event semantics resolved by the domain layer
-- server entitlement authoritative for paid features
+Use real BAD GYM domain data. Do not hard-code example names or numbers from the design board.
 
-Inspect the actual current implementation before changing geometry:
+## Git
 
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/PixelPerfectMemberCard.kt`
+All current implementation work is for BAD GYM `main`.
 
-Do not restore retired eight-theme card presentation.
+Do not create a second implementation in the legacy folder.
 
-## Reference-image execution
-
-When the user supplies a reference image:
-
-1. Lock the image as the visual source of truth.
-2. Decompose it into atomic regions.
-3. Inspect existing code before creating anything.
-4. Implement one atomic region.
-5. Build.
-6. Run on Xiaomi 11i when reachable.
-7. Capture the target screen.
-8. Compare with the reference.
-9. Fix geometry/typography/color/assets/interaction.
-10. Verify again.
-11. Only then move to the next region.
-12. Integrate all verified regions.
-13. Verify the complete screen.
-14. Verify interaction and domain logic.
-15. Run regression tests.
-16. Commit the verified work.
-
-Never implement the whole image in one speculative pass.
-
-## Model
-
-At the start of a substantial task, inspect the Gemini models actually available in Google Antigravity.
-
-Select the highest-capability available model for visual reasoning + Android/Compose coding + debugging. Prefer the strongest Pro/reasoning-capable option available. Never invent an unavailable model name.
-
-## Device verification
-
-Target: Xiaomi 11i.
-
-When the phone-native device agent is available, use it for:
-
-- launch BAD GYM
-- screenshot
-- UI-tree inspection
-- tap
-- swipe
-- back/home
-- text entry where applicable
-
-Do not claim physical-device verification if the device is not reachable.
-
-Current phone-agent limitation: its screenshot path currently captures the BAD GYM Activity view rather than arbitrary Android/system UI. Do not claim full-device screenshot support until MediaProjection/accessibility screenshot capture has actually been implemented and verified.
-
-## Required completion report
-
-At every completed implementation stage record:
-
+After every verified milestone, record:
 - exact HEAD SHA
-- branch
-- changed files
+- changed production files
 - build result
 - test result
-- device result
-- screenshot evidence
-- remaining visual discrepancies
-- unresolved issues
+- device/screenshot result
+- visual discrepancies
+- fixes
+- next stage
 
-Completion is not "code generated"; completion means the implementation has been built and verified to the extent the available device/tooling permits.
+Completion means the final integrated screen has been built, run, screenshot-compared and verified as far as the available device tooling permits.
