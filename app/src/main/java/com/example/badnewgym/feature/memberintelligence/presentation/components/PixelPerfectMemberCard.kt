@@ -286,7 +286,7 @@ private fun AttendanceWidget(snapshot: MemberSnapshot) {
                 Text("${attendance.visits}/${if (target > 0) target else "—"} visits", color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Black)
                 Text(attendance.periodName, color = TextMuted, fontSize = 7.sp)
                 LinearProgressIndicator(
-                    progress = { ratio.coerceIn(0f, 1f) },
+                    progress = ratio.coerceIn(0f, 1f),
                     modifier = Modifier.fillMaxWidth().height(5.dp).clip(CircleShape),
                     color = Blue,
                     trackColor = Color(0xFFE8F0FF)
@@ -473,6 +473,17 @@ fun MemberIntelligenceAdminCommandCenter(
                     }
                     IconButton(onClick = { onLayoutChanged(layout.move(id, -1)) }) { Icon(Icons.Rounded.ArrowUpward, "Move up", tint = TextMuted) }
                     IconButton(onClick = { onLayoutChanged(layout.move(id, 1)) }) { Icon(Icons.Rounded.ArrowDownward, "Move down", tint = TextMuted) }
+                    IconButton(
+                        onClick = {
+                            val sizes = com.example.badnewgym.feature.memberintelligence.domain.model.VisitWidgetSize.entries
+                            val current = layout.sizeFor(id)
+                            val next = sizes[(sizes.indexOf(current) + 1) % sizes.size]
+                            onLayoutChanged(layout.resize(id, next))
+                        },
+                        enabled = allowed
+                    ) {
+                        Icon(Icons.Rounded.Tune, "Resize " + definition.title, tint = if (allowed) Green else TextMuted)
+                    }
                     Switch(checked = allowed && enabled, enabled = allowed, onCheckedChange = { if (allowed) onLayoutChanged(layout.toggle(id)) })
                 }
             }
