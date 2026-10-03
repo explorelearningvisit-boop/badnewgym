@@ -1,9 +1,10 @@
 package com.example.badnewgym.feature.memberintelligence.domain.model
 
 /**
- * Visit Based Card v1.
- * Every information block is a widget. Visibility is resolved from the
- * current visit/event plus the server entitlement.
+ * BAD GYM Member Intelligence V2 widget configuration.
+ *
+ * Widget configuration is presentation/layout state only. Server entitlement
+ * remains authoritative and must be checked before rendering.
  */
 enum class VisitWidgetId {
     MEMBER_IDENTITY, CURRENT_VISIT, PAYMENT_ALERT, ATTENDANCE, PLAN,
@@ -21,10 +22,41 @@ data class VisitWidgetDefinition(
     val feature: FeatureKey? = null
 )
 
+/**
+ * Runtime/admin layout state.
+ *
+ * orderedIds controls position/order.
+ * locallyDisabled controls local visibility.
+ * sizeOverrides controls per-widget resizing.
+ *
+ * This state must never grant a feature that server entitlement denies.
+ */
 data class VisitWidgetLayout(
     val orderedIds: List<VisitWidgetId> = VisitWidgetId.entries.toList(),
-    val locallyDisabled: Set<VisitWidgetId> = emptySet()
-)
+    val locallyDisabled: Set<VisitWidgetId> = emptySet(),
+    val sizeOverrides: Map<VisitWidgetId, VisitWidgetSize> = emptyMap()
+) {
+    fun sizeFor(id: VisitWidgetId): VisitWidgetSize =
+        sizeOverrides[id] ?: VisitWidgetCatalog.definition(id).size
+
+    fun move(id: VisitWidgetId, direction: Int): VisitWidgetLayout {
+        val current = orderedIds.indexOf(id)
+        if (current < 0) return this
+        val target = (current + direction).coerceIn(0, orderedIds.lastIndex)
+        if (target == current) return this
+        val next = orderedIds.toMutableList()
+        next.removeAt(current)
+        next.add(target, id)
+        return copy(orderedIds = next)
+    }
+
+    fun resize(id: VisitWidgetId, size: VisitWidgetSize): VisitWidgetLayout =
+        copy(sizeOverrides = sizeOverrides + (id to size))
+
+    fun toggle(id: VisitWidgetId): VisitWidgetLayout =
+        if (id in locallyDisabled) copy(locallyDisabled = locallyDisabled - id)
+        else copy(locallyDisabled = locallyDisabled + id)
+}
 
 data class VisitWidgetEntitlements(
     val serverEnabledFeatures: Set<FeatureKey> = FeatureKey.entries.toSet(),
