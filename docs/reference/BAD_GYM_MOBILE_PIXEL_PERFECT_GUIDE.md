@@ -515,3 +515,14 @@ Every future visual verification should compare against the same 20:9 framing:
 - same card proportions.
 
 This dimension rule supersedes conflicting generic mobile canvas examples in older documentation.
+
+
+## 22. MEMBER INTELLIGENCE V2 COMPACT CARD OVERRIDE
+
+For the current Member Intelligence implementation, the compact production card target is 300dp wide × 550dp high. Height may expand modestly when real widget content requires it; do not stretch the card into an unnecessarily tall dashboard.
+
+The 691×1536 / 20:9 rule remains the global mobile reference canvas for screenshot composition and comparison. The 300×550dp value is the practical Member Intelligence card geometry inside that mobile composition.
+
+The current V2 card is light/premium and operational. Emerald/mint is primary; blue, amber, red and purple are semantic accents. Do not introduce black-heavy surfaces, fidget/toy UI, decorative 3D objects, fake AI ornaments or meaningless data.
+
+Every widget is independently configurable in the product-admin command center: enable/disable, resize, reorder/move, conditional visibility and entitlement. Normal member/staff presentation remains read-only. Server entitlement is authoritative.
