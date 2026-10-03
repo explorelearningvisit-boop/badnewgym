@@ -306,3 +306,32 @@ The task is complete only when:
 - no known major visual mismatch remains unexplained.
 
 Never report "done" merely because the code compiles.
+
+
+## MEMBER INTELLIGENCE V2 OVERRIDE
+
+For the BAD GYM Member Intelligence task, the active product contract is:
+
+docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_V2_CONTRACT.md
+
+docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_V2_EXECUTION_LEDGER.md
+
+The previous Member Intelligence V1 presentation/specification is obsolete and must not be restored.
+
+V2 compact geometry:
+- 300dp target width
+- 550dp target height
+- modest expansion when real content requires it
+- 691×1536 / 20:9 remains the global mobile screenshot comparison canvas
+
+V2 requires independently configurable widgets:
+- enabled/disabled
+- size
+- position/order
+- conditional visibility
+- entitlement
+- detail action
+
+V2 also requires an admin command center for the main BAD GYM software administrator. Admin configuration must be separate from member runtime state. Server entitlement remains authoritative.
+
+The V2 visual system is light, premium, compact and operational. Do not introduce fidget toys, toy-like 3D decoration, fake AI ornaments, meaningless statistics, fake health metrics or decorative filler.
