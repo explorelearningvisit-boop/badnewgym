@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">bad newgym</string>
+    <string name="accessibility_service_description">Allows BAD GYM Device Agent to inspect and interact with the phone after you enable this service.</string>
 </resources>

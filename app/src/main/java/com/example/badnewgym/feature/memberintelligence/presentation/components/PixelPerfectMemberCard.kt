@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.LocalOffer
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Payment
 import androidx.compose.material.icons.rounded.Person
@@ -197,14 +199,14 @@ private fun CompactRail(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         menus.take(9).forEach { menu ->
-            val active = menu.type == activeMenu
+            val active = menu.id == activeMenu
             Box(
                 Modifier.size(34.dp).clip(RoundedCornerShape(11.dp))
                     .background(if (active) Mint else Color.Transparent)
-                    .clickable { onMenuSelected(menu.type) },
+                    .clickable { onMenuSelected(menu.id) },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(menuIcon(menu.type), menu.label, tint = if (active) Green else TextMuted, modifier = Modifier.size(17.dp))
+                Icon(menuIcon(menu.id), menu.label, tint = if (active) Green else TextMuted, modifier = Modifier.size(17.dp))
             }
         }
         Icon(Icons.Rounded.MoreHoriz, "More", tint = TextMuted, modifier = Modifier.size(18.dp))
@@ -407,7 +409,7 @@ private fun OfferWidget() {
 }
 
 @Composable
-private fun WidgetCard(title: String, accent: Color, icon: ImageVector, content: @Composable Column.() -> Unit) {
+private fun WidgetCard(title: String, accent: Color, icon: ImageVector, content: @Composable ColumnScope.() -> Unit) {
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Surface)
             .border(1.dp, Line, RoundedCornerShape(16.dp)).padding(9.dp)

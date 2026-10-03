@@ -33,8 +33,7 @@ fun OverdueMemberPreview() {
             onMenuSelected = {},
             primarySignal = result.primary,
             secondarySignals = result.secondary,
-            cta = result.cta,
-            theme = theme
+            cta = result.cta
         )
     }
 }

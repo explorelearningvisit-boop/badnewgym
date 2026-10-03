@@ -108,8 +108,7 @@ fun ThemeGalleryScreen() {
                         onMenuSelected = {},
                         primarySignal = result.primary,
                         secondarySignals = result.secondary,
-                        cta = result.cta,
-                        theme = themeId
+                        cta = result.cta
                     )
                 }
             }
