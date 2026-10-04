@@ -55,3 +55,40 @@ inspect → implement atomic component → build → run → screenshot → comp
 ## COMPLETION
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
+
+## ACTIVE DESIGN OVERRIDE — MEMBER INTELLIGENCE V4
+
+The current approved design/implementation source of truth is:
+
+- `docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_V4_MASTER_SPEC.md`
+- `docs/reference/ANTIGRAVITY_MEMBER_INTELLIGENCE_V4_IMPLEMENTATION_PROMPT.md`
+
+V4 supersedes earlier Member Intelligence visual-layout assumptions.
+
+Hard runtime geometry:
+- target width: 350dp
+- responsive minimum: approximately 320dp
+- preferred height: 500–540dp
+- maximum normal adaptive height: 600dp
+- screenshot/reference canvas: 691×1536 / 20:9
+
+V4 priorities:
+- event-first hero (CHECK-IN, CHECK-OUT, PAYMENT, PAYMENT DUE, TRAINER, ISSUE, etc.)
+- dynamic event priority and widget reflow
+- membership remaining days + plan duration + last payment + next due
+- 30-day attendance calendar
+- late = green center + amber border
+- holiday = X
+- monthly workout data with 7-day horizontal viewport
+- monthly peak/lowest/trend/best-week summary
+- goal-aware multi-metric Body Goals
+- progress photos linked to measurements where available
+- privacy hide/show for sensitive body metrics
+- conditional Trainer/Payment/Issue widgets
+- no permanent payment-completed widget
+- no Recent Activity default widget
+- compact premium light neumorphism
+- admin-only drag/reorder/resize/enable/disable/priority/publish controls
+- server entitlement remains authoritative
+
+Do not implement the older oversized/tablet-like Member Intelligence composition.
