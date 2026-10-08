@@ -60,6 +60,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.BodyGoalAnalytics
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutAnalytics
+import com.example.badnewgym.feature.memberintelligence.domain.model.ProgressVerdict
 
 // ------------------------------------------------------------------ rail
 
@@ -91,12 +94,12 @@ private fun SegmentBar(segment: HomeSegment, onSelect: (HomeSegment) -> Unit) {
                     .clip(RoundedCornerShape(13.dp))
                     .background(if (selected) MiColors.Surface else Color.Transparent)
                     .clickable(onClick = { onSelect(entry) })
-                    .padding(vertical = 4.dp),
+                    .padding(vertical = 3.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     if (entry == HomeSegment.OVERVIEW) "Overview" else "Progress",
-                    fontSize = 11.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (selected) MiColors.EmeraldDark else MiColors.TextSecondary,
                     maxLines = 1
@@ -223,7 +226,7 @@ fun MemberIntelligenceHome(
             Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .padding(start = 8.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
+                .padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp)
         ) {
             when (val s = state) {
                 HomeUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -246,7 +249,7 @@ fun MemberIntelligenceHome(
                         Modifier
                             .fillMaxWidth()
                             .heightIn(max = CARD_MAX_HEIGHT),
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
                         SegmentBar(segment = segment, onSelect = { segment = it })
                         when (segment) {
@@ -274,6 +277,10 @@ fun MemberIntelligenceHome(
                                     onOpen = { vm.openModule(HomeWidgetId.ATTENDANCE) },
                                     compact = true,
                                     showStreaks = false
+                                )
+                                ProgressSnapshotStrip(
+                                    data = data,
+                                    onOpen = { segment = HomeSegment.PROGRESS }
                                 )
                             }
                             HomeSegment.PROGRESS -> {
@@ -308,6 +315,51 @@ fun MemberIntelligenceHome(
 }
 
 // ------------------------------------------------------------------ module sheets
+
+/** Slim progress teaser pinned to the bottom of Overview.
+ *  Real last-week volume + body verdict; tap jumps to the Progress segment. */
+@Composable
+private fun ProgressSnapshotStrip(data: HomeData, onOpen: () -> Unit) {
+    val month = data.workout
+    val weekSummary = remember(month) {
+        if (month == null) null
+        else {
+            val count = WorkoutAnalytics.windowCount(month)
+            WorkoutAnalytics.window(month, count - 1)
+        }
+    }
+    val weekMin = weekSummary?.total ?: 0
+    val weekSessions = weekSummary?.days?.count { it.minutes > 0 } ?: 0
+    val bodyNote = remember(data.bodyGoals) {
+        if (data.bodyGoals.isEmpty()) "No body data"
+        else {
+            val good = data.bodyGoals.count {
+                val v = BodyGoalAnalytics.verdict(it)
+                v == ProgressVerdict.ON_TRACK || v == ProgressVerdict.IMPROVING
+            }
+            val allTrack = data.bodyGoals.all { BodyGoalAnalytics.verdict(it) == ProgressVerdict.ON_TRACK }
+            when {
+                allTrack -> "Body On Track"
+                good == data.bodyGoals.size -> "Body Improving"
+                good > 0 -> "Body $good/${data.bodyGoals.size}"
+                else -> "Body needs attention"
+            }
+        }
+    }
+    HomeCard(onClick = onOpen, padding = 7.dp) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(
+                    "Progress \u00B7 " + if (month == null) "No workout data \u00B7 $bodyNote"
+                    else "$weekMin min \u00B7 $weekSessions sess \u00B7 $bodyNote",
+                    fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary,
+                    maxLines = 1
+                )
+            }
+            Text(">", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MiColors.EmeraldDark)
+        }
+    }
+}
 
 private fun moduleFrom(name: String): HomeWidgetId? = when (name.lowercase()) {
     "checkin", "check-in" -> HomeWidgetId.CHECK_IN

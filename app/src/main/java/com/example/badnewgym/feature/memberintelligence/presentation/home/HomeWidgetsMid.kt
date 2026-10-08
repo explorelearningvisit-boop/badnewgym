@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -81,15 +80,16 @@ private fun PaymentDueCard(
         is PaymentSituation.Partial -> situation.dueAtEpoch
         else -> payment.dueDate
     }
-    val daysLeft = dueMs?.let { ((it - System.currentTimeMillis()) / 86_400_000L).toInt() }
-    HomeCard(onClick = onOpen, padding = if (compact) 8.dp else 12.dp) {
+    val daysLeft = dueMs?.let { Math.round((it - System.currentTimeMillis()) / 86_400_000.0).toInt() }
+    HomeCard(onClick = onOpen, padding = if (compact) 6.dp else 12.dp) {
         WidgetTitle("Payment", "Due", MiColors.Red)
         Spacer(Modifier.height(if (compact) 2.dp else 4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(fmtRupees(amount), fontSize = if (compact) 20.sp else 24.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
+                Text(fmtRupees(amount), fontSize = if (compact) 19.sp else 24.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
                 Text(
-                    if (daysLeft != null && daysLeft >= 0) "Due in $daysLeft days  \u00B7  ${fmtDate(dueMs)}"
+                    if (daysLeft != null && daysLeft > 0) "Due in $daysLeft days  \u00B7  ${fmtDate(dueMs)}"
+                    else if (daysLeft != null && daysLeft == 0) "Due today  \u00B7  ${fmtDate(dueMs)}"
                     else fmtDate(dueMs),
                     fontSize = 11.5.sp, color = MiColors.TextSecondary, maxLines = 1
                 )
@@ -97,20 +97,14 @@ private fun PaymentDueCard(
             CollectButton(onCollect)
         }
         Spacer(Modifier.height(if (compact) 3.dp else 6.dp))
+        // No plan-value field exists in the domain model, so no completion bar:
+        // a "75% Completed" derived from lifetime payments would be fiction.
+        // Both chips below are direct record values.
         val paid = (payment.lifetimePaid ?: 0.0)
-        val plan = paid + amount
         Row(horizontalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 8.dp)) {
-            StatChip("Paid", fmtRupees(paid), MiColors.EmeraldDark, Modifier.weight(1f), dense = compact)
-            StatChip("Plan Value", fmtRupees(if (plan > 0) plan else null), modifier = Modifier.weight(1f), dense = compact)
+            StatChip("Total Paid", fmtRupees(paid), MiColors.EmeraldDark, Modifier.weight(1f), dense = compact)
             StatChip("Remaining", fmtRupees(amount), MiColors.Red, Modifier.weight(1f), dense = compact)
         }
-        Spacer(Modifier.height(if (compact) 4.dp else 6.dp))
-        LinearProgressIndicator(
-            progress = if (plan > 0) (paid / plan).toFloat().coerceIn(0f, 1f) else 0f,
-            modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(4.dp)),
-            color = MiColors.Emerald,
-            trackColor = MiColors.Border
-        )
         Spacer(Modifier.height(4.dp))
         KvRow(
             "Last Payment",
@@ -222,7 +216,7 @@ fun AttendanceWidget(
     }
     val trend = remember(window) { AttendanceAnalytics.trendPoints(window) }
 
-    HomeCard(onClick = onOpen, padding = if (compact) 8.dp else 12.dp) {
+    HomeCard(onClick = onOpen, padding = if (compact) 6.dp else 12.dp) {
         WidgetTitle("Attendance", "(30 Days)", trailing = { ViewAllChip(onOpen) })
         Spacer(Modifier.height(if (compact) 3.dp else 6.dp))
         Row(verticalAlignment = Alignment.Top) {
@@ -230,17 +224,29 @@ fun AttendanceWidget(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.width(if (compact) 78.dp else 86.dp)
             ) {
-                Donut(pct, size = if (compact) 56.dp else 76.dp)
+                Donut(pct, size = if (compact) 48.dp else 76.dp)
                 Spacer(Modifier.height(2.dp))
                 Text("$attended / $openDays", fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
                 Text("Open Days", fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 1)
+                // Compact card folds the trend into the donut column so the
+                // 30-day grid + strip still fit the 600dp ceiling. The full
+                // chip row (with streaks) lives in the module sheet.
+                if (compact && trend != 0) {
+                    Text(
+                        (if (trend > 0) "\u2191 +" else "\u2193 ") + "${kotlin.math.abs(trend)}% vs prev",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (trend > 0) MiColors.EmeraldDark else MiColors.Red,
+                        maxLines = 1
+                    )
+                }
             }
             Spacer(Modifier.width(8.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(if (compact) 2.dp else 3.dp)) {
-                LegendRow(MiColors.Emerald, "Present", window.present.toString(), null)
-                LegendRow(MiColors.Emerald, "Late", window.late.toString(), "\u25D4")
-                LegendRow(MiColors.Red, "Absent", window.absent.toString(), null)
-                LegendRow(Color(0xFF9AA5B1), "Closed", window.holiday.toString(), "\u2715")
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(if (compact) 1.dp else 3.dp)) {
+                LegendRow(MiColors.Emerald, "Present", window.present.toString(), null, small = compact)
+                LegendRow(MiColors.Emerald, "Late", window.late.toString(), "\u25D4", small = compact)
+                LegendRow(MiColors.Red, "Absent", window.absent.toString(), null, small = compact)
+                LegendRow(Color(0xFF9AA5B1), "Closed", window.holiday.toString(), "\u2715", small = compact)
             }
         }
         Spacer(Modifier.height(if (compact) 4.dp else 6.dp))
@@ -250,7 +256,7 @@ fun AttendanceWidget(
             DayRow(days.take(15), dot = if (compact) 14.dp else 17.dp)
             DayRow(days.drop(15), dot = if (compact) 14.dp else 17.dp)
         }
-        if (showStreaks || trend != 0) {
+        if (showStreaks) {
             Spacer(Modifier.height(if (compact) 4.dp else 6.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (trend != 0) {
@@ -262,32 +268,30 @@ fun AttendanceWidget(
                         dense = compact
                     )
                 }
-                if (showStreaks) {
-                    StatChip("Current Streak", "${AttendanceAnalytics.currentStreak(window)} Days", modifier = Modifier.weight(1f), dense = compact)
-                    StatChip("Best Streak", "${AttendanceAnalytics.longestStreak(window)} Days", modifier = Modifier.weight(1f), dense = compact)
-                }
+                StatChip("Current Streak", "${AttendanceAnalytics.currentStreak(window)} Days", modifier = Modifier.weight(1f), dense = compact)
+                StatChip("Best Streak", "${AttendanceAnalytics.longestStreak(window)} Days", modifier = Modifier.weight(1f), dense = compact)
             }
         }
     }
 }
 
 @Composable
-private fun LegendRow(color: Color, label: String, count: String, glyph: String?) {
+private fun LegendRow(color: Color, label: String, count: String, glyph: String?, small: Boolean = false) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             Modifier
-                .size(14.dp)
+                .size(if (small) 12.dp else 14.dp)
                 .clip(CircleShape)
                 .background(color),
             contentAlignment = Alignment.Center
         ) {
             if (glyph != null) {
-                Text(glyph, fontSize = 8.sp, color = Color.White, maxLines = 1)
+                Text(glyph, fontSize = if (small) 7.sp else 8.sp, color = Color.White, maxLines = 1)
             }
         }
         Spacer(Modifier.width(6.dp))
-        Text(label, fontSize = 11.5.sp, color = MiColors.TextSecondary, modifier = Modifier.weight(1f), maxLines = 1)
-        Text(count, fontSize = 12.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
+        Text(label, fontSize = if (small) 10.5.sp else 11.5.sp, color = MiColors.TextSecondary, modifier = Modifier.weight(1f), maxLines = 1)
+        Text(count, fontSize = if (small) 11.5.sp else 12.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
     }
 }
 

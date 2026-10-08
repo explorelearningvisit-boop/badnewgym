@@ -89,6 +89,10 @@ fun WorkoutWidget(
             )
             ViewAllChip(onOpen)
         }
+        Text(
+            "Totals \u00B7 last 30 days",
+            fontSize = 9.5.sp, color = MiColors.TextTertiary, fontWeight = FontWeight.Medium
+        )
         Spacer(Modifier.height(4.dp))
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth()) { _ ->
             val days = window?.days ?: emptyList()
@@ -209,6 +213,9 @@ fun BodyProgressWidget(
             v == ProgressVerdict.ON_TRACK || v == ProgressVerdict.IMPROVING
         }
     }
+    val onTrack = remember(goals) {
+        goals.isNotEmpty() && goals.all { BodyGoalAnalytics.verdict(it) == ProgressVerdict.ON_TRACK }
+    }
     val headlineGoal = remember(goals) { goals.firstOrNull()?.kind?.name }
     HomeCard(onClick = onOpen) {
         WidgetTitle(
@@ -246,12 +253,12 @@ fun BodyProgressWidget(
                 "Goal: ${first.kind.name.lowercase().replaceFirstChar { it.uppercase() }.replace('_', ' ')}",
                 MiColors.PurpleSoft, MiColors.Purple, 10
             )
-            val allGood = improving == visible.size
-            Pill(
-                if (allGood) "On Track" else "$improving / ${visible.size} Improving",
-                if (allGood) Color(0xFF22C55E) else Color(0xFFE59A1A),
-                Color.White, 10
-            )
+            // IMPROVING is not ON_TRACK: label exactly what the verdicts say.
+            when {
+                onTrack -> Pill("On Track", Color(0xFF22C55E), Color.White, 10)
+                improving == visible.size -> Pill("Improving", Color(0xFF2F9E44), Color.White, 10)
+                else -> Pill("$improving / ${visible.size} Improving", Color(0xFFE59A1A), Color.White, 10)
+            }
         }
     }
 }
@@ -305,6 +312,14 @@ private fun MetricCard(
             lineColor = lineColor,
             modifier = Modifier.height(if (compact) 22.dp else 30.dp).fillMaxWidth()
         )
+        if (!compact) {
+            Text(
+                "Target ${formatOne(goal.targetValue)} $unit".trim(),
+                fontSize = 9.5.sp,
+                color = MiColors.TextTertiary,
+                maxLines = 1
+            )
+        }
         Text(
             if (good) "GOOD" else verdict.name.lowercase().replaceFirstChar { it.uppercase() }.replace('_', ' '),
             fontSize = 9.5.sp,

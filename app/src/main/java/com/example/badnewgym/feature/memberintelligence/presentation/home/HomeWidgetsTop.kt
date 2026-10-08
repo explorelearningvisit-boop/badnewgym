@@ -66,7 +66,7 @@ fun CheckInWidget(
             Modifier
                 .background(Brush.verticalGradient(listOf(theme.surfaceTop, theme.surfaceBottom)))
                 .clickable(onClick = onOpen)
-                .padding(if (compact) 6.dp else 12.dp)
+                .padding(if (compact) 5.dp else 12.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(if (compact) 2.dp else 6.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -107,7 +107,7 @@ fun CheckInWidget(
                     val elapsed = (nowMs - (checkIn.liveStartMs ?: nowMs)).coerceAtLeast(0)
                     Text(
                         fmtDurationHms(elapsed),
-                        fontSize = if (compact) 25.sp else 34.sp,
+                        fontSize = if (compact) 22.sp else 34.sp,
                         fontWeight = FontWeight.Black,
                         color = theme.accentText,
                         maxLines = 1
@@ -145,7 +145,13 @@ fun CheckInWidget(
                     } else if (live) {
                         MiniTile("Checked in", "Status", Modifier.weight(1f))
                     } else {
-                        MiniTile(fmtDay(checkIn.lastStartMs), "Last Visit", Modifier.weight(1f))
+                        // Real fallback: last recorded visit, never a dash.
+                        val lastVisit = checkIn.lastStartMs ?: snapshot.attendance?.lastVisitAt
+                        MiniTile(
+                            if (lastVisit != null) fmtDay(lastVisit) else "No visits yet",
+                            "Last Visit",
+                            Modifier.weight(1f)
+                        )
                     }
                     val visit = checkIn.visitNumberToday
                     if (visit != null) {
@@ -168,7 +174,7 @@ private fun MiniTile(top: String, bottom: String, modifier: Modifier = Modifier)
             .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(top, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
+        Text(top, fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
         Text(bottom, fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
     }
 }
@@ -181,7 +187,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
     val identity = snapshot.identity
     val membership = snapshot.membership
     val planTheme = themeForPlan(membership?.planName)
-    HomeCard(onClick = onOpen, padding = 8.dp) {
+    HomeCard(onClick = onOpen, padding = 6.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             val photo = identity.photoUrl
             if (!photo.isNullOrBlank()) {
@@ -189,25 +195,28 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                     model = photo,
                     contentDescription = identity.name,
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(36.dp)
                         .clip(CircleShape)
                         .background(MiColors.Mint),
                     contentScale = ContentScale.Crop
                 )
             } else {
-                AvatarDot(identity.name, MiColors.Emerald, 40.dp)
+                AvatarDot(identity.name, MiColors.Emerald, 36.dp)
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         identity.name,
-                        fontSize = 16.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = MiColors.TextPrimary,
                         maxLines = 1,
                         modifier = Modifier.weight(1f, fill = false)
                     )
+                    if (identity.isVerified) {
+                        Text(" \u2713", fontSize = 14.sp, fontWeight = FontWeight.Black, color = MiColors.EmeraldDark)
+                    }
                     Text(" >", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
                 }
                 val sub = listOfNotNull(
