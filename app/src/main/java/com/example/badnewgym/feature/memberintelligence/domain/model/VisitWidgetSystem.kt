@@ -8,7 +8,8 @@ package com.example.badnewgym.feature.memberintelligence.domain.model
  */
 enum class VisitWidgetId {
     MEMBER_IDENTITY, CURRENT_VISIT, PAYMENT_ALERT, ATTENDANCE, PLAN,
-    GYM_TIME, WORKOUT, TRAINER, BODY_PROGRESS, SERVICES, OFFERS, HISTORY, INSIGHT
+    GYM_TIME, WORKOUT, TRAINER, BODY_PROGRESS, PROGRESS_PHOTOS,
+    SERVICES, OFFERS, HISTORY, INSIGHT
 }
 
 enum class VisitWidgetSize(val widthUnits: Int, val heightUnits: Int) {
@@ -34,10 +35,15 @@ data class VisitWidgetDefinition(
 data class VisitWidgetLayout(
     val orderedIds: List<VisitWidgetId> = VisitWidgetId.entries.toList(),
     val locallyDisabled: Set<VisitWidgetId> = emptySet(),
-    val sizeOverrides: Map<VisitWidgetId, VisitWidgetSize> = emptyMap()
+    val sizeOverrides: Map<VisitWidgetId, VisitWidgetSize> = emptyMap(),
+    /** Admin height resize in vertical units (36dp each). */
+    val heightOverrides: Map<VisitWidgetId, Int> = emptyMap()
 ) {
     fun sizeFor(id: VisitWidgetId): VisitWidgetSize =
         sizeOverrides[id] ?: VisitWidgetCatalog.definition(id).size
+
+    fun heightFor(id: VisitWidgetId): Int =
+        (heightOverrides[id] ?: sizeFor(id).heightUnits).coerceAtLeast(1)
 
     fun move(id: VisitWidgetId, direction: Int): VisitWidgetLayout {
         val current = orderedIds.indexOf(id)
@@ -52,6 +58,10 @@ data class VisitWidgetLayout(
 
     fun resize(id: VisitWidgetId, size: VisitWidgetSize): VisitWidgetLayout =
         copy(sizeOverrides = sizeOverrides + (id to size))
+
+    /** Admin vertical resize, in height units. */
+    fun resizeHeight(id: VisitWidgetId, units: Int): VisitWidgetLayout =
+        copy(heightOverrides = heightOverrides + (id to units.coerceIn(1, 6)))
 
     fun toggle(id: VisitWidgetId): VisitWidgetLayout =
         if (id in locallyDisabled) copy(locallyDisabled = locallyDisabled - id)
@@ -69,20 +79,26 @@ data class VisitWidgetEntitlements(
 }
 
 object VisitWidgetCatalog {
+    /**
+     * Sizes are expressed in the 4 unit runtime grid (widthUnit = content / 4).
+     * Grid widgets use M (2x2) so any two pair cleanly; taller widgets such as
+     * attendance use a height override so the calendar is never squeezed.
+     */
     val definitions = listOf(
         VisitWidgetDefinition(VisitWidgetId.MEMBER_IDENTITY, "Member", VisitWidgetSize.XL),
         VisitWidgetDefinition(VisitWidgetId.CURRENT_VISIT, "Current Visit", VisitWidgetSize.XL),
-        VisitWidgetDefinition(VisitWidgetId.PAYMENT_ALERT, "Payment", VisitWidgetSize.L, FeatureKey.PAYMENT_AUTOMATION),
+        VisitWidgetDefinition(VisitWidgetId.PAYMENT_ALERT, "Payment", VisitWidgetSize.M, FeatureKey.PAYMENT_AUTOMATION),
         VisitWidgetDefinition(VisitWidgetId.ATTENDANCE, "Attendance", VisitWidgetSize.M, FeatureKey.ADVANCED_INSIGHTS),
-        VisitWidgetDefinition(VisitWidgetId.PLAN, "Plan", VisitWidgetSize.L),
+        VisitWidgetDefinition(VisitWidgetId.PLAN, "Plan", VisitWidgetSize.M),
         VisitWidgetDefinition(VisitWidgetId.GYM_TIME, "Gym Time", VisitWidgetSize.M, FeatureKey.ANALYTICS),
         VisitWidgetDefinition(VisitWidgetId.WORKOUT, "Workout", VisitWidgetSize.M, FeatureKey.ADVANCED_INSIGHTS),
         VisitWidgetDefinition(VisitWidgetId.TRAINER, "Trainer / PT", VisitWidgetSize.M, FeatureKey.TRAINER_MANAGEMENT),
         VisitWidgetDefinition(VisitWidgetId.BODY_PROGRESS, "Body Progress", VisitWidgetSize.M, FeatureKey.ADVANCED_INSIGHTS),
+        VisitWidgetDefinition(VisitWidgetId.PROGRESS_PHOTOS, "Progress Photos", VisitWidgetSize.S, FeatureKey.ADVANCED_INSIGHTS),
         VisitWidgetDefinition(VisitWidgetId.SERVICES, "Services", VisitWidgetSize.M),
         VisitWidgetDefinition(VisitWidgetId.OFFERS, "Offers", VisitWidgetSize.M, FeatureKey.MARKETING),
-        VisitWidgetDefinition(VisitWidgetId.HISTORY, "History", VisitWidgetSize.S, FeatureKey.ANALYTICS),
-        VisitWidgetDefinition(VisitWidgetId.INSIGHT, "Insight", VisitWidgetSize.S, FeatureKey.ADVANCED_INSIGHTS)
+        VisitWidgetDefinition(VisitWidgetId.HISTORY, "History", VisitWidgetSize.M, FeatureKey.ANALYTICS),
+        VisitWidgetDefinition(VisitWidgetId.INSIGHT, "Insight", VisitWidgetSize.M, FeatureKey.ADVANCED_INSIGHTS)
     )
 
     fun definition(id: VisitWidgetId) = definitions.first { it.id == id }

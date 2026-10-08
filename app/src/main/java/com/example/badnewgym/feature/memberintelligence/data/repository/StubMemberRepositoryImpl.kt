@@ -19,7 +19,7 @@ class StubMemberRepositoryImpl : MemberIntelligenceRepository {
     override suspend fun getMemberSnapshot(memberId: String): Result<MemberSnapshot> {
         delay(100)
         val (snapshot, _) = when (memberId) {
-            "1", "BG204" -> MemberScenarios.naturalFreshYash()
+            "1", "BG204", "BG305" -> MemberScenarios.naturalFreshYash()
             "2", "BG105" -> MemberScenarios.futuristicNeonArjun()
             "3", "BG310" -> MemberScenarios.minimalDarkRiya()
             "4", "BG407" -> MemberScenarios.glassmorphismNeha()

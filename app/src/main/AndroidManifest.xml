@@ -67,5 +67,13 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/device_accessibility_service" />
         </service>
+        <receiver
+            android:name=".feature.memberintelligence.debug.VariantDebugReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.badnewgym.DEBUG_VARIANT" />
+                <action android:name="com.example.badnewgym.SCREENSHOT" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

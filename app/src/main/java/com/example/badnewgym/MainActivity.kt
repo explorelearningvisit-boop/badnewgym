@@ -1,45 +1,40 @@
 package com.example.badnewgym
 
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.example.badnewgym.deviceagent.DeviceAgentForegroundService
 import com.example.badnewgym.deviceagent.DeviceAgentRuntime
-import com.example.badnewgym.hybridtracking.service.NetworkScannerService
-import com.example.badnewgym.hybridtracking.ui.HybridTrackingDashboard
+import com.example.badnewgym.feature.memberintelligence.presentation.home.HomeViewModel
+import com.example.badnewgym.feature.memberintelligence.presentation.home.HomeWidgetId
+import com.example.badnewgym.feature.memberintelligence.presentation.home.MemberIntelligenceHome
 
 class MainActivity : ComponentActivity() {
-
-    private var scannerService by mutableStateOf<NetworkScannerService?>(null)
-    private var isBound = false
-
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-            val localBinder = binder as? NetworkScannerService.LocalBinder
-            scannerService = localBinder?.getService()
-            isBound = true
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            scannerService = null
-            isBound = false
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DeviceAgentRuntime.attach(this)
-        enableEdgeToEdge()
-
+        enableEdgeToEdge(
+            statusBarStyle = androidx.activity.SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            ),
+            navigationBarStyle = androidx.activity.SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        }
+        @Suppress("DEPRECATION")
+        window.addFlags(
+            android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+            android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+            android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        )
         if (DeviceAgentRuntime.server == null) {
             val serviceIntent = Intent(this, DeviceAgentForegroundService::class.java)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -48,27 +43,21 @@ class MainActivity : ComponentActivity() {
                 startService(serviceIntent)
             }
         }
-
-        // Start and bind NetworkScannerService
-        val scannerIntent = Intent(this, NetworkScannerService::class.java)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            startForegroundService(scannerIntent)
-        } else {
-            startService(scannerIntent)
-        }
-        bindService(scannerIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-
         setContent {
-            HybridTrackingDashboard(service = scannerService)
+            val memberId = intent?.getStringExtra(EXTRA_MEMBER_ID)
+                ?: HomeViewModel.DEFAULT_MEMBER_ID
+            val openModule = intent?.getStringExtra(EXTRA_OPEN_MODULE)
+            MemberIntelligenceHome(memberId = memberId, startModule = openModule)
         }
     }
 
     override fun onDestroy() {
-        if (isBound) {
-            unbindService(serviceConnection)
-            isBound = false
-        }
         DeviceAgentRuntime.detach(this)
         super.onDestroy()
+    }
+
+    companion object {
+        const val EXTRA_MEMBER_ID = "member_id"
+        const val EXTRA_OPEN_MODULE = "home_open_module"
     }
 }

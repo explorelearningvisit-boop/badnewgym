@@ -1,8 +1,8 @@
 package com.example.badnewgym.feature.memberintelligence.integration
 
 import androidx.compose.runtime.Composable
-import com.example.badnewgym.feature.memberintelligence.presentation.MemberIntelligenceScreen
-import com.example.badnewgym.feature.memberintelligence.presentation.MemberIntelligenceViewModel
+import com.example.badnewgym.feature.memberintelligence.presentation.home.HomeViewModel
+import com.example.badnewgym.feature.memberintelligence.presentation.home.MemberIntelligenceHome
 
 object MemberIntelligenceEntryPoint {
     const val ROUTE = "member_intelligence/{memberId}"
@@ -13,7 +13,11 @@ object MemberIntelligenceEntryPoint {
     }
 
     @Composable
-    fun MemberIntelligenceRoute(viewModel: MemberIntelligenceViewModel) {
-        MemberIntelligenceScreen(viewModel)
+    fun MemberIntelligenceRoute(
+        viewModel: HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+            factory = HomeViewModel.Factory()
+        )
+    ) {
+        MemberIntelligenceHome(vm = viewModel)
     }
 }

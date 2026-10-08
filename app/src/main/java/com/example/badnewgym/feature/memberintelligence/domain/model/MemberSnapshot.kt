@@ -32,7 +32,9 @@ data class MemberIdentity(
     val tier: MembershipTier,
     val memberSince: Long,
     val code: String? = null,
-    val isVerified: Boolean = false
+    val isVerified: Boolean = false,
+    val age: Int? = null,
+    val gender: String? = null
 )
 
 enum class MembershipTier {
@@ -65,7 +67,11 @@ data class AttendanceSummary(
     val weeklyPattern: List<Int>? = null,
     val lastVisitAt: Long? = null,
     val isHistoricalPeriod: Boolean = false,
-    val preferredSlot: String? = null
+    val preferredSlot: String? = null,
+    val lateVisits: Int? = null,
+    val holidayDays: Int? = null,
+    val periodYear: Int? = null,
+    val periodMonth: Int? = null
 )
 
 data class PaymentSummary(

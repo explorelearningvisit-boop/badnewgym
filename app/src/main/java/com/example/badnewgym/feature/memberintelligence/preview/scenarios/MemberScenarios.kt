@@ -47,52 +47,73 @@ object MemberScenarios {
             id = "1",
             gymId = "gym1",
             identity = MemberIdentity(
-                name = "Yash Singh",
+                name = "Aman Tripathi",
                 photoUrl = MediaAssets.MEMBER_YASH,
                 tier = MembershipTier.PREMIUM,
                 memberSince = now - DAY * 365,
-                code = "BG204",
-                isVerified = true
+                code = "BG305",
+                isVerified = true,
+                age = 23,
+                gender = "Male"
             ),
             membership = MembershipStatus(
                 planName = "Gold Plan",
-                planType = "12 Months",
+                planType = "Monthly",
                 isActive = true,
-                daysRemaining = 48,
-                startDate = now - DAY * 317,
-                expiryDate = now + DAY * 48,
-                currentCost = 24_000.0,
+                daysRemaining = 18,
+                startDate = now - DAY * 12,
+                expiryDate = now + DAY * 18,
+                currentCost = 2_800.0,
                 renewalCount = 1
             ),
             attendance = AttendanceSummary(
-                visits = 16,
-                target = 26,
+                visits = 20,
+                target = 30,
                 periodName = "Current Month",
                 lifetimeVisits = 214,
-                streakDays = 4,
+                streakDays = 3,
                 avgVisitsPerWeek = 3.2,
                 weeklyPattern = listOf(1, 1, 0, 1, 1, 0, 1),
-                lastVisitAt = now
+                lastVisitAt = now,
+                lateVisits = 4,
+                holidayDays = 1,
+                periodYear = 2026,
+                periodMonth = 9
             ),
             payment = PaymentSummary(
-                totalOutstanding = 4500.0,
-                overdueDays = 3,
-                dueDate = now - DAY * 3,
-                lastPaymentAmount = 1400.0,
+                totalOutstanding = 2800.0,
+                overdueDays = 0,
+                dueDate = now + DAY * 3,
+                lastPaymentAmount = 2800.0,
                 lastPaymentDate = now - DAY * 28,
                 lastPaymentMethod = "UPI",
                 lifetimePaid = 22_200.0,
-                lifecycle = PaymentLifecycle.OVERDUE,
-                breakdown = listOf(PaymentBreakdownLine("Gold Plan Due", 4500.0)),
-                history = listOf(PaymentTransaction("p1", 1400.0, now - DAY * 28, "UPI", "Plan"))
+                lifecycle = PaymentLifecycle.DUE,
+                breakdown = listOf(PaymentBreakdownLine("Gold Plan Due", 2800.0)),
+                history = listOf(PaymentTransaction("p1", 2800.0, now - DAY * 28, "UPI", "Plan"))
             ),
             trainer = TrainerSummary("Vikas Yadav", MediaAssets.TRAINER_VIKAS, 12, 7, now + DAY, "Chest & Triceps", now - DAY * 2),
             workout = WorkoutSummary(now - DAY, "Functional Fitness", 60),
             supplements = SupplementSummary(true, "MuscleBlaze Whey 2kg", now - DAY * 10, 4249.0, "MuscleBlaze", MediaAssets.WHEY_PRODUCT),
             nutrition = NutritionSummary(true, "BAD GYM Nutrition", now + DAY * 20, 2000.0),
             services = listOf(ServiceSummary("Locker L12", true, now + DAY * 45, 500.0)),
-            recentEvents = listOf(MemberEvent("e1", "1", "gym1", EventType.CHECK_IN, now, EventSource.GATE)),
-            issues = listOf(MemberIssue("i1", "Payment Due: ₹4,500 (3 days overdue)", IssueSeverity.HIGH))
+            recentEvents = listOf(
+                MemberEvent("e1", "1", "gym1", EventType.CHECK_IN, now, EventSource.GATE),
+                MemberEvent("e_w1", "1", "gym1", EventType.WORKOUT, now - DAY * 6, EventSource.MEMBER, metadata = mapOf("durationMinutes" to "55")),
+                MemberEvent("e_w2", "1", "gym1", EventType.WORKOUT, now - DAY * 5, EventSource.MEMBER, metadata = mapOf("durationMinutes" to "80")),
+                MemberEvent("e_w3", "1", "gym1", EventType.WORKOUT, now - DAY * 4, EventSource.MEMBER, metadata = mapOf("durationMinutes" to "40")),
+                MemberEvent("e_w4", "1", "gym1", EventType.WORKOUT_COMPLETED, now - DAY * 3, EventSource.MEMBER, metadata = mapOf("durationMinutes" to "95")),
+                MemberEvent("e_w5", "1", "gym1", EventType.WORKOUT_COMPLETED, now - DAY * 2, EventSource.MEMBER, metadata = mapOf("durationMinutes" to "120")),
+                MemberEvent("e_w6", "1", "gym1", EventType.WORKOUT_SKIPPED, now - DAY, EventSource.MEMBER, metadata = mapOf("durationMinutes" to "0")),
+                MemberEvent("e_w7", "1", "gym1", EventType.WORKOUT, now, EventSource.MEMBER, metadata = mapOf("durationMinutes" to "70")),
+                MemberEvent(
+                    "e_b1", "1", "gym1", EventType.BODY_MEASUREMENT_UPDATED, now - DAY * 2, EventSource.TRAINER,
+                    metadata = mapOf("metric" to "Weight", "previous" to "67", "current" to "69.5", "unit" to "kg", "goal" to "72")
+                ),
+                MemberEvent("e_p1", "1", "gym1", EventType.PAYMENT_DUE, now - DAY * 3, EventSource.PAYMENT, metadata = mapOf("amount" to "4500")),
+                MemberEvent("e_c0", "1", "gym1", EventType.CHECK_IN, now - DAY, EventSource.GATE, metadata = mapOf("durationMinutes" to "95"))
+            ),
+            issues = listOf(MemberIssue("i1", "Payment Due: ₹2,800 (due in 3 days)", IssueSeverity.MEDIUM))
         )
         val event = MemberEvent("live_1", "1", "gym1", EventType.CHECK_IN, now, EventSource.GATE)
         return snapshot to event
