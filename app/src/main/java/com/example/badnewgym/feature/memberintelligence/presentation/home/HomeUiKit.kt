@@ -36,6 +36,7 @@ import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 fun HomeCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    padding: Dp = 12.dp,
     content: @Composable () -> Unit
 ) {
     val shape = RoundedCornerShape(18.dp)
@@ -47,7 +48,7 @@ fun HomeCard(
         shadowElevation = 3.dp
     ) {
         val inner: @Composable () -> Unit = {
-            Column(Modifier.padding(12.dp)) { content() }
+            Column(Modifier.padding(padding)) { content() }
         }
         if (onClick != null) {
             Box(Modifier.clickable(onClick = onClick)) { inner() }
@@ -100,16 +101,17 @@ fun StatChip(
     label: String,
     value: String,
     valueColor: Color = MiColors.TextPrimary,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dense: Boolean = false
 ) {
     Column(
         modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
-            .padding(horizontal = 10.dp, vertical = 7.dp)
+            .padding(horizontal = if (dense) 8.dp else 10.dp, vertical = if (dense) 5.dp else 7.dp)
     ) {
-        Text(value, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
-        Text(label, fontSize = 10.5.sp, fontWeight = FontWeight.Medium, color = MiColors.TextSecondary, maxLines = 1)
+        Text(value, fontSize = if (dense) 13.sp else 14.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
+        Text(label, fontSize = if (dense) 9.5.sp else 10.5.sp, fontWeight = FontWeight.Medium, color = MiColors.TextSecondary, maxLines = 1)
     }
 }
 

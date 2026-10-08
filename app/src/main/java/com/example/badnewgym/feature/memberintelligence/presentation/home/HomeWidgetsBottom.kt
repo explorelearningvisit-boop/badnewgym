@@ -115,7 +115,7 @@ fun WorkoutWidget(
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .height(104.dp),
+                        .height(88.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
@@ -137,7 +137,7 @@ fun WorkoutWidget(
                                 Modifier
                                     .width(26.dp)
                                     .height(
-                                        if (day.minutes > 0) (18 + (day.minutes.toFloat() / max * 80)).dp else 8.dp
+                                        if (day.minutes > 0) (14 + (day.minutes.toFloat() / max * 66)).dp else 8.dp
                                     )
                                     .clip(RoundedCornerShape(topStart = 7.dp, topEnd = 7.dp))
                                     .then(barFill)
@@ -162,18 +162,19 @@ fun WorkoutWidget(
         }
         Spacer(Modifier.height(6.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            StatChip("Sessions", "${summary.activeDays}", modifier = Modifier.weight(1f))
-            StatChip("Total", "${summary.totalMinutes} min", modifier = Modifier.weight(1f))
-            StatChip("Avg", "${summary.averageMinutes} min", modifier = Modifier.weight(1f))
+            StatChip("Sessions", "${summary.activeDays}", modifier = Modifier.weight(1f), dense = true)
+            StatChip("Total", "${summary.totalMinutes} min", modifier = Modifier.weight(1f), dense = true)
+            StatChip("Avg", "${summary.averageMinutes} min", modifier = Modifier.weight(1f), dense = true)
         }
         Spacer(Modifier.height(6.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            StatChip("Peak", summary.peak?.let { "${it.minutes} min" } ?: "-", MiColors.EmeraldDark, Modifier.weight(1f))
+            StatChip("Peak", summary.peak?.let { "${it.minutes} min" } ?: "-", MiColors.EmeraldDark, Modifier.weight(1f), dense = true)
             StatChip(
                 "Lowest",
                 summary.lowest?.let { "${it.minutes} min" } ?: "No Session",
                 MiColors.TextPrimary,
-                Modifier.weight(1f)
+                Modifier.weight(1f),
+                dense = true
             )
         }
     }
@@ -190,9 +191,10 @@ fun WorkoutWidget(
 fun BodyProgressWidget(
     goals: List<BodyGoal>,
     histories: List<MetricHistory>,
-    onOpen: () -> Unit
+    onOpen: () -> Unit,
+    singleRow: Boolean = false
 ) {
-    val visible = remember(goals) { goals.take(4) }
+    val visible = remember(goals) { goals.take(if (singleRow) 3 else 4) }
     if (visible.isEmpty()) {
         HomeCard {
             WidgetTitle("Body Progress")
@@ -217,14 +219,23 @@ fun BodyProgressWidget(
             trailing = { ViewAllChip(onOpen) }
         )
         Spacer(Modifier.height(6.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            visible.chunked(2).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    row.forEach { goal ->
-                        val history = histories.firstOrNull { it.metric == goal.primaryMetric }
-                        MetricCard(goal, history, Modifier.weight(1f))
+        if (singleRow) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                visible.forEach { goal ->
+                    val history = histories.firstOrNull { it.metric == goal.primaryMetric }
+                    MetricCard(goal, history, Modifier.weight(1f), compact = true)
+                }
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                visible.chunked(2).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        row.forEach { goal ->
+                            val history = histories.firstOrNull { it.metric == goal.primaryMetric }
+                            MetricCard(goal, history, Modifier.weight(1f))
+                        }
+                        if (row.size == 1) Spacer(Modifier.weight(1f))
                     }
-                    if (row.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
         }
@@ -246,7 +257,12 @@ fun BodyProgressWidget(
 }
 
 @Composable
-private fun MetricCard(goal: BodyGoal, history: MetricHistory?, modifier: Modifier = Modifier) {
+private fun MetricCard(
+    goal: BodyGoal,
+    history: MetricHistory?,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
+) {
     val verdict = remember(goal) { BodyGoalAnalytics.verdict(goal) }
     val good = verdict == ProgressVerdict.ON_TRACK || verdict == ProgressVerdict.IMPROVING
     val delta = goal.currentValue - goal.startValue
@@ -265,20 +281,20 @@ private fun MetricCard(goal: BodyGoal, history: MetricHistory?, modifier: Modifi
         modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
-            .padding(9.dp)
+            .padding(if (compact) 7.dp else 9.dp)
     ) {
         Text(
             metricLabel(goal.primaryMetric),
-            fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MiColors.TextSecondary, maxLines = 1
+            fontSize = if (compact) 10.sp else 11.sp, fontWeight = FontWeight.Bold, color = MiColors.TextSecondary, maxLines = 1
         )
         Spacer(Modifier.height(2.dp))
         Text(
             "${formatOne(goal.startValue)} \u2192 ${formatOne(goal.currentValue)} $unit".trim(),
-            fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
+            fontSize = if (compact) 12.sp else 13.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
         )
         Text(
             deltaText,
-            fontSize = 11.5.sp,
+            fontSize = if (compact) 10.5.sp else 11.5.sp,
             fontWeight = FontWeight.ExtraBold,
             color = if (good) Color(0xFF16A34A) else Color(0xFFE54848),
             maxLines = 1
@@ -286,7 +302,8 @@ private fun MetricCard(goal: BodyGoal, history: MetricHistory?, modifier: Modifi
         Spacer(Modifier.height(2.dp))
         Sparkline(
             values = history?.ordered()?.map { it.value } ?: listOf(goal.startValue, goal.currentValue),
-            lineColor = lineColor
+            lineColor = lineColor,
+            modifier = Modifier.height(if (compact) 22.dp else 30.dp).fillMaxWidth()
         )
         Text(
             if (good) "GOOD" else verdict.name.lowercase().replaceFirstChar { it.uppercase() }.replace('_', ' '),

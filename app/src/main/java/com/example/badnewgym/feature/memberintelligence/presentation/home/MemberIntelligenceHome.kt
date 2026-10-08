@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -41,10 +49,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,8 +65,46 @@ import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 
 private data class RailItem(val id: String, val label: String, val icon: ImageVector)
 
-/** Launch extra: open Home pre-scrolled to the bottom for screenshot checks. */
-const val EXTRA_SCROLL_BOTTOM = "home_scroll_bottom"
+/** Home segments. Overview = NOW + MEMBER + MONEY + ATTENDANCE,
+ *  Progress = WORKOUT + BODY. Each segment fits the 500-600dp card with
+ *  no vertical scrolling; anything deeper lives in the module sheets. */
+enum class HomeSegment { OVERVIEW, PROGRESS }
+
+/** Absolute card height ceiling. Content must fit without scrolling. */
+private val CARD_MAX_HEIGHT = 600.dp
+
+@Composable
+private fun SegmentBar(segment: HomeSegment, onSelect: (HomeSegment) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MiColors.SurfaceSunken)
+            .padding(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        HomeSegment.entries.forEach { entry ->
+            val selected = entry == segment
+            Box(
+                Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(13.dp))
+                    .background(if (selected) MiColors.Surface else Color.Transparent)
+                    .clickable(onClick = { onSelect(entry) })
+                    .padding(vertical = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    if (entry == HomeSegment.OVERVIEW) "Overview" else "Progress",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (selected) MiColors.EmeraldDark else MiColors.TextSecondary,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
 
 /** Member domains. Home is selected; the rail is navigation, not widget data. */
 private val RAIL_ITEMS = listOf(
@@ -181,7 +223,7 @@ fun MemberIntelligenceHome(
             Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .padding(start = 8.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
+                .padding(start = 8.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
         ) {
             when (val s = state) {
                 HomeUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -192,63 +234,63 @@ fun MemberIntelligenceHome(
                 }
                 is HomeUiState.Ready -> {
                     val data = s.data
-                    val ids = visibleOrdered(data.widgetDefs)
-                    // Visual-verification hook: `am start --ez home_scroll_bottom true`
-                    // opens Home pre-scrolled so the lower widgets can be
-                    // screenshot-verified without a swipe gesture.
-                    val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
-                    val startAtBottom =
-                        activity?.intent?.getBooleanExtra(EXTRA_SCROLL_BOTTOM, false) == true
-                    val scroll = rememberScrollState()
-                    LaunchedEffect(s.data.snapshot.id, startAtBottom) {
-                        if (startAtBottom) {
-                            // First frames have maxValue 0 (nothing laid out yet).
-                            kotlinx.coroutines.delay(500)
-                            scroll.scrollTo(scroll.maxValue)
-                        }
+                    // No-tap segment verification: --es start_segment progress
+                    val startSeg = (androidx.compose.ui.platform.LocalContext.current as? android.app.Activity)
+                        ?.intent?.getStringExtra("start_segment")
+                    var segment by remember {
+                        mutableStateOf(
+                            if (startSeg == "progress") HomeSegment.PROGRESS else HomeSegment.OVERVIEW
+                        )
                     }
                     Column(
                         Modifier
-                            .fillMaxSize()
-                            .verticalScroll(scroll),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .fillMaxWidth()
+                            .heightIn(max = CARD_MAX_HEIGHT),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        ids.forEach { id ->
-                            when (id) {
-                                HomeWidgetId.CHECK_IN -> CheckInWidget(
+                        SegmentBar(segment = segment, onSelect = { segment = it })
+                        when (segment) {
+                            HomeSegment.OVERVIEW -> {
+                                CheckInWidget(
                                     checkIn = data.checkIn,
                                     snapshot = data.snapshot,
                                     onEndSession = vm::endSession,
-                                    onOpen = { vm.openModule(HomeWidgetId.CHECK_IN) }
+                                    onOpen = { vm.openModule(HomeWidgetId.CHECK_IN) },
+                                    compact = true
                                 )
-                                HomeWidgetId.IDENTITY -> MemberIdentityWidget(
+                                MemberIdentityWidget(
                                     snapshot = data.snapshot,
                                     onOpen = { vm.openModule(HomeWidgetId.IDENTITY) }
                                 )
-                                HomeWidgetId.PAYMENT -> PaymentWidget(
+                                PaymentWidget(
                                     payment = data.snapshot.payment,
                                     situation = data.paymentSituation,
                                     onCollect = { vm.openModule(HomeWidgetId.PAYMENT) },
-                                    onOpen = { vm.openModule(HomeWidgetId.PAYMENT) }
+                                    onOpen = { vm.openModule(HomeWidgetId.PAYMENT) },
+                                    compact = true
                                 )
-                                HomeWidgetId.ATTENDANCE -> AttendanceWidget(
+                                AttendanceWidget(
                                     window = data.attendance,
-                                    onOpen = { vm.openModule(HomeWidgetId.ATTENDANCE) }
+                                    onOpen = { vm.openModule(HomeWidgetId.ATTENDANCE) },
+                                    compact = true,
+                                    showStreaks = false
                                 )
-                                HomeWidgetId.WORKOUT -> WorkoutWidget(
+                            }
+                            HomeSegment.PROGRESS -> {
+                                WorkoutWidget(
                                     month = data.workout,
                                     weekIndex = week,
                                     onWeekChange = vm::setWorkoutWeek,
                                     onOpen = { vm.openModule(HomeWidgetId.WORKOUT) }
                                 )
-                                HomeWidgetId.BODY -> BodyProgressWidget(
+                                BodyProgressWidget(
                                     goals = data.bodyGoals,
                                     histories = data.bodyHistories,
-                                    onOpen = { vm.openModule(HomeWidgetId.BODY) }
+                                    onOpen = { vm.openModule(HomeWidgetId.BODY) },
+                                    singleRow = true
                                 )
                             }
                         }
-                        Spacer(Modifier.height(4.dp))
                     }
                 }
             }

@@ -44,7 +44,8 @@ fun PaymentWidget(
     payment: PaymentSummary?,
     situation: PaymentSituation,
     onCollect: () -> Unit,
-    onOpen: () -> Unit
+    onOpen: () -> Unit,
+    compact: Boolean = false
 ) {
     if (payment == null) {
         HomeCard {
@@ -55,10 +56,10 @@ fun PaymentWidget(
         return
     }
     when (situation) {
-        is PaymentSituation.Overdue -> PaymentOverdueCard(payment, situation.overdueDays, onCollect, onOpen)
-        is PaymentSituation.Due -> PaymentDueCard(payment, situation, onCollect, onOpen)
-        is PaymentSituation.Partial -> PaymentDueCard(payment, situation, onCollect, onOpen)
-        PaymentSituation.Settled -> PaymentCurrentCard(payment, onOpen)
+        is PaymentSituation.Overdue -> PaymentOverdueCard(payment, situation.overdueDays, onCollect, onOpen, compact)
+        is PaymentSituation.Due -> PaymentDueCard(payment, situation, onCollect, onOpen, compact)
+        is PaymentSituation.Partial -> PaymentDueCard(payment, situation, onCollect, onOpen, compact)
+        PaymentSituation.Settled -> PaymentCurrentCard(payment, onOpen, compact)
     }
 }
 
@@ -67,7 +68,8 @@ private fun PaymentDueCard(
     payment: PaymentSummary,
     situation: PaymentSituation,
     onCollect: () -> Unit,
-    onOpen: () -> Unit
+    onOpen: () -> Unit,
+    compact: Boolean = false
 ) {
     val amount = when (situation) {
         is PaymentSituation.Due -> situation.amount
@@ -80,12 +82,12 @@ private fun PaymentDueCard(
         else -> payment.dueDate
     }
     val daysLeft = dueMs?.let { ((it - System.currentTimeMillis()) / 86_400_000L).toInt() }
-    HomeCard(onClick = onOpen) {
+    HomeCard(onClick = onOpen, padding = if (compact) 8.dp else 12.dp) {
         WidgetTitle("Payment", "Due", MiColors.Red)
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(if (compact) 2.dp else 4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(fmtRupees(amount), fontSize = 24.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
+                Text(fmtRupees(amount), fontSize = if (compact) 20.sp else 24.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
                 Text(
                     if (daysLeft != null && daysLeft >= 0) "Due in $daysLeft days  \u00B7  ${fmtDate(dueMs)}"
                     else fmtDate(dueMs),
@@ -94,15 +96,15 @@ private fun PaymentDueCard(
             }
             CollectButton(onCollect)
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(if (compact) 3.dp else 6.dp))
         val paid = (payment.lifetimePaid ?: 0.0)
         val plan = paid + amount
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            StatChip("Paid", fmtRupees(paid), MiColors.EmeraldDark, Modifier.weight(1f))
-            StatChip("Plan Value", fmtRupees(if (plan > 0) plan else null), modifier = Modifier.weight(1f))
-            StatChip("Remaining", fmtRupees(amount), MiColors.Red, Modifier.weight(1f))
+        Row(horizontalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 8.dp)) {
+            StatChip("Paid", fmtRupees(paid), MiColors.EmeraldDark, Modifier.weight(1f), dense = compact)
+            StatChip("Plan Value", fmtRupees(if (plan > 0) plan else null), modifier = Modifier.weight(1f), dense = compact)
+            StatChip("Remaining", fmtRupees(amount), MiColors.Red, Modifier.weight(1f), dense = compact)
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(if (compact) 4.dp else 6.dp))
         LinearProgressIndicator(
             progress = if (plan > 0) (paid / plan).toFloat().coerceIn(0f, 1f) else 0f,
             modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(4.dp)),
@@ -124,9 +126,10 @@ private fun PaymentOverdueCard(
     payment: PaymentSummary,
     overdueDays: Int,
     onCollect: () -> Unit,
-    onOpen: () -> Unit
+    onOpen: () -> Unit,
+    compact: Boolean = false
 ) {
-    HomeCard(onClick = onOpen) {
+    HomeCard(onClick = onOpen, padding = if (compact) 10.dp else 12.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Pill("PAYMENT OVERDUE", MiColors.Red, Color.White, 11)
             Spacer(Modifier.weight(1f))
@@ -149,8 +152,8 @@ private fun PaymentOverdueCard(
 }
 
 @Composable
-private fun PaymentCurrentCard(payment: PaymentSummary, onOpen: () -> Unit) {
-    HomeCard(onClick = onOpen) {
+private fun PaymentCurrentCard(payment: PaymentSummary, onOpen: () -> Unit, compact: Boolean = false) {
+    HomeCard(onClick = onOpen, padding = if (compact) 10.dp else 12.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Payment", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
             Spacer(Modifier.width(6.dp))
@@ -198,7 +201,12 @@ private fun CollectButton(onClick: () -> Unit) {
  * Denominator is open days, never blindly 30.
  */
 @Composable
-fun AttendanceWidget(window: AttendanceWindow?, onOpen: () -> Unit) {
+fun AttendanceWidget(
+    window: AttendanceWindow?,
+    onOpen: () -> Unit,
+    compact: Boolean = false,
+    showStreaks: Boolean = true
+) {
     if (window == null || window.elapsed.isEmpty()) {
         HomeCard {
             WidgetTitle("Attendance", "(30 Days)")
@@ -214,46 +222,51 @@ fun AttendanceWidget(window: AttendanceWindow?, onOpen: () -> Unit) {
     }
     val trend = remember(window) { AttendanceAnalytics.trendPoints(window) }
 
-    HomeCard(onClick = onOpen) {
+    HomeCard(onClick = onOpen, padding = if (compact) 8.dp else 12.dp) {
         WidgetTitle("Attendance", "(30 Days)", trailing = { ViewAllChip(onOpen) })
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(if (compact) 3.dp else 6.dp))
         Row(verticalAlignment = Alignment.Top) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.width(86.dp)
+                modifier = Modifier.width(if (compact) 78.dp else 86.dp)
             ) {
-                Donut(pct)
+                Donut(pct, size = if (compact) 56.dp else 76.dp)
                 Spacer(Modifier.height(2.dp))
                 Text("$attended / $openDays", fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
                 Text("Open Days", fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 1)
             }
             Spacer(Modifier.width(8.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(if (compact) 2.dp else 3.dp)) {
                 LegendRow(MiColors.Emerald, "Present", window.present.toString(), null)
                 LegendRow(MiColors.Emerald, "Late", window.late.toString(), "\u25D4")
                 LegendRow(MiColors.Red, "Absent", window.absent.toString(), null)
                 LegendRow(Color(0xFF9AA5B1), "Closed", window.holiday.toString(), "\u2715")
             }
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(if (compact) 4.dp else 6.dp))
         // Compact 30-day grid: two rows of 15, true day numbers, state glyphs.
         val days = remember(window) { window.days.takeLast(30) }
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            DayRow(days.take(15))
-            DayRow(days.drop(15))
+        Column(verticalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 4.dp)) {
+            DayRow(days.take(15), dot = if (compact) 14.dp else 17.dp)
+            DayRow(days.drop(15), dot = if (compact) 14.dp else 17.dp)
         }
-        Spacer(Modifier.height(6.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (trend != 0) {
-                StatChip(
-                    "vs prev 30d",
-                    (if (trend > 0) "\u2191 +" else "\u2193 ") + "${kotlin.math.abs(trend)}%",
-                    if (trend > 0) MiColors.EmeraldDark else MiColors.Red,
-                    Modifier.weight(1f)
-                )
+        if (showStreaks || trend != 0) {
+            Spacer(Modifier.height(if (compact) 4.dp else 6.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (trend != 0) {
+                    StatChip(
+                        "vs prev 30d",
+                        (if (trend > 0) "\u2191 +" else "\u2193 ") + "${kotlin.math.abs(trend)}%",
+                        if (trend > 0) MiColors.EmeraldDark else MiColors.Red,
+                        Modifier.weight(1f),
+                        dense = compact
+                    )
+                }
+                if (showStreaks) {
+                    StatChip("Current Streak", "${AttendanceAnalytics.currentStreak(window)} Days", modifier = Modifier.weight(1f), dense = compact)
+                    StatChip("Best Streak", "${AttendanceAnalytics.longestStreak(window)} Days", modifier = Modifier.weight(1f), dense = compact)
+                }
             }
-            StatChip("Current Streak", "${AttendanceAnalytics.currentStreak(window)} Days", modifier = Modifier.weight(1f))
-            StatChip("Best Streak", "${AttendanceAnalytics.longestStreak(window)} Days", modifier = Modifier.weight(1f))
         }
     }
 }
@@ -279,7 +292,10 @@ private fun LegendRow(color: Color, label: String, count: String, glyph: String?
 }
 
 @Composable
-private fun DayRow(days: List<com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDay>) {
+private fun DayRow(
+    days: List<com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDay>,
+    dot: androidx.compose.ui.unit.Dp = 17.dp
+) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         days.forEach { day ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -299,7 +315,7 @@ private fun DayRow(days: List<com.example.badnewgym.feature.memberintelligence.d
                 }
                 Box(
                     Modifier
-                        .size(17.dp)
+                        .size(dot)
                         .clip(CircleShape)
                         .background(bg),
                     contentAlignment = Alignment.Center
@@ -314,9 +330,9 @@ private fun DayRow(days: List<com.example.badnewgym.feature.memberintelligence.d
 }
 
 @Composable
-private fun Donut(pct: Int) {
-    Box(Modifier.size(76.dp), contentAlignment = Alignment.Center) {
-        androidx.compose.foundation.Canvas(Modifier.size(76.dp)) {
+private fun Donut(pct: Int, size: androidx.compose.ui.unit.Dp = 76.dp) {
+    Box(Modifier.size(size), contentAlignment = Alignment.Center) {
+        androidx.compose.foundation.Canvas(Modifier.size(size)) {
             val sweep = pct.toFloat() / 100f * 360f
             drawArc(
                 color = Color(0xFFE3EEE9),

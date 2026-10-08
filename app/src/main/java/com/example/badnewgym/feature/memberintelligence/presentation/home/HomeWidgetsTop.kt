@@ -49,7 +49,8 @@ fun CheckInWidget(
     checkIn: HomeCheckIn,
     snapshot: MemberSnapshot,
     onEndSession: () -> Unit,
-    onOpen: () -> Unit
+    onOpen: () -> Unit,
+    compact: Boolean = false
 ) {
     val theme = themeForPlan(snapshot.membership?.planName)
     val live = checkIn.liveStartMs != null
@@ -65,9 +66,9 @@ fun CheckInWidget(
             Modifier
                 .background(Brush.verticalGradient(listOf(theme.surfaceTop, theme.surfaceBottom)))
                 .clickable(onClick = onOpen)
-                .padding(12.dp)
+                .padding(if (compact) 6.dp else 12.dp)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(if (compact) 2.dp else 6.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         if (live) "CHECK-IN" else "CHECK-OUT",
@@ -106,7 +107,7 @@ fun CheckInWidget(
                     val elapsed = (nowMs - (checkIn.liveStartMs ?: nowMs)).coerceAtLeast(0)
                     Text(
                         fmtDurationHms(elapsed),
-                        fontSize = 34.sp,
+                        fontSize = if (compact) 25.sp else 34.sp,
                         fontWeight = FontWeight.Black,
                         color = theme.accentText,
                         maxLines = 1
@@ -121,7 +122,7 @@ fun CheckInWidget(
                     val dur = checkIn.lastDurationMs
                     Text(
                         if (dur != null) fmtDurationHm(dur) else "No active session",
-                        fontSize = 26.sp,
+                        fontSize = if (compact) 22.sp else 26.sp,
                         fontWeight = FontWeight.Black,
                         color = theme.accentText,
                         maxLines = 1
@@ -164,11 +165,11 @@ private fun MiniTile(top: String, bottom: String, modifier: Modifier = Modifier)
         modifier
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White.copy(alpha = 0.72f))
-            .padding(horizontal = 10.dp, vertical = 7.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(top, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
-        Text(bottom, fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 1)
+        Text(top, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
+        Text(bottom, fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
     }
 }
 
@@ -180,7 +181,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
     val identity = snapshot.identity
     val membership = snapshot.membership
     val planTheme = themeForPlan(membership?.planName)
-    HomeCard(onClick = onOpen) {
+    HomeCard(onClick = onOpen, padding = 8.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             val photo = identity.photoUrl
             if (!photo.isNullOrBlank()) {
@@ -188,20 +189,20 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                     model = photo,
                     contentDescription = identity.name,
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(40.dp)
                         .clip(CircleShape)
                         .background(MiColors.Mint),
                     contentScale = ContentScale.Crop
                 )
             } else {
-                AvatarDot(identity.name, MiColors.Emerald, 48.dp)
+                AvatarDot(identity.name, MiColors.Emerald, 40.dp)
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         identity.name,
-                        fontSize = 17.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = MiColors.TextPrimary,
                         maxLines = 1,
