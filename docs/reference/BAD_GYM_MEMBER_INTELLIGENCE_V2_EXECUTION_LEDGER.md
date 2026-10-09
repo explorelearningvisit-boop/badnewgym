@@ -85,3 +85,26 @@ Status values: PENDING | IN_PROGRESS | BLOCKED | VERIFIED
   - Fixed Android resource linking in `device_accessibility_service.xml` and `strings.xml`
   - Deployed debug build to connected Xiaomi 11i 5G device
   - Captured live device screenshot `docs/reference/images/v2_verification.png`
+
+
+## Milestone 4.0 - Merged ultra-compact Home (2026-10-09)
+- Branch: main, SHA cc755ba
+- Scope: ONE merged Home card (Check-In/Identity/Payment/Attendance/
+  Workout/Body), no vertical scroll, ~520dp content height at 360dp width.
+- States verified on Xiaomi 11i 5G (zxdada69gunb7ls4):
+  Current / Due Soon (amber) / Overdue / Successful / Partial payments;
+  CHECK-OUT transition; 7/14/15/30-day workout ranges; 30-day attendance
+  with open-day denominator; goal-aware body verdicts + real date window.
+- E2E (broadcast-driven, MIUI blocks adb input): END_SESSION, COLLECT
+  full + partial, SET_RANGE 30D, STATUS query - all screenshot-verified.
+- Evidence: OPPO/pulled_screens/mi40_home.png, e2e_checkout.png,
+  e2e_success.png, e2e_partial.png, e2e_range30d.png, v40_overdue.png,
+  v40_current.png, sh_payment_collect.png, sh_workout.png,
+  sh_attendance.png, sh_body.png.
+- Build: assembleDebug SUCCESSFUL. Unit tests: ALL PASSED (43).
+- Fixes: removed fabricated plan-value/completion bar; attendance
+  completion uses open days; body On Track vs Improving labeled exactly.
+- Known limits: compose instrumentation blocked by MIUI install policy
+  (tests kept for CI); payment persistence in-memory on stub repository
+  pending production backend wiring.
+
