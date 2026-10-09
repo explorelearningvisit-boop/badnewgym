@@ -89,6 +89,7 @@
                 <action android:name="com.example.badnewgym.HOME.END_SESSION" />
                 <action android:name="com.example.badnewgym.HOME.COLLECT" />
                 <action android:name="com.example.badnewgym.HOME.SET_RANGE" />
+                <action android:name="com.example.badnewgym.HOME.OPEN_MODULE" />
                 <action android:name="com.example.badnewgym.HOME.STATUS" />
             </intent-filter>
         </receiver>

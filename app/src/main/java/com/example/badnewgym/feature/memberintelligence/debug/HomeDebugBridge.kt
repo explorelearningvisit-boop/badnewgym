@@ -26,6 +26,9 @@ object HomeDebugBridge {
     var onSetRange: ((range: String) -> Unit)? = null
 
     @Volatile
+    var onOpenModule: ((module: String) -> Unit)? = null
+
+    @Volatile
     var onStatusQuery: (() -> String)? = null
 }
 
@@ -47,6 +50,11 @@ class HomeDebugReceiver : BroadcastReceiver() {
                 HomeDebugBridge.onSetRange?.invoke(range)
                 finish("range=$range")
             }
+            ACTION_OPEN_MODULE -> {
+                val module = intent.getStringExtra(EXTRA_MODULE) ?: ""
+                HomeDebugBridge.onOpenModule?.invoke(module)
+                finish("module=$module")
+            }
             ACTION_STATUS -> {
                 finish(HomeDebugBridge.onStatusQuery?.invoke() ?: "no_home")
             }
@@ -63,9 +71,11 @@ class HomeDebugReceiver : BroadcastReceiver() {
         const val ACTION_END_SESSION = "com.example.badnewgym.HOME.END_SESSION"
         const val ACTION_COLLECT = "com.example.badnewgym.HOME.COLLECT"
         const val ACTION_SET_RANGE = "com.example.badnewgym.HOME.SET_RANGE"
+        const val ACTION_OPEN_MODULE = "com.example.badnewgym.HOME.OPEN_MODULE"
         const val ACTION_STATUS = "com.example.badnewgym.HOME.STATUS"
         const val EXTRA_AMOUNT = "amount"
         const val EXTRA_METHOD = "method"
         const val EXTRA_RANGE = "range"
+        const val EXTRA_MODULE = "module"
     }
 }

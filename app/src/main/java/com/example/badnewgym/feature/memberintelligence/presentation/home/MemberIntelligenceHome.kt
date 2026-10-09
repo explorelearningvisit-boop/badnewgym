@@ -177,6 +177,9 @@ fun MemberIntelligenceHome(
                 it.short.equals(range, ignoreCase = true) || it.name.equals(range, ignoreCase = true)
             }?.let { vm.setWorkoutRange(it) }
         }
+        HomeDebugBridge.onOpenModule = { module ->
+            moduleFrom(module)?.let { vm.openModule(it) }
+        }
         HomeDebugBridge.onStatusQuery = {
             when (val s = vm.state.value) {
                 is HomeUiState.Ready -> {
@@ -396,8 +399,8 @@ private fun PaymentModule(data: HomeData, vm: HomeViewModel) {
 
     if (receipt != null && p.totalOutstanding <= 0.009) {
         HomeCard {
-            WidgetTitle("Receipt", null)
-            KvRow("Receipt", receipt!!.receiptId)
+            WidgetTitle("Payment Receipt", null)
+            KvRow("ID", receipt!!.receiptId)
             KvRow("Received", fmtRupees(receipt!!.amount), MiColors.EmeraldDark)
             KvRow("Method", paymentMethodLabel(receipt!!.method))
             KvRow("Time", "${fmtDate(receipt!!.paidAtEpoch)} \u00B7 ${fmtTime(receipt!!.paidAtEpoch)}")
