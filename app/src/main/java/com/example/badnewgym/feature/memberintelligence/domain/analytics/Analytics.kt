@@ -18,11 +18,14 @@ import kotlin.math.abs
  */
 object AttendanceAnalytics {
 
-    /** Completion ratio over elapsed days only — future days never dilute it. */
+    /**
+     * Completion ratio over expected open days only - closed days never dilute
+     * it. Returns 0 when there is genuinely nothing to measure.
+     */
     fun completion(window: AttendanceWindow): Float {
-        val elapsed = window.elapsed
-        if (elapsed.isEmpty()) return 0f
-        return elapsed.count { it.isAttended }.toFloat() / elapsed.size
+        val open = window.elapsed.filter { it.state != AttendanceDayState.HOLIDAY }
+        if (open.isEmpty()) return 0f
+        return open.count { it.isAttended }.toFloat() / open.size
     }
 
     /**
@@ -149,32 +152,75 @@ object WorkoutAnalytics {
 
     fun summary(month: WorkoutMonth): Summary {
         val sorted = month.sorted()
+        val base = summarize(sorted)
+        return base.copy(
+            bestWeek = bestWeek(sorted, month),
+            totalDays = java.time.YearMonth.of(month.year, month.month).lengthOfMonth()
+        )
+    }
+
+    /**
+     * Range-scoped totals over an explicit session list (7/14/15/30-day
+     * selector). Same honest math as [summary], minus the month framing.
+     */
+    fun summarize(sessions: List<com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession>): Summary {
+        val sorted = sessions.sortedBy { it.epochDay }
         val active = sorted.filter { it.minutes > 0 }
         val total = sorted.sumOf { it.minutes }
         val avg = if (active.isEmpty()) 0 else total / active.size
-        val peak = sorted.maxByOrNull { it.minutes }?.takeIf { it.minutes > 0 }?.let { dayOf(it, month) }
-        val lowest = active.minByOrNull { it.minutes }?.let { dayOf(it, month) }
-        val bestWeek = bestWeek(sorted, month)
+        val peak = sorted.maxByOrNull { it.minutes }?.takeIf { it.minutes > 0 }?.let { dayOfSession(it) }
+        val lowest = active.minByOrNull { it.minutes }?.let { dayOfSession(it) }
         val trend = trend(sorted)
         return Summary(
             totalMinutes = total,
             averageMinutes = avg,
             peak = peak,
             lowest = lowest,
-            bestWeek = bestWeek,
+            bestWeek = null,
             trend = trend.first,
             trendDeltaPercent = trend.second,
             activeDays = active.size,
-            totalDays = java.time.YearMonth.of(month.year, month.month).lengthOfMonth()
+            totalDays = sorted.size
         )
     }
 
-    private fun dayOf(s: com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession, month: WorkoutMonth) = WorkoutDay(
+    /**
+     * Last [days] calendar days ending at the newest dataset date, oldest
+     * first. Zero-day entries are real "no session" days, never invented
+     * minutes - the chart renders them as empty stubs.
+     */
+    fun rangeDays(month: WorkoutMonth, days: Int): List<WorkoutDay> {
+        val sessions = month.sorted()
+        if (sessions.isEmpty() || days <= 0) return emptyList()
+        val byDay = sessions.associateBy { it.epochDay }
+        val end = java.time.LocalDate.ofEpochDay(sessions.last().epochDay)
+        return (days - 1 downTo 0).map { back ->
+            val date = end.minusDays(back.toLong())
+            val session = byDay[date.toEpochDay()]
+            val wd = shortWeekdays[date.dayOfWeek.value - 1]
+            WorkoutDay(
+                dayOfMonth = date.dayOfMonth,
+                minutes = session?.minutes ?: 0,
+                weekdayShort = wd,
+                dateLabel = "$wd ${date.dayOfMonth}"
+            )
+        }
+    }
+
+    fun rangeLabel(month: WorkoutMonth, days: Int): String {
+        val list = rangeDays(month, days)
+        if (list.isEmpty()) return ""
+        return "${list.first().dateLabel} – ${list.last().dateLabel}"
+    }
+
+    private fun dayOfSession(s: com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession) = WorkoutDay(
         dayOfMonth = s.dayOfMonth,
         minutes = s.minutes,
         weekdayShort = shortWeekdays[(java.time.LocalDate.ofEpochDay(s.epochDay).dayOfWeek.value - 1)],
         dateLabel = "${shortWeekdays[(java.time.LocalDate.ofEpochDay(s.epochDay).dayOfWeek.value - 1)]} ${s.dayOfMonth}"
     )
+
+    private fun dayOf(s: com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession, month: WorkoutMonth) = dayOfSession(s)
 
     private fun bestWeek(sorted: List<com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession>, month: WorkoutMonth): String? {
         if (sorted.size < PAGE_SIZE) return null

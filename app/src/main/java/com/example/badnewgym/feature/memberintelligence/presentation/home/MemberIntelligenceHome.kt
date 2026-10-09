@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -59,55 +60,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.badnewgym.feature.memberintelligence.debug.HomeDebugBridge
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
-import com.example.badnewgym.feature.memberintelligence.domain.analytics.BodyGoalAnalytics
-import com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutAnalytics
-import com.example.badnewgym.feature.memberintelligence.domain.model.ProgressVerdict
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod
 
 // ------------------------------------------------------------------ rail
 
 private data class RailItem(val id: String, val label: String, val icon: ImageVector)
 
-/** Home segments. Overview = NOW + MEMBER + MONEY + ATTENDANCE,
- *  Progress = WORKOUT + BODY. Each segment fits the 500-600dp card with
- *  no vertical scrolling; anything deeper lives in the module sheets. */
-enum class HomeSegment { OVERVIEW, PROGRESS }
-
-/** Absolute card height ceiling. Content must fit without scrolling. */
+/** Absolute card height ceiling. All six widgets must fit without scrolling. */
 private val CARD_MAX_HEIGHT = 600.dp
-
-@Composable
-private fun SegmentBar(segment: HomeSegment, onSelect: (HomeSegment) -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MiColors.SurfaceSunken)
-            .padding(2.dp),
-        horizontalArrangement = Arrangement.spacedBy(3.dp)
-    ) {
-        HomeSegment.entries.forEach { entry ->
-            val selected = entry == segment
-            Box(
-                Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(13.dp))
-                    .background(if (selected) MiColors.Surface else Color.Transparent)
-                    .clickable(onClick = { onSelect(entry) })
-                    .padding(vertical = 3.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    if (entry == HomeSegment.OVERVIEW) "Overview" else "Progress",
-                    fontSize = 10.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (selected) MiColors.EmeraldDark else MiColors.TextSecondary,
-                    maxLines = 1
-                )
-            }
-        }
-    }
-}
 
 /** Member domains. Home is selected; the rail is navigation, not widget data. */
 private val RAIL_ITEMS = listOf(
@@ -195,9 +157,40 @@ fun MemberIntelligenceHome(
 ) {
     val state by vm.state.collectAsState()
     val week by vm.workoutWeek.collectAsState()
+    val range by vm.workoutRange.collectAsState()
     val openModule by vm.openModule.collectAsState()
+    val receipt by vm.lastReceipt.collectAsState()
 
     LaunchedEffect(memberId) { vm.load(memberId) }
+    // No-tap verification bridge (MIUI blocks adb input): broadcasts drive
+    // the same ViewModel handlers a finger would reach.
+    LaunchedEffect(vm) {
+        HomeDebugBridge.onEndSession = { vm.endSession() }
+        HomeDebugBridge.onCollect = { amount, method ->
+            val entry = PaymentMethod.entries.firstOrNull {
+                it.name.equals(method, ignoreCase = true)
+            } ?: PaymentMethod.UPI
+            vm.collectPayment(amount, entry)
+        }
+        HomeDebugBridge.onSetRange = { range ->
+            WorkoutRange.entries.firstOrNull {
+                it.short.equals(range, ignoreCase = true) || it.name.equals(range, ignoreCase = true)
+            }?.let { vm.setWorkoutRange(it) }
+        }
+        HomeDebugBridge.onStatusQuery = {
+            when (val s = vm.state.value) {
+                is HomeUiState.Ready -> {
+                    val d = s.data
+                    val live = d.checkIn.liveStartMs != null
+                    "live=$live,visits=${d.checkIn.visitNumberToday}," +
+                        "outstanding=${d.snapshot.payment?.totalOutstanding}," +
+                        "situation=${d.paymentSituation::class.simpleName}"
+                }
+                HomeUiState.Loading -> "loading"
+                is HomeUiState.Error -> "error=${s.message}"
+            }
+        }
+    }
     // No-tap drill-down verification: --es home_open_module payment|...
     LaunchedEffect(startModule, state) {
         if (state is HomeUiState.Ready && startModule != null) {
@@ -237,67 +230,48 @@ fun MemberIntelligenceHome(
                 }
                 is HomeUiState.Ready -> {
                     val data = s.data
-                    // No-tap segment verification: --es start_segment progress
-                    val startSeg = (androidx.compose.ui.platform.LocalContext.current as? android.app.Activity)
-                        ?.intent?.getStringExtra("start_segment")
-                    var segment by remember {
-                        mutableStateOf(
-                            if (startSeg == "progress") HomeSegment.PROGRESS else HomeSegment.OVERVIEW
-                        )
-                    }
+                    // ONE merged card: every widget, critical data only, no
+                    // scrolling. Anything deeper lives in the module sheets.
                     Column(
                         Modifier
                             .fillMaxWidth()
                             .heightIn(max = CARD_MAX_HEIGHT),
                         verticalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
-                        SegmentBar(segment = segment, onSelect = { segment = it })
-                        when (segment) {
-                            HomeSegment.OVERVIEW -> {
-                                CheckInWidget(
-                                    checkIn = data.checkIn,
-                                    snapshot = data.snapshot,
-                                    onEndSession = vm::endSession,
-                                    onOpen = { vm.openModule(HomeWidgetId.CHECK_IN) },
-                                    compact = true
-                                )
-                                MemberIdentityWidget(
-                                    snapshot = data.snapshot,
-                                    onOpen = { vm.openModule(HomeWidgetId.IDENTITY) }
-                                )
-                                PaymentWidget(
-                                    payment = data.snapshot.payment,
-                                    situation = data.paymentSituation,
-                                    onCollect = { vm.openModule(HomeWidgetId.PAYMENT) },
-                                    onOpen = { vm.openModule(HomeWidgetId.PAYMENT) },
-                                    compact = true
-                                )
-                                AttendanceWidget(
-                                    window = data.attendance,
-                                    onOpen = { vm.openModule(HomeWidgetId.ATTENDANCE) },
-                                    compact = true,
-                                    showStreaks = false
-                                )
-                                ProgressSnapshotStrip(
-                                    data = data,
-                                    onOpen = { segment = HomeSegment.PROGRESS }
-                                )
-                            }
-                            HomeSegment.PROGRESS -> {
-                                WorkoutWidget(
-                                    month = data.workout,
-                                    weekIndex = week,
-                                    onWeekChange = vm::setWorkoutWeek,
-                                    onOpen = { vm.openModule(HomeWidgetId.WORKOUT) }
-                                )
-                                BodyProgressWidget(
-                                    goals = data.bodyGoals,
-                                    histories = data.bodyHistories,
-                                    onOpen = { vm.openModule(HomeWidgetId.BODY) },
-                                    singleRow = true
-                                )
-                            }
-                        }
+                        CheckInWidget(
+                            checkIn = data.checkIn,
+                            snapshot = data.snapshot,
+                            onEndSession = vm::endSession,
+                            onOpen = { vm.openModule(HomeWidgetId.CHECK_IN) }
+                        )
+                        MemberIdentityWidget(
+                            snapshot = data.snapshot,
+                            onOpen = { vm.openModule(HomeWidgetId.IDENTITY) }
+                        )
+                        PaymentWidget(
+                            payment = data.snapshot.payment,
+                            situation = data.paymentSituation,
+                            onCollect = { vm.openModule(HomeWidgetId.PAYMENT) },
+                            onOpen = { vm.openModule(HomeWidgetId.PAYMENT) },
+                            receipt = receipt
+                        )
+                        AttendanceWidget(
+                            window = data.attendance,
+                            onOpen = { vm.openModule(HomeWidgetId.ATTENDANCE) }
+                        )
+                        WorkoutWidget(
+                            month = data.workout,
+                            weekIndex = week,
+                            onWeekChange = vm::setWorkoutWeek,
+                            onOpen = { vm.openModule(HomeWidgetId.WORKOUT) },
+                            range = range,
+                            onRangeChange = vm::setWorkoutRange
+                        )
+                        BodyProgressWidget(
+                            goals = data.bodyGoals,
+                            histories = data.bodyHistories,
+                            onOpen = { vm.openModule(HomeWidgetId.BODY) }
+                        )
                     }
                 }
             }
@@ -309,57 +283,14 @@ fun MemberIntelligenceHome(
         HomeModuleSheet(
             module = openModule!!,
             data = ready,
+            vm = vm,
+            range = range,
             onDismiss = vm::closeModule
         )
     }
 }
 
 // ------------------------------------------------------------------ module sheets
-
-/** Slim progress teaser pinned to the bottom of Overview.
- *  Real last-week volume + body verdict; tap jumps to the Progress segment. */
-@Composable
-private fun ProgressSnapshotStrip(data: HomeData, onOpen: () -> Unit) {
-    val month = data.workout
-    val weekSummary = remember(month) {
-        if (month == null) null
-        else {
-            val count = WorkoutAnalytics.windowCount(month)
-            WorkoutAnalytics.window(month, count - 1)
-        }
-    }
-    val weekMin = weekSummary?.total ?: 0
-    val weekSessions = weekSummary?.days?.count { it.minutes > 0 } ?: 0
-    val bodyNote = remember(data.bodyGoals) {
-        if (data.bodyGoals.isEmpty()) "No body data"
-        else {
-            val good = data.bodyGoals.count {
-                val v = BodyGoalAnalytics.verdict(it)
-                v == ProgressVerdict.ON_TRACK || v == ProgressVerdict.IMPROVING
-            }
-            val allTrack = data.bodyGoals.all { BodyGoalAnalytics.verdict(it) == ProgressVerdict.ON_TRACK }
-            when {
-                allTrack -> "Body On Track"
-                good == data.bodyGoals.size -> "Body Improving"
-                good > 0 -> "Body $good/${data.bodyGoals.size}"
-                else -> "Body needs attention"
-            }
-        }
-    }
-    HomeCard(onClick = onOpen, padding = 7.dp) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                Text(
-                    "Progress \u00B7 " + if (month == null) "No workout data \u00B7 $bodyNote"
-                    else "$weekMin min \u00B7 $weekSessions sess \u00B7 $bodyNote",
-                    fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary,
-                    maxLines = 1
-                )
-            }
-            Text(">", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MiColors.EmeraldDark)
-        }
-    }
-}
 
 private fun moduleFrom(name: String): HomeWidgetId? = when (name.lowercase()) {
     "checkin", "check-in" -> HomeWidgetId.CHECK_IN
@@ -376,6 +307,8 @@ private fun moduleFrom(name: String): HomeWidgetId? = when (name.lowercase()) {
 private fun HomeModuleSheet(
     module: HomeWidgetId,
     data: HomeData,
+    vm: HomeViewModel,
+    range: WorkoutRange,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -390,9 +323,9 @@ private fun HomeModuleSheet(
             when (module) {
                 HomeWidgetId.CHECK_IN -> CheckInModule(data)
                 HomeWidgetId.IDENTITY -> MemberProfileModule(data)
-                HomeWidgetId.PAYMENT -> PaymentModule(data)
+                HomeWidgetId.PAYMENT -> PaymentModule(data, vm)
                 HomeWidgetId.ATTENDANCE -> AttendanceModule(data)
-                HomeWidgetId.WORKOUT -> WorkoutModule(data)
+                HomeWidgetId.WORKOUT -> WorkoutModule(data, range, vm::setWorkoutRange)
                 HomeWidgetId.BODY -> BodyModule(data)
             }
             Spacer(Modifier.height(24.dp))
@@ -450,13 +383,37 @@ private fun MemberProfileModule(data: HomeData) {
 }
 
 @Composable
-private fun PaymentModule(data: HomeData) {
+private fun PaymentModule(data: HomeData, vm: HomeViewModel) {
     val p = data.snapshot.payment
     SheetTitle("Payment", "Full history")
     if (p == null) {
         HomeCard { EmptyWidgetLine("No payment history") }
         return
     }
+    val receipt by vm.lastReceipt.collectAsState()
+    val busy by vm.paymentBusy.collectAsState()
+    val error by vm.paymentError.collectAsState()
+
+    if (receipt != null && p.totalOutstanding <= 0.009) {
+        HomeCard {
+            WidgetTitle("Receipt", null)
+            KvRow("Receipt", receipt!!.receiptId)
+            KvRow("Received", fmtRupees(receipt!!.amount), MiColors.EmeraldDark)
+            KvRow("Method", paymentMethodLabel(receipt!!.method))
+            KvRow("Time", "${fmtDate(receipt!!.paidAtEpoch)} \u00B7 ${fmtTime(receipt!!.paidAtEpoch)}")
+            KvRow("Remaining", fmtRupees(p.totalOutstanding))
+        }
+    }
+
+    if (p.totalOutstanding > 0.009) {
+        CollectSection(
+            outstanding = p.totalOutstanding,
+            busy = busy,
+            error = error,
+            onCollect = { amount, method -> vm.collectPayment(amount, method) }
+        )
+    }
+
     HomeCard {
         KvRow("Outstanding", fmtRupees(p.totalOutstanding))
         KvRow("Due date", fmtDate(p.dueDate))
@@ -482,13 +439,92 @@ private fun PaymentModule(data: HomeData) {
 }
 
 @Composable
-private fun AttendanceModule(data: HomeData) {
-    SheetTitle("Attendance", "Full 30-day view")
-    AttendanceWidget(window = data.attendance, onOpen = {})
+private fun CollectSection(
+    outstanding: Double,
+    busy: Boolean,
+    error: String?,
+    onCollect: (Double, PaymentMethod) -> Unit
+) {
+    var method by remember { mutableStateOf(PaymentMethod.UPI) }
+    var amountText by remember(outstanding) {
+        mutableStateOf(
+            if (outstanding % 1.0 == 0.0) outstanding.toInt().toString() else outstanding.toString()
+        )
+    }
+    HomeCard {
+        WidgetTitle("Collect Payment", null)
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "Outstanding ${fmtRupees(outstanding)}",
+            fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary
+        )
+        Spacer(Modifier.height(6.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            PaymentMethod.entries.forEach { entry ->
+                val selected = entry == method
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(if (selected) MiColors.Emerald else MiColors.SurfaceSunken)
+                        .clickable(onClick = { method = entry })
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        paymentMethodLabel(entry),
+                        fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                        color = if (selected) Color.White else MiColors.TextSecondary,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        androidx.compose.material3.OutlinedTextField(
+            value = amountText,
+            onValueChange = { text ->
+                if (text.all { it.isDigit() || it == '.' }) amountText = text
+            },
+            label = { Text("Amount (\u20B9)") },
+            singleLine = true,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (error != null) {
+            Spacer(Modifier.height(4.dp))
+            Text(error, fontSize = 12.sp, color = MiColors.Red, fontWeight = FontWeight.SemiBold)
+        }
+        Spacer(Modifier.height(6.dp))
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(if (busy) MiColors.TextTertiary else Color(0xFFFF6B4A))
+                .clickable(enabled = !busy, onClick = {
+                    onCollect(amountText.toDoubleOrNull() ?: 0.0, method)
+                })
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                if (busy) "Recording\u2026" else "Record Payment",
+                fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.White
+            )
+        }
+    }
 }
 
 @Composable
-private fun WorkoutModule(data: HomeData) {
+private fun AttendanceModule(data: HomeData) {
+    SheetTitle("Attendance", "Full 30-day view")
+    AttendanceDetailContent(window = data.attendance)
+}
+
+@Composable
+private fun WorkoutModule(data: HomeData, range: WorkoutRange, onRangeChange: (WorkoutRange) -> Unit) {
     SheetTitle("Workout", "Sessions and volume")
     val month = data.workout
     if (month == null || month.sessions.isEmpty()) {
@@ -496,10 +532,39 @@ private fun WorkoutModule(data: HomeData) {
         return
     }
     HomeCard {
-        val sessions = month.sorted()
-        WidgetTitle("All Sessions (${sessions.size})")
-        sessions.takeLast(15).reversed().forEach { s ->
-            KvRow(fmtDay(epochDayToMs(s.epochDay)), "${s.minutes} min")
+        val newest = remember(month) { month.sorted().lastOrNull()?.epochDay ?: 0L }
+        val from = newest - range.days + 1
+        val sessions = remember(month, range) {
+            month.sessions.filter { it.epochDay in from..newest }.sortedByDescending { it.epochDay }
+        }
+        WidgetTitle("Sessions", "${sessions.size} in range")
+        Spacer(Modifier.height(6.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            WorkoutRange.entries.forEach { entry ->
+                val selected = entry == range
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(if (selected) MiColors.Blue else MiColors.BlueSoft)
+                        .clickable(onClick = { onRangeChange(entry) })
+                        .padding(vertical = 7.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "${entry.days} Days", fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                        color = if (selected) Color.White else MiColors.Blue, maxLines = 1
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        if (sessions.isEmpty()) {
+            EmptyWidgetLine("No sessions in the last ${range.days} days")
+        } else {
+            sessions.forEach { s ->
+                KvRow(fmtDay(epochDayToMs(s.epochDay)), "${s.minutes} min")
+            }
         }
     }
 }
@@ -507,7 +572,7 @@ private fun WorkoutModule(data: HomeData) {
 @Composable
 private fun BodyModule(data: HomeData) {
     SheetTitle("Body Progress", "Goals and measurements")
-    BodyProgressWidget(goals = data.bodyGoals, histories = data.bodyHistories, onOpen = {})
+    BodyDetailContent(goals = data.bodyGoals, histories = data.bodyHistories)
 }
 
 private fun epochDayToMs(epochDay: Long): Long = epochDay * 86_400_000L

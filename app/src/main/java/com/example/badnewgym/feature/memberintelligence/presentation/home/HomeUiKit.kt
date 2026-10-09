@@ -81,18 +81,18 @@ fun WidgetTitle(
 }
 
 @Composable
-fun ViewAllChip(onClick: () -> Unit) {
+fun ViewAllChip(onClick: () -> Unit, small: Boolean = false) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
             .background(MiColors.BlueSoft)
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .padding(horizontal = if (small) 8.dp else 10.dp, vertical = if (small) 4.dp else 5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("View All", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue)
+        Text("View All", fontSize = if (small) 10.sp else 11.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue)
         Spacer(Modifier.width(2.dp))
-        Text(">", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue)
+        Text(">", fontSize = if (small) 10.sp else 11.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue)
     }
 }
 
@@ -172,10 +172,10 @@ fun Sparkline(
 
 /** Key-value row used inside cards. */
 @Composable
-fun KvRow(label: String, value: String, valueColor: Color = MiColors.TextPrimary) {
+fun KvRow(label: String, value: String, valueColor: Color = MiColors.TextPrimary, dense: Boolean = false) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, fontSize = 11.5.sp, color = MiColors.TextSecondary, modifier = Modifier.weight(1f), maxLines = 1)
-        Text(value, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = valueColor, maxLines = 1)
+        Text(label, fontSize = if (dense) 10.5.sp else 11.5.sp, color = MiColors.TextSecondary, modifier = Modifier.weight(1f), maxLines = 1)
+        Text(value, fontSize = if (dense) 11.sp else 12.sp, fontWeight = FontWeight.Bold, color = valueColor, maxLines = 1)
     }
 }
 

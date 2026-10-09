@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -13,6 +14,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Screen Pulse: foreground media-projection capture + app tagging. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -73,6 +80,39 @@
             <intent-filter>
                 <action android:name="com.example.badnewgym.DEBUG_VARIANT" />
                 <action android:name="com.example.badnewgym.SCREENSHOT" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".feature.memberintelligence.debug.HomeDebugReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.badnewgym.HOME.END_SESSION" />
+                <action android:name="com.example.badnewgym.HOME.COLLECT" />
+                <action android:name="com.example.badnewgym.HOME.SET_RANGE" />
+                <action android:name="com.example.badnewgym.HOME.STATUS" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Screen Pulse: 2s on-device frame capture into a sandbox-private vault. -->
+        <activity
+            android:name=".feature.screenpulse.ScreenPulseControlActivity"
+            android:exported="true"
+            android:label="Screen Pulse"
+            android:theme="@style/Theme.BadNewgym" />
+        <service
+            android:name=".feature.screenpulse.ScreenPulseCaptureService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+        <receiver
+            android:name=".feature.screenpulse.ScreenPulseDebugReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.badnewgym.SCREENPULSE.STATUS" />
+                <action android:name="com.example.badnewgym.SCREENPULSE.VERIFY" />
+                <action android:name="com.example.badnewgym.SCREENPULSE.SNAPSHOT" />
+                <action android:name="com.example.badnewgym.SCREENPULSE.PURGE" />
+                <action android:name="com.example.badnewgym.SCREENPULSE.STOP" />
             </intent-filter>
         </receiver>
     </application>

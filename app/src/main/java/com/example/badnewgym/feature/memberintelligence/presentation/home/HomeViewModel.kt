@@ -8,6 +8,9 @@ import com.example.badnewgym.feature.memberintelligence.data.repository.StubMemb
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventSource
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentReceipt
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTransaction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -31,18 +34,35 @@ class HomeViewModel(
     private val _workoutWeek = MutableStateFlow<Int>(Int.MAX_VALUE)
     val workoutWeek: StateFlow<Int> = _workoutWeek
 
+    private val _workoutRange = MutableStateFlow(WorkoutRange.D7)
+    val workoutRange: StateFlow<WorkoutRange> = _workoutRange
+
     /** Which module sheet is open, null when Home shows the summary only. */
     private val _openModule = MutableStateFlow<HomeWidgetId?>(null)
     val openModule: StateFlow<HomeWidgetId?> = _openModule
+
+    /** Last recorded receipt this session. Drives the SUCCESSFUL card. */
+    private val _lastReceipt = MutableStateFlow<PaymentReceipt?>(null)
+    val lastReceipt: StateFlow<PaymentReceipt?> = _lastReceipt
+
+    private val _paymentBusy = MutableStateFlow(false)
+    val paymentBusy: StateFlow<Boolean> = _paymentBusy
+
+    private val _paymentError = MutableStateFlow<String?>(null)
+    val paymentError: StateFlow<String?> = _paymentError
 
     fun openModule(id: HomeWidgetId) { _openModule.value = id }
     fun closeModule() { _openModule.value = null }
 
     fun setWorkoutWeek(index: Int) { _workoutWeek.value = index }
+    fun setWorkoutRange(range: WorkoutRange) { _workoutRange.value = range }
+    fun clearPaymentError() { _paymentError.value = null }
 
     fun load(memberId: String = DEFAULT_MEMBER_ID) {
         viewModelScope.launch {
             _state.value = HomeUiState.Loading
+            _lastReceipt.value = null
+            _paymentError.value = null
             val result = repository.getMemberSnapshot(memberId)
             val snapshot = result.getOrNull()
             if (snapshot == null) {
@@ -78,7 +98,7 @@ class HomeViewModel(
     fun endSession() {
         val current = (_state.value as? HomeUiState.Ready)?.data ?: return
         val checkIn = current.checkIn
-        val start = checkIn.liveStartMs ?: return
+        val start = checkIn.liveStartMs ?: return // duplicate-tap guard: nothing live
         val now = System.currentTimeMillis()
         _state.value = HomeUiState.Ready(
             current.copy(
@@ -90,6 +110,93 @@ class HomeViewModel(
                 )
             )
         )
+    }
+
+    /**
+     * Records a collection against the outstanding balance.
+     *
+     * Real state machine, not a button animation: invalid input is rejected
+     * with an error, double submits are ignored while recording, and the Home
+     * card only flips to SUCCESSFUL after the snapshot (and receipt) update.
+     * A short payment keeps the Partial state with the true remainder.
+     */
+    fun collectPayment(amount: Double, method: PaymentMethod) {
+        if (_paymentBusy.value) return // duplicate-submission guard
+        val current = (_state.value as? HomeUiState.Ready)?.data ?: return
+        val payment = current.snapshot.payment ?: run {
+            _paymentError.value = "No billing account on this member."
+            return
+        }
+        val outstanding = payment.totalOutstanding
+        validateCollection(amount, outstanding)?.let {
+            _paymentError.value = it
+            return
+        }
+        _paymentBusy.value = true
+        _paymentError.value = null
+        viewModelScope.launch {
+            try {
+                val now = System.currentTimeMillis()
+                repository.recordEvent(
+                    MemberEvent(
+                        id = "pay_${now}",
+                        memberId = current.snapshot.id,
+                        gymId = current.snapshot.gymId,
+                        eventType = EventType.PAYMENT,
+                        occurredAt = now,
+                        source = EventSource.PAYMENT,
+                        metadata = mapOf(
+                            "amount" to amount.toString(),
+                            "method" to paymentMethodLabel(method)
+                        ),
+                        idempotencyKey = "pay_${now}_$amount"
+                    )
+                )
+                val receipt = PaymentReceipt(
+                    receiptId = "RCP-${current.snapshot.identity.code ?: "BG"}-$now",
+                    amount = amount,
+                    method = method,
+                    paidAtEpoch = now
+                )
+                val remaining = (outstanding - amount).coerceAtLeast(0.0)
+                val settled = remaining <= 0.009
+                val updated = payment.copy(
+                    totalOutstanding = remaining,
+                    overdueDays = if (settled) 0 else payment.overdueDays,
+                    lastPaymentAmount = amount,
+                    lastPaymentDate = now,
+                    lastPaymentMethod = paymentMethodLabel(method),
+                    lifetimePaid = (payment.lifetimePaid ?: 0.0) + amount,
+                    history = payment.history + PaymentTransaction(
+                        id = receipt.receiptId,
+                        amount = amount,
+                        occurredAt = now,
+                        method = paymentMethodLabel(method),
+                        purpose = "Collection"
+                    )
+                )
+                val situation = when {
+                    settled -> com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSituation.Settled
+                    amount < outstanding -> com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSituation.Partial(
+                        received = amount,
+                        remaining = remaining,
+                        dueAtEpoch = payment.dueDate
+                    )
+                    else -> dataSource.paymentSituation(remaining, updated.overdueDays, payment.dueDate)
+                }
+                _state.value = HomeUiState.Ready(
+                    current.copy(
+                        snapshot = current.snapshot.copy(payment = updated),
+                        paymentSituation = situation
+                    )
+                )
+                _lastReceipt.value = receipt
+            } catch (t: Throwable) {
+                _paymentError.value = "Could not record payment. Please retry."
+            } finally {
+                _paymentBusy.value = false
+            }
+        }
     }
 
     // ------------------------------------------------------------ internals

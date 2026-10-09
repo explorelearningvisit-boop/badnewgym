@@ -23,20 +23,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceAnalytics
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDayState
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceWindow
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentReceipt
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSituation
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSummary
 
 // ------------------------------------------------------------------ PAYMENT
 
 /**
- * Three honest states. Clear members get a calm CURRENT card, never a red wall.
- * Payment owns payment info - nothing else on Home repeats it.
+ * Ultra-compact payment card. Critical only: state, amount, due date, last +
+ * next payment, Collect action. History and breakdown live in the sheet.
  */
 @Composable
 fun PaymentWidget(
@@ -44,7 +46,8 @@ fun PaymentWidget(
     situation: PaymentSituation,
     onCollect: () -> Unit,
     onOpen: () -> Unit,
-    compact: Boolean = false
+    compact: Boolean = false,
+    receipt: PaymentReceipt? = null
 ) {
     if (payment == null) {
         HomeCard {
@@ -55,20 +58,23 @@ fun PaymentWidget(
         return
     }
     when (situation) {
-        is PaymentSituation.Overdue -> PaymentOverdueCard(payment, situation.overdueDays, onCollect, onOpen, compact)
-        is PaymentSituation.Due -> PaymentDueCard(payment, situation, onCollect, onOpen, compact)
-        is PaymentSituation.Partial -> PaymentDueCard(payment, situation, onCollect, onOpen, compact)
-        PaymentSituation.Settled -> PaymentCurrentCard(payment, onOpen, compact)
+        is PaymentSituation.Overdue -> PaymentOverdueCard(payment, situation.overdueDays, onCollect, onOpen)
+        is PaymentSituation.Due -> PaymentDueSoonCard(payment, situation, onCollect, onOpen)
+        is PaymentSituation.Partial -> PaymentPartialCard(payment, situation, onCollect, onOpen)
+        // A fresh receipt means this session cleared the balance: success,
+        // not silence. Otherwise a settled account is calmly CURRENT.
+        PaymentSituation.Settled ->
+            if (receipt != null) PaymentSuccessfulCard(payment, receipt, onOpen)
+            else PaymentCurrentCard(payment, onOpen)
     }
 }
 
 @Composable
-private fun PaymentDueCard(
+private fun PaymentDueSoonCard(
     payment: PaymentSummary,
     situation: PaymentSituation,
     onCollect: () -> Unit,
-    onOpen: () -> Unit,
-    compact: Boolean = false
+    onOpen: () -> Unit
 ) {
     val amount = when (situation) {
         is PaymentSituation.Due -> situation.amount
@@ -81,37 +87,69 @@ private fun PaymentDueCard(
         else -> payment.dueDate
     }
     val daysLeft = dueMs?.let { Math.round((it - System.currentTimeMillis()) / 86_400_000.0).toInt() }
-    HomeCard(onClick = onOpen, padding = if (compact) 6.dp else 12.dp) {
-        WidgetTitle("Payment", "Due", MiColors.Red)
-        Spacer(Modifier.height(if (compact) 2.dp else 4.dp))
+    HomeCard(onClick = onOpen, padding = 6.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(fmtRupees(amount), fontSize = if (compact) 19.sp else 24.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
+            Text("Payment Due", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
+            Spacer(Modifier.width(4.dp))
+            Pill("DUE SOON", MiColors.AmberSoft, MiColors.Amber, 9)
+            Spacer(Modifier.weight(1f))
+            CollectButton(onCollect, small = true)
+        }
+        Spacer(Modifier.height(2.dp))
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(fmtRupees(amount), fontSize = 19.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
+            Spacer(Modifier.width(8.dp))
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
                 Text(
-                    if (daysLeft != null && daysLeft > 0) "Due in $daysLeft days  \u00B7  ${fmtDate(dueMs)}"
-                    else if (daysLeft != null && daysLeft == 0) "Due today  \u00B7  ${fmtDate(dueMs)}"
-                    else fmtDate(dueMs),
-                    fontSize = 11.5.sp, color = MiColors.TextSecondary, maxLines = 1
+                    when {
+                        daysLeft == null -> fmtDate(dueMs)
+                        daysLeft > 0 -> "Due in $daysLeft days"
+                        daysLeft == 0 -> "Due today"
+                        else -> "${-daysLeft}d late \u00B7 ${fmtDate(dueMs)}"
+                    },
+                    fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = MiColors.Amber, maxLines = 1
                 )
+                Text(fmtDate(dueMs), fontSize = 9.5.sp, color = MiColors.TextSecondary, maxLines = 1)
             }
-            CollectButton(onCollect)
         }
-        Spacer(Modifier.height(if (compact) 3.dp else 6.dp))
-        // No plan-value field exists in the domain model, so no completion bar:
-        // a "75% Completed" derived from lifetime payments would be fiction.
-        // Both chips below are direct record values.
-        val paid = (payment.lifetimePaid ?: 0.0)
-        Row(horizontalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 8.dp)) {
-            StatChip("Total Paid", fmtRupees(paid), MiColors.EmeraldDark, Modifier.weight(1f), dense = compact)
-            StatChip("Remaining", fmtRupees(amount), MiColors.Red, Modifier.weight(1f), dense = compact)
-        }
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(2.dp))
         KvRow(
-            "Last Payment",
-            "${fmtDate(payment.lastPaymentDate)}  \u00B7  ${fmtRupees(payment.lastPaymentAmount)}" +
-                (payment.lastPaymentMethod?.let { "  \u00B7  $it" } ?: "")
+            "Last",
+            "${fmtDate(payment.lastPaymentDate)} \u00B7 ${fmtRupees(payment.lastPaymentAmount)}" +
+                (payment.lastPaymentMethod?.let { " \u00B7 $it" } ?: ""),
+            dense = true
         )
-        KvRow("Next Due", fmtDate(dueMs))
+        KvRow("Next", fmtDate(dueMs), dense = true)
+    }
+}
+
+@Composable
+private fun PaymentPartialCard(
+    payment: PaymentSummary,
+    situation: PaymentSituation.Partial,
+    onCollect: () -> Unit,
+    onOpen: () -> Unit
+) {
+    HomeCard(onClick = onOpen, padding = 6.dp) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Payment", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
+            Spacer(Modifier.width(4.dp))
+            Pill("PARTIAL", MiColors.AmberSoft, MiColors.Amber, 9)
+            Spacer(Modifier.weight(1f))
+            CollectButton(onCollect, small = true)
+        }
+        Spacer(Modifier.height(2.dp))
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(fmtRupees(situation.remaining), fontSize = 19.sp, fontWeight = FontWeight.Black, color = MiColors.Amber, maxLines = 1)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                "Paid ${fmtRupees(situation.received)}",
+                fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = MiColors.EmeraldDark,
+                modifier = Modifier.weight(1f), maxLines = 1, textAlign = TextAlign.End
+            )
+        }
+        Spacer(Modifier.height(2.dp))
+        KvRow("Next", fmtDate(situation.dueAtEpoch), dense = true)
     }
 }
 
@@ -120,87 +158,107 @@ private fun PaymentOverdueCard(
     payment: PaymentSummary,
     overdueDays: Int,
     onCollect: () -> Unit,
-    onOpen: () -> Unit,
-    compact: Boolean = false
+    onOpen: () -> Unit
 ) {
-    HomeCard(onClick = onOpen, padding = if (compact) 10.dp else 12.dp) {
+    HomeCard(onClick = onOpen, padding = 6.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Pill("PAYMENT OVERDUE", MiColors.Red, Color.White, 11)
+            Pill("OVERDUE", MiColors.Red, Color.White, 9)
             Spacer(Modifier.weight(1f))
+            CollectButton(onCollect, small = true)
         }
-        Spacer(Modifier.height(4.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(fmtRupees(payment.totalOutstanding), fontSize = 24.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
-                Text("$overdueDays days overdue", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = MiColors.Red, maxLines = 1)
-            }
-            CollectButton(onCollect)
+        Spacer(Modifier.height(2.dp))
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(fmtRupees(payment.totalOutstanding), fontSize = 19.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                "$overdueDays days overdue",
+                fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = MiColors.Red,
+                modifier = Modifier.weight(1f), maxLines = 1,
+                textAlign = TextAlign.End
+            )
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(2.dp))
         KvRow(
-            "Last Payment",
-            "${fmtDate(payment.lastPaymentDate)}  \u00B7  ${fmtRupees(payment.lastPaymentAmount)}"
+            "Last",
+            "${fmtDate(payment.lastPaymentDate)} \u00B7 ${fmtRupees(payment.lastPaymentAmount)}",
+            dense = true
         )
-        KvRow("Next Due", fmtDate(payment.dueDate))
+        KvRow("Next", fmtDate(payment.dueDate), dense = true)
     }
 }
 
 @Composable
-private fun PaymentCurrentCard(payment: PaymentSummary, onOpen: () -> Unit, compact: Boolean = false) {
-    HomeCard(onClick = onOpen, padding = if (compact) 10.dp else 12.dp) {
+private fun PaymentCurrentCard(payment: PaymentSummary, onOpen: () -> Unit) {
+    HomeCard(onClick = onOpen, padding = 6.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Payment", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
-            Spacer(Modifier.width(6.dp))
-            Pill("CURRENT", Color(0xFFE5F6EC), Color(0xFF0E7A4D), 10)
+            Text("Payment", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
+            Spacer(Modifier.width(4.dp))
+            Pill("CLEAR", Color(0xFFE5F6EC), Color(0xFF0E7A4D), 9)
             Spacer(Modifier.weight(1f))
+            Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
         }
-        Spacer(Modifier.height(4.dp))
-        Text(
-            "Payment is currently clear.",
-            fontSize = 12.sp, color = MiColors.TextSecondary, fontWeight = FontWeight.Medium
-        )
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(2.dp))
         KvRow(
-            "Last Payment",
-            "${fmtDate(payment.lastPaymentDate)}  \u00B7  ${fmtRupees(payment.lastPaymentAmount)}"
+            "Last",
+            "${fmtDate(payment.lastPaymentDate)} \u00B7 ${fmtRupees(payment.lastPaymentAmount)}" +
+                (payment.lastPaymentMethod?.let { " \u00B7 $it" } ?: ""),
+            dense = true
         )
-        KvRow("Next Due", fmtDate(payment.dueDate))
-        KvRow("Method", payment.lastPaymentMethod ?: "-")
-        KvRow("Membership", "Active", MiColors.EmeraldDark)
-        if ((payment.lifetimePaid ?: 0.0) > 0) {
-            KvRow("Paid", fmtRupees(payment.lifetimePaid))
-            KvRow("Remaining", fmtRupees(0.0))
-        }
+        KvRow("Next", fmtDate(payment.dueDate), dense = true)
     }
 }
 
 @Composable
-private fun CollectButton(onClick: () -> Unit) {
+private fun PaymentSuccessfulCard(
+    payment: PaymentSummary,
+    receipt: PaymentReceipt,
+    onOpen: () -> Unit
+) {
+    HomeCard(onClick = onOpen, padding = 6.dp) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Payment", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
+            Spacer(Modifier.width(4.dp))
+            Pill("SUCCESSFUL", Color(0xFFE5F6EC), Color(0xFF0E7A4D), 9)
+            Spacer(Modifier.weight(1f))
+            Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
+        }
+        Spacer(Modifier.height(2.dp))
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(fmtRupees(receipt.amount), fontSize = 19.sp, fontWeight = FontWeight.Black, color = MiColors.EmeraldDark, maxLines = 1)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                "${paymentMethodLabel(receipt.method)} \u00B7 ${fmtTime(receipt.paidAtEpoch)}",
+                fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = MiColors.TextSecondary,
+                modifier = Modifier.weight(1f), maxLines = 1, textAlign = TextAlign.End
+            )
+        }
+        Spacer(Modifier.height(2.dp))
+        KvRow("Receipt", receipt.receiptId, dense = true)
+        KvRow("Remaining", fmtRupees(payment.totalOutstanding), dense = true)
+    }
+}
+
+@Composable
+private fun CollectButton(onClick: () -> Unit, small: Boolean = false) {
     Box(
         Modifier
             .clip(RoundedCornerShape(22.dp))
             .background(Color(0xFFFF6B4A))
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 9.dp)
+            .padding(horizontal = if (small) 11.dp else 14.dp, vertical = if (small) 6.dp else 9.dp)
     ) {
-        Text("Collect Payment >", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.White)
+        Text("Collect >", fontSize = if (small) 10.5.sp else 12.sp, fontWeight = FontWeight.Black, color = Color.White)
     }
 }
 
 // ------------------------------------------------------------------ ATTENDANCE
 
 /**
- * Attendance answers only "DID THE MEMBER COME?" No workout minutes here.
- * Green = present, green + clock = late, red = absent, gray X = closed.
- * Denominator is open days, never blindly 30.
+ * Ultra-compact attendance card: donut + 2x2 legend + 30-day grid + inline
+ * trend. Streak chips live in the module sheet ([AttendanceDetailContent]).
  */
 @Composable
-fun AttendanceWidget(
-    window: AttendanceWindow?,
-    onOpen: () -> Unit,
-    compact: Boolean = false,
-    showStreaks: Boolean = true
-) {
+fun AttendanceWidget(window: AttendanceWindow?, onOpen: () -> Unit, compact: Boolean = false) {
     if (window == null || window.elapsed.isEmpty()) {
         HomeCard {
             WidgetTitle("Attendance", "(30 Days)")
@@ -216,96 +274,145 @@ fun AttendanceWidget(
     }
     val trend = remember(window) { AttendanceAnalytics.trendPoints(window) }
 
-    HomeCard(onClick = onOpen, padding = if (compact) 6.dp else 12.dp) {
-        WidgetTitle("Attendance", "(30 Days)", trailing = { ViewAllChip(onOpen) })
-        Spacer(Modifier.height(if (compact) 3.dp else 6.dp))
+    HomeCard(onClick = onOpen, padding = 6.dp) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Attendance", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
+            Spacer(Modifier.width(4.dp))
+            Text("(30 Days)", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = MiColors.Blue)
+            Spacer(Modifier.weight(1f))
+            ViewAllChip(onOpen, small = true)
+        }
+        Spacer(Modifier.height(3.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(contentAlignment = Alignment.Center) {
+                Donut(pct, size = 46.dp, pctSize = 12)
+                // pct label drawn inside Donut
+            }
+            Spacer(Modifier.width(6.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text("$attended / $openDays Open Days", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
+                if (trend != 0) {
+                    Text(
+                        (if (trend > 0) "\u2191 +" else "\u2193 ") + "${kotlin.math.abs(trend)}% vs prev",
+                        fontSize = 9.5.sp, fontWeight = FontWeight.Bold,
+                        color = if (trend > 0) MiColors.EmeraldDark else MiColors.Red, maxLines = 1
+                    )
+                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                LegendMini(MiColors.Emerald, "Present", window.present.toString())
+                LegendMini(MiColors.Emerald, "Late", window.late.toString(), "\u25D4")
+                LegendMini(MiColors.Red, "Absent", window.absent.toString())
+                LegendMini(Color(0xFF9AA5B1), "Closed", window.holiday.toString(), "\u2715")
+            }
+        }
+        Spacer(Modifier.height(3.dp))
+        val days = remember(window) { window.days.takeLast(30) }
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            DayRow(days.take(15), dot = 13.dp, numSize = 7)
+            DayRow(days.drop(15), dot = 13.dp, numSize = 7)
+        }
+    }
+}
+
+/** Full attendance detail for the module sheet. */
+@Composable
+fun AttendanceDetailContent(window: AttendanceWindow?) {
+    if (window == null || window.elapsed.isEmpty()) {
+        HomeCard { EmptyWidgetLine("No attendance records") }
+        return
+    }
+    val openDays = window.elapsed.count { it.state != AttendanceDayState.HOLIDAY }
+    val attended = window.present + window.late
+    val pct = if (openDays > 0) (attended * 100 / openDays) else 0
+    val trend = AttendanceAnalytics.trendPoints(window)
+    HomeCard {
+        WidgetTitle("Attendance", "(30 Days)")
+        Spacer(Modifier.height(6.dp))
         Row(verticalAlignment = Alignment.Top) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.width(if (compact) 78.dp else 86.dp)
-            ) {
-                Donut(pct, size = if (compact) 48.dp else 76.dp)
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(86.dp)) {
+                Donut(pct, size = 76.dp, pctSize = 17)
                 Spacer(Modifier.height(2.dp))
                 Text("$attended / $openDays", fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
                 Text("Open Days", fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 1)
-                // Compact card folds the trend into the donut column so the
-                // 30-day grid + strip still fit the 600dp ceiling. The full
-                // chip row (with streaks) lives in the module sheet.
-                if (compact && trend != 0) {
-                    Text(
-                        (if (trend > 0) "\u2191 +" else "\u2193 ") + "${kotlin.math.abs(trend)}% vs prev",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (trend > 0) MiColors.EmeraldDark else MiColors.Red,
-                        maxLines = 1
-                    )
-                }
             }
             Spacer(Modifier.width(8.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(if (compact) 1.dp else 3.dp)) {
-                LegendRow(MiColors.Emerald, "Present", window.present.toString(), null, small = compact)
-                LegendRow(MiColors.Emerald, "Late", window.late.toString(), "\u25D4", small = compact)
-                LegendRow(MiColors.Red, "Absent", window.absent.toString(), null, small = compact)
-                LegendRow(Color(0xFF9AA5B1), "Closed", window.holiday.toString(), "\u2715", small = compact)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                LegendRow(MiColors.Emerald, "Present", window.present.toString(), null)
+                LegendRow(MiColors.Emerald, "Late", window.late.toString(), "\u25D4")
+                LegendRow(MiColors.Red, "Absent", window.absent.toString(), null)
+                LegendRow(Color(0xFF9AA5B1), "Closed", window.holiday.toString(), "\u2715")
             }
         }
-        Spacer(Modifier.height(if (compact) 4.dp else 6.dp))
-        // Compact 30-day grid: two rows of 15, true day numbers, state glyphs.
-        val days = remember(window) { window.days.takeLast(30) }
-        Column(verticalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 4.dp)) {
-            DayRow(days.take(15), dot = if (compact) 14.dp else 17.dp)
-            DayRow(days.drop(15), dot = if (compact) 14.dp else 17.dp)
+        Spacer(Modifier.height(6.dp))
+        val days = window.days.takeLast(30)
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            DayRow(days.take(15), dot = 17.dp, numSize = 8)
+            DayRow(days.drop(15), dot = 17.dp, numSize = 8)
         }
-        if (showStreaks) {
-            Spacer(Modifier.height(if (compact) 4.dp else 6.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                if (trend != 0) {
-                    StatChip(
-                        "vs prev 30d",
-                        (if (trend > 0) "\u2191 +" else "\u2193 ") + "${kotlin.math.abs(trend)}%",
-                        if (trend > 0) MiColors.EmeraldDark else MiColors.Red,
-                        Modifier.weight(1f),
-                        dense = compact
-                    )
-                }
-                StatChip("Current Streak", "${AttendanceAnalytics.currentStreak(window)} Days", modifier = Modifier.weight(1f), dense = compact)
-                StatChip("Best Streak", "${AttendanceAnalytics.longestStreak(window)} Days", modifier = Modifier.weight(1f), dense = compact)
+        Spacer(Modifier.height(6.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (trend != 0) {
+                StatChip(
+                    "vs prev 30d",
+                    (if (trend > 0) "\u2191 +" else "\u2193 ") + "${kotlin.math.abs(trend)}%",
+                    if (trend > 0) MiColors.EmeraldDark else MiColors.Red,
+                    Modifier.weight(1f)
+                )
             }
+            StatChip("Current Streak", "${AttendanceAnalytics.currentStreak(window)} Days", modifier = Modifier.weight(1f))
+            StatChip("Best Streak", "${AttendanceAnalytics.longestStreak(window)} Days", modifier = Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun LegendRow(color: Color, label: String, count: String, glyph: String?, small: Boolean = false) {
+private fun LegendMini(color: Color, label: String, count: String, glyph: String? = null) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
-            Modifier
-                .size(if (small) 12.dp else 14.dp)
-                .clip(CircleShape)
-                .background(color),
+            Modifier.size(11.dp).clip(CircleShape).background(color),
             contentAlignment = Alignment.Center
         ) {
             if (glyph != null) {
-                Text(glyph, fontSize = if (small) 7.sp else 8.sp, color = Color.White, maxLines = 1)
+                Text(glyph, fontSize = 7.sp, color = Color.White, maxLines = 1)
+            }
+        }
+        Spacer(Modifier.width(4.dp))
+        Text(label, fontSize = 9.5.sp, color = MiColors.TextSecondary, maxLines = 1)
+        Spacer(Modifier.width(4.dp))
+        Text(count, fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
+    }
+}
+
+@Composable
+private fun LegendRow(color: Color, label: String, count: String, glyph: String?) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier.size(14.dp).clip(CircleShape).background(color),
+            contentAlignment = Alignment.Center
+        ) {
+            if (glyph != null) {
+                Text(glyph, fontSize = 8.sp, color = Color.White, maxLines = 1)
             }
         }
         Spacer(Modifier.width(6.dp))
-        Text(label, fontSize = if (small) 10.5.sp else 11.5.sp, color = MiColors.TextSecondary, modifier = Modifier.weight(1f), maxLines = 1)
-        Text(count, fontSize = if (small) 11.5.sp else 12.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
+        Text(label, fontSize = 11.5.sp, color = MiColors.TextSecondary, modifier = Modifier.weight(1f), maxLines = 1)
+        Text(count, fontSize = 12.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
     }
 }
 
 @Composable
 private fun DayRow(
     days: List<com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDay>,
-    dot: androidx.compose.ui.unit.Dp = 17.dp
+    dot: Dp = 17.dp,
+    numSize: Int = 8
 ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         days.forEach { day ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     day.dayOfMonth.toString(),
-                    fontSize = 8.5.sp,
+                    fontSize = numSize.sp,
                     color = MiColors.TextTertiary,
                     textAlign = TextAlign.Center,
                     maxLines = 1
@@ -318,14 +425,11 @@ private fun DayRow(
                     AttendanceDayState.FUTURE -> Triple(MiColors.Border, "", MiColors.TextTertiary)
                 }
                 Box(
-                    Modifier
-                        .size(dot)
-                        .clip(CircleShape)
-                        .background(bg),
+                    Modifier.size(dot).clip(CircleShape).background(bg),
                     contentAlignment = Alignment.Center
                 ) {
                     if (glyph.isNotEmpty()) {
-                        Text(glyph, fontSize = 8.sp, color = glyphColor, maxLines = 1)
+                        Text(glyph, fontSize = (numSize - 1).coerceAtLeast(6).sp, color = glyphColor, maxLines = 1)
                     }
                 }
             }
@@ -334,7 +438,7 @@ private fun DayRow(
 }
 
 @Composable
-private fun Donut(pct: Int, size: androidx.compose.ui.unit.Dp = 76.dp) {
+private fun Donut(pct: Int, size: Dp = 76.dp, pctSize: Int = 17) {
     Box(Modifier.size(size), contentAlignment = Alignment.Center) {
         androidx.compose.foundation.Canvas(Modifier.size(size)) {
             val sweep = pct.toFloat() / 100f * 360f
@@ -356,8 +460,6 @@ private fun Donut(pct: Int, size: androidx.compose.ui.unit.Dp = 76.dp) {
                 )
             )
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("$pct%", fontSize = 17.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
-        }
+        Text("$pct%", fontSize = pctSize.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
     }
 }

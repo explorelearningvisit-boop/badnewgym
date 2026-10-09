@@ -161,13 +161,50 @@ fun fmtDurationHm(ms: Long): String {
     return "%02dh %02dm".format(m / 60, m % 60)
 }
 
-/** "1st Visit Today" / "2nd Visit Today" - only when the count is real. */
-fun visitOrdinal(n: Int): String = when {
-    n % 100 in 11..13 -> "${n}th Visit Today"
-    n % 10 == 1 -> "${n}st Visit Today"
-    n % 10 == 2 -> "${n}nd Visit Today"
-    n % 10 == 3 -> "${n}rd Visit Today"
-    else -> "${n}th Visit Today"
+/** Workout history ranges (spec: 7 / 14 / 15 / 30 days). */
+enum class WorkoutRange(val days: Int, val short: String) {
+    D7(7, "7D"),
+    D14(14, "14D"),
+    D15(15, "15D"),
+    D30(30, "30D")
+}
+
+/** "Today's Visit #1" - only when the count is real. */
+fun visitOrdinal(n: Int): String = "Today's Visit #$n"
+
+/** Display label for a configured payment method. */
+fun paymentMethodLabel(method: com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod): String =
+    when (method) {
+        com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod.CASH -> "Cash"
+        com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod.UPI -> "UPI"
+        com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod.CARD -> "Card"
+        com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod.BANK_TRANSFER -> "Bank Transfer"
+    }
+
+/**
+ * Pure collection guard so the rule is unit-testable and the ViewModel just
+ * enforces it. Returns an error message, or null when collection may proceed.
+ */
+fun validateCollection(amount: Double, outstanding: Double): String? = when {
+    outstanding <= 0 -> "Nothing outstanding on this account."
+    amount <= 0 -> "Enter an amount greater than zero."
+    amount > outstanding + 0.009 -> "Amount exceeds the outstanding ${fmtRupees(outstanding)}."
+    else -> null
+}
+
+/**
+ * Real measurement window across all histories, e.g. "Aug 1 – Oct 1".
+ * Null when there is genuinely nothing to range over.
+ */
+fun bodyRangeLabel(histories: List<com.example.badnewgym.feature.memberintelligence.domain.model.MetricHistory>): String? {
+    val days = histories.flatMap { it.readings }.map { it.epochDay }.distinct().sorted()
+    if (days.size < 2) return null
+    val fmt = SimpleDateFormat("MMM d", Locale.ENGLISH)
+    val zone = java.time.ZoneId.systemDefault()
+    fun day(ms: Long): String = fmt.format(Date(ms))
+    val first = day(days.first() * 86_400_000L)
+    val last = day(days.last() * 86_400_000L)
+    return "$first – $last"
 }
 
 /** Human label for the actual check-in mechanism. Never invents a method. */
