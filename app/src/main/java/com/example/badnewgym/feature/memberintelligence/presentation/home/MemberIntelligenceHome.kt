@@ -60,6 +60,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressUiState
+import com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressViewModel
 import com.example.badnewgym.feature.memberintelligence.debug.HomeDebugBridge
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod
@@ -156,12 +158,30 @@ fun MemberIntelligenceHome(
     vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory())
 ) {
     val state by vm.state.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
     val week by vm.workoutWeek.collectAsState()
     val range by vm.workoutRange.collectAsState()
     val openModule by vm.openModule.collectAsState()
     val receipt by vm.lastReceipt.collectAsState()
 
     LaunchedEffect(memberId) { vm.load(memberId) }
+
+    // Body Progress runs its own aggregation so Home and the analytics screen
+    // always agree; the card only reads the finished summary.
+    val bodyVm: BodyProgressViewModel = viewModel(factory = BodyProgressViewModel.factory())
+    val bodyState by bodyVm.state.collectAsState()
+    LaunchedEffect(Unit) { bodyVm.load() }
+    val bodySummary = (bodyState as? BodyProgressUiState.Ready)?.summary
+
+    // Body Progress is a full module, so it opens its own analytics screen.
+    val openBodyProgress: () -> Unit = {
+        context.startActivity(
+            android.content.Intent(
+                context,
+                com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressActivity::class.java
+            )
+        )
+    }
     // No-tap verification bridge (MIUI blocks adb input): broadcasts drive
     // the same ViewModel handlers a finger would reach.
     LaunchedEffect(vm) {
@@ -273,7 +293,8 @@ fun MemberIntelligenceHome(
                         BodyProgressWidget(
                             goals = data.bodyGoals,
                             histories = data.bodyHistories,
-                            onOpen = { vm.openModule(HomeWidgetId.BODY) }
+                            summary = bodySummary,
+                            onOpen = { openBodyProgress() }
                         )
                     }
                 }

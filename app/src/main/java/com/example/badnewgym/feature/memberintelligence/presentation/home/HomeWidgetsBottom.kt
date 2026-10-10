@@ -259,16 +259,30 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
 // ------------------------------------------------------------------ BODY
 
 /**
- * Ultra-compact body card: one text row per real metric + goal verdict.
- * Sparklines, targets and histories live in the module sheet.
+ * Body widget slot on Home.
+ *
+ * The card itself is delegated to the Body Progress system so the compact
+ * summary and the analytics screen always read from the same aggregation.
+ * Muscle selection, ranges and consent live in the full screen.
  */
 @Composable
 fun BodyProgressWidget(
     goals: List<BodyGoal>,
     histories: List<MetricHistory>,
     onOpen: () -> Unit,
+    summary: com.example.badnewgym.feature.bodyprogress.domain.BodyProgressSummary? = null,
     singleRow: Boolean = false
 ) {
+    if (summary != null) {
+        com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressHomeWidget(
+            summary = summary,
+            onOpenDetails = onOpen
+        )
+        return
+    }
+
+    // Legacy path: goal-only records from Member Intelligence (kept so the card
+    // still renders while the Body Progress dataset is loading).
     val visible = remember(goals) { goals.take(3) }
     if (visible.isEmpty()) {
         HomeCard {

@@ -96,6 +96,12 @@
 
         <!-- Screen Pulse: 2s on-device frame capture into a sandbox-private vault. -->
         <activity
+            android:name=".feature.bodyprogress.presentation.BodyProgressActivity"
+            android:exported="true"
+            android:label="BAD GYM Body Progress"
+            android:theme="@style/Theme.BadNewgym" />
+
+        <activity
             android:name=".feature.screenpulse.ScreenPulseControlActivity"
             android:exported="true"
             android:label="Screen Pulse"
