@@ -1,18 +1,22 @@
 package com.example.badnewgym.feature.bodyprogress.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,26 +26,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.badnewgym.feature.bodyprogress.domain.BodyProgressAggregator
 import com.example.badnewgym.feature.bodyprogress.domain.BodyProgressSummary
 import com.example.badnewgym.feature.bodyprogress.domain.GoalVerdict
-import com.example.badnewgym.feature.bodyprogress.domain.analytics.EnduranceAnalytics
+import com.example.badnewgym.feature.bodyprogress.domain.analytics.MetricSeries
+import com.example.badnewgym.feature.bodyprogress.domain.model.BodyMetric
+import com.example.badnewgym.feature.bodyprogress.domain.model.GoalMetric
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
- * Compact Body Progress widget for Home (360dp target).
+ * Body Progress widget for Home.
  *
- * Contents are priority-ranked for the member's goal:
- *  1. goal + period + verdict (ring only when a real denominator exists)
- *  2. primary metric chart
- *  3. up to three supporting metrics
- *  4. muscle focus, top exercise, and one evidence-backed reading
- *
- * Anything that would not stay legible moves to the analytics screen.
+ * Reference layout: violet header with verdict + View All, four metric tiles
+ * with sparklines, then Top Exercise and Muscle Focus panels. Every number is
+ * read from [summary]; a metric with no records simply has no tile.
  */
 @Composable
 fun BodyProgressHomeWidget(
@@ -51,30 +56,34 @@ fun BodyProgressHomeWidget(
     BodyCard(onClick = onOpenDetails, padding = 8.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(26.dp).clip(RoundedCornerShape(8.dp)).background(BodyChartColors.weight),
+                Modifier.size(30.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF8849EF)),
                 contentAlignment = Alignment.Center
-            ) { Text("B", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.White) }
-            Spacer(Modifier.width(7.dp))
-            Column(Modifier.weight(1f)) {
-                Text("Body Progress", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
-                val goalText = summary.goal?.let { "${it.title} \u00B7 ${summary.range.label}" } ?: summary.range.label
-                Text(goalText, fontSize = 9.5.sp, color = MiColors.TextSecondary, maxLines = 1)
-                // The trend chart may cover a wider window than the selected
-                // range; its own period is always stated so the two agree.
-                summary.primarySeries?.takeIf { it.points.size >= 2 }?.let { series ->
-                    Text(
-                        "${series.metric.label} \u00B7 ${shortDay(series.points.first().day)}" +
-                            " - ${shortDay(series.points.last().day)}",
-                        fontSize = 8.5.sp, color = MiColors.TextTertiary, maxLines = 1
-                    )
-                }
+            ) {
+                Icon(
+                    Icons.Filled.FitnessCenter, contentDescription = null,
+                    tint = Color.White, modifier = Modifier.size(17.dp)
+                )
             }
-            VerdictPill(summary.goalVerdict)
-            Spacer(Modifier.width(4.dp))
-            Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
+            Spacer(Modifier.width(7.dp))
+            Text(
+                "Body Progress (Last ${summary.range.days} Days)",
+                fontSize = 13.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary,
+                maxLines = 1, modifier = Modifier.weight(1f)
+            )
+            BodyPill(
+                summary.goalVerdict.label,
+                verdictBg(summary.goalVerdict),
+                if (summary.goalVerdict == GoalVerdict.INSUFFICIENT_DATA) MiColors.TextSecondary else Color.White,
+                9
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                "View All >", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue,
+                maxLines = 1, modifier = Modifier.clickable(onClick = onOpenDetails)
+            )
         }
 
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(6.dp))
 
         if (!summary.hasAnyData) {
             BodyEmptyState(
@@ -84,130 +93,267 @@ fun BodyProgressHomeWidget(
             return@BodyCard
         }
 
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            MetricTile(
+                summary.compositionSeries(BodyMetric.WEIGHT),
+                GoalMetric.WEIGHT, "W", BodyChartColors.weight, summary, Modifier.weight(1f)
+            )
+            MetricTile(
+                summary.compositionSeries(BodyMetric.MUSCLE_MASS),
+                GoalMetric.MUSCLE_MASS, "M", BodyChartColors.muscle, summary, Modifier.weight(1f)
+            )
+            MetricTile(
+                summary.compositionSeries(BodyMetric.BODY_FAT),
+                GoalMetric.BODY_FAT, "F", BodyChartColors.bodyFat, summary, Modifier.weight(1f)
+            )
+            FocusTile(summary, Modifier.weight(1f))
+        }
+
+        Spacer(Modifier.height(6.dp))
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            TopExercisePanel(summary, onOpenDetails, Modifier.weight(1.1f))
+            MuscleFocusPanel(summary, onOpenDetails, Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun MetricTile(
+    series: MetricSeries?,
+    goalMetric: GoalMetric,
+    icon: String,
+    tint: Color,
+    summary: BodyProgressSummary,
+    modifier: Modifier = Modifier
+) {
+    if (series == null || series.latest == null) {
+        Column(
+            modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(MiColors.SurfaceSunken)
+                .padding(7.dp)
+        ) {
+            Text("No data", fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1)
+        }
+        return
+    }
+    val latest = series.latest!!.value
+    Column(
+        modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MiColors.SurfaceSunken)
+            .padding(7.dp)
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Goal ring is rendered only when start/target give a denominator.
-            if (summary.goalPercent != null) {
-                BodyDonut(
-                    percent = summary.goalPercent,
-                    centerLabel = "${summary.goalPercent}%",
-                    caption = summary.primaryMetric?.label?.take(6) ?: "Goal",
-                    color = BodyChartColors.weight,
-                    modifier = Modifier.size(58.dp),
-                    semanticsText = "Goal ${summary.goalPercent} percent complete for ${summary.goal?.title ?: "selected goal"}"
-                )
-                Spacer(Modifier.width(8.dp))
-            } else if (summary.isQualitativeGoal) {
-                Column(
-                    Modifier
-                        .width(58.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MiColors.SurfaceSunken)
-                        .padding(6.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("No target", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary, maxLines = 1)
-                    Text("set", fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1)
-                }
-                Spacer(Modifier.width(8.dp))
-            }
-
-            Column(Modifier.weight(1f)) {
-                val series = summary.primarySeries
-                if (series != null && series.points.isNotEmpty()) {
-                    val labels = series.points.map { shortDay(it.day) }
-                    BodyLineChart(
-                        values = series.points.map { it.value },
-                        labels = labels,
-                        color = colorForMetric(series.metric.name),
-                        unit = series.metric.unit,
-                        modifier = Modifier.height(52.dp).fillMaxWidth(),
-                        showAxis = false
-                    )
-                } else {
-                    // No body data: fall back to the strongest exercise record.
-                    val strength = summary.strength
-                    if (strength != null) {
-                        Text(
-                            "${strength.exerciseName}: ${trim(strength.current.loadKg)} kg x ${strength.current.reps}",
-                            fontSize = 12.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
-                        )
-                        Text(
-                            "Best comparable set \u00B7 e1RM ${trim(strength.current.estimated1RmKg)} kg",
-                            fontSize = 9.5.sp, color = MiColors.TextSecondary, maxLines = 1
-                        )
-                    } else {
-                        Text(
-                            "Workout records only - no body measurements yet",
-                            fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = MiColors.TextSecondary
-                        )
-                    }
-                }
-            }
+            Box(
+                Modifier.size(20.dp).clip(RoundedCornerShape(6.dp)).background(tint),
+                contentAlignment = Alignment.Center
+            ) { Text(icon, fontSize = 10.sp, fontWeight = FontWeight.Black, color = Color.White) }
+            Spacer(Modifier.width(4.dp))
+            Text(series.metric.label, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = MiColors.TextSecondary, maxLines = 1)
         }
-
-        // Home has a fixed height budget, so the supporting facts collapse into
-        // one compact evidence line rather than tiles that would be squeezed to
-        // the point of being unreadable. Full metrics, focus breakdown and
-        // insight reasoning live on the analytics screen.
-        val supporting = summary.supportingMetrics.take(2)
-        val focusTop = summary.muscleFocus.top.firstOrNull()
-        val facts = buildList {
-            // Supporting metrics come from the selected range while the primary
-            // chart spans a wider window; reporting the chart's window delta next
-            // to a short-range value would read as "no change" and be wrong.
-            supporting.forEach { series ->
-                val inRange = series.points.size >= 2
-                val delta = if (inRange) {
-                    series.changePercent()?.let { (if (it >= 0) "+" else "") + trim(it) + "%" }
-                } else null
-                add(
-                    series.metric.label + " " +
-                        trim(series.latest?.value ?: 0.0) + series.metric.unit +
-                        (delta?.let { " (" + it + ")" } ?: "")
-                )
-            }
-            focusTop?.let { add(it.muscle.label + " " + it.sharePercent + "% focus") }
-            summary.topExercise?.let { add(it.exercise.name + " top set") }
-        }
-        if (facts.isNotEmpty()) {
-            Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(2.dp))
+        Text(
+            "${trim(latest)} ${series.metric.unit}".trim(),
+            fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
+        )
+        if (series.hasHistory) {
+            val delta = latest - series.earliest!!.value
             Text(
-                facts.joinToString("  \u00B7  "),
-                fontSize = 9.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MiColors.TextSecondary,
+                deltaText(delta, series.metric.unit),
+                fontSize = 9.sp, fontWeight = FontWeight.Bold,
+                color = tileDeltaColor(summary, goalMetric, latest, delta),
                 maxLines = 1
+            )
+            Spacer(Modifier.height(2.dp))
+            BodyLineChart(
+                values = series.points.map { it.value },
+                labels = series.points.map { shortDay(it.day) },
+                color = tint,
+                unit = series.metric.unit,
+                modifier = Modifier.height(24.dp).fillMaxWidth(),
+                showAxis = false
+            )
+        } else {
+            Text(
+                "One reading \u00B7 ${shortDay(series.latest!!.day)}",
+                fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1
             )
         }
     }
 }
 
 @Composable
-private fun VerdictPill(verdict: GoalVerdict) {
-    val (bg, fg) = when (verdict) {
-        GoalVerdict.ON_TRACK -> Color(0xFF16A34A) to Color.White
-        GoalVerdict.IMPROVING -> Color(0xFF0891B2) to Color.White
-        GoalVerdict.STABLE -> Color(0xFFE59A1A) to Color.White
-        GoalVerdict.REGRESSING -> Color(0xFFE54848) to Color.White
-        GoalVerdict.INSUFFICIENT_DATA -> MiColors.Border to MiColors.TextSecondary
+private fun FocusTile(summary: BodyProgressSummary, modifier: Modifier = Modifier) {
+    val groups = BodyProgressAggregator.focusGroups(summary.muscleFocus)
+    val top = groups.maxByOrNull { it.sharePercent }
+    Column(
+        modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MiColors.SurfaceSunken)
+            .padding(7.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(20.dp).clip(RoundedCornerShape(6.dp)).background(Color(0xFF8849EF)),
+                contentAlignment = Alignment.Center
+            ) { Text("C", fontSize = 10.sp, fontWeight = FontWeight.Black, color = Color.White) }
+            Spacer(Modifier.width(4.dp))
+            Text("Focus", fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = MiColors.TextSecondary, maxLines = 1)
+        }
+        Spacer(Modifier.height(2.dp))
+        if (top == null) {
+            Text("No data", fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1)
+            return@Column
+        }
+        Text(top.label, fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
+        Text("${top.sharePercent}%", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
+        Spacer(Modifier.height(3.dp))
+        Box(
+            Modifier.fillMaxWidth().height(7.dp)
+                .clip(RoundedCornerShape(4.dp)).background(MiColors.Border)
+        ) {
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth((top.sharePercent / 100f).coerceIn(0.04f, 1f))
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFF8849EF))
+            )
+        }
     }
-    BodyPill(verdict.label, bg, fg, 9)
 }
 
 @Composable
-private fun EvidenceLine(text: String, evidence: String?) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 1.dp)
+private fun TopExercisePanel(summary: BodyProgressSummary, onOpen: () -> Unit, modifier: Modifier = Modifier) {
+    val prog = summary.strength
+    Column(
+        modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MiColors.SurfaceSunken)
+            .clickable(onClick = onOpen)
+            .padding(8.dp)
     ) {
-        Box(Modifier.size(4.dp).clip(CircleShape).background(MiColors.Emerald))
-        Spacer(Modifier.width(6.dp))
-        Text(text, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1)
-        if (evidence != null) {
-            Spacer(Modifier.width(4.dp))
-            Text(evidence, fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Top Exercise", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1, modifier = Modifier.weight(1f))
+            Text(">", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue)
+        }
+        Spacer(Modifier.height(4.dp))
+        if (prog == null) {
+            Text("No comparable records yet.", fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 2)
+            return@Column
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(MiColors.Border),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Filled.FitnessCenter, contentDescription = null, tint = MiColors.TextSecondary, modifier = Modifier.size(20.dp))
+            }
+            Spacer(Modifier.width(6.dp))
+            Text(prog.exerciseName, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1)
+        }
+        Spacer(Modifier.height(3.dp))
+        Text(
+            "${trim(prog.previous.loadKg)} \u2192 ${trim(prog.current.loadKg)} kg",
+            fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
+        )
+        val delta = prog.loadDeltaKg ?: 0.0
+        val base = prog.previous.loadKg
+        val pct = if (base > 0) (delta / base) * 100 else null
+        Text(
+            "\u2191 +${trim(delta)} kg" + (pct?.let { " (${it.roundToInt()}%)" } ?: ""),
+            fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun MuscleFocusPanel(summary: BodyProgressSummary, onOpen: () -> Unit, modifier: Modifier = Modifier) {
+    val groups = BodyProgressAggregator.focusGroups(summary.muscleFocus)
+    Column(
+        modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MiColors.SurfaceSunken)
+            .clickable(onClick = onOpen)
+            .padding(8.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Muscle Focus (Sets)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1, modifier = Modifier.weight(1f))
+            Text(">", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue)
+        }
+        Spacer(Modifier.height(4.dp))
+        if (groups.isEmpty()) {
+            Text("No sets recorded.", fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 1)
+            return@Column
+        }
+        groups.forEach { group ->
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 1.5.dp)) {
+                Text(group.label, fontSize = 9.sp, color = MiColors.TextSecondary, modifier = Modifier.width(40.dp), maxLines = 1)
+                Box(
+                    Modifier.weight(1f).height(7.dp)
+                        .clip(RoundedCornerShape(4.dp)).background(MiColors.Border)
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth((group.sharePercent / 100f).toFloat().coerceIn(0.03f, 1f))
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(groupColor(group.label))
+                    )
+                }
+                Spacer(Modifier.width(4.dp))
+                Text("${group.sharePercent}%", fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
+            }
         }
     }
+}
+
+private fun groupColor(label: String): Color = when (label) {
+    "Chest" -> Color(0xFFE54848)
+    "Back" -> Color(0xFF2563EB)
+    "Arms" -> Color(0xFF16A34A)
+    "Legs" -> Color(0xFFF97316)
+    else -> Color(0xFF94A3B8)
+}
+
+private fun verdictBg(verdict: GoalVerdict): Color = when (verdict) {
+    GoalVerdict.ON_TRACK -> Color(0xFF16A34A)
+    GoalVerdict.IMPROVING -> Color(0xFF22C55E)
+    GoalVerdict.STABLE -> Color(0xFFE59A1A)
+    GoalVerdict.REGRESSING -> Color(0xFFE54848)
+    GoalVerdict.INSUFFICIENT_DATA -> MiColors.Border
+}
+
+/** Absolute delta with unit and direction arrow, e.g. "+1.2 kg \u2191". */
+private fun deltaText(delta: Double, unit: String): String {
+    if (abs(delta) < 0.0001) return "0 $unit \u2192"
+    val sign = if (delta >= 0) "+" else ""
+    val arrow = if (delta >= 0) "\u2191" else "\u2193"
+    return "$sign${trim(delta)} $unit $arrow"
+}
+
+/**
+ * Delta colour honours the member's own goal: when the tile metric is the
+ * goal metric, "good" means moving toward the target. Otherwise a neutral
+ * per-metric default applies.
+ */
+private fun tileDeltaColor(
+    summary: BodyProgressSummary,
+    tile: GoalMetric,
+    latestValue: Double,
+    delta: Double,
+    upIsGood: Boolean = tile != GoalMetric.BODY_FAT
+): Color {
+    if (abs(delta) < 0.0001) return MiColors.TextSecondary
+    val goal = summary.goal
+    val good = if (goal?.metric == tile) {
+        BodyProgressAggregator.movesTowardGoal(goal, latestValue)
+    } else {
+        if (upIsGood) delta > 0 else delta < 0
+    }
+    return if (good) Color(0xFF16A34A) else Color(0xFFE54848)
 }
 
 internal fun colorForMetric(name: String): Color = when (name) {

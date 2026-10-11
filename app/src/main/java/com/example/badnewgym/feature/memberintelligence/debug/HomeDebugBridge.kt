@@ -40,7 +40,12 @@ class HomeDebugReceiver : BroadcastReceiver() {
                 finish("ended")
             }
             ACTION_COLLECT -> {
-                val amount = intent.getDoubleExtra(EXTRA_AMOUNT, -1.0)
+                // `am --ef` stores a Float while in-app callers pass a Double;
+                // read any numeric form instead of silently defaulting.
+                val amount = when (val v = intent.extras?.get(EXTRA_AMOUNT)) {
+                    is Number -> v.toDouble()
+                    else -> -1.0
+                }
                 val method = intent.getStringExtra(EXTRA_METHOD) ?: "UPI"
                 HomeDebugBridge.onCollect?.invoke(amount, method)
                 finish("collect amount=$amount method=$method")

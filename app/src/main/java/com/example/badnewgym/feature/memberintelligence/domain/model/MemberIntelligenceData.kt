@@ -16,8 +16,12 @@ enum class AttendanceDayState {
     LATE,
     ABSENT,
     HOLIDAY,
+    /** Gym closed (weekly off, maintenance). Excluded from open days like a holiday. */
+    CLOSED,
     /** Day has not happened yet. Rendered faint, never counted in stats. */
-    FUTURE
+    FUTURE,
+    /** Past day with no record. Distinct from confirmed absence, never invented. */
+    UNKNOWN
 }
 
 /**
@@ -28,7 +32,9 @@ data class AttendanceDay(
     val epochDay: Long,
     val dayOfMonth: Int,
     val state: AttendanceDayState,
-    val visitMinutes: Int? = null
+    val visitMinutes: Int? = null,
+    /** A payment was recorded on this date. Never replaces the status. */
+    val hasPayment: Boolean = false
 ) {
     val isAttended: Boolean get() = state == AttendanceDayState.PRESENT || state == AttendanceDayState.LATE
 }

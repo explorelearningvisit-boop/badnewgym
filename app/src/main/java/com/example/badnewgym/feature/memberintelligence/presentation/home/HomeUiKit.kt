@@ -102,16 +102,28 @@ fun StatChip(
     value: String,
     valueColor: Color = MiColors.TextPrimary,
     modifier: Modifier = Modifier,
-    dense: Boolean = false
+    dense: Boolean = false,
+    glyph: String? = null,
+    glyphBg: Color = MiColors.Blue
 ) {
-    Column(
+    Row(
         modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
-            .padding(horizontal = if (dense) 8.dp else 10.dp, vertical = if (dense) 5.dp else 7.dp)
+            .padding(horizontal = if (dense) 8.dp else 10.dp, vertical = if (dense) 5.dp else 7.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(value, fontSize = if (dense) 13.sp else 14.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
-        Text(label, fontSize = if (dense) 9.5.sp else 10.5.sp, fontWeight = FontWeight.Medium, color = MiColors.TextSecondary, maxLines = 1)
+        if (glyph != null) {
+            Box(
+                Modifier.size(26.dp).clip(RoundedCornerShape(8.dp)).background(glyphBg),
+                contentAlignment = Alignment.Center
+            ) { Text(glyph, fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White, maxLines = 1) }
+            Spacer(Modifier.width(7.dp))
+        }
+        Column {
+            Text(value, fontSize = if (dense) 13.sp else 14.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
+            Text(label, fontSize = if (dense) 9.5.sp else 10.5.sp, fontWeight = FontWeight.Medium, color = MiColors.TextSecondary, maxLines = 1)
+        }
     }
 }
 

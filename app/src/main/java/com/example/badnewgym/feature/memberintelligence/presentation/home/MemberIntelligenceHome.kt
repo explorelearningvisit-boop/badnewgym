@@ -43,7 +43,6 @@ import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.RoomService
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -70,10 +69,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMeth
 
 private data class RailItem(val id: String, val label: String, val icon: ImageVector)
 
-/** Absolute card height ceiling. All six widgets must fit without scrolling. */
-private val CARD_MAX_HEIGHT = 600.dp
-
-/** Member domains. Home is selected; the rail is navigation, not widget data. */
+/** Rail order follows the reference: Home through More, no extras. */
 private val RAIL_ITEMS = listOf(
     RailItem("home", "Home", Icons.Filled.Home),
     RailItem("members", "Members", Icons.Filled.People),
@@ -82,7 +78,6 @@ private val RAIL_ITEMS = listOf(
     RailItem("attendance", "Attendance", Icons.Filled.CalendarMonth),
     RailItem("workout", "Workout", Icons.Filled.FitnessCenter),
     RailItem("body", "Body", Icons.Filled.Accessibility),
-    RailItem("diet", "Diet", Icons.Filled.Restaurant),
     RailItem("supplements", "Supplements", Icons.Filled.LocalPharmacy),
     RailItem("services", "Services", Icons.Filled.RoomService),
     RailItem("history", "History", Icons.Filled.History),
@@ -98,9 +93,8 @@ private fun HomeRail(
 ) {
     Column(
         Modifier
-            .width(56.dp)
+            .width(60.dp)
             .fillMaxHeight()
-            .background(MiColors.Surface)
             .verticalScroll(rememberScrollState())
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -111,30 +105,30 @@ private fun HomeRail(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .width(52.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .width(56.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(if (selected) MiColors.Mint else Color.Transparent)
                     .clickable(onClick = { onSelect(item.id) })
-                    .padding(vertical = 6.dp)
+                    .padding(vertical = 5.dp)
             ) {
                 Box(
                     Modifier
-                        .size(30.dp)
-                        .clip(CircleShape)
+                        .size(34.dp)
+                        .clip(RoundedCornerShape(12.dp))
                         .background(if (selected) MiColors.Emerald else MiColors.SurfaceSunken),
                     contentAlignment = Alignment.Center
                 ) {
                     androidx.compose.material3.Icon(
                         item.icon,
                         contentDescription = item.label,
-                        tint = if (selected) Color.White else MiColors.TextSecondary,
-                        modifier = Modifier.size(17.dp)
+                        tint = if (selected) Color.White else Color(0xFF3E6B64),
+                        modifier = Modifier.size(19.dp)
                     )
                 }
                 Spacer(Modifier.height(2.dp))
                 Text(
                     item.label,
-                    fontSize = 8.5.sp,
+                    fontSize = 9.sp,
                     fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                     color = if (selected) MiColors.EmeraldDark else MiColors.TextSecondary,
                     maxLines = 1,
@@ -163,6 +157,8 @@ fun MemberIntelligenceHome(
     val range by vm.workoutRange.collectAsState()
     val openModule by vm.openModule.collectAsState()
     val receipt by vm.lastReceipt.collectAsState()
+    val notice by vm.notice.collectAsState()
+    val selectedMonth by vm.attendanceMonth.collectAsState()
 
     LaunchedEffect(memberId) { vm.load(memberId) }
 
@@ -221,85 +217,124 @@ fun MemberIntelligenceHome(
         }
     }
 
-    Row(
-        Modifier
+    // One unified shell: the rail and every dashboard widget live inside a
+    // single rounded, bordered surface. System bars stay outside it.
+    androidx.compose.material3.Surface(
+        modifier = Modifier
             .fillMaxSize()
             .background(MiColors.Page)
             .windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(horizontal = 6.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = MiColors.Page,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MiColors.Border),
+        shadowElevation = 4.dp
     ) {
-        HomeRail(onSelect = { id ->
-            when (id) {
-                "checkin" -> vm.openModule(HomeWidgetId.CHECK_IN)
-                "payment" -> vm.openModule(HomeWidgetId.PAYMENT)
-                "attendance" -> vm.openModule(HomeWidgetId.ATTENDANCE)
-                "workout" -> vm.openModule(HomeWidgetId.WORKOUT)
-                "body" -> vm.openModule(HomeWidgetId.BODY)
-                "members" -> vm.openModule(HomeWidgetId.IDENTITY)
-                else -> vm.openModule(HomeWidgetId.IDENTITY)
-            }
-        })
-        Box(
+        Row(
             Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp)
+                .fillMaxSize()
+                .padding(start = 4.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
         ) {
-            when (val s = state) {
-                HomeUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = MiColors.Emerald)
+            HomeRail(onSelect = { id ->
+                when (id) {
+                    "home" -> vm.closeModule()
+                    "members" -> vm.openModule(HomeWidgetId.IDENTITY)
+                    "checkin" -> vm.openModule(HomeWidgetId.CHECK_IN)
+                    "payment" -> vm.openModule(HomeWidgetId.PAYMENT)
+                    "attendance" -> vm.openModule(HomeWidgetId.ATTENDANCE)
+                    "workout" -> vm.openModule(HomeWidgetId.WORKOUT)
+                    "body" -> openBodyProgress()
+                    "supplements" -> vm.openModule(HomeWidgetId.SUPPLEMENTS)
+                    "services" -> vm.openModule(HomeWidgetId.SERVICES)
+                    "history" -> vm.openModule(HomeWidgetId.HISTORY)
+                    "insights" -> vm.openModule(HomeWidgetId.INSIGHTS)
+                    "messages" -> vm.showNotice("Messaging is not available in this build.")
+                    "more" -> vm.openModule(HomeWidgetId.MORE)
+                    else -> vm.closeModule()
                 }
-                is HomeUiState.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(s.message, fontSize = 13.sp, color = MiColors.TextSecondary)
-                }
-                is HomeUiState.Ready -> {
-                    val data = s.data
-                    // ONE merged card: every widget, critical data only, no
-                    // scrolling. Anything deeper lives in the module sheets.
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = CARD_MAX_HEIGHT),
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        CheckInWidget(
-                            checkIn = data.checkIn,
-                            snapshot = data.snapshot,
-                            onEndSession = vm::endSession,
-                            onOpen = { vm.openModule(HomeWidgetId.CHECK_IN) }
-                        )
-                        MemberIdentityWidget(
-                            snapshot = data.snapshot,
-                            onOpen = { vm.openModule(HomeWidgetId.IDENTITY) }
-                        )
-                        PaymentWidget(
-                            payment = data.snapshot.payment,
-                            situation = data.paymentSituation,
-                            onCollect = { vm.openModule(HomeWidgetId.PAYMENT) },
-                            onOpen = { vm.openModule(HomeWidgetId.PAYMENT) },
-                            receipt = receipt
-                        )
-                        AttendanceWidget(
-                            window = data.attendance,
-                            onOpen = { vm.openModule(HomeWidgetId.ATTENDANCE) }
-                        )
-                        WorkoutWidget(
-                            month = data.workout,
-                            weekIndex = week,
-                            onWeekChange = vm::setWorkoutWeek,
-                            onOpen = { vm.openModule(HomeWidgetId.WORKOUT) },
-                            range = range,
-                            onRangeChange = vm::setWorkoutRange
-                        )
-                        BodyProgressWidget(
-                            goals = data.bodyGoals,
-                            histories = data.bodyHistories,
-                            summary = bodySummary,
-                            onOpen = { openBodyProgress() }
-                        )
+            })
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                when (val s = state) {
+                    HomeUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MiColors.Emerald)
+                    }
+                    is HomeUiState.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(s.message, fontSize = 13.sp, color = MiColors.TextSecondary)
+                    }
+                    is HomeUiState.Ready -> {
+                        val data = s.data
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            CheckInWidget(
+                                checkIn = data.checkIn,
+                                snapshot = data.snapshot,
+                                onEndSession = vm::endSession,
+                                onOpen = { vm.openModule(HomeWidgetId.CHECK_IN) }
+                            )
+                            MemberIdentityWidget(
+                                snapshot = data.snapshot,
+                                onOpen = { vm.openModule(HomeWidgetId.IDENTITY) }
+                            )
+                            PaymentWidget(
+                                payment = data.snapshot.payment,
+                                situation = data.paymentSituation,
+                                planName = data.snapshot.membership?.planName,
+                                planPeriod = data.snapshot.membership?.planType,
+                                onCollect = { vm.openModule(HomeWidgetId.PAYMENT) },
+                                onOpen = { vm.openModule(HomeWidgetId.PAYMENT) },
+                                onPlan = { vm.openModule(HomeWidgetId.IDENTITY) },
+                                onHistory = { vm.openModule(HomeWidgetId.PAYMENT) },
+                                onUnavailable = vm::showNotice,
+                                receipt = receipt
+                            )
+                            AttendanceWidget(
+                                month = data.attendanceMonth,
+                                prevPoints = data.attendancePrevPoints,
+                                selected = selectedMonth,
+                                onMonthChange = vm::setAttendanceMonth,
+                                onOpen = { vm.openModule(HomeWidgetId.ATTENDANCE) }
+                            )
+                            WorkoutWidget(
+                                month = data.workout,
+                                weekIndex = week,
+                                onWeekChange = vm::setWorkoutWeek,
+                                onOpen = { vm.openModule(HomeWidgetId.WORKOUT) },
+                                range = range,
+                                onRangeChange = vm::setWorkoutRange
+                            )
+                            BodyProgressWidget(
+                                goals = data.bodyGoals,
+                                histories = data.bodyHistories,
+                                summary = bodySummary,
+                                onOpen = { openBodyProgress() }
+                            )
+                            Spacer(Modifier.height(4.dp))
+                        }
                     }
                 }
             }
         }
+    }
+
+    if (notice != null) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = vm::clearNotice,
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = vm::clearNotice) {
+                    Text("OK", fontWeight = FontWeight.Bold, color = MiColors.EmeraldDark)
+                }
+            },
+            title = { Text("Not available", fontSize = 16.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary) },
+            text = { Text(notice!!, fontSize = 13.sp, color = MiColors.TextSecondary) }
+        )
     }
 
     val ready = (state as? HomeUiState.Ready)?.data
@@ -323,6 +358,11 @@ private fun moduleFrom(name: String): HomeWidgetId? = when (name.lowercase()) {
     "attendance" -> HomeWidgetId.ATTENDANCE
     "workout" -> HomeWidgetId.WORKOUT
     "body" -> HomeWidgetId.BODY
+    "supplements" -> HomeWidgetId.SUPPLEMENTS
+    "services" -> HomeWidgetId.SERVICES
+    "history" -> HomeWidgetId.HISTORY
+    "insights" -> HomeWidgetId.INSIGHTS
+    "more" -> HomeWidgetId.MORE
     else -> null
 }
 
@@ -336,6 +376,7 @@ private fun HomeModuleSheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val selectedMonth by vm.attendanceMonth.collectAsState()
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(
             Modifier
@@ -348,9 +389,14 @@ private fun HomeModuleSheet(
                 HomeWidgetId.CHECK_IN -> CheckInModule(data)
                 HomeWidgetId.IDENTITY -> MemberProfileModule(data)
                 HomeWidgetId.PAYMENT -> PaymentModule(data, vm)
-                HomeWidgetId.ATTENDANCE -> AttendanceModule(data)
+                HomeWidgetId.ATTENDANCE -> AttendanceModule(data, selectedMonth, vm::setAttendanceMonth)
                 HomeWidgetId.WORKOUT -> WorkoutModule(data, range, vm::setWorkoutRange)
                 HomeWidgetId.BODY -> BodyModule(data)
+                HomeWidgetId.SUPPLEMENTS -> SupplementsModule(data)
+                HomeWidgetId.SERVICES -> ServicesModule(data)
+                HomeWidgetId.HISTORY -> HistoryModule(data)
+                HomeWidgetId.INSIGHTS -> InsightsModule(data, range)
+                HomeWidgetId.MORE -> MoreModule(data)
             }
             Spacer(Modifier.height(24.dp))
         }
@@ -542,9 +588,18 @@ private fun CollectSection(
 }
 
 @Composable
-private fun AttendanceModule(data: HomeData) {
-    SheetTitle("Attendance", "Full 30-day view")
-    AttendanceDetailContent(window = data.attendance)
+private fun AttendanceModule(
+    data: HomeData,
+    selected: java.time.YearMonth,
+    onMonthChange: (java.time.YearMonth) -> Unit
+) {
+    SheetTitle("Attendance", "Full month view")
+    AttendanceDetailContent(
+        month = data.attendanceMonth,
+        prevPoints = data.attendancePrevPoints,
+        selected = selected,
+        onMonthChange = onMonthChange
+    )
 }
 
 @Composable
@@ -597,6 +652,148 @@ private fun WorkoutModule(data: HomeData, range: WorkoutRange, onRangeChange: (W
 private fun BodyModule(data: HomeData) {
     SheetTitle("Body Progress", "Goals and measurements")
     BodyDetailContent(goals = data.bodyGoals, histories = data.bodyHistories)
+}
+
+@Composable
+private fun SupplementsModule(data: HomeData) {
+    val s = data.snapshot.supplements
+    SheetTitle("Supplements", "Purchase history")
+    if (s == null || !s.hasHistory) {
+        HomeCard { EmptyWidgetLine("No supplement purchases on record") }
+        return
+    }
+    HomeCard {
+        KvRow("Last purchase", s.lastPurchaseName ?: "-")
+        KvRow("Date", fmtDate(s.lastPurchaseDate))
+        KvRow("Price", s.lastPurchasePrice?.let { fmtRupees(it) } ?: "-")
+        KvRow("Brand", s.brand ?: "-")
+    }
+}
+
+@Composable
+private fun ServicesModule(data: HomeData) {
+    val services = data.snapshot.services ?: emptyList()
+    SheetTitle("Services", "Active and past services")
+    if (services.isEmpty()) {
+        HomeCard { EmptyWidgetLine("No services on record") }
+        return
+    }
+    HomeCard {
+        WidgetTitle("Services")
+        Spacer(Modifier.height(4.dp))
+        services.forEach { svc ->
+            KvRow(
+                svc.serviceName,
+                (if (svc.isActive) "Active" else "Ended") +
+                    (svc.expiryDate?.let { " \u00B7 ${fmtDate(it)}" } ?: "")
+            )
+        }
+    }
+}
+
+@Composable
+private fun HistoryModule(data: HomeData) {
+    SheetTitle("History", "Payments, membership and visits")
+    val txns = data.snapshot.payment?.history.orEmpty()
+    if (txns.isNotEmpty()) {
+        HomeCard {
+            WidgetTitle("Transactions")
+            Spacer(Modifier.height(4.dp))
+            txns.sortedByDescending { it.occurredAt }.take(10).forEach { t ->
+                KvRow("${fmtDate(t.occurredAt)} \u00B7 ${t.method}", fmtRupees(t.amount))
+            }
+        }
+    }
+    if (data.snapshot.membershipHistory.isNotEmpty()) {
+        HomeCard {
+            WidgetTitle("Membership History")
+            Spacer(Modifier.height(4.dp))
+            data.snapshot.membershipHistory.forEach { h ->
+                KvRow(h.planName, "${fmtDate(h.startDate)} > ${fmtDate(h.endDate)}")
+            }
+        }
+    }
+    val visits = data.snapshot.recentEvents
+        .filter {
+            it.eventType == com.example.badnewgym.feature.memberintelligence.domain.model.EventType.CHECK_IN ||
+                it.eventType == com.example.badnewgym.feature.memberintelligence.domain.model.EventType.CHECK_OUT
+        }
+        .sortedByDescending { it.occurredAt }
+        .take(10)
+    if (visits.isNotEmpty()) {
+        HomeCard {
+            WidgetTitle("Recent Visits")
+            Spacer(Modifier.height(4.dp))
+            visits.forEach { e ->
+                KvRow(
+                    if (e.eventType == com.example.badnewgym.feature.memberintelligence.domain.model.EventType.CHECK_IN) "Check-in" else "Check-out",
+                    "${fmtDate(e.occurredAt)} \u00B7 ${fmtTime(e.occurredAt)}"
+                )
+            }
+        }
+    }
+    if (txns.isEmpty() && visits.isEmpty() && data.snapshot.membershipHistory.isEmpty()) {
+        HomeCard { EmptyWidgetLine("No history on record") }
+    }
+}
+
+@Composable
+private fun InsightsModule(data: HomeData, range: WorkoutRange) {
+    SheetTitle("Insights", "Derived from recorded data")
+    val window = data.attendance
+    if (window != null && window.elapsed.isNotEmpty()) {
+        HomeCard {
+            WidgetTitle("Attendance")
+            Spacer(Modifier.height(4.dp))
+            KvRow("Current streak", "${com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceAnalytics.currentStreak(window)} days")
+            KvRow("Longest streak", "${com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceAnalytics.longestStreak(window)} days")
+            KvRow("Completion", "${(com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceAnalytics.completion(window) * 100).toInt()}% of open days")
+        }
+    }
+    val sessions = data.workout?.sessions.orEmpty()
+    if (sessions.isNotEmpty()) {
+        val newest = sessions.maxOf { it.epochDay }
+        val scoped = sessions.filter { it.epochDay in (newest - range.days + 1)..newest }
+        val summary = com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutAnalytics.summarize(scoped)
+        HomeCard {
+            WidgetTitle("Workout", "last ${range.days} days")
+            Spacer(Modifier.height(4.dp))
+            KvRow("Sessions", summary.activeDays.toString())
+            KvRow("Total", "${summary.totalMinutes} min")
+            KvRow("Trend", summary.trend.name.lowercase().replaceFirstChar { it.uppercase() })
+        }
+    }
+    if (data.bodyGoals.isNotEmpty()) {
+        val verdicts = data.bodyGoals.groupingBy {
+            com.example.badnewgym.feature.memberintelligence.domain.analytics.BodyGoalAnalytics.verdict(it).name
+        }.eachCount()
+        HomeCard {
+            WidgetTitle("Body Goals")
+            Spacer(Modifier.height(4.dp))
+            verdicts.forEach { (name, count) ->
+                KvRow(
+                    name.lowercase().replaceFirstChar { it.uppercase() }.replace('_', ' '),
+                    "$count goal${if (count == 1) "" else "s"}"
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MoreModule(data: HomeData) {
+    SheetTitle("More", "Account and app")
+    HomeCard {
+        KvRow("Member", data.snapshot.identity.code ?: "-")
+        KvRow("Gym", data.snapshot.gymId)
+        KvRow("Plan access", data.snapshot.membership?.planName ?: "-")
+    }
+    HomeCard {
+        Text(
+            "Messaging is not available in this build.",
+            fontSize = 12.sp, color = MiColors.TextSecondary
+        )
+    }
 }
 
 private fun epochDayToMs(epochDay: Long): Long = epochDay * 86_400_000L

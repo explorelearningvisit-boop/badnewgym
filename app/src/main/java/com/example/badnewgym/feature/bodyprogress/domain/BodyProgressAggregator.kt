@@ -18,6 +18,7 @@ import com.example.badnewgym.feature.bodyprogress.domain.insights.Insight
 import com.example.badnewgym.feature.bodyprogress.domain.insights.InsightEngine
 import com.example.badnewgym.feature.bodyprogress.domain.insights.hasEvidence
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  * Aggregate for the compact Home widget.
@@ -213,6 +214,54 @@ object BodyProgressAggregator {
             com.example.badnewgym.feature.bodyprogress.domain.model.GoalDirection.DECREASE -> value < goal.startValue
             com.example.badnewgym.feature.bodyprogress.domain.model.GoalDirection.HOLD -> false
         }
+
+    // ------------------------------------------------------------ focus groups
+
+    /** Display group for the Home muscle-focus panel. */
+    data class FocusGroup(val label: String, val sharePercent: Int, val sets: Int)
+
+    private val FOCUS_GROUPS: List<Pair<String, Set<MuscleGroup>>> = listOf(
+        "Chest" to setOf(MuscleGroup.CHEST),
+        "Back" to setOf(MuscleGroup.BACK, MuscleGroup.LATS, MuscleGroup.TRAPS),
+        "Arms" to setOf(MuscleGroup.BICEPS, MuscleGroup.TRICEPS, MuscleGroup.FOREARMS),
+        "Legs" to setOf(
+            MuscleGroup.QUADS, MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES,
+            MuscleGroup.CALVES, MuscleGroup.HIP_FLEXORS
+        ),
+        "Others" to setOf(
+            MuscleGroup.SHOULDERS, MuscleGroup.REAR_DELTS,
+            MuscleGroup.CORE, MuscleGroup.LOWER_BACK
+        )
+    )
+
+    /**
+     * Recorded-set distribution across five display groups.
+     *
+     * The denominator is the focus's total weighted sets, so the shares always
+     * describe the same whole; rounding drift is folded into the largest
+     * group so the panel sums to 100%.
+     */
+    fun focusGroups(focus: MuscleFocusAnalytics.MuscleFocus): List<FocusGroup> {
+        if (focus.isEmpty) return emptyList()
+        val byMuscle = focus.shares.associate { it.muscle to it }
+        val total = focus.shares.sumOf { it.weightedSets }
+        if (total <= 0) return emptyList()
+        data class Raw(val label: String, val weight: Double, val sets: Int)
+        val raws = FOCUS_GROUPS.map { (label, members) ->
+            Raw(
+                label,
+                members.sumOf { byMuscle[it]?.weightedSets ?: 0.0 },
+                members.sumOf { byMuscle[it]?.sets ?: 0 }
+            )
+        }
+        val rounded = raws.map { (it.weight / total * 100).roundToInt() }.toMutableList()
+        val drift = 100 - rounded.sum()
+        if (drift != 0) {
+            val biggest = raws.indices.maxByOrNull { raws[it].weight } ?: 0
+            rounded[biggest] = (rounded[biggest] + drift).coerceAtLeast(0)
+        }
+        return raws.mapIndexed { i, raw -> FocusGroup(raw.label, rounded[i], raw.sets) }
+    }
 
     private fun currentForGoal(
         goal: BodyGoalRecord,

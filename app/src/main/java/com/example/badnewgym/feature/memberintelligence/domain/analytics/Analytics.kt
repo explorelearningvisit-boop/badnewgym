@@ -39,7 +39,7 @@ object AttendanceAnalytics {
         var started = false
         window.elapsed.sortedByDescending { it.epochDay }.forEach { day ->
             when {
-                day.state == AttendanceDayState.HOLIDAY -> Unit
+                day.state == AttendanceDayState.HOLIDAY || day.state == AttendanceDayState.CLOSED -> Unit
                 day.isAttended -> { streak++; started = true }
                 started -> return streak
             }
@@ -53,7 +53,7 @@ object AttendanceAnalytics {
         var best = 0; var run = 0
         sorted.forEach { day ->
             when {
-                day.state == AttendanceDayState.HOLIDAY -> Unit
+                day.state == AttendanceDayState.HOLIDAY || day.state == AttendanceDayState.CLOSED -> Unit
                 day.isAttended -> { run++; best = maxOf(best, run) }
                 else -> run = 0
             }
@@ -88,7 +88,8 @@ object WorkoutAnalytics {
         val dayOfMonth: Int,
         val minutes: Int,
         val weekdayShort: String,
-        val dateLabel: String
+        val dateLabel: String,
+        val monthShort: String = ""
     )
 
     data class Summary(
@@ -142,7 +143,8 @@ object WorkoutAnalytics {
                     dayOfMonth = date.dayOfMonth,
                     minutes = session?.minutes ?: 0,
                     weekdayShort = shortWeekdays[i],
-                    dateLabel = "${shortWeekdays[i].take(3)} ${date.dayOfMonth}"
+                    dateLabel = "${shortWeekdays[i].take(3)} ${date.dayOfMonth}",
+                    monthShort = shortMonth(date.monthValue)
                 )
             }
             cursor = cursor.plusDays(PAGE_SIZE.toLong())
@@ -202,7 +204,8 @@ object WorkoutAnalytics {
                 dayOfMonth = date.dayOfMonth,
                 minutes = session?.minutes ?: 0,
                 weekdayShort = wd,
-                dateLabel = "$wd ${date.dayOfMonth}"
+                dateLabel = "$wd ${date.dayOfMonth}",
+                monthShort = shortMonth(date.monthValue)
             )
         }
     }
@@ -210,15 +213,22 @@ object WorkoutAnalytics {
     fun rangeLabel(month: WorkoutMonth, days: Int): String {
         val list = rangeDays(month, days)
         if (list.isEmpty()) return ""
-        return "${list.first().dateLabel} – ${list.last().dateLabel}"
+        val first = list.first()
+        val last = list.last()
+        return "${first.dateLabel} ${first.monthShort} – ${last.dateLabel} ${last.monthShort}"
     }
 
     private fun dayOfSession(s: com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession) = WorkoutDay(
         dayOfMonth = s.dayOfMonth,
         minutes = s.minutes,
         weekdayShort = shortWeekdays[(java.time.LocalDate.ofEpochDay(s.epochDay).dayOfWeek.value - 1)],
-        dateLabel = "${shortWeekdays[(java.time.LocalDate.ofEpochDay(s.epochDay).dayOfWeek.value - 1)]} ${s.dayOfMonth}"
+        dateLabel = "${shortWeekdays[(java.time.LocalDate.ofEpochDay(s.epochDay).dayOfWeek.value - 1)]} ${s.dayOfMonth}",
+        monthShort = shortMonth(java.time.LocalDate.ofEpochDay(s.epochDay).monthValue)
     )
+
+    private fun shortMonth(month: Int): String =
+        java.time.Month.of(month).name.take(3).lowercase()
+            .replaceFirstChar { it.uppercase() }
 
     private fun dayOf(s: com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession, month: WorkoutMonth) = dayOfSession(s)
 

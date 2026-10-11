@@ -63,6 +63,40 @@ class MemberIntelligenceV4DataSource {
         return AttendanceWindow(anchor.year, anchor.monthValue, days)
     }
 
+    /**
+     * Full calendar month for the month widget.
+     *
+     * Same seeded pattern as the rolling window (Mondays closed, periodic
+     * absences/lates), but every valid date of [year]/[month] is present and
+     * days after [anchor] are FUTURE. [paymentDays] are epoch days with a
+     * recorded payment - marker only, never a status.
+     */
+    fun attendanceMonth(
+        year: Int,
+        month: Int,
+        anchor: LocalDate = today,
+        seed: Int = 7,
+        paymentDays: Set<Long> = emptySet()
+    ): com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceMonth {
+        val length = java.time.YearMonth.of(year, month).lengthOfMonth()
+        val marks = mutableMapOf<Long, AttendanceDayState>()
+        (1..length).forEach { dom ->
+            val date = LocalDate.of(year, month, dom)
+            if (date.isAfter(anchor)) return@forEach
+            val epoch = date.toEpochDay()
+            marks[epoch] = when {
+                date.dayOfWeek.value == 1 -> AttendanceDayState.CLOSED
+                date.dayOfMonth in setOf(7, 24) && date.dayOfWeek.value != 1 -> AttendanceDayState.HOLIDAY
+                (epoch.toInt() + seed) % 9 == 0 -> AttendanceDayState.ABSENT
+                (epoch.toInt() + seed) % 7 == 3 -> AttendanceDayState.LATE
+                else -> AttendanceDayState.PRESENT
+            }
+        }
+        return com.example.badnewgym.feature.memberintelligence.domain.analytics.buildAttendanceMonth(
+            year, month, anchor, marks, paymentDays
+        )
+    }
+
     /** Real rolling 30 day workout dataset for paging and monthly summary. */
     fun workoutMonth(anchor: LocalDate = today, seed: Int = 5): WorkoutMonth {
         val sessions = (29 downTo 0).mapNotNull { back ->

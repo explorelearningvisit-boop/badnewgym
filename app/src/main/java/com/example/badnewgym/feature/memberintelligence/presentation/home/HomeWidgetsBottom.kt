@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -85,30 +86,40 @@ fun WorkoutWidget(
     }
     val rangeSummary = remember(rangeSessions) { WorkoutAnalytics.summarize(rangeSessions) }
 
-    HomeCard(onClick = onOpen, padding = 6.dp) {
+    HomeCard(onClick = onOpen, padding = 8.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Workout", fontSize = 12.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
-            Spacer(Modifier.width(6.dp))
-            WorkoutRange.entries.forEach { entry ->
+            Box(
+                Modifier.size(30.dp).clip(RoundedCornerShape(10.dp)).background(MiColors.Blue),
+                contentAlignment = Alignment.Center
+            ) { Text("W", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color.White) }
+            Spacer(Modifier.width(7.dp))
+            Text("Workout (Last ${range.days} Days)", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
+            Spacer(Modifier.weight(1f))
+            ViewAllChip(onOpen, small = true)
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            listOf(WorkoutRange.D7, WorkoutRange.D15, WorkoutRange.D30).forEach { entry ->
                 val selected = entry == range
                 Box(
                     Modifier
                         .clip(RoundedCornerShape(10.dp))
                         .background(if (selected) MiColors.Blue else MiColors.BlueSoft)
                         .clickable(onClick = { onRangeChange(entry) })
-                        .padding(horizontal = 7.dp, vertical = 3.dp)
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        entry.short, fontSize = 9.sp, fontWeight = FontWeight.Bold,
+                        entry.short, fontSize = 10.sp, fontWeight = FontWeight.Bold,
                         color = if (selected) Color.White else MiColors.Blue, maxLines = 1
                     )
                 }
-                Spacer(Modifier.width(3.dp))
+                Spacer(Modifier.width(4.dp))
             }
             Spacer(Modifier.weight(1f))
-            Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
+            Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary,
+                modifier = Modifier.clickable(onClick = onOpen))
         }
-        Spacer(Modifier.height(1.dp))
+        Spacer(Modifier.height(2.dp))
         if (range == WorkoutRange.D7) {
             Text(
                 if (count > 1) "Wk ${pagerState.currentPage + 1}/$count \u00B7 swipe >" else "This week",
@@ -126,13 +137,17 @@ fun WorkoutWidget(
             Spacer(Modifier.height(1.dp))
             RangeChart(days = rangeDays)
         }
-        Spacer(Modifier.height(2.dp))
-        Text(
-            "${rangeSummary.activeDays} sess \u00B7 ${rangeSummary.totalMinutes} min \u00B7 " +
-                "avg ${rangeSummary.averageMinutes} \u00B7 peak ${rangeSummary.peak?.minutes ?: "-"} \u00B7 " +
-                "last ${range.days}d",
-            fontSize = 9.5.sp, color = MiColors.TextSecondary, fontWeight = FontWeight.SemiBold, maxLines = 1
-        )
+        Spacer(Modifier.height(4.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                StatChip("Sessions", "${rangeSummary.activeDays}", MiColors.TextPrimary, Modifier.weight(1f), dense = true, glyph = "S", glyphBg = Color(0xFF22C55E))
+                StatChip("Total Time", "${rangeSummary.totalMinutes} min", MiColors.TextPrimary, Modifier.weight(1f), dense = true, glyph = "T", glyphBg = MiColors.Blue)
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                StatChip("Avg. Time", "${rangeSummary.averageMinutes} min", MiColors.TextPrimary, Modifier.weight(1f), dense = true, glyph = "A", glyphBg = Color(0xFFF59E0B))
+                StatChip("Peak Time", "${rangeSummary.peak?.minutes ?: 0} min", MiColors.TextPrimary, Modifier.weight(1f), dense = true, glyph = "P", glyphBg = Color(0xFF8849EF))
+            }
+        }
     }
 }
 
@@ -144,7 +159,7 @@ private fun WeekChart(days: List<WorkoutAnalytics.WorkoutDay>) {
             days.forEach { day ->
                 Text(
                     if (day.minutes > 0) "${day.minutes}" else "0",
-                    fontSize = 8.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = if (day.minutes > 0) MiColors.TextPrimary else MiColors.TextTertiary,
                     maxLines = 1,
@@ -155,7 +170,7 @@ private fun WeekChart(days: List<WorkoutAnalytics.WorkoutDay>) {
         }
         Spacer(Modifier.height(1.dp))
         Row(
-            Modifier.fillMaxWidth().height(30.dp),
+            Modifier.fillMaxWidth().height(34.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
@@ -188,7 +203,7 @@ private fun WeekChart(days: List<WorkoutAnalytics.WorkoutDay>) {
             days.forEach { day ->
                 Text(
                     day.weekdayShort.take(3),
-                    fontSize = 7.5.sp,
+                    fontSize = 9.sp,
                     color = MiColors.TextSecondary,
                     maxLines = 1,
                     modifier = Modifier.weight(1f),
@@ -215,18 +230,18 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
     )
     androidx.compose.foundation.lazy.LazyRow(
         state = listState,
-        modifier = Modifier.fillMaxWidth().height(64.dp),
+        modifier = Modifier.fillMaxWidth().height(92.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         items(days.size) { i ->
             val day = days[i]
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.width(34.dp)
+                modifier = Modifier.width(36.dp)
             ) {
                 Text(
                     if (day.minutes > 0) "${day.minutes}" else "0",
-                    fontSize = 8.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = if (day.minutes > 0) MiColors.TextPrimary else MiColors.TextTertiary,
                     maxLines = 1
@@ -250,7 +265,8 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
                     contentAlignment = Alignment.BottomCenter
                 ) {}
                 Spacer(Modifier.height(1.dp))
-                Text("${day.dayOfMonth}", fontSize = 7.5.sp, color = MiColors.TextSecondary, maxLines = 1)
+                Text("${day.dayOfMonth}", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = MiColors.TextSecondary, maxLines = 1)
+                Text(day.monthShort, fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1)
             }
         }
     }
@@ -281,77 +297,11 @@ fun BodyProgressWidget(
         return
     }
 
-    // Legacy path: goal-only records from Member Intelligence (kept so the card
-    // still renders while the Body Progress dataset is loading).
-    val visible = remember(goals) { goals.take(3) }
-    if (visible.isEmpty()) {
-        HomeCard {
-            WidgetTitle("Body Progress")
-            Spacer(Modifier.height(6.dp))
-            EmptyWidgetLine("No recent body measurements")
-        }
-        return
-    }
-    val verdicts = remember(goals) { visible.associate { it.id to BodyGoalAnalytics.verdict(it) } }
-    val improving = verdicts.values.count { it == ProgressVerdict.ON_TRACK || it == ProgressVerdict.IMPROVING }
-    val onTrack = visible.isNotEmpty() && verdicts.values.all { it == ProgressVerdict.ON_TRACK }
-
-    HomeCard(onClick = onOpen, padding = 6.dp) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Body", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary)
-            Spacer(Modifier.width(4.dp))
-            val goalName = visible.firstOrNull()?.kind?.name
-                ?.lowercase()?.replaceFirstChar { it.uppercase() }?.replace('_', ' ')
-            val rangeLabel = remember(histories) { bodyRangeLabel(histories) }
-            Text(
-                listOfNotNull(goalName, rangeLabel).joinToString(" \u00B7 "),
-                fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = MiColors.Purple,
-                maxLines = 1, modifier = Modifier.weight(1f)
-            )
-            Pill(
-                when {
-                    onTrack -> "On Track"
-                    improving == visible.size -> "Improving"
-                    else -> "$improving/${visible.size}"
-                },
-                when {
-                    onTrack -> Color(0xFF22C55E)
-                    improving == visible.size -> Color(0xFF2F9E44)
-                    else -> Color(0xFFE59A1A)
-                },
-                Color.White, 9
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.EmeraldDark)
-        }
-        Spacer(Modifier.height(3.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            visible.forEach { goal ->
-                val verdict = verdicts[goal.id] ?: ProgressVerdict.UNKNOWN
-                val good = verdict == ProgressVerdict.ON_TRACK || verdict == ProgressVerdict.IMPROVING
-                val delta = goal.currentValue - goal.startValue
-                val unit = goal.primaryMetric.unit.ifBlank { "" }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        metricLabel(goal.primaryMetric),
-                        fontSize = 10.5.sp, color = MiColors.TextSecondary,
-                        modifier = Modifier.weight(1f), maxLines = 1
-                    )
-                    Text(
-                        "${formatOne(goal.startValue)}\u2192${formatOne(goal.currentValue)}",
-                        fontSize = 11.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary,
-                        maxLines = 1
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        (if (delta >= 0) "+" else "") + formatOne(delta) + (if (unit.isNotBlank()) " $unit" else ""),
-                        fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold,
-                        color = if (good) Color(0xFF16A34A) else Color(0xFFE54848),
-                        maxLines = 1
-                    )
-                }
-            }
-        }
+    // Dataset still loading: an honest loading state, never stale goal rows.
+    HomeCard {
+        WidgetTitle("Body Progress")
+        Spacer(Modifier.height(6.dp))
+        EmptyWidgetLine("Loading body progress\u2026")
     }
 }
 

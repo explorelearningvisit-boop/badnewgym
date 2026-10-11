@@ -30,6 +30,11 @@ enum class HomeWidgetId(val priority: Int) {
     ATTENDANCE(3),
     WORKOUT(4),
     BODY(5),
+    SUPPLEMENTS(6),
+    SERVICES(7),
+    HISTORY(8),
+    INSIGHTS(9),
+    MORE(10),
 }
 
 /**
@@ -67,6 +72,9 @@ data class HomeData(
     val snapshot: MemberSnapshot,
     val checkIn: HomeCheckIn,
     val attendance: AttendanceWindow?,
+    val attendanceMonth: com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceMonth?,
+    /** Previous-period comparison in percentage points; null when invalid. */
+    val attendancePrevPoints: Int?,
     val workout: WorkoutMonth?,
     val bodyGoals: List<BodyGoal>,
     val bodyHistories: List<MetricHistory>,

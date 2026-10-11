@@ -34,8 +34,16 @@ class HomeViewModel(
     private val _workoutWeek = MutableStateFlow<Int>(Int.MAX_VALUE)
     val workoutWeek: StateFlow<Int> = _workoutWeek
 
-    private val _workoutRange = MutableStateFlow(WorkoutRange.D7)
+    private val _workoutRange = MutableStateFlow(WorkoutRange.D15)
     val workoutRange: StateFlow<WorkoutRange> = _workoutRange
+
+    /** Selected attendance month. Defaults to the current month. */
+    private val _attendanceMonth = MutableStateFlow(java.time.YearMonth.now())
+    val attendanceMonth: StateFlow<java.time.YearMonth> = _attendanceMonth
+
+    /** Honest unavailable-feature notice (no dead buttons, no fake screens). */
+    private val _notice = MutableStateFlow<String?>(null)
+    val notice: StateFlow<String?> = _notice
 
     /** Which module sheet is open, null when Home shows the summary only. */
     private val _openModule = MutableStateFlow<HomeWidgetId?>(null)
@@ -58,6 +66,14 @@ class HomeViewModel(
     fun setWorkoutRange(range: WorkoutRange) { _workoutRange.value = range }
     fun clearPaymentError() { _paymentError.value = null }
 
+    fun showNotice(message: String) { _notice.value = message }
+    fun clearNotice() { _notice.value = null }
+
+    fun setAttendanceMonth(month: java.time.YearMonth) {
+        _attendanceMonth.value = month
+        refreshMonth()
+    }
+
     fun load(memberId: String = DEFAULT_MEMBER_ID) {
         viewModelScope.launch {
             _state.value = HomeUiState.Loading
@@ -70,6 +86,10 @@ class HomeViewModel(
                 return@launch
             }
             val anchor = LocalDate.now()
+            monthAnchor = anchor
+            monthPaymentDays = snapshot.payment?.history?.map { it.occurredAt / 86_400_000L }?.toSet()
+                ?: emptySet()
+            _attendanceMonth.value = java.time.YearMonth.from(anchor)
             val attendance = try { dataSource.attendanceWindow(anchor) } catch (t: Throwable) { null }
             val workout = try { dataSource.workoutMonth(anchor) } catch (t: Throwable) { null }
             val goals = try { dataSource.bodyGoals(anchor) } catch (t: Throwable) { emptyList() }
@@ -80,11 +100,14 @@ class HomeViewModel(
                 overdueDays = payment?.overdueDays ?: 0,
                 dueAtEpoch = payment?.dueDate
             )
+            val month = attendanceMonthNow()
             _state.value = HomeUiState.Ready(
                 HomeData(
                     snapshot = snapshot,
                     checkIn = resolveCheckIn(snapshot.recentEvents),
                     attendance = attendance,
+                    attendanceMonth = month.first,
+                    attendancePrevPoints = month.second,
                     workout = workout,
                     bodyGoals = goals,
                     bodyHistories = histories,
@@ -94,22 +117,83 @@ class HomeViewModel(
         }
     }
 
-    /** Ends the live session. The card flips to the CHECK-OUT completed state. */
+    private var monthAnchor: LocalDate = LocalDate.now()
+    private var monthPaymentDays: Set<Long> = emptySet()
+
+    /** Selected month plus the previous-period comparison (null when invalid). */
+    private fun attendanceMonthNow(): Pair<
+        com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceMonth, Int?> {
+        val ym = _attendanceMonth.value
+        val current = dataSource.attendanceMonth(ym.year, ym.monthValue, monthAnchor, paymentDays = monthPaymentDays)
+        val prevYm = ym.minusMonths(1)
+        val prev = try {
+            dataSource.attendanceMonth(prevYm.year, prevYm.monthValue, monthAnchor, paymentDays = monthPaymentDays)
+        } catch (t: Throwable) {
+            null
+        }
+        val delta = com.example.badnewgym.feature.memberintelligence.domain.analytics.compareMonthPoints(
+            current, prev, monthAnchor
+        )
+        return current to delta
+    }
+
+    /** Rebuilds the selected month (month navigation) without reloading records. */
+    private fun refreshMonth() {
+        val current = (_state.value as? HomeUiState.Ready)?.data ?: return
+        val month = try {
+            attendanceMonthNow()
+        } catch (t: Throwable) {
+            return
+        }
+        _state.value = HomeUiState.Ready(
+            current.copy(attendanceMonth = month.first, attendancePrevPoints = month.second)
+        )
+    }
+
+    /**
+     * Ends the live session and persists the checkout event.
+     *
+     * The card only flips to CHECK-OUT after the event is recorded; a failed
+     * write surfaces a notice instead of a fake completed state. Duplicate
+     * taps are ignored (nothing live to end).
+     */
     fun endSession() {
         val current = (_state.value as? HomeUiState.Ready)?.data ?: return
         val checkIn = current.checkIn
         val start = checkIn.liveStartMs ?: return // duplicate-tap guard: nothing live
-        val now = System.currentTimeMillis()
-        _state.value = HomeUiState.Ready(
-            current.copy(
-                checkIn = checkIn.copy(
-                    liveStartMs = null,
-                    lastStartMs = start,
-                    lastEndMs = now,
-                    lastDurationMs = now - start
+        viewModelScope.launch {
+            val now = System.currentTimeMillis()
+            val recorded = try {
+                repository.recordEvent(
+                    MemberEvent(
+                        id = "checkout_${start}",
+                        memberId = current.snapshot.id,
+                        gymId = current.snapshot.gymId,
+                        eventType = EventType.CHECK_OUT,
+                        occurredAt = now,
+                        source = EventSource.GATE,
+                        metadata = mapOf("durationMinutes" to ((now - start) / 60_000L).toString()),
+                        idempotencyKey = "checkout_${start}"
+                    )
+                ).isSuccess
+            } catch (t: Throwable) {
+                false
+            }
+            if (!recorded) {
+                _notice.value = "Could not save checkout. Please retry."
+                return@launch
+            }
+            _state.value = HomeUiState.Ready(
+                current.copy(
+                    checkIn = checkIn.copy(
+                        liveStartMs = null,
+                        lastStartMs = start,
+                        lastEndMs = now,
+                        lastDurationMs = now - start
+                    )
                 )
             )
-        )
+        }
     }
 
     /**

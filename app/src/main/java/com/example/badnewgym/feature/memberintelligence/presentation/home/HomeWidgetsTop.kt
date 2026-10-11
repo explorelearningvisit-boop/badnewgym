@@ -1,13 +1,16 @@
 package com.example.badnewgym.feature.memberintelligence.presentation.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,9 +41,10 @@ import kotlinx.coroutines.delay
 // ------------------------------------------------------------------ CHECK-IN
 
 /**
- * Ultra-compact live card. Critical only: state, real ticking timer from the
- * actual check-in event, today + visit count, END SESSION. Method and history
- * live one tap away in the module sheet.
+ * Session hero card. Completed state shows the real duration plus IN / OUT /
+ * date blocks; live state ticks from the persisted check-in timestamp with an
+ * End Session action. A missing duration renders as "No active session",
+ * never as a fabricated 00h 00m.
  */
 @Composable
 fun CheckInWidget(
@@ -64,23 +68,51 @@ fun CheckInWidget(
             Modifier
                 .background(Brush.verticalGradient(listOf(theme.surfaceTop, theme.surfaceBottom)))
                 .clickable(onClick = onOpen)
-                .padding(horizontal = 10.dp, vertical = 6.dp)
+                .padding(horizontal = 10.dp, vertical = 8.dp)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        if (live) "CHECK-IN" else "CHECK-OUT",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Black,
-                        color = theme.accentText
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    if (live) {
-                        Pill("LIVE", theme.pillBg, Color.White, 9)
-                    } else {
-                        Pill("Completed", MiColors.Neutral, Color.White, 9)
+                    Box(
+                        Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(13.dp))
+                            .background(Color(0xFFE8B93C)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            if (live) "\u2190" else "\u2192",
+                            fontSize = 20.sp, fontWeight = FontWeight.Black, color = Color.White
+                        )
                     }
-                    Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
+                    Column(Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                if (live) "CHECK-IN" else "CHECK-OUT",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Black,
+                                color = theme.accentText
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            if (live) {
+                                Pill("LIVE", theme.pillBg, Color.White, 9)
+                            } else {
+                                Pill("Completed", Color(0xFF2FA36B), Color.White, 9)
+                            }
+                        }
+                        if (!live) {
+                            val lastVisit = checkIn.lastStartMs ?: snapshot.attendance?.lastVisitAt
+                            if (lastVisit != null) {
+                                Text(
+                                    "Today \u00B7 ${fmtDay(lastVisit)}",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = theme.accentText,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
                     if (live) {
                         Box(
                             Modifier
@@ -106,27 +138,19 @@ fun CheckInWidget(
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             fmtDurationHms(elapsed),
-                            fontSize = 21.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Black,
                             color = theme.accentText,
-                            maxLines = 1
+                            maxLines = 1,
+                            modifier = Modifier.weight(1f)
                         )
-                        Spacer(Modifier.width(8.dp))
-                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-                            Text(
-                                "Today \u00B7 ${fmtTime(checkIn.liveStartMs)}",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = theme.accentText,
-                                maxLines = 1
-                            )
-                            val visit = checkIn.visitNumberToday
-                            Text(
-                                if (visit != null) visitOrdinal(visit) else (checkIn.methodLabel ?: ""),
-                                fontSize = 9.5.sp,
-                                color = theme.accentText,
-                                maxLines = 1
-                            )
+                        TimeBlock("IN", fmtTime(checkIn.liveStartMs), theme.accentText)
+                        Spacer(Modifier.width(6.dp))
+                        val visit = checkIn.visitNumberToday
+                        if (visit != null) {
+                            TimeBlock("VISIT", "#$visit", theme.accentText)
+                        } else if (checkIn.methodLabel != null) {
+                            TimeBlock("VIA", checkIn.methodLabel!!, theme.accentText)
                         }
                     }
                 } else {
@@ -134,21 +158,16 @@ fun CheckInWidget(
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             if (dur != null) fmtDurationHm(dur) else "No active session",
-                            fontSize = 17.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Black,
                             color = theme.accentText,
                             maxLines = 1,
                             modifier = Modifier.weight(1f)
                         )
-                        val lastVisit = checkIn.lastStartMs ?: snapshot.attendance?.lastVisitAt
-                        if (lastVisit != null) {
-                            Text(
-                                fmtDay(lastVisit),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = theme.accentText,
-                                maxLines = 1
-                            )
+                        if (checkIn.lastStartMs != null && checkIn.lastEndMs != null) {
+                            TimeBlock("IN", fmtTime(checkIn.lastStartMs), theme.accentText)
+                            Spacer(Modifier.width(6.dp))
+                            TimeBlock("OUT", fmtTime(checkIn.lastEndMs), theme.accentText)
                         }
                     }
                 }
@@ -157,36 +176,72 @@ fun CheckInWidget(
     }
 }
 
+@Composable
+private fun TimeBlock(label: String, value: String, fg: Color) {
+    Column(
+        Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color.White.copy(alpha = 0.65f))
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(label, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = MiColors.TextSecondary, maxLines = 1)
+        Text(value, fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = fg, maxLines = 1)
+    }
+}
+
 // ------------------------------------------------------------------ IDENTITY
 
-/** One-row member summary. Whole card opens the full Profile module. */
+/** Member summary: photo ring, identity, plan badges, days progress, days left. */
 @Composable
 fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
     val identity = snapshot.identity
     val membership = snapshot.membership
     val planTheme = themeForPlan(membership?.planName)
-    HomeCard(onClick = onOpen, padding = 6.dp) {
+    HomeCard(onClick = onOpen, padding = 8.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val photo = identity.photoUrl
-            if (!photo.isNullOrBlank()) {
-                AsyncImage(
-                    model = photo,
-                    contentDescription = identity.name,
-                    modifier = Modifier
-                        .size(34.dp)
+            Box(contentAlignment = Alignment.BottomEnd) {
+                val photo = identity.photoUrl
+                if (!photo.isNullOrBlank()) {
+                    AsyncImage(
+                        model = photo,
+                        contentDescription = identity.name,
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(MiColors.Mint)
+                            .border(
+                                2.dp, MiColors.Emerald,
+                                CircleShape
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(MiColors.Mint)
+                            .border(2.dp, MiColors.Emerald, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AvatarDot(identity.name, MiColors.Emerald, 40.dp)
+                    }
+                }
+                Box(
+                    Modifier
+                        .size(13.dp)
                         .clip(CircleShape)
-                        .background(MiColors.Mint),
-                    contentScale = ContentScale.Crop
+                        .background(if (membership?.isActive == true) Color(0xFF22C55E) else MiColors.TextTertiary)
+                        .border(2.dp, MiColors.Surface, CircleShape)
                 )
-            } else {
-                AvatarDot(identity.name, MiColors.Emerald, 34.dp)
             }
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         identity.name,
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = MiColors.TextPrimary,
                         maxLines = 1,
@@ -195,7 +250,6 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                     if (identity.isVerified) {
                         Text(" \u2713", fontSize = 12.sp, fontWeight = FontWeight.Black, color = MiColors.EmeraldDark)
                     }
-                    Text(" >", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
                 }
                 val sub = listOfNotNull(
                     identity.code,
@@ -210,34 +264,62 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (membership != null) {
-                        Pill(membership.planName, planTheme.surfaceTop, planTheme.accentText, 9)
+                        Pill(membership.planName, Color(0xFFFFF3D6), Color(0xFF8A6D1B), 9)
                     }
                     if (membership?.isActive == true) {
                         Pill("Active", Color(0xFFE5F6EC), Color(0xFF0E7A4D), 9)
                     }
-                    if (membership != null) {
-                        val totalDays = totalPlanDays(membership.startDate, membership.expiryDate)
-                        val used = (totalDays - membership.daysRemaining).coerceIn(0, totalDays)
-                        Text(
-                            "$used/$totalDays used",
-                            fontSize = 9.5.sp,
-                            color = MiColors.TextSecondary,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1
-                        )
-                    }
                 }
             }
-            Spacer(Modifier.width(6.dp))
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     "${membership?.daysRemaining ?: "-"}",
-                    fontSize = 15.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.Black,
                     color = MiColors.Red,
                     maxLines = 1
                 )
                 Text("Days Left", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+                Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
+            }
+        }
+        if (membership != null) {
+            Spacer(Modifier.height(6.dp))
+            val totalDays = totalPlanDays(membership.startDate, membership.expiryDate)
+            val used = (totalDays - membership.daysRemaining).coerceIn(0, totalDays)
+            val pct = if (totalDays > 0) used * 100 / totalDays else 0
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "$used / $totalDays days",
+                    fontSize = 10.sp,
+                    color = MiColors.TextSecondary,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(MiColors.Border)
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth((pct / 100f).coerceIn(0f, 1f))
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(MiColors.Emerald)
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "$pct%",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black,
+                    color = MiColors.TextPrimary,
+                    maxLines = 1
+                )
             }
         }
     }
