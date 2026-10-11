@@ -40,9 +40,10 @@ class BodyProgressActivity : ComponentActivity() {
             BodyProgressViewModel.Scenario.valueOf(intent?.getStringExtra(EXTRA_SCENARIO) ?: "FULL")
         }.getOrDefault(BodyProgressViewModel.Scenario.FULL)
         val memberId = intent?.getStringExtra(EXTRA_MEMBER_ID) ?: "BG305"
+        val section = intent?.getStringExtra(EXTRA_SECTION) ?: "top"
         setContent {
             Box(Modifier.fillMaxSize().background(MiColors.Page)) {
-                BodyProgressAnalyticsRoute(scenario, memberId) { finish() }
+                BodyProgressAnalyticsRoute(scenario, memberId, section) { finish() }
             }
         }
     }
@@ -50,6 +51,7 @@ class BodyProgressActivity : ComponentActivity() {
     companion object {
         const val EXTRA_SCENARIO = "body_scenario"
         const val EXTRA_MEMBER_ID = "member_id"
+        const val EXTRA_SECTION = "body_section"
     }
 }
 
@@ -57,6 +59,7 @@ class BodyProgressActivity : ComponentActivity() {
 fun BodyProgressAnalyticsRoute(
     scenario: BodyProgressViewModel.Scenario,
     memberId: String,
+    section: String = "top",
     onBack: () -> Unit
 ) {
     val vm: BodyProgressViewModel = viewModel(factory = BodyProgressViewModel.factory(scenario, memberId))
@@ -98,7 +101,8 @@ fun BodyProgressAnalyticsRoute(
             },
             initialRange = s.range,
             viewerRole = s.viewerRole,
-            onBack = onBack
+            onBack = onBack,
+            initialSection = section
         )
     }
 }
