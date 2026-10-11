@@ -89,6 +89,7 @@ private val RAIL_ITEMS = listOf(
 @Composable
 private fun HomeRail(
     selectedId: String = "home",
+    badges: Map<String, String> = emptyMap(),
     onSelect: (String) -> Unit = {}
 ) {
     Column(
@@ -134,6 +135,16 @@ private fun HomeRail(
                     maxLines = 1,
                     textAlign = TextAlign.Center
                 )
+                badges[item.id]?.let { value ->
+                    Text(
+                        value,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Black,
+                        color = MiColors.EmeraldDark,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
@@ -168,6 +179,13 @@ fun MemberIntelligenceHome(
     val bodyState by bodyVm.state.collectAsState()
     LaunchedEffect(Unit) { bodyVm.load() }
     val bodySummary = (bodyState as? BodyProgressUiState.Ready)?.summary
+
+    // Rail badges: one live number per item, each from a real record. Items
+    // with nothing meaningful to show get no badge rather than a filler.
+    val readyData = (state as? HomeUiState.Ready)?.data
+    val badges = remember(readyData, range, bodySummary) {
+        buildRailBadges(readyData, range, bodySummary)
+    }
 
     // Body Progress is a full module, so it opens its own analytics screen.
     val openBodyProgress: () -> Unit = {
@@ -224,7 +242,7 @@ fun MemberIntelligenceHome(
             .fillMaxSize()
             .background(MiColors.Page)
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 6.dp, vertical = 6.dp),
+            .padding(horizontal = 6.dp, vertical = 3.dp),
         shape = RoundedCornerShape(24.dp),
         color = MiColors.Page,
         border = androidx.compose.foundation.BorderStroke(1.dp, MiColors.Border),
@@ -233,9 +251,9 @@ fun MemberIntelligenceHome(
         Row(
             Modifier
                 .fillMaxSize()
-                .padding(start = 4.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
+                .padding(start = 4.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
         ) {
-            HomeRail(onSelect = { id ->
+            HomeRail(badges = badges, onSelect = { id ->
                 when (id) {
                     "home" -> vm.closeModule()
                     "members" -> vm.openModule(HomeWidgetId.IDENTITY)
@@ -271,7 +289,7 @@ fun MemberIntelligenceHome(
                             Modifier
                                 .fillMaxWidth()
                                 .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             CheckInWidget(
                                 checkIn = data.checkIn,
@@ -350,6 +368,62 @@ fun MemberIntelligenceHome(
 }
 
 // ------------------------------------------------------------------ module sheets
+
+// ------------------------------------------------------------------ rail badges
+
+/**
+ * One live number per rail item, each derived from a real record.
+ * Items with nothing meaningful to show are absent from the map rather than
+ * carrying a filler value.
+ */
+private fun buildRailBadges(
+    data: HomeData?,
+    range: WorkoutRange,
+    body: com.example.badnewgym.feature.bodyprogress.domain.BodyProgressSummary?
+): Map<String, String> {
+    if (data == null) return emptyMap()
+    val out = mutableMapOf<String, String>()
+    data.snapshot.membership?.daysRemaining?.let { out["members"] = "${it}d" }
+    val checkIn = data.checkIn
+    if (checkIn.liveStartMs != null) {
+        out["checkin"] = "LIVE"
+    } else {
+        checkIn.visitNumberToday?.let { out["checkin"] = "#$it" }
+    }
+    data.snapshot.payment?.let { p ->
+        if (p.totalOutstanding > 0.009) out["payment"] = fmtRupees(p.totalOutstanding)
+    }
+    data.attendanceMonth?.let { m ->
+        if (m.openDays.isNotEmpty()) out["attendance"] = "${m.percent}%"
+    }
+    data.workout?.let { month ->
+        val sorted = month.sorted()
+        if (sorted.isNotEmpty()) {
+            val newest = sorted.last().epochDay
+            val scoped = sorted.filter { it.epochDay in (newest - range.days + 1)..newest }
+            val active = scoped.count { it.minutes > 0 }
+            if (active > 0) out["workout"] = "$active"
+        }
+    }
+    body?.goalPercent?.let { out["body"] = "$it%" }
+    data.snapshot.supplements?.let { s ->
+        if (s.hasHistory) out["supplements"] = "1"
+    }
+    data.snapshot.services?.let { list ->
+        val active = list.count { it.isActive }
+        if (active > 0) out["services"] = "$active"
+    }
+    data.snapshot.payment?.history?.let { txns ->
+        if (txns.isNotEmpty()) out["history"] = "${txns.size}"
+    }
+    data.attendance?.let { window ->
+        if (window.elapsed.isNotEmpty()) {
+            val streak = com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceAnalytics.currentStreak(window)
+            if (streak > 0) out["insights"] = "${streak}d"
+        }
+    }
+    return out
+}
 
 private fun moduleFrom(name: String): HomeWidgetId? = when (name.lowercase()) {
     "checkin", "check-in" -> HomeWidgetId.CHECK_IN

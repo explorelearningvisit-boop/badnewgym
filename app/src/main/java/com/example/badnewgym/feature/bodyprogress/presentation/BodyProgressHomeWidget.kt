@@ -53,21 +53,21 @@ fun BodyProgressHomeWidget(
     summary: BodyProgressSummary,
     onOpenDetails: () -> Unit
 ) {
-    BodyCard(onClick = onOpenDetails, padding = 8.dp) {
+    BodyCard(onClick = onOpenDetails, padding = 5.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(30.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF8849EF)),
+                Modifier.size(26.dp).clip(RoundedCornerShape(9.dp)).background(Color(0xFF8849EF)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Filled.FitnessCenter, contentDescription = null,
-                    tint = Color.White, modifier = Modifier.size(17.dp)
+                    tint = Color.White, modifier = Modifier.size(16.dp)
                 )
             }
-            Spacer(Modifier.width(7.dp))
+            Spacer(Modifier.width(6.dp))
             Text(
-                "Body Progress (Last ${summary.range.days} Days)",
-                fontSize = 13.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary,
+                "Body Progress \u00B7 ${summary.range.label}",
+                fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary,
                 maxLines = 1, modifier = Modifier.weight(1f)
             )
             BodyPill(
@@ -83,7 +83,7 @@ fun BodyProgressHomeWidget(
             )
         }
 
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(4.dp))
 
         if (!summary.hasAnyData) {
             BodyEmptyState(
@@ -109,7 +109,7 @@ fun BodyProgressHomeWidget(
             FocusTile(summary, Modifier.weight(1f))
         }
 
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(4.dp))
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             TopExercisePanel(summary, onOpenDetails, Modifier.weight(1.1f))
@@ -143,7 +143,7 @@ private fun MetricTile(
         modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
-            .padding(7.dp)
+            .padding(5.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -153,10 +153,10 @@ private fun MetricTile(
             Spacer(Modifier.width(4.dp))
             Text(series.metric.label, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = MiColors.TextSecondary, maxLines = 1)
         }
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(1.dp))
         Text(
-            "${trim(latest)} ${series.metric.unit}".trim(),
-            fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
+            if (series.metric.unit == "%") "${trim(latest)}%" else "${trim(latest)} ${series.metric.unit}".trim(),
+            fontSize = 12.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
         )
         if (series.hasHistory) {
             val delta = latest - series.earliest!!.value
@@ -166,18 +166,20 @@ private fun MetricTile(
                 color = tileDeltaColor(summary, goalMetric, latest, delta),
                 maxLines = 1
             )
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(1.dp))
             BodyLineChart(
                 values = series.points.map { it.value },
                 labels = series.points.map { shortDay(it.day) },
                 color = tint,
                 unit = series.metric.unit,
-                modifier = Modifier.height(24.dp).fillMaxWidth(),
+                modifier = Modifier.height(16.dp).fillMaxWidth(),
                 showAxis = false
             )
         } else {
+            // Single line, no date: the tile is ~60dp wide and the range +
+            // exact date already travel in the card header and analytics.
             Text(
-                "One reading \u00B7 ${shortDay(series.latest!!.day)}",
+                "One reading",
                 fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1
             )
         }
@@ -192,7 +194,7 @@ private fun FocusTile(summary: BodyProgressSummary, modifier: Modifier = Modifie
         modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
-            .padding(7.dp)
+            .padding(5.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -202,13 +204,15 @@ private fun FocusTile(summary: BodyProgressSummary, modifier: Modifier = Modifie
             Spacer(Modifier.width(4.dp))
             Text("Focus", fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = MiColors.TextSecondary, maxLines = 1)
         }
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(1.dp))
         if (top == null) {
             Text("No data", fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1)
             return@Column
         }
-        Text(top.label, fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
-        Text("${top.sharePercent}%", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
+        Text(
+            "${top.label} ${top.sharePercent}%",
+            fontSize = 12.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
+        )
         Spacer(Modifier.height(3.dp))
         Box(
             Modifier.fillMaxWidth().height(7.dp)
@@ -233,38 +237,43 @@ private fun TopExercisePanel(summary: BodyProgressSummary, onOpen: () -> Unit, m
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
             .clickable(onClick = onOpen)
-            .padding(8.dp)
+            .padding(6.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Top Exercise", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1, modifier = Modifier.weight(1f))
             Text(">", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue)
         }
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(3.dp))
         if (prog == null) {
             Text("No comparable records yet.", fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 2)
             return@Column
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(MiColors.Border),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Filled.FitnessCenter, contentDescription = null, tint = MiColors.TextSecondary, modifier = Modifier.size(20.dp))
-            }
-            Spacer(Modifier.width(6.dp))
-            Text(prog.exerciseName, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1)
+            Text(prog.exerciseName, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1, modifier = Modifier.weight(1f))
         }
-        Spacer(Modifier.height(3.dp))
-        Text(
-            "${trim(prog.previous.loadKg)} \u2192 ${trim(prog.current.loadKg)} kg",
-            fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
-        )
+        Spacer(Modifier.height(2.dp))
         val delta = prog.loadDeltaKg ?: 0.0
         val base = prog.previous.loadKg
         val pct = if (base > 0) (delta / base) * 100 else null
+        val pctColor = when (prog.verdict) {
+            com.example.badnewgym.feature.bodyprogress.domain.analytics.StrengthAnalytics.StrengthVerdict.IMPROVING -> Color(0xFF16A34A)
+            com.example.badnewgym.feature.bodyprogress.domain.analytics.StrengthAnalytics.StrengthVerdict.REGRESSING -> Color(0xFFE54848)
+            else -> MiColors.TextSecondary
+        }
         Text(
-            "\u2191 +${trim(delta)} kg" + (pct?.let { " (${it.roundToInt()}%)" } ?: ""),
-            fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1
+            androidx.compose.ui.text.buildAnnotatedString {
+                append("${trim(prog.previous.loadKg)} \u2192 ${trim(prog.current.loadKg)} kg")
+                if (pct != null) {
+                    pushStyle(
+                        androidx.compose.ui.text.SpanStyle(
+                            color = pctColor, fontWeight = FontWeight.Bold
+                        )
+                    )
+                    append(" (${if (pct >= 0) "+" else ""}${pct.roundToInt()}%)")
+                    pop()
+                }
+            },
+            fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
         )
     }
 }
@@ -277,22 +286,22 @@ private fun MuscleFocusPanel(summary: BodyProgressSummary, onOpen: () -> Unit, m
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
             .clickable(onClick = onOpen)
-            .padding(8.dp)
+            .padding(6.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Muscle Focus (Sets)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1, modifier = Modifier.weight(1f))
             Text(">", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue)
         }
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(3.dp))
         if (groups.isEmpty()) {
             Text("No sets recorded.", fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 1)
             return@Column
         }
         groups.forEach { group ->
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 1.5.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(group.label, fontSize = 9.sp, color = MiColors.TextSecondary, modifier = Modifier.width(40.dp), maxLines = 1)
                 Box(
-                    Modifier.weight(1f).height(7.dp)
+                    Modifier.weight(1f).height(6.dp)
                         .clip(RoundedCornerShape(4.dp)).background(MiColors.Border)
                 ) {
                     Box(

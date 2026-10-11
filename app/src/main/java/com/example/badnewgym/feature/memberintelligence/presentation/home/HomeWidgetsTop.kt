@@ -68,20 +68,20 @@ fun CheckInWidget(
             Modifier
                 .background(Brush.verticalGradient(listOf(theme.surfaceTop, theme.surfaceBottom)))
                 .clickable(onClick = onOpen)
-                .padding(horizontal = 10.dp, vertical = 8.dp)
+                .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(13.dp))
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(11.dp))
                             .background(Color(0xFFE8B93C)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             if (live) "\u2190" else "\u2192",
-                            fontSize = 20.sp, fontWeight = FontWeight.Black, color = Color.White
+                            fontSize = 17.sp, fontWeight = FontWeight.Black, color = Color.White
                         )
                     }
                     Spacer(Modifier.width(8.dp))
@@ -89,7 +89,7 @@ fun CheckInWidget(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 if (live) "CHECK-IN" else "CHECK-OUT",
-                                fontSize = 14.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Black,
                                 color = theme.accentText
                             )
@@ -105,7 +105,7 @@ fun CheckInWidget(
                             if (lastVisit != null) {
                                 Text(
                                     "Today \u00B7 ${fmtDay(lastVisit)}",
-                                    fontSize = 10.sp,
+                                    fontSize = 9.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = theme.accentText,
                                     maxLines = 1
@@ -138,7 +138,7 @@ fun CheckInWidget(
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             fmtDurationHms(elapsed),
-                            fontSize = 22.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Black,
                             color = theme.accentText,
                             maxLines = 1,
@@ -158,7 +158,7 @@ fun CheckInWidget(
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             if (dur != null) fmtDurationHm(dur) else "No active session",
-                            fontSize = 20.sp,
+                            fontSize = 19.sp,
                             fontWeight = FontWeight.Black,
                             color = theme.accentText,
                             maxLines = 1,
@@ -182,7 +182,7 @@ private fun TimeBlock(label: String, value: String, fg: Color) {
         Modifier
             .clip(RoundedCornerShape(10.dp))
             .background(Color.White.copy(alpha = 0.65f))
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(label, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = MiColors.TextSecondary, maxLines = 1)
@@ -198,7 +198,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
     val identity = snapshot.identity
     val membership = snapshot.membership
     val planTheme = themeForPlan(membership?.planName)
-    HomeCard(onClick = onOpen, padding = 8.dp) {
+    HomeCard(onClick = onOpen, padding = 6.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(contentAlignment = Alignment.BottomEnd) {
                 val photo = identity.photoUrl
@@ -207,7 +207,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                         model = photo,
                         contentDescription = identity.name,
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(38.dp)
                             .clip(CircleShape)
                             .background(MiColors.Mint)
                             .border(
@@ -219,13 +219,13 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                 } else {
                     Box(
                         Modifier
-                            .size(44.dp)
+                            .size(38.dp)
                             .clip(CircleShape)
                             .background(MiColors.Mint)
                             .border(2.dp, MiColors.Emerald, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        AvatarDot(identity.name, MiColors.Emerald, 40.dp)
+                        AvatarDot(identity.name, MiColors.Emerald, 34.dp)
                     }
                 }
                 Box(
@@ -284,7 +284,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
             }
         }
         if (membership != null) {
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(4.dp))
             val totalDays = totalPlanDays(membership.startDate, membership.expiryDate)
             val used = (totalDays - membership.daysRemaining).coerceIn(0, totalDays)
             val pct = if (totalDays > 0) used * 100 / totalDays else 0
@@ -300,7 +300,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                 Box(
                     Modifier
                         .weight(1f)
-                        .height(8.dp)
+                        .height(6.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(MiColors.Border)
                 ) {

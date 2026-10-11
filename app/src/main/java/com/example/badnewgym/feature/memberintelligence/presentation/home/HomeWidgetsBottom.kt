@@ -86,18 +86,18 @@ fun WorkoutWidget(
     }
     val rangeSummary = remember(rangeSessions) { WorkoutAnalytics.summarize(rangeSessions) }
 
-    HomeCard(onClick = onOpen, padding = 8.dp) {
+    HomeCard(onClick = onOpen, padding = 6.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(30.dp).clip(RoundedCornerShape(10.dp)).background(MiColors.Blue),
+                Modifier.size(28.dp).clip(RoundedCornerShape(9.dp)).background(MiColors.Blue),
                 contentAlignment = Alignment.Center
-            ) { Text("W", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color.White) }
-            Spacer(Modifier.width(7.dp))
-            Text("Workout (Last ${range.days} Days)", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
+            ) { Text("W", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.White) }
+            Spacer(Modifier.width(6.dp))
+            Text("Workout (Last ${range.days} Days)", fontSize = 13.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
             Spacer(Modifier.weight(1f))
             ViewAllChip(onOpen, small = true)
         }
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(3.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             listOf(WorkoutRange.D7, WorkoutRange.D15, WorkoutRange.D30).forEach { entry ->
                 val selected = entry == range
@@ -123,30 +123,21 @@ fun WorkoutWidget(
         if (range == WorkoutRange.D7) {
             Text(
                 if (count > 1) "Wk ${pagerState.currentPage + 1}/$count \u00B7 swipe >" else "This week",
-                fontSize = 9.5.sp, color = MiColors.TextSecondary, fontWeight = FontWeight.SemiBold, maxLines = 1
+                fontSize = 9.sp, color = MiColors.TextSecondary, fontWeight = FontWeight.SemiBold, maxLines = 1
             )
             Spacer(Modifier.height(1.dp))
             HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth()) { _ ->
                 WeekChart(days = window?.days ?: emptyList())
             }
         } else {
-            Text(
-                "${WorkoutAnalytics.rangeLabel(month, range.days)} \u00B7 scroll >",
-                fontSize = 9.5.sp, color = MiColors.TextSecondary, fontWeight = FontWeight.SemiBold, maxLines = 1
-            )
-            Spacer(Modifier.height(1.dp))
             RangeChart(days = rangeDays)
         }
-        Spacer(Modifier.height(4.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                StatChip("Sessions", "${rangeSummary.activeDays}", MiColors.TextPrimary, Modifier.weight(1f), dense = true, glyph = "S", glyphBg = Color(0xFF22C55E))
-                StatChip("Total Time", "${rangeSummary.totalMinutes} min", MiColors.TextPrimary, Modifier.weight(1f), dense = true, glyph = "T", glyphBg = MiColors.Blue)
-            }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                StatChip("Avg. Time", "${rangeSummary.averageMinutes} min", MiColors.TextPrimary, Modifier.weight(1f), dense = true, glyph = "A", glyphBg = Color(0xFFF59E0B))
-                StatChip("Peak Time", "${rangeSummary.peak?.minutes ?: 0} min", MiColors.TextPrimary, Modifier.weight(1f), dense = true, glyph = "P", glyphBg = Color(0xFF8849EF))
-            }
+        Spacer(Modifier.height(3.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            StatChip("Sessions", "${rangeSummary.activeDays}", MiColors.TextPrimary, Modifier.weight(1f), dense = true)
+            StatChip("Total", "${rangeSummary.totalMinutes}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true)
+            StatChip("Avg", "${rangeSummary.averageMinutes}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true)
+            StatChip("Peak", "${rangeSummary.peak?.minutes ?: 0}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true)
         }
     }
 }
@@ -230,7 +221,7 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
     )
     androidx.compose.foundation.lazy.LazyRow(
         state = listState,
-        modifier = Modifier.fillMaxWidth().height(92.dp),
+        modifier = Modifier.fillMaxWidth().height(54.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         items(days.size) { i ->
@@ -258,7 +249,7 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
                     Modifier
                         .width(20.dp)
                         .height(
-                            if (day.minutes > 0) (7 + (day.minutes.toFloat() / max * 23)).dp else 5.dp
+                            if (day.minutes > 0) (4 + (day.minutes.toFloat() / max * 11)).dp else 4.dp
                         )
                         .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp))
                         .then(miniFill),

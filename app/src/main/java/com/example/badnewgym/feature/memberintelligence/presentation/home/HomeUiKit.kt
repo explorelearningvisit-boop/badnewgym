@@ -110,7 +110,7 @@ fun StatChip(
         modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
-            .padding(horizontal = if (dense) 8.dp else 10.dp, vertical = if (dense) 5.dp else 7.dp),
+            .padding(horizontal = if (dense) 8.dp else 10.dp, vertical = if (dense) 4.dp else 7.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (glyph != null) {
