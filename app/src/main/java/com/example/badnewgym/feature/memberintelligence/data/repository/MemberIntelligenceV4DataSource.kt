@@ -80,20 +80,25 @@ class MemberIntelligenceV4DataSource {
     ): com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceMonth {
         val length = java.time.YearMonth.of(year, month).lengthOfMonth()
         val marks = mutableMapOf<Long, AttendanceDayState>()
+        val minutes = mutableMapOf<Long, Int>()
         (1..length).forEach { dom ->
             val date = LocalDate.of(year, month, dom)
             if (date.isAfter(anchor)) return@forEach
             val epoch = date.toEpochDay()
-            marks[epoch] = when {
+            val state = when {
                 date.dayOfWeek.value == 1 -> AttendanceDayState.CLOSED
                 date.dayOfMonth in setOf(7, 24) && date.dayOfWeek.value != 1 -> AttendanceDayState.HOLIDAY
                 (epoch.toInt() + seed) % 9 == 0 -> AttendanceDayState.ABSENT
                 (epoch.toInt() + seed) % 7 == 3 -> AttendanceDayState.LATE
                 else -> AttendanceDayState.PRESENT
             }
+            marks[epoch] = state
+            if (state == AttendanceDayState.PRESENT || state == AttendanceDayState.LATE) {
+                minutes[epoch] = 45 + ((kotlin.math.abs(epoch.toInt()) * 7 + seed) % 55)
+            }
         }
         return com.example.badnewgym.feature.memberintelligence.domain.analytics.buildAttendanceMonth(
-            year, month, anchor, marks, paymentDays
+            year, month, anchor, marks, paymentDays, minutes
         )
     }
 

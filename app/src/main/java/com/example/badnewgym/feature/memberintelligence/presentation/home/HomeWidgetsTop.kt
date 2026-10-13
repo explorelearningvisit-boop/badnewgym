@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -79,9 +82,9 @@ fun CheckInWidget(
                             .background(Color(0xFFE8B93C)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            if (live) "\u2190" else "\u2192",
-                            fontSize = 17.sp, fontWeight = FontWeight.Black, color = Color.White
+                        Icon(
+                            Icons.Filled.FitnessCenter, contentDescription = null,
+                            tint = Color.White, modifier = Modifier.size(20.dp)
                         )
                     }
                     Spacer(Modifier.width(8.dp))
@@ -121,7 +124,7 @@ fun CheckInWidget(
                                 .clickable(onClick = onEndSession)
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
-                            Text("END SESSION", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            Text("\u25FC END SESSION", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color.White)
                         }
                     }
                 }
@@ -138,7 +141,7 @@ fun CheckInWidget(
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             fmtDurationHms(elapsed),
-                            fontSize = 20.sp,
+                            fontSize = 19.sp,
                             fontWeight = FontWeight.Black,
                             color = theme.accentText,
                             maxLines = 1,
@@ -207,7 +210,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                         model = photo,
                         contentDescription = identity.name,
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(MiColors.Mint)
                             .border(
@@ -219,7 +222,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                 } else {
                     Box(
                         Modifier
-                            .size(38.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(MiColors.Mint)
                             .border(2.dp, MiColors.Emerald, CircleShape),
@@ -241,7 +244,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         identity.name,
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = MiColors.TextPrimary,
                         maxLines = 1,

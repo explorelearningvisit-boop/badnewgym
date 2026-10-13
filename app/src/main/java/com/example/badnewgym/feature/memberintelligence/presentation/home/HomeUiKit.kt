@@ -121,8 +121,8 @@ fun StatChip(
             Spacer(Modifier.width(7.dp))
         }
         Column {
-            Text(value, fontSize = if (dense) 13.sp else 14.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
-            Text(label, fontSize = if (dense) 9.5.sp else 10.5.sp, fontWeight = FontWeight.Medium, color = MiColors.TextSecondary, maxLines = 1)
+            Text(value, fontSize = if (dense) 12.sp else 14.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
+            Text(label, fontSize = if (dense) 9.sp else 10.5.sp, fontWeight = FontWeight.Medium, color = MiColors.TextSecondary, maxLines = 1)
         }
     }
 }

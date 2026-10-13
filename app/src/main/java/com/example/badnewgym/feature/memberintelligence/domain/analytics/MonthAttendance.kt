@@ -50,6 +50,13 @@ data class AttendanceMonth(
             .replaceFirstChar { it.uppercase() }
         return "$name $year"
     }
+
+    /** Compact header form ("Oct 2026") where the full label would crowd controls. */
+    val shortLabel: String get() {
+        val name = java.time.Month.of(month).name.take(3).lowercase()
+            .replaceFirstChar { it.uppercase() }
+        return "$name $year"
+    }
 }
 
 /**
@@ -62,7 +69,9 @@ fun buildAttendanceMonth(
     month: Int,
     today: LocalDate,
     marks: Map<Long, AttendanceDayState>,
-    paymentDays: Set<Long> = emptySet()
+    paymentDays: Set<Long> = emptySet(),
+    /** Recorded visit minutes per epoch day; absent on days with no record. */
+    minutes: Map<Long, Int> = emptyMap()
 ): AttendanceMonth {
     val length = YearMonth.of(year, month).lengthOfMonth()
     val days = (1..length).map { dom ->
@@ -77,6 +86,7 @@ fun buildAttendanceMonth(
             epochDay = epoch,
             dayOfMonth = dom,
             state = state,
+            visitMinutes = minutes[epoch],
             hasPayment = epoch in paymentDays
         )
     }

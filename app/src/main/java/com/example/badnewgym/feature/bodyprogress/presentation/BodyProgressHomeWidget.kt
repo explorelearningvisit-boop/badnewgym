@@ -53,7 +53,7 @@ fun BodyProgressHomeWidget(
     summary: BodyProgressSummary,
     onOpenDetails: () -> Unit
 ) {
-    BodyCard(onClick = onOpenDetails, padding = 5.dp) {
+    BodyCard(onClick = onOpenDetails, padding = 4.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier.size(26.dp).clip(RoundedCornerShape(9.dp)).background(Color(0xFF8849EF)),
@@ -71,7 +71,7 @@ fun BodyProgressHomeWidget(
                 maxLines = 1, modifier = Modifier.weight(1f)
             )
             BodyPill(
-                summary.goalVerdict.label,
+                verdictArrow(summary.goalVerdict) + " " + summary.goalVerdict.label,
                 verdictBg(summary.goalVerdict),
                 if (summary.goalVerdict == GoalVerdict.INSUFFICIENT_DATA) MiColors.TextSecondary else Color.White,
                 9
@@ -143,7 +143,7 @@ private fun MetricTile(
         modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
-            .padding(5.dp)
+            .padding(4.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -172,7 +172,7 @@ private fun MetricTile(
                 labels = series.points.map { shortDay(it.day) },
                 color = tint,
                 unit = series.metric.unit,
-                modifier = Modifier.height(16.dp).fillMaxWidth(),
+                modifier = Modifier.height(14.dp).fillMaxWidth(),
                 showAxis = false
             )
         } else {
@@ -325,6 +325,14 @@ private fun groupColor(label: String): Color = when (label) {
     "Arms" -> Color(0xFF16A34A)
     "Legs" -> Color(0xFFF97316)
     else -> Color(0xFF94A3B8)
+}
+
+/** Direction glyph for the verdict: movement toward/away from the goal, never bare color. */
+private fun verdictArrow(verdict: GoalVerdict): String = when (verdict) {
+    GoalVerdict.ON_TRACK, GoalVerdict.IMPROVING -> "\u2191"
+    GoalVerdict.REGRESSING -> "\u2193"
+    GoalVerdict.STABLE -> "\u2192"
+    GoalVerdict.INSUFFICIENT_DATA -> "\u2022"
 }
 
 private fun verdictBg(verdict: GoalVerdict): Color = when (verdict) {

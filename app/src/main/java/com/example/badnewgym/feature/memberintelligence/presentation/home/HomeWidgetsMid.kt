@@ -53,6 +53,7 @@ fun PaymentWidget(
     receipt: PaymentReceipt? = null,
     planName: String? = null,
     planPeriod: String? = null,
+    validTill: String? = null,
     onPlan: () -> Unit = onOpen,
     onHistory: () -> Unit = onOpen,
     onUnavailable: (String) -> Unit = {}
@@ -66,14 +67,14 @@ fun PaymentWidget(
         return
     }
     when (situation) {
-        is PaymentSituation.Overdue -> PaymentOverdueCard(payment, situation.overdueDays, onCollect, onOpen, planName, planPeriod, onPlan, onHistory, onUnavailable)
-        is PaymentSituation.Due -> PaymentDueSoonCard(payment, situation, onCollect, onOpen, planName, planPeriod, onPlan, onHistory, onUnavailable)
-        is PaymentSituation.Partial -> PaymentPartialCard(payment, situation, onCollect, onOpen, planName, planPeriod, onPlan, onHistory, onUnavailable)
+        is PaymentSituation.Overdue -> PaymentOverdueCard(payment, situation.overdueDays, onCollect, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
+        is PaymentSituation.Due -> PaymentDueSoonCard(payment, situation, onCollect, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
+        is PaymentSituation.Partial -> PaymentPartialCard(payment, situation, onCollect, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
         // A fresh receipt means this session cleared the balance: success,
         // not silence. Otherwise a settled account is calmly CURRENT.
         PaymentSituation.Settled ->
-            if (receipt != null) PaymentSuccessfulCard(payment, receipt, onOpen, planName, planPeriod, onPlan, onHistory, onUnavailable)
-            else PaymentCurrentCard(payment, onOpen, planName, planPeriod, onPlan, onHistory, onUnavailable)
+            if (receipt != null) PaymentSuccessfulCard(payment, receipt, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
+            else PaymentCurrentCard(payment, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
     }
 }
 
@@ -126,7 +127,7 @@ private fun PaymentNavChip(label: String, fg: Color, bg: Color, modifier: Modifi
             .clip(RoundedCornerShape(10.dp))
             .background(bg)
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp),
+            .padding(vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -135,10 +136,13 @@ private fun PaymentNavChip(label: String, fg: Color, bg: Color, modifier: Modifi
 }
 
 @Composable
-private fun PlanCell(planName: String?, planPeriod: String?, modifier: Modifier = Modifier) {
+private fun PlanCell(planName: String?, planPeriod: String?, validTill: String?, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(planName ?: "-", fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
         Text(planPeriod ?: "", fontSize = 9.5.sp, color = MiColors.TextSecondary, maxLines = 1)
+        if (validTill != null) {
+            Text("Valid till $validTill", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+        }
     }
 }
 
@@ -150,6 +154,7 @@ private fun PaymentDueSoonCard(
     onOpen: () -> Unit,
     planName: String?,
     planPeriod: String?,
+    validTill: String?,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -169,7 +174,7 @@ private fun PaymentDueSoonCard(
         PaymentHeader("DUE SOON", MiColors.AmberSoft, MiColors.Amber, onCollect, onOpen)
         Spacer(Modifier.height(4.dp))
         Row(verticalAlignment = Alignment.Top) {
-            PlanCell(planName, planPeriod, Modifier.weight(1f))
+            PlanCell(planName, planPeriod, validTill, Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
                 Text("Amount", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
                 Text(fmtRupees(amount), fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
@@ -216,6 +221,7 @@ private fun PaymentPartialCard(
     onOpen: () -> Unit,
     planName: String?,
     planPeriod: String?,
+    validTill: String?,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -247,6 +253,7 @@ private fun PaymentOverdueCard(
     onOpen: () -> Unit,
     planName: String?,
     planPeriod: String?,
+    validTill: String?,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -282,6 +289,7 @@ private fun PaymentCurrentCard(
     onOpen: () -> Unit,
     planName: String?,
     planPeriod: String?,
+    validTill: String?,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -308,6 +316,7 @@ private fun PaymentSuccessfulCard(
     onOpen: () -> Unit,
     planName: String?,
     planPeriod: String?,
+    validTill: String?,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -378,27 +387,36 @@ fun AttendanceWidget(
             Spacer(Modifier.width(6.dp))
             Text("Attendance", fontSize = 13.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
             Spacer(Modifier.width(4.dp))
-            Text("(${month.monthLabel})", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = MiColors.Blue, maxLines = 1)
+            Text("(${month.shortLabel})", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = MiColors.Blue, maxLines = 1)
             Spacer(Modifier.weight(1f))
             MonthArrow("<", enabled = true) { onMonthChange(selected.minusMonths(1)) }
             Spacer(Modifier.width(4.dp))
             MonthArrow(">", enabled = selected < java.time.YearMonth.now()) {
                 if (selected < java.time.YearMonth.now()) onMonthChange(selected.plusMonths(1))
             }
-            Spacer(Modifier.width(2.dp))
-            Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
+            Spacer(Modifier.width(4.dp))
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MiColors.BlueSoft)
+                    .clickable { onMonthChange(java.time.YearMonth.now()) }
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
+            ) {
+                Text("Today", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue, maxLines = 1)
+            }
         }
         Spacer(Modifier.height(3.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(contentAlignment = Alignment.Center) {
-                Donut(month.percent, size = 42.dp, pctSize = 12)
+                Donut(month.percent, size = 48.dp, pctSize = 12)
             }
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(
-                    "${month.attended} / ${month.openDays.size} Open Days",
-                    fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
+                    "${month.attended} / ${month.openDays.size}",
+                    fontSize = 15.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1
                 )
+                Text("Open Days", fontSize = 9.5.sp, color = MiColors.TextSecondary, maxLines = 1)
                 if (prevPoints != null && prevPoints != 0) {
                     Text(
                         (if (prevPoints > 0) "\u2191 +" else "\u2193 ") + "${kotlin.math.abs(prevPoints)}% vs prev",
@@ -407,17 +425,29 @@ fun AttendanceWidget(
                     )
                 }
             }
-            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                LegendMini(MiColors.Emerald, "Present", month.present.toString())
-                LegendMini(Color(0xFFF5B33B), "Late", month.late.toString())
-                LegendMini(MiColors.Red, "Absent", month.absent.toString())
+            val paymentDays = remember(month) { month.days.count { it.hasPayment } }
+            val avgWorkout = remember(month) {
+                val mins = month.days.mapNotNull { it.visitMinutes }
+                if (mins.isEmpty()) null else mins.sum() / mins.size
             }
-            Spacer(Modifier.width(10.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                LegendMini(Color(0xFF8849EF), "Holiday", month.holiday.toString())
-                LegendMini(Color(0xFF9AA5B1), "Closed", month.closed.toString())
-                LegendMini(Color(0xFF267FEA), "Payment", null)
-            }
+            MiniStatBox(
+                glyph = "\u20B9", tint = Color(0xFF16A34A),
+                value = "$paymentDays", label = if (paymentDays == 1) "Payment Day" else "Payment Days"
+            )
+            Spacer(Modifier.width(6.dp))
+            MiniStatBox(
+                glyph = "W", tint = MiColors.Blue,
+                value = avgWorkout?.let { "$it min" } ?: "-",
+                label = "Avg. Workout"
+            )
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            StatusCount(MiColors.Emerald, "\u2713", Color.White, "${month.present}", "Present")
+            StatusCount(Color(0xFFF5B33B), "\u25D4", Color(0xFF5B4A00), "${month.late}", "Late")
+            StatusCount(MiColors.Red, "\u2715", Color.White, "${month.absent}", "Absent")
+            StatusCount(Color(0xFF8849EF), "H", Color.White, "${month.holiday}", "Holiday")
+            StatusCount(Color(0xFF9AA5B1), "\u2212", Color.White, "${month.closed}", "Closed")
         }
         Spacer(Modifier.height(4.dp))
         val first = remember(month) { month.days.filter { it.dayOfMonth <= 15 } }
@@ -425,6 +455,39 @@ fun AttendanceWidget(
         MonthDayRow(first)
         Spacer(Modifier.height(2.dp))
         MonthDayRow(second)
+    }
+}
+
+@Composable
+private fun StatusCount(bg: Color, glyph: String, glyphColor: Color, count: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            Modifier.size(18.dp).clip(CircleShape).background(bg),
+            contentAlignment = Alignment.Center
+        ) { Text(glyph, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = glyphColor, maxLines = 1) }
+        Text(count, fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
+        Text(label, fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+    }
+}
+
+@Composable
+private fun MiniStatBox(glyph: String, tint: Color, value: String, label: String) {
+    Row(
+        Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MiColors.SurfaceSunken)
+            .padding(horizontal = 5.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            Modifier.size(20.dp).clip(RoundedCornerShape(7.dp)).background(tint),
+            contentAlignment = Alignment.Center
+        ) { Text(glyph, fontSize = 10.sp, fontWeight = FontWeight.Black, color = Color.White, maxLines = 1) }
+        Spacer(Modifier.width(4.dp))
+        Column {
+            Text(value, fontSize = 11.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
+            Text(label, fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+        }
     }
 }
 
@@ -443,6 +506,14 @@ private fun MonthNavRow(selected: java.time.YearMonth, onMonthChange: (java.time
             if (selected < now) onMonthChange(selected.plusMonths(1))
         }
     }
+}
+
+/** Three-letter weekday for an epoch day (calendar alignment is real, never hardcoded). */
+private fun weekdayShort(epochDay: Long): String = try {
+    java.time.LocalDate.ofEpochDay(epochDay).dayOfWeek.name.take(3).lowercase()
+        .replaceFirstChar { it.uppercase() }
+} catch (t: Throwable) {
+    ""
 }
 
 @Composable
@@ -472,12 +543,17 @@ private fun MonthDayRow(days: List<com.example.badnewgym.feature.memberintellige
                         textAlign = TextAlign.Center,
                         maxLines = 1
                     )
-                    // Payment marker rides with the date (same slot, no extra
-                    // row) so dots stay aligned and no height is wasted.
                     if (day.hasPayment) {
                         Text("\u20B9", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF267FEA), maxLines = 1)
                     }
                 }
+                Text(
+                    weekdayShort(day.epochDay),
+                    fontSize = 9.sp,
+                    color = MiColors.TextTertiary,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
+                )
                 val (bg, glyph, glyphColor) = when (day.state) {
                     AttendanceDayState.PRESENT -> Triple(MiColors.Emerald, "\u2713", Color.White)
                     AttendanceDayState.LATE -> Triple(Color(0xFFF5B33B), "\u25D4", Color(0xFF5B4A00))
@@ -488,7 +564,7 @@ private fun MonthDayRow(days: List<com.example.badnewgym.feature.memberintellige
                     AttendanceDayState.UNKNOWN -> Triple(MiColors.Border, "?", MiColors.TextTertiary)
                 }
                 Box(
-                    Modifier.size(13.dp).clip(CircleShape).background(bg),
+                    Modifier.size(12.dp).clip(CircleShape).background(bg),
                     contentAlignment = Alignment.Center
                 ) {
                     if (glyph.isNotEmpty()) {

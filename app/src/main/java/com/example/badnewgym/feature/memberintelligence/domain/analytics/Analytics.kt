@@ -89,7 +89,9 @@ object WorkoutAnalytics {
         val minutes: Int,
         val weekdayShort: String,
         val dateLabel: String,
-        val monthShort: String = ""
+        val monthShort: String = "",
+        /** True when the recorded session was cardio: drives the bar color. */
+        val cardio: Boolean = false
     )
 
     data class Summary(
@@ -144,7 +146,8 @@ object WorkoutAnalytics {
                     minutes = session?.minutes ?: 0,
                     weekdayShort = shortWeekdays[i],
                     dateLabel = "${shortWeekdays[i].take(3)} ${date.dayOfMonth}",
-                    monthShort = shortMonth(date.monthValue)
+                    monthShort = shortMonth(date.monthValue),
+                    cardio = session?.type == com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutType.CARDIO
                 )
             }
             cursor = cursor.plusDays(PAGE_SIZE.toLong())
@@ -205,7 +208,8 @@ object WorkoutAnalytics {
                 minutes = session?.minutes ?: 0,
                 weekdayShort = wd,
                 dateLabel = "$wd ${date.dayOfMonth}",
-                monthShort = shortMonth(date.monthValue)
+                monthShort = shortMonth(date.monthValue),
+                cardio = session?.type == com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutType.CARDIO
             )
         }
     }
@@ -223,7 +227,8 @@ object WorkoutAnalytics {
         minutes = s.minutes,
         weekdayShort = shortWeekdays[(java.time.LocalDate.ofEpochDay(s.epochDay).dayOfWeek.value - 1)],
         dateLabel = "${shortWeekdays[(java.time.LocalDate.ofEpochDay(s.epochDay).dayOfWeek.value - 1)]} ${s.dayOfMonth}",
-        monthShort = shortMonth(java.time.LocalDate.ofEpochDay(s.epochDay).monthValue)
+        monthShort = shortMonth(java.time.LocalDate.ofEpochDay(s.epochDay).monthValue),
+        cardio = s.type == com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutType.CARDIO
     )
 
     private fun shortMonth(month: Int): String =

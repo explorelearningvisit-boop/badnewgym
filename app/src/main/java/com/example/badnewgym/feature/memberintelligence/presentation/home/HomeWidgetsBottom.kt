@@ -142,6 +142,21 @@ fun WorkoutWidget(
     }
 }
 
+/**
+ * Bar fill encodes the recorded session, documented in the chart subtitle:
+ * blue = strength, green = cardio, gray = no session. Color never invents a
+ * workout; a gray stub is an explicit "no record" state.
+ */
+private fun barFillFor(day: WorkoutAnalytics.WorkoutDay): Modifier = when {
+    day.minutes <= 0 -> Modifier.background(MiColors.Border)
+    day.cardio -> Modifier.background(
+        Brush.verticalGradient(listOf(Color(0xFF4ADE80), Color(0xFF16A34A)))
+    )
+    else -> Modifier.background(
+        Brush.verticalGradient(listOf(Color(0xFF38BDF8), Color(0xFF2563EB)))
+    )
+}
+
 @Composable
 private fun WeekChart(days: List<WorkoutAnalytics.WorkoutDay>) {
     val max = (days.maxOfOrNull { it.minutes } ?: 1).coerceAtLeast(1)
@@ -170,13 +185,6 @@ private fun WeekChart(days: List<WorkoutAnalytics.WorkoutDay>) {
                     Modifier.weight(1f).padding(horizontal = 7.dp),
                     contentAlignment = Alignment.BottomCenter
                 ) {
-                    val barFill: Modifier = if (day.minutes > 0) {
-                        Modifier.background(
-                            Brush.verticalGradient(listOf(Color(0xFF38BDF8), Color(0xFF2563EB)))
-                        )
-                    } else {
-                        Modifier.background(MiColors.Border)
-                    }
                     Box(
                         Modifier
                             .width(20.dp)
@@ -184,7 +192,7 @@ private fun WeekChart(days: List<WorkoutAnalytics.WorkoutDay>) {
                                 if (day.minutes > 0) (7 + (day.minutes.toFloat() / max * 23)).dp else 5.dp
                             )
                             .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
-                            .then(barFill)
+                            .then(barFillFor(day))
                     )
                 }
             }
@@ -221,7 +229,7 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
     )
     androidx.compose.foundation.lazy.LazyRow(
         state = listState,
-        modifier = Modifier.fillMaxWidth().height(54.dp),
+        modifier = Modifier.fillMaxWidth().height(50.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         items(days.size) { i ->
@@ -238,21 +246,14 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
                     maxLines = 1
                 )
                 Spacer(Modifier.height(1.dp))
-                val miniFill: Modifier = if (day.minutes > 0) {
-                    Modifier.background(
-                        Brush.verticalGradient(listOf(Color(0xFF38BDF8), Color(0xFF2563EB)))
-                    )
-                } else {
-                    Modifier.background(MiColors.Border)
-                }
                 Box(
                     Modifier
                         .width(20.dp)
                         .height(
-                            if (day.minutes > 0) (4 + (day.minutes.toFloat() / max * 11)).dp else 4.dp
+                            if (day.minutes > 0) (4 + (day.minutes.toFloat() / max * 9)).dp else 4.dp
                         )
                         .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp))
-                        .then(miniFill),
+                        .then(barFillFor(day)),
                     contentAlignment = Alignment.BottomCenter
                 ) {}
                 Spacer(Modifier.height(1.dp))

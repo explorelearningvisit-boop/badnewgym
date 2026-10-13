@@ -242,7 +242,7 @@ fun MemberIntelligenceHome(
             .fillMaxSize()
             .background(MiColors.Page)
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 6.dp, vertical = 3.dp),
+            .padding(horizontal = 6.dp, vertical = 2.dp),
         shape = RoundedCornerShape(24.dp),
         color = MiColors.Page,
         border = androidx.compose.foundation.BorderStroke(1.dp, MiColors.Border),
@@ -289,7 +289,7 @@ fun MemberIntelligenceHome(
                             Modifier
                                 .fillMaxWidth()
                                 .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
                             CheckInWidget(
                                 checkIn = data.checkIn,
@@ -306,6 +306,7 @@ fun MemberIntelligenceHome(
                                 situation = data.paymentSituation,
                                 planName = data.snapshot.membership?.planName,
                                 planPeriod = data.snapshot.membership?.planType,
+                                validTill = data.snapshot.membership?.expiryDate?.let { fmtDate(it) },
                                 onCollect = { vm.openModule(HomeWidgetId.PAYMENT) },
                                 onOpen = { vm.openModule(HomeWidgetId.PAYMENT) },
                                 onPlan = { vm.openModule(HomeWidgetId.IDENTITY) },
@@ -334,7 +335,6 @@ fun MemberIntelligenceHome(
                                 summary = bodySummary,
                                 onOpen = { openBodyProgress() }
                             )
-                            Spacer(Modifier.height(4.dp))
                         }
                     }
                 }
@@ -691,6 +691,12 @@ private fun WorkoutModule(data: HomeData, range: WorkoutRange, onRangeChange: (W
             month.sessions.filter { it.epochDay in from..newest }.sortedByDescending { it.epochDay }
         }
         WidgetTitle("Sessions", "${sessions.size} in range")
+        Spacer(Modifier.height(2.dp))
+        Text(
+            "Chart colors record session type: blue strength, green cardio, gray no session.",
+            fontSize = 10.sp, color = MiColors.TextTertiary, maxLines = 2
+        )
+        Spacer(Modifier.height(4.dp))
         Spacer(Modifier.height(6.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             WorkoutRange.entries.forEach { entry ->

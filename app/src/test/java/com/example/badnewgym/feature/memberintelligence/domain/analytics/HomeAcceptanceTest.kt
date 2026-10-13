@@ -96,6 +96,36 @@ class HomeAcceptanceTest {
     }
 
     @Test
+    fun rangeDaysPreserveCardioFlagFromSessions() {
+        val days = WorkoutAnalytics.rangeDays(month(), 15)
+        assertTrue("fixture must mix cardio and strength", days.any { it.cardio && it.minutes > 0 })
+        assertTrue("fixture must mix cardio and strength", days.any { !it.cardio && it.minutes > 0 })
+        // Zero days carry no type: gray means "no record", never cardio.
+        assertTrue(days.filter { it.minutes == 0 }.none { it.cardio })
+    }
+
+    @Test
+    fun october2026WeekdaysAreReal() {
+        // Oct 1 2026 is a Thursday; the calendar derives weekdays from the
+        // date, never from a hardcoded month.
+        assertEquals(java.time.DayOfWeek.THURSDAY, LocalDate.of(2026, 10, 1).dayOfWeek)
+        val month = dataSource.attendanceMonth(2026, 10, LocalDate.of(2026, 10, 11))
+        val first = month.days.first { it.dayOfMonth == 1 }
+        assertEquals(LocalDate.of(2026, 10, 1).toEpochDay(), first.epochDay)
+    }
+
+    @Test
+    fun monthAvgWorkoutUsesRecordedMinutesOnly() {
+        val month = dataSource.attendanceMonth(2026, 10, LocalDate.of(2026, 10, 11))
+        val mins = month.days.mapNotNull { it.visitMinutes }
+        assertTrue("elapsed attended days carry minutes", mins.isNotEmpty())
+        assertTrue(mins.all { it > 0 })
+        val avg = mins.sum() / mins.size
+        // Sanity: average of recorded minutes, not diluted by future days.
+        assertTrue(avg in mins.min()..mins.max())
+    }
+
+    @Test
     fun rangeSummaryMatchesItsSessions() {
         val m = month()
         val newest = m.sorted().last().epochDay
