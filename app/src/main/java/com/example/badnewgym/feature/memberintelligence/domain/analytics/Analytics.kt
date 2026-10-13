@@ -222,6 +222,51 @@ object WorkoutAnalytics {
         return "${first.dateLabel} ${first.monthShort} – ${last.dateLabel} ${last.monthShort}"
     }
 
+    /**
+     * Every calendar day of [yearMonth], oldest first, with recorded minutes
+     * where a session exists and 0 elsewhere. Days outside the dataset are
+     * honest zeros ("no session on record"), never invented minutes.
+     */
+    fun monthDays(month: WorkoutMonth, yearMonth: java.time.YearMonth): List<WorkoutDay> {
+        val byDay = month.sorted().associateBy { it.epochDay }
+        val length = yearMonth.lengthOfMonth()
+        return (1..length).map { dom ->
+            val date = yearMonth.atDay(dom)
+            val session = byDay[date.toEpochDay()]
+            val wd = shortWeekdays[date.dayOfWeek.value - 1]
+            WorkoutDay(
+                dayOfMonth = dom,
+                minutes = session?.minutes ?: 0,
+                weekdayShort = wd,
+                dateLabel = "$wd $dom",
+                monthShort = shortMonth(date.monthValue),
+                cardio = session?.type == com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutType.CARDIO
+            )
+        }
+    }
+
+    /**
+     * Summary over chart days (month mode): active day count, total, average
+     * per active day, peak. Same honest math as [summarize], minus sessions.
+     */
+    fun summarizeDays(days: List<WorkoutDay>): Summary {
+        val active = days.filter { it.minutes > 0 }
+        val total = days.sumOf { it.minutes }
+        val avg = if (active.isEmpty()) 0 else total / active.size
+        val peak = active.maxByOrNull { it.minutes }
+        return Summary(
+            totalMinutes = total,
+            averageMinutes = avg,
+            peak = peak,
+            lowest = active.minByOrNull { it.minutes },
+            bestWeek = null,
+            trend = WorkoutTrend.NONE,
+            trendDeltaPercent = 0,
+            activeDays = active.size,
+            totalDays = days.size
+        )
+    }
+
     private fun dayOfSession(s: com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession) = WorkoutDay(
         dayOfMonth = s.dayOfMonth,
         minutes = s.minutes,

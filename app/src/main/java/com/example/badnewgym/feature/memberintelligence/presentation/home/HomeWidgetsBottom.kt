@@ -53,8 +53,10 @@ fun WorkoutWidget(
     weekIndex: Int,
     onWeekChange: (Int) -> Unit,
     onOpen: () -> Unit,
-    range: WorkoutRange = WorkoutRange.D7,
-    onRangeChange: (WorkoutRange) -> Unit = {}
+    range: WorkoutRange = WorkoutRange.THIS_MONTH,
+    onRangeChange: (WorkoutRange) -> Unit = {},
+    workoutYearMonth: java.time.YearMonth = java.time.YearMonth.now(),
+    onWorkoutMonthChange: (java.time.YearMonth) -> Unit = {}
 ) {
     if (month == null || month.sessions.isEmpty()) {
         HomeCard {
@@ -77,14 +79,31 @@ fun WorkoutWidget(
         WorkoutAnalytics.window(month, pagerState.currentPage)
     }
     // Range-scoped days + totals: the summary always describes the visible
-    // selector range, never a hidden month.
-    val rangeDays = remember(month, range) { WorkoutAnalytics.rangeDays(month, range.days) }
-    val rangeSessions = remember(month, range) {
-        val newest = month.sorted().lastOrNull()?.epochDay ?: 0L
-        val from = newest - range.days + 1
-        month.sessions.filter { it.epochDay in from..newest }
+    // selector range, never a hidden month. Month mode covers every calendar
+    // day of the selected month instead of a trailing N-day window.
+    val isMonth = range.isMonth
+    val monthDays = remember(month, workoutYearMonth, isMonth) {
+        if (isMonth && month != null) WorkoutAnalytics.monthDays(month, workoutYearMonth) else emptyList()
     }
-    val rangeSummary = remember(rangeSessions) { WorkoutAnalytics.summarize(rangeSessions) }
+    val rangeDays = remember(month, range) {
+        if (isMonth) emptyList() else WorkoutAnalytics.rangeDays(month, range.days)
+    }
+    val rangeSessions = remember(month, range) {
+        if (isMonth) emptyList() else {
+            val newest = month.sorted().lastOrNull()?.epochDay ?: 0L
+            val from = newest - range.days + 1
+            month.sessions.filter { it.epochDay in from..newest }
+        }
+    }
+    val chartDays = if (isMonth) monthDays else rangeDays
+    val rangeSummary = remember(rangeSessions, monthDays, isMonth) {
+        if (isMonth) WorkoutAnalytics.summarizeDays(monthDays)
+        else WorkoutAnalytics.summarize(rangeSessions)
+    }
+    val monthTitle = remember(workoutYearMonth) {
+        workoutYearMonth.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() } +
+            " " + workoutYearMonth.year
+    }
 
     HomeCard(onClick = onOpen, padding = 6.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -93,20 +112,23 @@ fun WorkoutWidget(
                 contentAlignment = Alignment.Center
             ) { Text("W", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.White) }
             Spacer(Modifier.width(6.dp))
-            Text("Workout (Last ${range.days} Days)", fontSize = 13.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
+            Text(
+                if (isMonth) "Workout ($monthTitle)" else "Workout (Last ${range.days} Days)",
+                fontSize = 13.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1
+            )
             Spacer(Modifier.weight(1f))
             ViewAllChip(onOpen, small = true)
         }
         Spacer(Modifier.height(3.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            listOf(WorkoutRange.D7, WorkoutRange.D15, WorkoutRange.D30).forEach { entry ->
+            listOf(WorkoutRange.THIS_MONTH, WorkoutRange.D7, WorkoutRange.D15, WorkoutRange.D30).forEach { entry ->
                 val selected = entry == range
                 Box(
                     Modifier
                         .clip(RoundedCornerShape(10.dp))
                         .background(if (selected) MiColors.Blue else MiColors.BlueSoft)
                         .clickable(onClick = { onRangeChange(entry) })
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         entry.short, fontSize = 10.sp, fontWeight = FontWeight.Bold,
@@ -116,8 +138,13 @@ fun WorkoutWidget(
                 Spacer(Modifier.width(4.dp))
             }
             Spacer(Modifier.weight(1f))
-            Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary,
-                modifier = Modifier.clickable(onClick = onOpen))
+            if (isMonth) {
+                val nowYm = remember { java.time.YearMonth.now() }
+                MonthNavArrows(workoutYearMonth, nowYm, onWorkoutMonthChange)
+            } else {
+                Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary,
+                    modifier = Modifier.clickable(onClick = onOpen))
+            }
         }
         Spacer(Modifier.height(2.dp))
         if (range == WorkoutRange.D7) {
@@ -130,7 +157,7 @@ fun WorkoutWidget(
                 WeekChart(days = window?.days ?: emptyList())
             }
         } else {
-            RangeChart(days = rangeDays)
+            RangeChart(days = chartDays)
         }
         Spacer(Modifier.height(3.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -261,6 +288,35 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
                 Text(day.monthShort, fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1)
             }
         }
+    }
+}
+
+@Composable
+private fun MonthNavArrows(
+    selected: java.time.YearMonth,
+    now: java.time.YearMonth,
+    onChange: (java.time.YearMonth) -> Unit
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        MonthArrowMini("<", enabled = true) { onChange(selected.minusMonths(1)) }
+        Spacer(Modifier.width(4.dp))
+        MonthArrowMini(">", enabled = selected < now) {
+            if (selected < now) onChange(selected.plusMonths(1))
+        }
+    }
+}
+
+@Composable
+private fun MonthArrowMini(label: String, enabled: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .size(24.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (enabled) MiColors.BlueSoft else MiColors.SurfaceSunken)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(label, fontSize = 12.sp, fontWeight = FontWeight.Black, color = if (enabled) MiColors.Blue else MiColors.TextTertiary)
     }
 }
 

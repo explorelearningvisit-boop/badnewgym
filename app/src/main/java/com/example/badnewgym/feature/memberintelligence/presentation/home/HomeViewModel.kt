@@ -34,12 +34,16 @@ class HomeViewModel(
     private val _workoutWeek = MutableStateFlow<Int>(Int.MAX_VALUE)
     val workoutWeek: StateFlow<Int> = _workoutWeek
 
-    private val _workoutRange = MutableStateFlow(WorkoutRange.D15)
+    private val _workoutRange = MutableStateFlow(WorkoutRange.THIS_MONTH)
     val workoutRange: StateFlow<WorkoutRange> = _workoutRange
 
     /** Selected attendance month. Defaults to the current month. */
     private val _attendanceMonth = MutableStateFlow(java.time.YearMonth.now())
     val attendanceMonth: StateFlow<java.time.YearMonth> = _attendanceMonth
+
+    /** Selected workout month. Defaults to the current month. */
+    private val _workoutMonth = MutableStateFlow(java.time.YearMonth.now())
+    val workoutMonth: StateFlow<java.time.YearMonth> = _workoutMonth
 
     /** Honest unavailable-feature notice (no dead buttons, no fake screens). */
     private val _notice = MutableStateFlow<String?>(null)
@@ -72,6 +76,10 @@ class HomeViewModel(
     fun setAttendanceMonth(month: java.time.YearMonth) {
         _attendanceMonth.value = month
         refreshMonth()
+    }
+
+    fun setWorkoutMonth(month: java.time.YearMonth) {
+        _workoutMonth.value = month
     }
 
     fun load(memberId: String = DEFAULT_MEMBER_ID) {

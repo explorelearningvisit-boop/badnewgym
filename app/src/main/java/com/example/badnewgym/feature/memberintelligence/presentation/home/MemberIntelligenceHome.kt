@@ -170,6 +170,7 @@ fun MemberIntelligenceHome(
     val receipt by vm.lastReceipt.collectAsState()
     val notice by vm.notice.collectAsState()
     val selectedMonth by vm.attendanceMonth.collectAsState()
+    val workoutMonth by vm.workoutMonth.collectAsState()
 
     LaunchedEffect(memberId) { vm.load(memberId) }
 
@@ -183,8 +184,8 @@ fun MemberIntelligenceHome(
     // Rail badges: one live number per item, each from a real record. Items
     // with nothing meaningful to show get no badge rather than a filler.
     val readyData = (state as? HomeUiState.Ready)?.data
-    val badges = remember(readyData, range, bodySummary) {
-        buildRailBadges(readyData, range, bodySummary)
+    val badges = remember(readyData, range, workoutMonth, bodySummary) {
+        buildRailBadges(readyData, range, workoutMonth, bodySummary)
     }
 
     // Body Progress is a full module, so it opens its own analytics screen.
@@ -327,7 +328,9 @@ fun MemberIntelligenceHome(
                                 onWeekChange = vm::setWorkoutWeek,
                                 onOpen = { vm.openModule(HomeWidgetId.WORKOUT) },
                                 range = range,
-                                onRangeChange = vm::setWorkoutRange
+                                onRangeChange = vm::setWorkoutRange,
+                                workoutYearMonth = workoutMonth,
+                                onWorkoutMonthChange = vm::setWorkoutMonth
                             )
                             BodyProgressWidget(
                                 goals = data.bodyGoals,
@@ -379,6 +382,7 @@ fun MemberIntelligenceHome(
 private fun buildRailBadges(
     data: HomeData?,
     range: WorkoutRange,
+    workoutYearMonth: java.time.YearMonth,
     body: com.example.badnewgym.feature.bodyprogress.domain.BodyProgressSummary?
 ): Map<String, String> {
     if (data == null) return emptyMap()
@@ -397,12 +401,18 @@ private fun buildRailBadges(
         if (m.openDays.isNotEmpty()) out["attendance"] = "${m.percent}%"
     }
     data.workout?.let { month ->
-        val sorted = month.sorted()
-        if (sorted.isNotEmpty()) {
-            val newest = sorted.last().epochDay
-            val scoped = sorted.filter { it.epochDay in (newest - range.days + 1)..newest }
-            val active = scoped.count { it.minutes > 0 }
+        if (range.isMonth) {
+            val active = com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutAnalytics
+                .monthDays(month, workoutYearMonth).count { it.minutes > 0 }
             if (active > 0) out["workout"] = "$active"
+        } else {
+            val sorted = month.sorted()
+            if (sorted.isNotEmpty()) {
+                val newest = sorted.last().epochDay
+                val scoped = sorted.filter { it.epochDay in (newest - range.days + 1)..newest }
+                val active = scoped.count { it.minutes > 0 }
+                if (active > 0) out["workout"] = "$active"
+            }
         }
     }
     body?.goalPercent?.let { out["body"] = "$it%" }
@@ -451,6 +461,7 @@ private fun HomeModuleSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val selectedMonth by vm.attendanceMonth.collectAsState()
+    val workoutMonthSheet by vm.workoutMonth.collectAsState()
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(
             Modifier
@@ -464,12 +475,12 @@ private fun HomeModuleSheet(
                 HomeWidgetId.IDENTITY -> MemberProfileModule(data)
                 HomeWidgetId.PAYMENT -> PaymentModule(data, vm)
                 HomeWidgetId.ATTENDANCE -> AttendanceModule(data, selectedMonth, vm::setAttendanceMonth)
-                HomeWidgetId.WORKOUT -> WorkoutModule(data, range, vm::setWorkoutRange)
+                HomeWidgetId.WORKOUT -> WorkoutModule(data, range, vm::setWorkoutRange, workoutMonthSheet, vm::setWorkoutMonth)
                 HomeWidgetId.BODY -> BodyModule(data)
                 HomeWidgetId.SUPPLEMENTS -> SupplementsModule(data)
                 HomeWidgetId.SERVICES -> ServicesModule(data)
                 HomeWidgetId.HISTORY -> HistoryModule(data)
-                HomeWidgetId.INSIGHTS -> InsightsModule(data, range)
+                HomeWidgetId.INSIGHTS -> InsightsModule(data, range, workoutMonthSheet)
                 HomeWidgetId.MORE -> MoreModule(data)
             }
             Spacer(Modifier.height(24.dp))
@@ -677,7 +688,13 @@ private fun AttendanceModule(
 }
 
 @Composable
-private fun WorkoutModule(data: HomeData, range: WorkoutRange, onRangeChange: (WorkoutRange) -> Unit) {
+private fun WorkoutModule(
+    data: HomeData,
+    range: WorkoutRange,
+    onRangeChange: (WorkoutRange) -> Unit,
+    workoutYearMonth: java.time.YearMonth,
+    onWorkoutMonthChange: (java.time.YearMonth) -> Unit
+) {
     SheetTitle("Workout", "Sessions and volume")
     val month = data.workout
     if (month == null || month.sessions.isEmpty()) {
@@ -685,21 +702,37 @@ private fun WorkoutModule(data: HomeData, range: WorkoutRange, onRangeChange: (W
         return
     }
     HomeCard {
-        val newest = remember(month) { month.sorted().lastOrNull()?.epochDay ?: 0L }
-        val from = newest - range.days + 1
-        val sessions = remember(month, range) {
-            month.sessions.filter { it.epochDay in from..newest }.sortedByDescending { it.epochDay }
+        val sessions = remember(month, range, workoutYearMonth) {
+            if (range.isMonth) {
+                val start = workoutYearMonth.atDay(1).toEpochDay()
+                val end = workoutYearMonth.atEndOfMonth().toEpochDay()
+                month.sessions.filter { it.epochDay in start..end }.sortedByDescending { it.epochDay }
+            } else {
+                val newest = month.sorted().lastOrNull()?.epochDay ?: 0L
+                val from = newest - range.days + 1
+                month.sessions.filter { it.epochDay in from..newest }.sortedByDescending { it.epochDay }
+            }
         }
-        WidgetTitle("Sessions", "${sessions.size} in range")
+        val scopeLabel = if (range.isMonth) {
+            workoutYearMonth.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() } +
+                " " + workoutYearMonth.year
+        } else {
+            "last ${range.days} days"
+        }
+        WidgetTitle("Sessions", "${sessions.size} in $scopeLabel")
         Spacer(Modifier.height(2.dp))
         Text(
             "Chart colors record session type: blue strength, green cardio, gray no session.",
             fontSize = 10.sp, color = MiColors.TextTertiary, maxLines = 2
         )
         Spacer(Modifier.height(4.dp))
-        Spacer(Modifier.height(6.dp))
+        if (range.isMonth) {
+            MonthNavRowMini(workoutYearMonth, onWorkoutMonthChange)
+            Spacer(Modifier.height(4.dp))
+        }
+        Spacer(Modifier.height(2.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            WorkoutRange.entries.forEach { entry ->
+            listOf(WorkoutRange.THIS_MONTH, WorkoutRange.D7, WorkoutRange.D15, WorkoutRange.D30).forEach { entry ->
                 val selected = entry == range
                 Box(
                     Modifier
@@ -711,7 +744,7 @@ private fun WorkoutModule(data: HomeData, range: WorkoutRange, onRangeChange: (W
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "${entry.days} Days", fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                        entry.short, fontSize = 11.sp, fontWeight = FontWeight.Bold,
                         color = if (selected) Color.White else MiColors.Blue, maxLines = 1
                     )
                 }
@@ -719,12 +752,43 @@ private fun WorkoutModule(data: HomeData, range: WorkoutRange, onRangeChange: (W
         }
         Spacer(Modifier.height(6.dp))
         if (sessions.isEmpty()) {
-            EmptyWidgetLine("No sessions in the last ${range.days} days")
+            EmptyWidgetLine("No sessions in $scopeLabel")
         } else {
             sessions.forEach { s ->
                 KvRow(fmtDay(epochDayToMs(s.epochDay)), "${s.minutes} min")
             }
         }
+    }
+}
+
+@Composable
+private fun MonthNavRowMini(selected: java.time.YearMonth, onChange: (java.time.YearMonth) -> Unit) {
+    val now = remember { java.time.YearMonth.now() }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+        Text(
+            selected.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() } + " " + selected.year,
+            fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MiColors.TextPrimary, maxLines = 1
+        )
+        Spacer(Modifier.width(8.dp))
+        MonthArrowMiniSheet("<", enabled = true) { onChange(selected.minusMonths(1)) }
+        Spacer(Modifier.width(6.dp))
+        MonthArrowMiniSheet(">", enabled = selected < now) {
+            if (selected < now) onChange(selected.plusMonths(1))
+        }
+    }
+}
+
+@Composable
+private fun MonthArrowMiniSheet(label: String, enabled: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .size(26.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (enabled) MiColors.BlueSoft else MiColors.SurfaceSunken)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(label, fontSize = 13.sp, fontWeight = FontWeight.Black, color = if (enabled) MiColors.Blue else MiColors.TextTertiary)
     }
 }
 
@@ -818,7 +882,7 @@ private fun HistoryModule(data: HomeData) {
 }
 
 @Composable
-private fun InsightsModule(data: HomeData, range: WorkoutRange) {
+private fun InsightsModule(data: HomeData, range: WorkoutRange, workoutYearMonth: java.time.YearMonth) {
     SheetTitle("Insights", "Derived from recorded data")
     val window = data.attendance
     if (window != null && window.elapsed.isNotEmpty()) {
@@ -832,11 +896,22 @@ private fun InsightsModule(data: HomeData, range: WorkoutRange) {
     }
     val sessions = data.workout?.sessions.orEmpty()
     if (sessions.isNotEmpty()) {
-        val newest = sessions.maxOf { it.epochDay }
-        val scoped = sessions.filter { it.epochDay in (newest - range.days + 1)..newest }
+        val scoped: List<com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession>
+        val scopeLabel: String
+        if (range.isMonth) {
+            val start = workoutYearMonth.atDay(1).toEpochDay()
+            val end = workoutYearMonth.atEndOfMonth().toEpochDay()
+            scoped = sessions.filter { it.epochDay in start..end }
+            scopeLabel = workoutYearMonth.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() } +
+                " " + workoutYearMonth.year
+        } else {
+            val newest = sessions.maxOf { it.epochDay }
+            scoped = sessions.filter { it.epochDay in (newest - range.days + 1)..newest }
+            scopeLabel = "last ${range.days} days"
+        }
         val summary = com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutAnalytics.summarize(scoped)
         HomeCard {
-            WidgetTitle("Workout", "last ${range.days} days")
+            WidgetTitle("Workout", scopeLabel)
             Spacer(Modifier.height(4.dp))
             KvRow("Sessions", summary.activeDays.toString())
             KvRow("Total", "${summary.totalMinutes} min")

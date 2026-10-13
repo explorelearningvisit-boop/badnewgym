@@ -105,6 +105,33 @@ class HomeAcceptanceTest {
     }
 
     @Test
+    fun monthDaysCoverEveryCalendarDay() {
+        val m = month()
+        val oct = WorkoutAnalytics.monthDays(m, java.time.YearMonth.of(2026, 10))
+        assertEquals(31, oct.size)
+        assertEquals((1..31).toList(), oct.map { it.dayOfMonth })
+        val feb = WorkoutAnalytics.monthDays(m, java.time.YearMonth.of(2026, 2))
+        assertEquals(28, feb.size)
+        // Minutes come only from recorded sessions; unrecorded days are zero.
+        val byDay = m.sessions.associateBy { it.epochDay }
+        oct.forEach { day ->
+            val date = java.time.YearMonth.of(2026, 10).atDay(day.dayOfMonth)
+            val expected = byDay[date.toEpochDay()]?.minutes ?: 0
+            assertEquals("Oct ${day.dayOfMonth}", expected, day.minutes)
+        }
+    }
+
+    @Test
+    fun summarizeDaysMatchesItsDays() {
+        val m = month()
+        val oct = WorkoutAnalytics.monthDays(m, java.time.YearMonth.of(2026, 10))
+        val summary = WorkoutAnalytics.summarizeDays(oct)
+        assertEquals(oct.sumOf { it.minutes }, summary.totalMinutes)
+        assertEquals(oct.count { it.minutes > 0 }, summary.activeDays)
+        assertEquals(oct.size, summary.totalDays)
+    }
+
+    @Test
     fun october2026WeekdaysAreReal() {
         // Oct 1 2026 is a Thursday; the calendar derives weekdays from the
         // date, never from a hardcoded month.

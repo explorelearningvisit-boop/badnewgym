@@ -169,12 +169,15 @@ fun fmtDurationHm(ms: Long): String {
     return "%02dh %02dm".format(m / 60, m % 60)
 }
 
-/** Workout history ranges (spec: 7 / 14 / 15 / 30 days). */
+/** Workout history ranges. THIS_MONTH shows the selected calendar month. */
 enum class WorkoutRange(val days: Int, val short: String) {
+    THIS_MONTH(-1, "Month"),
     D7(7, "7D"),
     D14(14, "14D"),
     D15(15, "15D"),
-    D30(30, "30D")
+    D30(30, "30D");
+
+    val isMonth: Boolean get() = this == THIS_MONTH
 }
 
 /** "Today's Visit #1" - only when the count is real. */
