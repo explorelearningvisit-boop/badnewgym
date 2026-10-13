@@ -95,7 +95,7 @@ fun BodyProgressAnalyticsScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(MiColors.Page)
+            .background(Color.Transparent)
             // enableEdgeToEdge means the window draws under the system bars, so
             // the header has to consume the insets itself.
             .windowInsetsPadding(WindowInsets.safeDrawing)
@@ -991,7 +991,7 @@ private fun consistencyDot(state: ConsistencyAnalytics.DayState): Color = when (
 private fun BestProgressCard(summary: BodyProgressSummary) {
     val prog = summary.strength
     BodyCard {
-        DashboardSectionHead(icon = "B", tint = Color(0xFFF59E0B), title = "Best Progress", subtitle = null, actionLabel = ">", onAction = null)
+        DashboardSectionHead(icon = "B", tint = Color(0xFFF59E0B), title = "Best Progress", subtitle = null, actionLabel = ">", onAction = null, titleSize = 13)
         Spacer(Modifier.height(6.dp))
         if (prog == null) {
             Text("No comparable strength records yet.", fontSize = 11.sp, color = MiColors.TextSecondary, maxLines = 2)
@@ -1022,7 +1022,7 @@ private fun BestProgressCard(summary: BodyProgressSummary) {
 @Composable
 private fun RecentActivityCard(summary: BodyProgressSummary) {
     BodyCard {
-        DashboardSectionHead(icon = "R", tint = Color(0xFF2563EB), title = "Recent Activity", subtitle = null, actionLabel = ">", onAction = null)
+        DashboardSectionHead(icon = "R", tint = Color(0xFF2563EB), title = "Recent Activity", subtitle = null, actionLabel = ">", onAction = null, titleSize = 13)
         Spacer(Modifier.height(6.dp))
         val recent = summary.usage.stats.sortedByDescending { it.lastDay }.take(3)
         if (recent.isEmpty()) {
@@ -1056,7 +1056,7 @@ private fun RecentActivityCard(summary: BodyProgressSummary) {
 @Composable
 private fun KeyInsightCard(summary: BodyProgressSummary) {
     BodyCard {
-        DashboardSectionHead(icon = "I", tint = Color(0xFF7C3AED), title = "Insight", subtitle = null, actionLabel = ">", onAction = null)
+        DashboardSectionHead(icon = "I", tint = Color(0xFF7C3AED), title = "Insight", subtitle = null, actionLabel = ">", onAction = null, titleSize = 13)
         Spacer(Modifier.height(6.dp))
         val insight = summary.insights.firstOrNull()
         if (insight == null) {
@@ -1074,7 +1074,7 @@ private fun KeyInsightCard(summary: BodyProgressSummary) {
 @Composable
 private fun NextFocusCard(summary: BodyProgressSummary) {
     BodyCard {
-        DashboardSectionHead(icon = "N", tint = Color(0xFFE54848), title = "Next Focus", subtitle = null, actionLabel = ">", onAction = null)
+        DashboardSectionHead(icon = "N", tint = Color(0xFFE54848), title = "Next Focus", subtitle = null, actionLabel = ">", onAction = null, titleSize = 13)
         Spacer(Modifier.height(6.dp))
         // "Least recorded" is a statement about the log, never a judgement
         // about the body: absence of a record is not evidence of weakness.
@@ -1105,7 +1105,8 @@ private fun DashboardSectionHead(
     title: String,
     subtitle: String?,
     actionLabel: String?,
-    onAction: (() -> Unit)?
+    onAction: (() -> Unit)?,
+    titleSize: Int = 15
 ) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -1114,7 +1115,7 @@ private fun DashboardSectionHead(
         ) { Text(icon, fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.White, maxLines = 1) }
         Spacer(Modifier.width(8.dp))
         Column(Modifier.weight(1f)) {
-            Text(title, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
+            Text(title, fontSize = titleSize.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
             if (subtitle != null) {
                 Text(subtitle, fontSize = 10.sp, color = MiColors.TextSecondary, maxLines = 1)
             }

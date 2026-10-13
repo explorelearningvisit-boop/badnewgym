@@ -47,13 +47,13 @@ import kotlin.math.abs
 // ------------------------------------------------------------------ tokens
 
 object BodyChartColors {
-    val weight = Color(0xFF7C3AED)
-    val muscle = Color(0xFF0891B2)
-    val bodyFat = Color(0xFFE54848)
-    val strength = Color(0xFF16A34A)
-    val endurance = Color(0xFF2563EB)
-    val waist = Color(0xFFD97706)
-    val gridLine = Color(0xFFE6EEEA)
+    val weight = Color(0xFF8B5CF6)
+    val muscle = Color(0xFF00CFF0)
+    val bodyFat = Color(0xFFF04452)
+    val strength = Color(0xFF00C98A)
+    val endurance = Color(0xFF4D9BFF)
+    val waist = Color(0xFFF5B33B)
+    val gridLine = Color(0xFF1E4A8A)
 }
 
 private fun colorFor(metricKey: String): Color = when (metricKey) {

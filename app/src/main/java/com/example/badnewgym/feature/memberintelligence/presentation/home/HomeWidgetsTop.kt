@@ -57,14 +57,14 @@ fun CheckInWidget(
     onOpen: () -> Unit,
     compact: Boolean = false
 ) {
-    val theme = themeForPlan(snapshot.membership?.planName)
+    val theme = heroTheme()
     val live = checkIn.liveStartMs != null
     val shape = RoundedCornerShape(18.dp)
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = shape,
         color = Color.Transparent,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE3C878)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF4DD8FF)),
         shadowElevation = 4.dp
     ) {
         Box(
@@ -184,7 +184,7 @@ private fun TimeBlock(label: String, value: String, fg: Color) {
     Column(
         Modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Color.White.copy(alpha = 0.65f))
+            .background(Color.Black.copy(alpha = 0.35f))
             .padding(horizontal = 8.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

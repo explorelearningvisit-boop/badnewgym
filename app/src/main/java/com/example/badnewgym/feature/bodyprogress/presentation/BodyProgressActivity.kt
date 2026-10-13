@@ -42,8 +42,16 @@ class BodyProgressActivity : ComponentActivity() {
         val memberId = intent?.getStringExtra(EXTRA_MEMBER_ID) ?: "BG305"
         val section = intent?.getStringExtra(EXTRA_SECTION) ?: "top"
         setContent {
-            Box(Modifier.fillMaxSize().background(MiColors.Page)) {
-                BodyProgressAnalyticsRoute(scenario, memberId, section) { finish() }
+            androidx.compose.material3.MaterialTheme(
+                colorScheme = com.example.badnewgym.feature.memberintelligence.design.tokens.MiDarkScheme()
+            ) {
+                Box(
+                    Modifier.fillMaxSize().background(
+                        com.example.badnewgym.feature.memberintelligence.design.tokens.MiPageGradient
+                    )
+                ) {
+                    BodyProgressAnalyticsRoute(scenario, memberId, section) { finish() }
+                }
             }
         }
     }

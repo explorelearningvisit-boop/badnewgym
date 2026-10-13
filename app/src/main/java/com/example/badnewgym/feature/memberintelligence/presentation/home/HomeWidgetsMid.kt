@@ -190,16 +190,16 @@ private fun PaymentDueSoonCard(
                 Text(fmtDate(dueMs), fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
             }
             Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Last Paid", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
-                    Spacer(Modifier.width(3.dp))
-                    Box(
-                        Modifier.clip(RoundedCornerShape(8.dp)).background(Color(0xFFE5F6EC))
-                            .padding(horizontal = 5.dp, vertical = 1.dp)
-                    ) { Text("Paid", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0E7A4D)) }
-                }
+                Text("Last Paid", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
                 Text(fmtRupees(payment.lastPaymentAmount), fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
                 Text(fmtDate(payment.lastPaymentDate), fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+                Spacer(Modifier.height(2.dp))
+                Row {
+                    Box(
+                        Modifier.clip(RoundedCornerShape(8.dp)).background(Color(0xFFE5F6EC))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) { Text("Paid", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0E7A4D), maxLines = 1) }
+                }
             }
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
                 // State rides in the header badge; the date below is enough.
@@ -408,7 +408,7 @@ fun AttendanceWidget(
         Spacer(Modifier.height(3.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(contentAlignment = Alignment.Center) {
-                Donut(month.percent, size = 48.dp, pctSize = 12)
+                Donut(month.percent, size = 52.dp, pctSize = 13)
             }
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
@@ -425,6 +425,9 @@ fun AttendanceWidget(
                     )
                 }
             }
+        }
+        Spacer(Modifier.height(3.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             val paymentDays = remember(month) { month.days.count { it.hasPayment } }
             val avgWorkout = remember(month) {
                 val mins = month.days.mapNotNull { it.visitMinutes }
@@ -432,13 +435,14 @@ fun AttendanceWidget(
             }
             MiniStatBox(
                 glyph = "\u20B9", tint = Color(0xFF16A34A),
-                value = "$paymentDays", label = if (paymentDays == 1) "Payment Day" else "Payment Days"
+                value = "$paymentDays", label = if (paymentDays == 1) "Payment Day" else "Payment Days",
+                modifier = Modifier.weight(1f)
             )
-            Spacer(Modifier.width(6.dp))
             MiniStatBox(
                 glyph = "W", tint = MiColors.Blue,
                 value = avgWorkout?.let { "$it min" } ?: "-",
-                label = "Avg. Workout"
+                label = "Avg. Workout",
+                modifier = Modifier.weight(1f)
             )
         }
         Spacer(Modifier.height(4.dp))
@@ -471,13 +475,14 @@ private fun StatusCount(bg: Color, glyph: String, glyphColor: Color, count: Stri
 }
 
 @Composable
-private fun MiniStatBox(glyph: String, tint: Color, value: String, label: String) {
+private fun MiniStatBox(glyph: String, tint: Color, value: String, label: String, modifier: Modifier = Modifier) {
     Row(
-        Modifier
+        modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MiColors.SurfaceSunken)
             .padding(horizontal = 5.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
         Box(
             Modifier.size(20.dp).clip(RoundedCornerShape(7.dp)).background(tint),
@@ -668,14 +673,14 @@ private fun Donut(pct: Int, size: Dp = 76.dp, pctSize: Int = 17) {
         androidx.compose.foundation.Canvas(Modifier.size(size)) {
             val sweep = pct.toFloat() / 100f * 360f
             drawArc(
-                color = Color(0xFFE3EEE9),
+                color = MiColors.Border,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 9.dp.toPx())
             )
             drawArc(
-                color = Color(0xFF00B86B),
+                color = MiColors.Emerald,
                 startAngle = -90f,
                 sweepAngle = sweep,
                 useCenter = false,

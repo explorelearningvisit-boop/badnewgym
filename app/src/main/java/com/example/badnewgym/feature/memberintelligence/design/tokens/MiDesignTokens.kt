@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
@@ -27,38 +28,39 @@ import androidx.compose.ui.unit.sp
  * UI composables must not hardcode hex values or dp literals.
  */
 object MiColors {
-    // Brand
-    val Emerald = Color(0xFF00B86B)
-    val EmeraldDark = Color(0xFF05945A)
-    val EmeraldLight = Color(0xFF3FCB8C)
-    val Mint = Color(0xFFE6F8F0)
-    val Page = Color(0xFFF4FBF8)
+    // Brand - luminous on midnight navy.
+    val Emerald = Color(0xFF00C98A)
+    val EmeraldDark = Color(0xFF5EE8B5)
+    val EmeraldLight = Color(0xFF7DF0C6)
+    val Mint = Color(0xFF14417E)
+    val Page = Color(0xFF071A3D)
+    val PageGradientTop = Color(0xFF0A2B63)
 
-    // Text
-    val TextPrimary = Color(0xFF102B26)
-    val TextSecondary = Color(0xFF6C8580)
-    val TextTertiary = Color(0xFF9AB0AB)
-    val Border = Color(0xFFDCEDE7)
+    // Text - white and icy blue on navy.
+    val TextPrimary = Color(0xFFFFFFFF)
+    val TextSecondary = Color(0xFFA9C3E8)
+    val TextTertiary = Color(0xFF7F9CCB)
+    val Border = Color(0xFF2B5CA6)
 
-    // Surfaces
-    val Surface = Color(0xFFFFFFFF)
-    val SurfaceSunken = Color(0xFFF1F7F4)
-    val SurfaceRaised = Color(0xFFFCFFFE)
+    // Surfaces - layered navy glass.
+    val Surface = Color(0xFF10336E)
+    val SurfaceSunken = Color(0xFF0A2B63)
+    val SurfaceRaised = Color(0xFF16407E)
 
-    // Semantic
-    val Blue = Color(0xFF367FE8)
-    val BlueSoft = Color(0xFFEAF2FD)
-    val Amber = Color(0xFFE59A1A)
-    val AmberSoft = Color(0xFFFDF3E2)
-    val Red = Color(0xFFE54848)
-    val RedSoft = Color(0xFFFDECEC)
-    val Purple = Color(0xFF7659E8)
-    val PurpleSoft = Color(0xFFF0EDFD)
-    val Neutral = Color(0xFF9AB0AB)
+    // Semantic - bright variants that read on navy.
+    val Blue = Color(0xFF4D9BFF)
+    val BlueSoft = Color(0xFF14386E)
+    val Amber = Color(0xFFFFC85C)
+    val AmberSoft = Color(0xFF4A3413)
+    val Red = Color(0xFFF04452)
+    val RedSoft = Color(0xFF4A1A22)
+    val Purple = Color(0xFF8B5CF6)
+    val PurpleSoft = Color(0xFF2E1F5C)
+    val Neutral = Color(0xFF7E96B8)
 
-    /** Neutral light used as the dark half of a neumorphic shadow pair. */
-    val ShadowDark = Color(0x14102B26)
-    val ShadowLight = Color(0xFFFFFFFF)
+    /** Soft black shadow for depth on dark surfaces. */
+    val ShadowDark = Color(0x66000000)
+    val ShadowLight = Color(0xFF1E5AA8)
 }
 
 object MiSpacing {
@@ -117,6 +119,33 @@ fun Modifier.miWidgetSurface(
     .clip(shape)
     .background(fill)
     .border(borderWidth, borderColor, shape)
+
+/**
+ * Dark Material3 scheme for dialogs, sheets, menus and inputs, which
+ * otherwise render in light defaults. Covers everything the token system
+ * does not paint directly.
+ */
+@Composable
+fun MiDarkScheme(): androidx.compose.material3.ColorScheme =
+    androidx.compose.material3.darkColorScheme(
+        primary = MiColors.Emerald,
+        onPrimary = Color(0xFF06281C),
+        secondary = MiColors.Blue,
+        tertiary = MiColors.Purple,
+        background = MiColors.Page,
+        onBackground = MiColors.TextPrimary,
+        surface = MiColors.Surface,
+        onSurface = MiColors.TextPrimary,
+        surfaceVariant = MiColors.SurfaceSunken,
+        onSurfaceVariant = MiColors.TextSecondary,
+        outline = MiColors.Border,
+        error = MiColors.Red,
+        onError = Color.White
+    )
+
+/** Page atmosphere: midnight glow behind the shell and cards. */
+val MiPageGradient: Brush
+    get() = Brush.verticalGradient(listOf(MiColors.PageGradientTop, MiColors.Page))
 
 /**
  * Restrained neumorphic surface: light fill, very low contrast border and a
