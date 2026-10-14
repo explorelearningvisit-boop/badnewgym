@@ -74,6 +74,8 @@ import com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressViewM
 import com.example.badnewgym.feature.memberintelligence.debug.HomeDebugBridge
 import com.example.badnewgym.feature.memberintelligence.design.tokens.ChromeGradient
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
+import com.example.badnewgym.feature.memberintelligence.design.tokens.PageGradient
+import com.example.badnewgym.feature.memberintelligence.design.tokens.PageGlow
 import com.example.badnewgym.feature.memberintelligence.design.tokens.RailActiveGradient
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod
 
@@ -469,8 +471,14 @@ fun MemberIntelligenceHome(
                     .weight(1f)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
-                    .background(MiColors.Page)
+                    .background(PageGradient)
             ) {
+                // Light bloom over the emerald field, matching the reference.
+                Box(
+                    Modifier
+                        .matchParentSize()
+                        .background(PageGlow)
+                )
                 when (val s = state) {
                     HomeUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = MiColors.Emerald)

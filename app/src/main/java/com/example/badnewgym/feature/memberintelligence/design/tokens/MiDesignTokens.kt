@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -89,6 +90,34 @@ object MiSpacing {
 /** Deep-green frame gradient behind the header and rail. */
 val ChromeGradient: Brush = Brush.verticalGradient(
     listOf(MiColors.ChromeMid, MiColors.ChromeDark, MiColors.ChromeDeep)
+)
+
+/**
+ * Page canvas behind the widget stack.
+ *
+ * The reference floats white cards on a living emerald field rather than on flat
+ * white. A single flat tint read as a dead page, so this is a mint-to-emerald
+ * sweep with a deeper foot: every white card still sits well above the contrast
+ * floor, but the page reads as one continuous surface.
+ */
+val PageGradient: Brush = Brush.verticalGradient(
+    0.00f to Color(0xFFEAFBF3),
+    0.30f to Color(0xFFD5F3E5),
+    0.62f to Color(0xFFB8E9D2),
+    1.00f to Color(0xFF93D9BC)
+)
+
+/**
+ * Soft off-centre highlight laid over [PageGradient].
+ *
+ * The reference shows light bloom behind the upper widgets. Drawn as a radial
+ * wash rather than a second solid layer so it reads as light, not as another
+ * surface.
+ */
+val PageGlow: Brush = Brush.radialGradient(
+    colors = listOf(Color(0x59FFFFFF), Color(0x00FFFFFF)),
+    center = Offset(0.72f, 0.06f),
+    radius = 900f
 )
 
 /** Active rail pill: a saturated emerald glow on the dark frame. */
