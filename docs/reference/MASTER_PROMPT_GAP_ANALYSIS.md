@@ -150,3 +150,32 @@ screenshots:
 
 140 unit tests green.
 
+## 8. Reference-visual pass (image comparison)
+
+With image reading available, the attached reference was compared directly
+against the running app. Key findings:
+
+- The reference is 1024x1536, about 1.9x taller than the phone's usable
+  393x873dp. It is a tall scrolling mockup and was never intended to fit one
+  screen.
+- Its background is a rich emerald field with light bloom, not flat white.
+- Its hero is a tall gym photo with "GOOD WORKOUT / A HEALTHY YOU" and
+  "Discipline Builds Freedom".
+
+Three changes brought the build in line:
+
+- Emerald depth field behind the widgets (PageGradient + PageGlow).
+- Workout range chips replaced by one compact "This Month" dropdown (a superset
+  of the chip ranges).
+- Photographic hero at 118dp with the quote, live timer and End Session intact.
+
+Trade-off: the hero now scrolls the dashboard, matching the reference. The
+previous single-screen build is preserved in git history; `compact = true` on
+the hero widget restores the 45dp strip and the no-scroll fit.
+
+Still not implemented, and not faked, because no data source exists in this
+repo: height, calorie intake, unread message counts, trainer scheduling,
+session pause/resume, and a seeded BMI series (BMI is modeled as a metric but
+no record is ever written for it). Each needs a real model or an honest empty
+state, not invented values.
+
