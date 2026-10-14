@@ -173,14 +173,24 @@ fun fmtDurationHm(ms: Long): String {
 }
 
 /** Workout history ranges. THIS_MONTH shows the selected calendar month. */
-enum class WorkoutRange(val days: Int, val short: String) {
-    THIS_MONTH(-1, "Month"),
-    D7(7, "7D"),
-    D14(14, "14D"),
-    D15(15, "15D"),
-    D30(30, "30D");
+/** [short] is the dense chip form; [label] is the dropdown/menu form. */
+enum class WorkoutRange(val days: Int, val short: String, val label: String) {
+    THIS_MONTH(-1, "Month", "This Month"),
+    D7(7, "7D", "Last 7 Days"),
+    D14(14, "14D", "Last 14 Days"),
+    D15(15, "15D", "Last 15 Days"),
+    D30(30, "30D", "Last 30 Days");
 
     val isMonth: Boolean get() = this == THIS_MONTH
+
+    companion object {
+        /** Ranges the Home dashboard offers, in menu order. */
+        val dashboardOptions: List<WorkoutRange> = listOf(THIS_MONTH, D7, D15, D30)
+
+        /** Parses a stored range id, defaulting to the full month. */
+        fun fromId(id: String?): WorkoutRange =
+            entries.firstOrNull { it.name == id } ?: THIS_MONTH
+    }
 }
 
 /** "Today's Visit #1" - only when the count is real. */

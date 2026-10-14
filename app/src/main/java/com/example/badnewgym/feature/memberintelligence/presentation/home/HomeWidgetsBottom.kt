@@ -16,17 +16,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -125,22 +135,7 @@ fun WorkoutWidget(
         }
         Spacer(Modifier.height(3.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            listOf(WorkoutRange.THIS_MONTH, WorkoutRange.D7, WorkoutRange.D15, WorkoutRange.D30).forEach { entry ->
-                val selected = entry == range
-                Box(
-                    Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(if (selected) MiColors.Blue else MiColors.BlueSoft)
-                        .clickable(onClick = { onRangeChange(entry) })
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        entry.short, fontSize = 10.sp, fontWeight = FontWeight.Bold,
-                        color = if (selected) Color.White else MiColors.Blue, maxLines = 1
-                    )
-                }
-                Spacer(Modifier.width(4.dp))
-            }
+            RangeDropdown(range, onRangeChange)
             Spacer(Modifier.width(6.dp))
             // The weekly trend rides in the dead space beside the range chips,
             // which keeps it without spending the card another row of height.
@@ -203,6 +198,73 @@ private fun barFillFor(day: WorkoutAnalytics.WorkoutDay): Modifier = when {
     else -> Modifier.background(
         Brush.verticalGradient(listOf(Color(0xFF38BDF8), Color(0xFF2563EB)))
     )
+}
+
+/**
+ * Single range selector for the workout card.
+ *
+ * The reference shows one compact "This Month" control instead of a row of
+ * chips, which keeps the card header uncluttered. It is a superset of the old
+ * chips: every range they offered is present in the menu.
+ */
+@Composable
+private fun RangeDropdown(
+    range: WorkoutRange,
+    onChange: (WorkoutRange) -> Unit
+) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        Row(
+            Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .background(MiColors.BlueSoft)
+                .clickable { open = true }
+                .semantics {
+                    contentDescription = "Workout range, currently ${range.label}"
+                    role = Role.Button
+                }
+                .padding(start = 8.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                range.label,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = MiColors.Blue,
+                maxLines = 1
+            )
+            Spacer(Modifier.width(3.dp))
+            Icon(
+                Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = MiColors.Blue,
+                modifier = Modifier.size(14.dp)
+            )
+        }
+        DropdownMenu(
+            expanded = open,
+            onDismissRequest = { open = false },
+            containerColor = MiColors.Surface
+        ) {
+            WorkoutRange.dashboardOptions.forEach { entry ->
+                val selected = entry == range
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            entry.label,
+                            fontSize = 12.sp,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (selected) MiColors.Blue else MiColors.TextPrimary
+                        )
+                    },
+                    onClick = {
+                        onChange(entry)
+                        open = false
+                    }
+                )
+            }
+        }
+    }
 }
 
 /**
