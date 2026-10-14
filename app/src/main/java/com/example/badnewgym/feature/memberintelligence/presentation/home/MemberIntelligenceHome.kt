@@ -168,7 +168,7 @@ private fun AppHeader(
     Row(
         Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(52.dp)
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -484,8 +484,8 @@ fun MemberIntelligenceHome(
                             Modifier
                                 .fillMaxWidth()
                                 .verticalScroll(rememberScrollState())
-                                .padding(horizontal = 7.dp, vertical = 7.dp),
-                            verticalArrangement = Arrangement.spacedBy(7.dp)
+                                .padding(horizontal = 6.dp, vertical = 5.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             CheckInWidget(
                                 checkIn = data.checkIn,
@@ -532,6 +532,7 @@ fun MemberIntelligenceHome(
                                 goals = data.bodyGoals,
                                 histories = data.bodyHistories,
                                 summary = bodySummary,
+                                singleRow = true,
                                 onOpen = { openBodyProgress() }
                             )
                         }

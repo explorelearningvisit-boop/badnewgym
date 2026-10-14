@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -81,64 +82,55 @@ fun CheckInWidget(
                 )
             )
         )
-        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier
-                        .size(30.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0x3300E08A)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Filled.DirectionsRun, contentDescription = null,
-                        tint = Color(0xFF6BFFC0), modifier = Modifier.size(17.dp)
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
-                Column(Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            if (live) "LIVE SESSION" else "LAST SESSION",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White,
-                            maxLines = 1
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Pill(
-                            if (live) "LIVE" else "COMPLETED",
-                            if (live) Color(0xFF16C172) else Color(0xFF6E8079),
-                            Color.White,
-                            9
-                        )
-                    }
-                    Text(
-                        "DISCIPLINE BUILDS FREEDOM",
-                        fontSize = 8.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF7FE8B8),
-                        maxLines = 1
-                    )
-                }
-                if (live) {
-                    Box(
-                        Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(Color(0xFFE54848))
-                            .clickable(onClick = onEndSession)
-                            .padding(horizontal = 12.dp, vertical = 7.dp)
-                    ) {
-                        Text(
-                            "\u25A0 END SESSION",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White
-                        )
-                    }
-                }
+        Row(
+            Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                Modifier
+                    .size(26.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0x3300E08A)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Filled.DirectionsRun, contentDescription = null,
+                    tint = Color(0xFF6BFFC0), modifier = Modifier.size(15.dp)
+                )
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.width(7.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        if (live) "LIVE SESSION" else "LAST SESSION",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Pill(
+                        if (live) "LIVE" else "DONE",
+                        if (live) Color(0xFF16C172) else Color(0xFF6E8079),
+                        Color.White,
+                        8
+                    )
+                }
+                // The visit number rides on the second line instead of taking a
+                // chip of its own, which is what pushed the hero into clipping.
+                Text(
+                    listOfNotNull(
+                        checkIn.visitNumberToday?.let { "Visit #$it" },
+                        checkInMethodLabel(checkIn.methodLabel)
+                    ).joinToString(" \u00B7 "),
+                    fontSize = 7.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF7FE8B8),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
             var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
             LaunchedEffect(checkIn.liveStartMs) {
                 while (true) {
@@ -148,44 +140,32 @@ fun CheckInWidget(
             }
             val recorded = if (live) (nowMs - (checkIn.liveStartMs ?: nowMs)).coerceAtLeast(0)
             else checkIn.lastDurationMs
-            Row(verticalAlignment = Alignment.Bottom) {
-                Column(Modifier.weight(1f)) {
+            Spacer(Modifier.width(6.dp))
+            Text(
+                if (recorded != null) fmtDurationHms(recorded) else "--:--:--",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White,
+                maxLines = 1
+            )
+            if (live) {
+                Spacer(Modifier.width(7.dp))
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(Color(0xFFE54848))
+                        .clickable(onClick = onEndSession)
+                        .padding(horizontal = 9.dp, vertical = 5.dp)
+                ) {
                     Text(
-                        if (recorded != null) fmtDurationHms(recorded) else "--:--:--",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White,
-                        maxLines = 1
-                    )
-                    Text(
-                        if (live) "in session" else "last recorded duration",
+                        "\u25A0 END",
                         fontSize = 9.sp,
-                        color = Color(0xFF8FD9B6),
-                        maxLines = 1
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
                     )
                 }
-                HeroStat(
-                    "STARTED",
-                    fmtTime(if (live) checkIn.liveStartMs else checkIn.lastStartMs)
-                )
-                checkIn.visitNumberToday?.let { HeroStat("VISIT", "#$it") }
             }
         }
-    }
-}
-
-/** One stat chip on the dark session hero. */
-@Composable
-private fun HeroStat(label: String, value: String) {
-    Column(
-        Modifier
-            .padding(start = 8.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color(0x2EFFFFFF))
-            .padding(horizontal = 9.dp, vertical = 5.dp)
-    ) {
-        Text(label, fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF7FE8B8), maxLines = 1)
-        Text(value, fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color.White, maxLines = 1)
     }
 }
 
@@ -216,6 +196,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit, checkIn: 
             ContextStrip(checkIn)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
+            Spacer(Modifier.width(2.dp))
             Box(contentAlignment = Alignment.BottomEnd) {
                 val photo = identity.photoUrl
                 if (!photo.isNullOrBlank()) {
@@ -223,7 +204,7 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit, checkIn: 
                         model = photo,
                         contentDescription = identity.name,
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(34.dp)
                             .clip(CircleShape)
                             .background(MiColors.Mint)
                             .border(
@@ -235,13 +216,13 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit, checkIn: 
                 } else {
                     Box(
                         Modifier
-                            .size(36.dp)
+                            .size(34.dp)
                             .clip(CircleShape)
                             .background(MiColors.Mint)
                             .border(2.dp, MiColors.Emerald, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        AvatarDot(identity.name, MiColors.Emerald, 34.dp)
+                        AvatarDot(identity.name, MiColors.Emerald, 32.dp)
                     }
                 }
                 Box(
@@ -297,51 +278,40 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit, checkIn: 
                 )
                 Text("Days Left", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
                 Text(">", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MiColors.TextTertiary)
-            }
-        }
-        if (membership != null) {
-            Spacer(Modifier.height(4.dp))
-            val totalDays = totalPlanDays(membership.startDate, membership.expiryDate)
-            val used = (totalDays - membership.daysRemaining).coerceIn(0, totalDays)
-            val pct = if (totalDays > 0) used * 100 / totalDays else 0
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    "$used / $totalDays days",
-                    fontSize = 10.sp,
-                    color = MiColors.TextSecondary,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1
-                )
-                Spacer(Modifier.width(8.dp))
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(MiColors.Border)
-                ) {
+                // The plan progress lives under the countdown instead of on its
+                // own full-width row, which is what forced a second line.
+                if (membership != null) {
+                    val totalDays = totalPlanDays(membership.startDate, membership.expiryDate)
+                    val used = (totalDays - membership.daysRemaining).coerceIn(0, totalDays)
+                    val pct = if (totalDays > 0) used * 100 / totalDays else 0
+                    Spacer(Modifier.height(3.dp))
                     Box(
                         Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth((pct / 100f).coerceIn(0f, 1f))
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(MiColors.Emerald)
+                            .width(74.dp)
+                            .height(4.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(MiColors.Border)
+                    ) {
+                        Box(
+                            Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth((pct / 100f).coerceIn(0f, 1f))
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(MiColors.Emerald)
+                        )
+                    }
+                    Text(
+                        "$used / $totalDays days \u00B7 $pct%",
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MiColors.TextSecondary,
+                        maxLines = 1
                     )
                 }
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    "$pct%",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Black,
-                    color = MiColors.TextPrimary,
-                    maxLines = 1
-                )
             }
         }
     }
 }
-
-private data class StripStyle(val glyph: String, val label: String, val tint: Color, val bg: Color)
 
 /**
  * Verified context strip above the member's name. It renders only when the
@@ -406,21 +376,21 @@ private fun ContextStrip(checkIn: HomeCheckIn) {
             Pill("Active Session", Color(0xFFE5F6EC), Color(0xFF0E7A4D), 9)
         }
     }
-    Spacer(Modifier.height(4.dp))
+    Spacer(Modifier.height(3.dp))
 }
 
 @Composable
 private fun StripPill(glyph: String, label: String, tint: Color, bg: Color) {
     Row(
         Modifier
-            .clip(RoundedCornerShape(9.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(bg)
-            .padding(horizontal = 7.dp, vertical = 3.dp),
+            .padding(horizontal = 6.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(glyph, fontSize = 9.sp, fontWeight = FontWeight.Black, color = tint, maxLines = 1)
-        Spacer(Modifier.width(4.dp))
-        Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = tint, maxLines = 1)
+        Text(glyph, fontSize = 8.sp, fontWeight = FontWeight.Black, color = tint, maxLines = 1)
+        Spacer(Modifier.width(3.dp))
+        Text(label, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = tint, maxLines = 1)
     }
 }
 

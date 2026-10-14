@@ -1,4 +1,4 @@
-package com.example.badnewgym.feature.memberintelligence.presentation.home
+﻿package com.example.badnewgym.feature.memberintelligence.presentation.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -141,6 +141,15 @@ fun WorkoutWidget(
                 }
                 Spacer(Modifier.width(4.dp))
             }
+            Spacer(Modifier.width(6.dp))
+            // The weekly trend rides in the dead space beside the range chips,
+            // which keeps it without spending the card another row of height.
+            if (isMonth) {
+                val weeks = remember(month, workoutYearMonth) {
+                    WorkoutAnalytics.weeksOfMonth(month, workoutYearMonth)
+                }
+                if (weeks.size >= 2) WeeklyBars(weeks)
+            }
             Spacer(Modifier.weight(1f))
             if (isMonth) {
                 val nowYm = remember { java.time.YearMonth.now() }
@@ -151,17 +160,6 @@ fun WorkoutWidget(
             }
         }
         Spacer(Modifier.height(2.dp))
-        if (isMonth) {
-            val weeks = remember(month, workoutYearMonth) {
-                WorkoutAnalytics.weeksOfMonth(month, workoutYearMonth)
-            }
-            val wow = remember(month, workoutYearMonth) {
-                WorkoutAnalytics.weekOverWeek(month, workoutYearMonth)
-            }
-            if (weeks.size >= 2) {
-                WeeklyTrendRow(weeks, wow)
-            }
-        }
         if (range == WorkoutRange.D7) {
             Text(
                 if (count > 1) "Wk ${pagerState.currentPage + 1}/$count \u00B7 swipe >" else "This week",
@@ -179,15 +177,15 @@ fun WorkoutWidget(
             RangeChart(days = chartDays)
         }
         if (isMonth) {
-            Spacer(Modifier.height(3.dp))
+            Spacer(Modifier.height(2.dp))
             IntensityLegend(days = chartDays)
         }
-        Spacer(Modifier.height(3.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            StatChip("Sessions", "${rangeSummary.activeDays}", MiColors.TextPrimary, Modifier.weight(1f), dense = true)
-            StatChip("Total", "${rangeSummary.totalMinutes}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true)
-            StatChip("Avg", "${rangeSummary.averageMinutes}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true)
-            StatChip("Peak", "${rangeSummary.peak?.minutes ?: 0}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true)
+        Spacer(Modifier.height(2.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            StatChip("Sessions", "${rangeSummary.activeDays}", MiColors.TextPrimary, Modifier.weight(1f), dense = true, singleLine = true)
+            StatChip("Total", "${rangeSummary.totalMinutes}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true, singleLine = true)
+            StatChip("Avg", "${rangeSummary.averageMinutes}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true, singleLine = true)
+            StatChip("Peak", "${rangeSummary.peak?.minutes ?: 0}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true, singleLine = true)
         }
     }
 }
@@ -205,6 +203,33 @@ private fun barFillFor(day: WorkoutAnalytics.WorkoutDay): Modifier = when {
     else -> Modifier.background(
         Brush.verticalGradient(listOf(Color(0xFF38BDF8), Color(0xFF2563EB)))
     )
+}
+
+/**
+ * Compact weekly-volume sparkline. It sits inline with the range chips so the
+ * trend is always visible without costing the card another row.
+ */
+@Composable
+private fun WeeklyBars(weeks: List<WorkoutAnalytics.WeekBucket>) {
+    val max = (weeks.maxOfOrNull { it.totalMinutes } ?: 1).coerceAtLeast(1)
+    Row(
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier.semantics {
+            contentDescription = "Weekly recorded minutes: " +
+                weeks.joinToString(", ") { "${it.label} ${it.totalMinutes}" }
+        }
+    ) {
+        weeks.forEach { w ->
+            Box(
+                Modifier
+                    .width(7.dp)
+                    .height((3 + w.totalMinutes.toFloat() / max * 11).dp)
+                    .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
+                    .background(MiColors.Emerald)
+            )
+        }
+    }
 }
 
 @Composable
@@ -276,7 +301,7 @@ private fun MonthChart(days: List<WorkoutAnalytics.WorkoutDay>) {
     val max = (days.maxOfOrNull { it.minutes } ?: 1).coerceAtLeast(1)
     val labelEvery = if (days.size > 20) 3 else 2
     Row(
-        Modifier.fillMaxWidth().height(58.dp),
+        Modifier.fillMaxWidth().height(46.dp),
         horizontalArrangement = Arrangement.spacedBy(1.dp),
         verticalAlignment = Alignment.Bottom
     ) {
@@ -293,11 +318,10 @@ private fun MonthChart(days: List<WorkoutAnalytics.WorkoutDay>) {
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .height(if (day.minutes > 0) (4 + (day.minutes.toFloat() / max * 34)).dp else 3.dp)
+                        .height(if (day.minutes > 0) (4 + (day.minutes.toFloat() / max * 27)).dp else 3.dp)
                         .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
                         .then(barFillFor(day))
                 )
-                Spacer(Modifier.height(1.dp))
                 Text(
                     if (i % labelEvery == 0 || i == days.lastIndex) "${day.dayOfMonth}" else "",
                     fontSize = 7.sp,
@@ -405,61 +429,6 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
     }
 }
 
-/**
- * Compact weekly-volume trend beside the full-month daily chart.
- *
- * Every bar is the recorded minutes of one Monday-start week of the selected
- * month, so the strip always describes the same period as the chart beneath
- * it. The right-hand figure is the latest recorded week against the week
- * before it; it is omitted entirely when there is no honest comparator.
- */
-@Composable
-private fun WeeklyTrendRow(
-    weeks: List<WorkoutAnalytics.WeekBucket>,
-    delta: WorkoutAnalytics.WeekDelta?
-) {
-    val max = (weeks.maxOfOrNull { it.totalMinutes } ?: 1).coerceAtLeast(1)
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            "Weekly", fontSize = 9.sp, fontWeight = FontWeight.Bold,
-            color = MiColors.TextSecondary, maxLines = 1
-        )
-        Spacer(Modifier.width(6.dp))
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-            modifier = Modifier.semantics {
-                contentDescription = "Weekly recorded minutes: " +
-                    weeks.joinToString(", ") { "${it.label} ${it.totalMinutes}" }
-            }
-        ) {
-            weeks.forEach { w ->
-                Box(
-                    Modifier
-                        .width(12.dp)
-                        .height(
-                            if (w.totalMinutes > 0) (4 + (w.totalMinutes.toFloat() / max * 14)).dp
-                            else 3.dp
-                        )
-                        .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                        .background(if (w.totalMinutes > 0) MiColors.Emerald else MiColors.Border)
-                )
-            }
-        }
-        Spacer(Modifier.weight(1f))
-        if (delta != null) {
-            val up = delta.deltaPercent > 0
-            val flat = delta.deltaPercent == 0
-            Text(
-                (if (flat) "\u25AC flat" else if (up) "\u25B2 +${delta.deltaPercent}%" else "\u25BC ${delta.deltaPercent}%") +
-                    " wk/wk",
-                fontSize = 9.sp, fontWeight = FontWeight.Black,
-                color = if (flat) MiColors.TextTertiary else if (up) MiColors.EmeraldDark else MiColors.Red,
-                maxLines = 1
-            )
-        }
-    }
-}
 
 @Composable
 private fun MonthNavArrows(
@@ -510,7 +479,8 @@ fun BodyProgressWidget(
     if (summary != null) {
         com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressHomeWidget(
             summary = summary,
-            onOpenDetails = onOpen
+            onOpenDetails = onOpen,
+            compact = singleRow
         )
         return
     }

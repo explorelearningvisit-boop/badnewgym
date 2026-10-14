@@ -103,6 +103,7 @@ fun StatChip(
     valueColor: Color = MiColors.TextPrimary,
     modifier: Modifier = Modifier,
     dense: Boolean = false,
+    singleLine: Boolean = false,
     glyph: String? = null,
     glyphBg: Color = MiColors.Blue
 ) {
@@ -120,9 +121,26 @@ fun StatChip(
             ) { Text(glyph, fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White, maxLines = 1) }
             Spacer(Modifier.width(7.dp))
         }
-        Column {
-            Text(value, fontSize = if (dense) 12.sp else 14.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
-            Text(label, fontSize = if (dense) 9.sp else 10.5.sp, fontWeight = FontWeight.Medium, color = MiColors.TextSecondary, maxLines = 1)
+        // Single-line mode halves the chip height, which is what lets the
+        // workout summary sit on the dashboard without pushing Body Progress
+        // off the bottom of the screen.
+        if (singleLine) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    value, fontSize = 11.sp, fontWeight = FontWeight.Black,
+                    color = valueColor, maxLines = 1
+                )
+                Spacer(Modifier.width(3.dp))
+                Text(
+                    label, fontSize = 8.sp, fontWeight = FontWeight.Medium,
+                    color = MiColors.TextSecondary, maxLines = 1
+                )
+            }
+        } else {
+            Column {
+                Text(value, fontSize = if (dense) 12.sp else 14.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
+                Text(label, fontSize = if (dense) 9.sp else 10.5.sp, fontWeight = FontWeight.Medium, color = MiColors.TextSecondary, maxLines = 1)
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -140,11 +141,17 @@ private fun PaymentNavChip(label: String, fg: Color, bg: Color, modifier: Modifi
 @Composable
 private fun PlanCell(planName: String?, planPeriod: String?, validTill: String?, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        Text(planName ?: "-", fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary, maxLines = 1)
-        Text(planPeriod ?: "", fontSize = 9.5.sp, color = MiColors.TextSecondary, maxLines = 1)
-        if (validTill != null) {
-            Text("Valid till $validTill", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
-        }
+        Text(
+            planName ?: "-", fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold,
+            color = MiColors.TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis
+        )
+        // Period and validity share one line: three stacked lines here is what
+        // made the payment card taller than the rest of the dashboard.
+        Text(
+            validTill?.let { "till $it" } ?: planPeriod.orEmpty(),
+            fontSize = 8.5.sp, color = MiColors.TextSecondary,
+            maxLines = 1, overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -181,15 +188,17 @@ private fun PaymentDueSoonCard(
                 Text("Amount", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
                 Text(fmtRupees(amount), fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
                 Text(
-                    when {
-                        daysLeft == null -> fmtDate(dueMs)
-                        daysLeft > 0 -> "Due in $daysLeft days"
-                        daysLeft == 0 -> "Due today"
-                        else -> "${-daysLeft}d late"
-                    },
-                    fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = MiColors.Red, maxLines = 1
+                    listOfNotNull(
+                        when {
+                            daysLeft == null -> null
+                            daysLeft > 0 -> "in $daysLeft days"
+                            daysLeft == 0 -> "due today"
+                            else -> "${-daysLeft}d late"
+                        },
+                        fmtDate(dueMs).takeIf { daysLeft != null }
+                    ).joinToString(" \u00B7 "),
+                    fontSize = 9.sp, fontWeight = FontWeight.Bold, color = MiColors.Red, maxLines = 1
                 )
-                Text(fmtDate(dueMs), fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
             }
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -422,9 +431,9 @@ fun AttendanceWidget(
         Spacer(Modifier.height(3.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(contentAlignment = Alignment.Center) {
-                Donut(month.percent, size = 48.dp, pctSize = 12)
+                Donut(month.percent, size = 42.dp, pctSize = 11)
             }
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(7.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(
                     "${month.attended} / ${month.openDays.size}",
@@ -467,9 +476,9 @@ fun AttendanceWidget(
         val first = remember(month) { month.days.filter { it.dayOfMonth <= 15 } }
         val second = remember(month) { month.days.filter { it.dayOfMonth > 15 } }
         MonthDayRow(first)
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(1.dp))
         MonthDayRow(second)
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(2.dp))
         AttendanceTrendRow(month, prevPoints)
     }
 }
@@ -549,11 +558,11 @@ private fun AttendanceTrendRow(month: AttendanceMonth, prevPoints: Int?) {
 private fun StatusCount(bg: Color, glyph: String, glyphColor: Color, count: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
-            Modifier.size(18.dp).clip(CircleShape).background(bg),
+            Modifier.size(16.dp).clip(CircleShape).background(bg),
             contentAlignment = Alignment.Center
-        ) { Text(glyph, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = glyphColor, maxLines = 1) }
-        Text(count, fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
-        Text(label, fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+        ) { Text(glyph, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = glyphColor, maxLines = 1) }
+        Text(count, fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
+        Text(label, fontSize = 8.5.sp, color = MiColors.TextSecondary, maxLines = 1)
     }
 }
 

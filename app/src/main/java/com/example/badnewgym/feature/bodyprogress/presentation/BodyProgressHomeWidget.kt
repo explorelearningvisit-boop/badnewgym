@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.bodyprogress.domain.BodyProgressAggregator
@@ -51,24 +52,25 @@ import kotlin.math.roundToInt
 @Composable
 fun BodyProgressHomeWidget(
     summary: BodyProgressSummary,
-    onOpenDetails: () -> Unit
+    onOpenDetails: () -> Unit,
+    compact: Boolean = false
 ) {
     BodyCard(onClick = onOpenDetails, padding = 4.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(26.dp).clip(RoundedCornerShape(9.dp)).background(Color(0xFF8849EF)),
+                Modifier.size(24.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFF8849EF)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Filled.FitnessCenter, contentDescription = null,
-                    tint = Color.White, modifier = Modifier.size(16.dp)
+                    tint = Color.White, modifier = Modifier.size(15.dp)
                 )
             }
             Spacer(Modifier.width(6.dp))
             Text(
                 "Body Progress \u00B7 ${summary.range.label}",
-                fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary,
-                maxLines = 1, modifier = Modifier.weight(1f)
+                fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = MiColors.TextPrimary,
+                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
             )
             BodyPill(
                 verdictArrow(summary.goalVerdict) + " " + summary.goalVerdict.label,
@@ -76,20 +78,34 @@ fun BodyProgressHomeWidget(
                 if (summary.goalVerdict == GoalVerdict.INSUFFICIENT_DATA) MiColors.TextSecondary else Color.White,
                 9
             )
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(5.dp))
             Text(
-                "View All >", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue,
+                "View All >", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MiColors.Blue,
                 maxLines = 1, modifier = Modifier.clickable(onClick = onOpenDetails)
             )
         }
 
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(3.dp))
 
         if (!summary.hasAnyData) {
             BodyEmptyState(
                 "No recorded body or workout data",
                 "Log a workout or measurement to start tracking."
             )
+            return@BodyCard
+        }
+
+        // Compact mode keeps the dashboard on one screen: the headline value of
+        // each metric, nothing else. Sparklines, Top Exercise and Muscle Focus
+        // all live on the full Body Progress screen, so no analysis is hidden -
+        // it is one tap away.
+        if (compact) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                CompactMetric(summary.compositionSeries(BodyMetric.WEIGHT), Modifier.weight(1f))
+                CompactMetric(summary.compositionSeries(BodyMetric.MUSCLE_MASS), Modifier.weight(1f))
+                CompactMetric(summary.compositionSeries(BodyMetric.BODY_FAT), Modifier.weight(1f))
+                CompactFocus(summary, Modifier.weight(1f))
+            }
             return@BodyCard
         }
 
@@ -115,6 +131,39 @@ fun BodyProgressHomeWidget(
             TopExercisePanel(summary, onOpenDetails, Modifier.weight(1.1f))
             MuscleFocusPanel(summary, onOpenDetails, Modifier.weight(1f))
         }
+    }
+}
+
+/** One headline metric for the compact dashboard row. */
+@Composable
+private fun CompactMetric(series: MetricSeries?, modifier: Modifier = Modifier) {
+    Column(modifier) {
+        Text(
+            series?.metric?.label ?: "-",
+            fontSize = 7.5.sp, color = MiColors.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis
+        )
+        val latest = series?.latest
+        Text(
+            if (latest == null) "-" else "${trim(latest.value)} ${series.metric.unit}",
+            fontSize = 11.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary,
+            maxLines = 1, overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+/** Muscle focus share, the fourth figure in the compact row. */
+@Composable
+private fun CompactFocus(summary: BodyProgressSummary, modifier: Modifier = Modifier) {
+    // Highest share wins: focusGroups is not ordered, so taking the first entry
+    // would report an arbitrary muscle instead of the one actually trained most.
+    val top = BodyProgressAggregator.focusGroups(summary.muscleFocus).maxByOrNull { it.sharePercent }
+    Column(modifier) {
+        Text("Focus", fontSize = 7.5.sp, color = MiColors.TextSecondary, maxLines = 1)
+        Text(
+            if (top == null) "-" else "${top.label} ${top.sharePercent}%",
+            fontSize = 11.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary,
+            maxLines = 1, overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
