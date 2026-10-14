@@ -95,7 +95,7 @@ fun BodyProgressAnalyticsScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(Color.Transparent)
+            .background(MiColors.Page)
             // enableEdgeToEdge means the window draws under the system bars, so
             // the header has to consume the insets itself.
             .windowInsetsPadding(WindowInsets.safeDrawing)

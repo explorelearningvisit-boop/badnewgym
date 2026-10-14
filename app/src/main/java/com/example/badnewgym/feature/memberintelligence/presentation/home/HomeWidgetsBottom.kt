@@ -251,8 +251,11 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
         return
     }
     val max = (days.maxOfOrNull { it.minutes } ?: 1).coerceAtLeast(1)
+    // Open on the most recent recorded training, not on empty future days:
+    // a month view would otherwise greet the member with a week of zeros.
+    val lastActive = days.indexOfLast { it.minutes > 0 }
     val listState = androidx.compose.foundation.lazy.rememberLazyListState(
-        initialFirstVisibleItemIndex = maxOf(0, days.size - 7)
+        initialFirstVisibleItemIndex = maxOf(0, (if (lastActive >= 0) lastActive else days.size - 1) - 6)
     )
     androidx.compose.foundation.lazy.LazyRow(
         state = listState,

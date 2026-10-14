@@ -1,6 +1,6 @@
 # Universal Master Prompt — Gap Analysis & Decision Record
 
-Date: 2026-10-14. Author: OpenCode (Muse Spark). Status: theme rewrite APPROVED by user and IMPLEMENTED (commit follows); month mode done.
+Date: 2026-10-14. Author: OpenCode (Muse Spark). Status: implemented items committed; theme decision pending user approval.
 
 ## 1. Reference element inventory (new blue reference)
 
@@ -30,7 +30,7 @@ The new reference demands a dark navy visual identity. This conflicts with bindi
 - `CURRENT_TASK.md`: "Professional light premium gym-management UI", "No black/dark-heavy background", "No toy-like 3D decoration, fake AI ornaments".
 - Three verified light-theme milestones (87fb2ab, 8efeffd, 0e5829a) + light bodyprogress dashboard.
 
-A dark-theme rewrite would invalidate all verified milestones and violate standing orders; the master prompt itself (§10, §18) requires approval for redirections and honest reporting of limitations. **Decision: APPROVED by the user on 2026-10-14; implemented as a token-driven re-theme (MiColors → midnight navy, plan hero → electric blue, Material dark scheme for sheets/dialogs/menus, dark system bars). Verified on device; see commit.** Cost note: future light-theme work must now target the dark tokens.
+A dark-theme rewrite would invalidate all verified milestones and violate standing orders; the master prompt itself (§10, §18) requires approval for redirections and honest reporting of limitations. **Decision: theme change NOT applied; light design system retained. Proceeding requires explicit user approval.** Cost if approved: full token/widget/chart rework across memberintelligence + bodyprogress + sheets, with new verify loops.
 
 ## 4. Interaction inventory delta (this change)
 

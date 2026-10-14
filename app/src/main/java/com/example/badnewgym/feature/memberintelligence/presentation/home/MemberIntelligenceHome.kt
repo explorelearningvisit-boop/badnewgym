@@ -63,8 +63,6 @@ import com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressUiSta
 import com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressViewModel
 import com.example.badnewgym.feature.memberintelligence.debug.HomeDebugBridge
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
-import com.example.badnewgym.feature.memberintelligence.design.tokens.MiDarkScheme
-import com.example.badnewgym.feature.memberintelligence.design.tokens.MiPageGradient
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod
 
 // ------------------------------------------------------------------ rail
@@ -96,7 +94,7 @@ private fun HomeRail(
 ) {
     Column(
         Modifier
-            .width(64.dp)
+            .width(60.dp)
             .fillMaxHeight()
             .verticalScroll(rememberScrollState())
             .padding(vertical = 8.dp),
@@ -108,7 +106,7 @@ private fun HomeRail(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .width(60.dp)
+                    .width(56.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(if (selected) MiColors.Mint else Color.Transparent)
                     .clickable(onClick = { onSelect(item.id) })
@@ -240,17 +238,16 @@ fun MemberIntelligenceHome(
 
     // One unified shell: the rail and every dashboard widget live inside a
     // single rounded, bordered surface. System bars stay outside it.
-    androidx.compose.material3.MaterialTheme(colorScheme = MiDarkScheme()) {
     androidx.compose.material3.Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(MiPageGradient)
+            .background(MiColors.Page)
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(horizontal = 6.dp, vertical = 2.dp),
         shape = RoundedCornerShape(24.dp),
-        color = Color.Transparent,
+        color = MiColors.Page,
         border = androidx.compose.foundation.BorderStroke(1.dp, MiColors.Border),
-        shadowElevation = 0.dp
+        shadowElevation = 4.dp
     ) {
         Row(
             Modifier
@@ -370,7 +367,6 @@ fun MemberIntelligenceHome(
             range = range,
             onDismiss = vm::closeModule
         )
-    }
     }
 }
 

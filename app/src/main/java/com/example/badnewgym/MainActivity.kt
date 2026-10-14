@@ -16,10 +16,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         DeviceAgentRuntime.attach(this)
         enableEdgeToEdge(
-            statusBarStyle = androidx.activity.SystemBarStyle.dark(
+            statusBarStyle = androidx.activity.SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
                 android.graphics.Color.TRANSPARENT
             ),
-            navigationBarStyle = androidx.activity.SystemBarStyle.dark(
+            navigationBarStyle = androidx.activity.SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
                 android.graphics.Color.TRANSPARENT
             )
         )

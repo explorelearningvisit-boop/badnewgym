@@ -102,57 +102,43 @@ data class MembershipTheme(
     val pillBg: Color
 )
 
-/**
- * Hero surface for the check-in card.
- *
- * The hero always wears the electric-blue identity (the reference's hero is
- * blue, not plan-tinted); plan identity lives in the pills and badges.
- */
-fun heroTheme(): MembershipTheme = MembershipTheme(
-    surfaceTop = Color(0xFF0E5CC8),
-    surfaceBottom = Color(0xFF08306E),
-    accent = Color(0xFF00D4FF),
-    accentText = Color(0xFFFFFFFF),
-    pillBg = Color(0xFF00C98A)
-)
-
 fun themeForPlan(planName: String?): MembershipTheme {
     val p = (planName ?: "").lowercase(Locale.ENGLISH)
     return when {
         "gold" in p -> MembershipTheme(
-            surfaceTop = Color(0xFF5A4517),
-            surfaceBottom = Color(0xFF241C08),
-            accent = Color(0xFFE8B93C),
-            accentText = Color(0xFFFFE9B8),
-            pillBg = Color(0xFF00C98A)
+            surfaceTop = Color(0xFFFFF8E1),
+            surfaceBottom = Color(0xFFF3D27A),
+            accent = Color(0xFF8A6D1B),
+            accentText = Color(0xFF6B5410),
+            pillBg = Color(0xFF2FA36B)
         )
         "silver" in p -> MembershipTheme(
-            surfaceTop = Color(0xFF3D5A78),
-            surfaceBottom = Color(0xFF16222E),
-            accent = Color(0xFF9FC3E8),
-            accentText = Color(0xFFD6E9FA),
-            pillBg = Color(0xFF00C98A)
+            surfaceTop = Color(0xFFF4F8FB),
+            surfaceBottom = Color(0xFFCFE0EA),
+            accent = Color(0xFF4A6B8A),
+            accentText = Color(0xFF38536B),
+            pillBg = Color(0xFF2FA36B)
         )
         "diamond" in p -> MembershipTheme(
-            surfaceTop = Color(0xFF1F6A9E),
-            surfaceBottom = Color(0xFF0A2A40),
-            accent = Color(0xFF5CC8FF),
-            accentText = Color(0xFFD2F0FF),
-            pillBg = Color(0xFF00C98A)
+            surfaceTop = Color(0xFFEFF8FF),
+            surfaceBottom = Color(0xFFBFE3F5),
+            accent = Color(0xFF2B7CB0),
+            accentText = Color(0xFF1F5E87),
+            pillBg = Color(0xFF2FA36B)
         )
         "platinum" in p -> MembershipTheme(
-            surfaceTop = Color(0xFF4A4390),
-            surfaceBottom = Color(0xFF1B1840),
-            accent = Color(0xFFA99BFF),
-            accentText = Color(0xFFE4E0FF),
-            pillBg = Color(0xFF00C98A)
+            surfaceTop = Color(0xFFF4F1FA),
+            surfaceBottom = Color(0xFFD5CBEA),
+            accent = Color(0xFF5F54A8),
+            accentText = Color(0xFF4A4285),
+            pillBg = Color(0xFF2FA36B)
         )
         else -> MembershipTheme(
-            surfaceTop = Color(0xFF0B5A40),
-            surfaceBottom = Color(0xFF062A1E),
-            accent = Color(0xFF00C98A),
-            accentText = Color(0xFFC8F5E2),
-            pillBg = Color(0xFF00C98A)
+            surfaceTop = Color(0xFFEAF7F0),
+            surfaceBottom = Color(0xFFBFE6D2),
+            accent = Color(0xFF0E7A4D),
+            accentText = Color(0xFF0B5F3D),
+            pillBg = Color(0xFF2FA36B)
         )
     }
 }
