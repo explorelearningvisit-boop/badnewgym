@@ -10,6 +10,8 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSitu
 import com.example.badnewgym.feature.memberintelligence.domain.model.ProgressVerdict
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutMonth
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutBand
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutIntensity
 import com.example.badnewgym.feature.memberintelligence.presentation.home.WorkoutRange
 import com.example.badnewgym.feature.memberintelligence.presentation.home.validateCollection
 import com.example.badnewgym.feature.memberintelligence.presentation.home.visitOrdinal
@@ -252,6 +254,26 @@ class HomeAcceptanceTest {
     fun rangeShortLabels() {
         assertEquals("7D", WorkoutRange.D7.short)
         assertEquals("30D", WorkoutRange.D30.short)
+    }
+
+    // ------------------------------------------------------- intensity bands
+
+    @Test
+    fun intensityBandsFollowTheReferenceCutPoints() {
+        assertEquals(WorkoutBand.NONE, WorkoutIntensity.bandFor(0))
+        assertEquals(WorkoutBand.LOW, WorkoutIntensity.bandFor(29))
+        assertEquals(WorkoutBand.MEDIUM, WorkoutIntensity.bandFor(30))
+        assertEquals(WorkoutBand.MEDIUM, WorkoutIntensity.bandFor(89))
+        assertEquals(WorkoutBand.HIGH, WorkoutIntensity.bandFor(90))
+        assertEquals(WorkoutBand.HIGH, WorkoutIntensity.bandFor(180))
+    }
+
+    @Test
+    fun intensityLegendCountsReconcileWithTheMonth() {
+        val oct = java.time.YearMonth.of(2026, 10)
+        val days = WorkoutAnalytics.monthDays(month(), oct)
+        val counts = WorkoutIntensity.counts(days)
+        assertEquals(days.size, counts.values.sum())
     }
 
     // ---------------------------------------------------------- weekly trend

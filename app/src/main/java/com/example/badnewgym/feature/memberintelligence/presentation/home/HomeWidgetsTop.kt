@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.badnewgym.feature.memberintelligence.design.MediaAssets
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
 import kotlinx.coroutines.delay
@@ -57,125 +59,133 @@ fun CheckInWidget(
     onOpen: () -> Unit,
     compact: Boolean = false
 ) {
-    val theme = themeForPlan(snapshot.membership?.planName)
     val live = checkIn.liveStartMs != null
-    val shape = RoundedCornerShape(18.dp)
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = shape,
-        color = Color.Transparent,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE3C878)),
-        shadowElevation = 4.dp
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFF06231A))
+            .clickable(onClick = onOpen)
     ) {
+        AsyncImage(
+            model = MediaAssets.GYM_BG,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            alpha = 0.38f,
+            modifier = Modifier.matchParentSize()
+        )
         Box(
-            Modifier
-                .background(Brush.verticalGradient(listOf(theme.surfaceTop, theme.surfaceBottom)))
-                .clickable(onClick = onOpen)
-                .padding(horizontal = 10.dp, vertical = 6.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Modifier.matchParentSize().background(
+                Brush.horizontalGradient(
+                    listOf(Color(0xE6062E20), Color(0x9E062E20), Color(0xCC041D16))
+                )
+            )
+        )
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier
+                        .size(30.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0x3300E08A)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Filled.DirectionsRun, contentDescription = null,
+                        tint = Color(0xFF6BFFC0), modifier = Modifier.size(17.dp)
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            if (live) "LIVE SESSION" else "LAST SESSION",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            maxLines = 1
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Pill(
+                            if (live) "LIVE" else "COMPLETED",
+                            if (live) Color(0xFF16C172) else Color(0xFF6E8079),
+                            Color.White,
+                            9
+                        )
+                    }
+                    Text(
+                        "DISCIPLINE BUILDS FREEDOM",
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF7FE8B8),
+                        maxLines = 1
+                    )
+                }
+                if (live) {
                     Box(
                         Modifier
-                            .size(34.dp)
-                            .clip(RoundedCornerShape(11.dp))
-                            .background(Color(0xFFE8B93C)),
-                        contentAlignment = Alignment.Center
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color(0xFFE54848))
+                            .clickable(onClick = onEndSession)
+                            .padding(horizontal = 12.dp, vertical = 7.dp)
                     ) {
-                        Icon(
-                            Icons.Filled.FitnessCenter, contentDescription = null,
-                            tint = Color.White, modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Column(Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                if (live) "CHECK-IN" else "CHECK-OUT",
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Black,
-                                color = theme.accentText
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            if (live) {
-                                Pill("LIVE", theme.pillBg, Color.White, 9)
-                            } else {
-                                Pill("Completed", Color(0xFF2FA36B), Color.White, 9)
-                            }
-                        }
-                        if (!live) {
-                            val lastVisit = checkIn.lastStartMs ?: snapshot.attendance?.lastVisitAt
-                            if (lastVisit != null) {
-                                Text(
-                                    "Today \u00B7 ${fmtDay(lastVisit)}",
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = theme.accentText,
-                                    maxLines = 1
-                                )
-                            }
-                        }
-                    }
-                    if (live) {
-                        Box(
-                            Modifier
-                                .clip(RoundedCornerShape(22.dp))
-                                .background(Color(0xFFE54848))
-                                .clickable(onClick = onEndSession)
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                        ) {
-                            Text("\u25FC END SESSION", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color.White)
-                        }
-                    }
-                }
-
-                if (live) {
-                    var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
-                    LaunchedEffect(checkIn.liveStartMs) {
-                        while (true) {
-                            nowMs = System.currentTimeMillis()
-                            delay(1_000)
-                        }
-                    }
-                    val elapsed = (nowMs - (checkIn.liveStartMs ?: nowMs)).coerceAtLeast(0)
-                    Row(verticalAlignment = Alignment.Bottom) {
                         Text(
-                            fmtDurationHms(elapsed),
-                            fontSize = 19.sp,
+                            "\u25A0 END SESSION",
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Black,
-                            color = theme.accentText,
-                            maxLines = 1,
-                            modifier = Modifier.weight(1f)
+                            color = Color.White
                         )
-                        TimeBlock("IN", fmtTime(checkIn.liveStartMs), theme.accentText)
-                        Spacer(Modifier.width(6.dp))
-                        val visit = checkIn.visitNumberToday
-                        if (visit != null) {
-                            TimeBlock("VISIT", "#$visit", theme.accentText)
-                        } else if (checkIn.methodLabel != null) {
-                            TimeBlock("VIA", checkIn.methodLabel!!, theme.accentText)
-                        }
-                    }
-                } else {
-                    val dur = checkIn.lastDurationMs
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            if (dur != null) fmtDurationHm(dur) else "No active session",
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.Black,
-                            color = theme.accentText,
-                            maxLines = 1,
-                            modifier = Modifier.weight(1f)
-                        )
-                        if (checkIn.lastStartMs != null && checkIn.lastEndMs != null) {
-                            TimeBlock("IN", fmtTime(checkIn.lastStartMs), theme.accentText)
-                            Spacer(Modifier.width(6.dp))
-                            TimeBlock("OUT", fmtTime(checkIn.lastEndMs), theme.accentText)
-                        }
                     }
                 }
             }
+            Spacer(Modifier.height(8.dp))
+            var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+            LaunchedEffect(checkIn.liveStartMs) {
+                while (true) {
+                    nowMs = System.currentTimeMillis()
+                    delay(1_000)
+                }
+            }
+            val recorded = if (live) (nowMs - (checkIn.liveStartMs ?: nowMs)).coerceAtLeast(0)
+            else checkIn.lastDurationMs
+            Row(verticalAlignment = Alignment.Bottom) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        if (recorded != null) fmtDurationHms(recorded) else "--:--:--",
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        maxLines = 1
+                    )
+                    Text(
+                        if (live) "in session" else "last recorded duration",
+                        fontSize = 9.sp,
+                        color = Color(0xFF8FD9B6),
+                        maxLines = 1
+                    )
+                }
+                HeroStat(
+                    "STARTED",
+                    fmtTime(if (live) checkIn.liveStartMs else checkIn.lastStartMs)
+                )
+                checkIn.visitNumberToday?.let { HeroStat("VISIT", "#$it") }
+            }
         }
+    }
+}
+
+/** One stat chip on the dark session hero. */
+@Composable
+private fun HeroStat(label: String, value: String) {
+    Column(
+        Modifier
+            .padding(start = 8.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0x2EFFFFFF))
+            .padding(horizontal = 9.dp, vertical = 5.dp)
+    ) {
+        Text(label, fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF7FE8B8), maxLines = 1)
+        Text(value, fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color.White, maxLines = 1)
     }
 }
 

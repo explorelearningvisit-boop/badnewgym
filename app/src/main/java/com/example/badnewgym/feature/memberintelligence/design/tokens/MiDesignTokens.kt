@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
@@ -59,6 +60,19 @@ object MiColors {
     /** Neutral light used as the dark half of a neumorphic shadow pair. */
     val ShadowDark = Color(0x14102B26)
     val ShadowLight = Color(0xFFFFFFFF)
+
+    /**
+     * Dark emerald chrome for the header and rail. The reference puts a deep
+     * green frame around a light content canvas; these tokens are that frame.
+     */
+    val ChromeDeep = Color(0xFF05291B)
+    val ChromeDark = Color(0xFF0A3A28)
+    val ChromeMid = Color(0xFF0E4A33)
+    val ChromeLine = Color(0xFF1B6547)
+    val ChromeText = Color(0xFFE4F6EC)
+    val ChromeTextDim = Color(0xFF8FC4AC)
+    /** Saturated emerald used for the active rail pill and primary actions. */
+    val ChromeGlow = Color(0xFF14C77C)
 }
 
 object MiSpacing {
@@ -71,6 +85,16 @@ object MiSpacing {
     val identityHeight: Dp = 86.dp
     val touchTarget: Dp = 48.dp
 }
+
+/** Deep-green frame gradient behind the header and rail. */
+val ChromeGradient: Brush = Brush.verticalGradient(
+    listOf(MiColors.ChromeMid, MiColors.ChromeDark, MiColors.ChromeDeep)
+)
+
+/** Active rail pill: a saturated emerald glow on the dark frame. */
+val RailActiveGradient: Brush = Brush.verticalGradient(
+    listOf(MiColors.ChromeGlow, MiColors.Emerald)
+)
 
 object MiRadius {
     val major: Dp = 20.dp

@@ -72,6 +72,36 @@ object AttendanceAnalytics {
     }
 }
 
+/**
+ * Workout intensity bands, derived only from recorded minutes so the class is
+ * always honest. The cut-points mirror the reference (High >= 90 min, Medium
+ * 30-89 min, Low < 30 min, No Workout = no session). These are duration
+ * buckets, not a modelled intensity score.
+ */
+enum class WorkoutBand { HIGH, MEDIUM, LOW, NONE }
+
+object WorkoutIntensity {
+    const val HIGH_MIN = 90
+    const val MEDIUM_MIN = 30
+
+    fun bandFor(minutes: Int): WorkoutBand = when {
+        minutes <= 0 -> WorkoutBand.NONE
+        minutes >= HIGH_MIN -> WorkoutBand.HIGH
+        minutes >= MEDIUM_MIN -> WorkoutBand.MEDIUM
+        else -> WorkoutBand.LOW
+    }
+
+    /** Day counts per band across a set of days, in display order. */
+    fun counts(days: List<WorkoutAnalytics.WorkoutDay>): Map<WorkoutBand, Int> {
+        val out = mutableMapOf<WorkoutBand, Int>()
+        days.forEach { d ->
+            val b = bandFor(d.minutes)
+            out[b] = (out[b] ?: 0) + 1
+        }
+        return out
+    }
+}
+
 object WorkoutAnalytics {
 
     const val PAGE_SIZE = 7

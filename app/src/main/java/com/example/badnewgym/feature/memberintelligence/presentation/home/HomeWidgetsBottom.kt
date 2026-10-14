@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import com.example.badnewgym.feature.memberintelligence.domain.analytics.BodyGoalAnalytics
 import com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutAnalytics
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutBand
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutIntensity
 import com.example.badnewgym.feature.memberintelligence.domain.model.BodyGoal
 import com.example.badnewgym.feature.memberintelligence.domain.model.MetricHistory
 import com.example.badnewgym.feature.memberintelligence.domain.model.MetricKey
@@ -169,8 +171,16 @@ fun WorkoutWidget(
             HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth()) { _ ->
                 WeekChart(days = window?.days ?: emptyList())
             }
+        } else if (isMonth) {
+            // The month view must show the complete month, so every day of the
+            // selected calendar month is on screen at once - no hidden paging.
+            MonthChart(days = chartDays)
         } else {
             RangeChart(days = chartDays)
+        }
+        if (isMonth) {
+            Spacer(Modifier.height(3.dp))
+            IntensityLegend(days = chartDays)
         }
         Spacer(Modifier.height(3.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -257,6 +267,94 @@ private fun WeekChart(days: List<WorkoutAnalytics.WorkoutDay>) {
  * Horizontally scrollable bar strip covering the whole selected range.
  * Starts at the most recent days; both ends are reachable by swipe.
  */
+@Composable
+private fun MonthChart(days: List<WorkoutAnalytics.WorkoutDay>) {
+    if (days.isEmpty()) {
+        EmptyWidgetLine("No workout data")
+        return
+    }
+    val max = (days.maxOfOrNull { it.minutes } ?: 1).coerceAtLeast(1)
+    val labelEvery = if (days.size > 20) 3 else 2
+    Row(
+        Modifier.fillMaxWidth().height(58.dp),
+        horizontalArrangement = Arrangement.spacedBy(1.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        days.forEachIndexed { i, day ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics {
+                        contentDescription = "${day.dayOfMonth} ${day.monthShort}: " +
+                            if (day.minutes > 0) "${day.minutes} minutes" else "no workout"
+                    }
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(if (day.minutes > 0) (4 + (day.minutes.toFloat() / max * 34)).dp else 3.dp)
+                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+                        .then(barFillFor(day))
+                )
+                Spacer(Modifier.height(1.dp))
+                Text(
+                    if (i % labelEvery == 0 || i == days.lastIndex) "${day.dayOfMonth}" else "",
+                    fontSize = 7.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MiColors.TextTertiary,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Duration-band legend for the month view. Each band is a real count of days,
+ * so the row reconciles with the bars above it.
+ */
+@Composable
+private fun IntensityLegend(days: List<WorkoutAnalytics.WorkoutDay>) {
+    val counts = remember(days) { WorkoutIntensity.counts(days) }
+    if (counts.values.all { it == 0 }) return
+    data class BandStyle(val label: String, val color: Color, val band: WorkoutBand)
+    val styles = listOf(
+        BandStyle("High (${WorkoutIntensity.HIGH_MIN}m+)", Color(0xFF16A34A), WorkoutBand.HIGH),
+        BandStyle(
+            "Med (${WorkoutIntensity.MEDIUM_MIN}-${WorkoutIntensity.HIGH_MIN - 1}m)",
+            Color(0xFF2563EB), WorkoutBand.MEDIUM
+        ),
+        BandStyle("Low (<${WorkoutIntensity.MEDIUM_MIN}m)", Color(0xFFE59A1A), WorkoutBand.LOW),
+        BandStyle("No workout", MiColors.Neutral, WorkoutBand.NONE)
+    )
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        styles.forEach { s ->
+            val n = counts[s.band] ?: 0
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(7.dp).clip(RoundedCornerShape(2.dp)).background(s.color))
+                Spacer(Modifier.width(3.dp))
+                Column {
+                    Text(
+                        s.label,
+                        fontSize = 7.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MiColors.TextSecondary,
+                        maxLines = 1
+                    )
+                    Text(
+                        "$n day${if (n == 1) "" else "s"}",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Black,
+                        color = MiColors.TextPrimary,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
     if (days.isEmpty()) {
