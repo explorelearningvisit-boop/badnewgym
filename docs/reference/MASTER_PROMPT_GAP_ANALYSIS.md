@@ -93,3 +93,60 @@ dashboard lacked, without touching navigation or business logic.
 - Screenshot comparison was done by the user viewing `h2_top.png`; the agent
   verified structure via the UI dump (bounds, text presence) instead of vision.
 
+## 7. Single-screen dashboard pass
+
+The user asked for the whole dashboard to fit one screen with no vertical
+scrolling, and for the redesign to be finished autonomously.
+
+### Measured budget (device zxdada69gunb7ls4, 1080x2400 @ 440dpi)
+
+393dp x 873dp physical; 796dp usable height after system bars. Final layout:
+
+| Region | Height |
+|---|---|
+| Header | 52dp |
+| Live session hero | 45dp |
+| Member identity | 78dp |
+| Payment and plan | 96dp |
+| Attendance | 196dp |
+| Workout | 172dp |
+| Body Progress (compact) | 42dp |
+| Widget gaps | 5 x 4dp |
+
+Every reduction removed duplicated chrome, never information. The workout
+sparkline moved into dead space beside the range chips; the identity plan
+progress moved under the Days Left countdown; payment columns dropped from four
+lines to two.
+
+### Defects found and fixed during the pass
+
+- **Hero overflow.** Separate IN/VISIT chips did not fit beside the timer and
+  clipped the title. The visit number moved onto the hero second line.
+- **Payment text collision.** The plan cell rendered its validity text straight
+  through the Amount column. Now two lines with ellipsis.
+- **Body focus was wrong.** The compact tile took the first entry of
+  focusGroups, which reported an arbitrary muscle (Chest 7%) instead of the
+  most trained one. Now maxBy sharePercent, giving Legs 43%.
+- **Off-brand sheet.** The module bottom sheet never set containerColor and
+  inherited a lavender default from the Material theme.
+- **Sub-minute duration.** A 44-second visit rendered as 00h 00m, reading as
+  no duration recorded. Now under 1 min.
+- **Debug bridge could not carry an amount.** adb delivers strings via --es,
+  and the bridge only accepted Number, so every scripted collect silently
+  became -1.0. Now parses strings too.
+
+### Interaction evidence (no-tap: MIUI blocks adb input)
+
+Driven through the app debug bridge and deep links, then read back from device
+screenshots:
+
+- STATUS -> live=true, visits=1, outstanding=2800.0, situation=Due
+- COLLECT 2800 UPI -> badge DUE SOON becomes SUCCESSFUL, receipt RCP-BG305,
+  Remaining 0, Payment rail badge cleared, History 1 to 2.
+- END_SESSION -> hero LIVE SESSION/LIVE becomes LAST SESSION/DONE, timer frozen
+  at the real elapsed time, End button removed, strip becomes Visit completed
+  under 1 min, rail badge LIVE becomes #1.
+- Workout sheet lists 11 sessions summing to 851m, matching the card.
+
+140 unit tests green.
+

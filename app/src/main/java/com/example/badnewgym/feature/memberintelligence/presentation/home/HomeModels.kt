@@ -165,6 +165,9 @@ fun fmtDurationHms(ms: Long): String {
 }
 
 fun fmtDurationHm(ms: Long): String {
+    // A sub-minute visit truncated to "00h 00m", which reads as "no duration"
+    // even though time was genuinely recorded.
+    if (ms in 1 until 60_000L) return "under 1 min"
     val m = (ms / 60_000).coerceAtLeast(0)
     return "%02dh %02dm".format(m / 60, m % 60)
 }

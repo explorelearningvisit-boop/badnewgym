@@ -40,10 +40,12 @@ class HomeDebugReceiver : BroadcastReceiver() {
                 finish("ended")
             }
             ACTION_COLLECT -> {
-                // `am --ef` stores a Float while in-app callers pass a Double;
-                // read any numeric form instead of silently defaulting.
+                // `am` only reliably delivers strings (--es), and --ef stores a
+                // Float, so accept every numeric shape instead of silently
+                // defaulting to -1 and skipping the whole action.
                 val amount = when (val v = intent.extras?.get(EXTRA_AMOUNT)) {
                     is Number -> v.toDouble()
+                    is String -> v.toDoubleOrNull() ?: -1.0
                     else -> -1.0
                 }
                 val method = intent.getStringExtra(EXTRA_METHOD) ?: "UPI"

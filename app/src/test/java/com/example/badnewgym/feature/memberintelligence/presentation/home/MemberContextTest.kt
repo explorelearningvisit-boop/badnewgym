@@ -70,4 +70,12 @@ class MemberContextTest {
     fun aMemberWithNoRecordsAtAllIsNoActiveVisit() {
         assertEquals(MemberContext.NO_ACTIVE_VISIT, memberContext(checkIn(), todayStart, now))
     }
+
+    @Test
+    fun aSubMinuteVisitIsNotReportedAsZeroMinutes() {
+        // 44 seconds truncating to "00h 00m" reads as "no duration recorded".
+        assertEquals("under 1 min", fmtDurationHm(44_000L))
+        assertEquals("00h 01m", fmtDurationHm(60_000L))
+        assertEquals("01h 30m", fmtDurationHm(90 * 60_000L))
+    }
 }

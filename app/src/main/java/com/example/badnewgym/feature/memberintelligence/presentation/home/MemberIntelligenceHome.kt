@@ -670,7 +670,11 @@ private fun HomeModuleSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val selectedMonth by vm.attendanceMonth.collectAsState()
     val workoutMonthSheet by vm.workoutMonth.collectAsState()
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MiColors.Surface
+    ) {
         Column(
             Modifier
                 .fillMaxWidth()
