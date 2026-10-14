@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -343,14 +345,26 @@ private fun PaymentSuccessfulCard(
 
 @Composable
 private fun CollectButton(onClick: () -> Unit, small: Boolean = false) {
-    Box(
+    Row(
         Modifier
             .clip(RoundedCornerShape(22.dp))
-            .background(Color(0xFFFF6B4A))
+            .background(
+                androidx.compose.ui.graphics.Brush.horizontalGradient(
+                    listOf(MiColors.Emerald, MiColors.EmeraldDark)
+                )
+            )
             .clickable(onClick = onClick)
-            .padding(horizontal = if (small) 11.dp else 14.dp, vertical = if (small) 6.dp else 9.dp)
+            .padding(horizontal = if (small) 12.dp else 14.dp, vertical = if (small) 6.dp else 9.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Collect >", fontSize = if (small) 10.5.sp else 12.sp, fontWeight = FontWeight.Black, color = Color.White)
+        Text(
+            if (small) "Collect" else "Collect Payment",
+            fontSize = if (small) 10.5.sp else 12.sp,
+            fontWeight = FontWeight.Black,
+            color = Color.White
+        )
+        Spacer(Modifier.width(3.dp))
+        Text("\u2192", fontSize = if (small) 11.sp else 13.sp, fontWeight = FontWeight.Black, color = Color.White)
     }
 }
 
@@ -455,6 +469,79 @@ fun AttendanceWidget(
         MonthDayRow(first)
         Spacer(Modifier.height(2.dp))
         MonthDayRow(second)
+        Spacer(Modifier.height(4.dp))
+        AttendanceTrendRow(month, prevPoints)
+    }
+}
+
+/**
+ * Weekly completion trend plus the two streak facts, all derived from the
+ * selected month. Weeks that have not happened yet carry no bar rather than a
+ * zero-height "0%" one.
+ */
+@Composable
+private fun AttendanceTrendRow(month: AttendanceMonth, prevPoints: Int?) {
+    val weeks = remember(month) { month.weeklyBuckets }
+    if (weeks.size < 2) return
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Weekly Trend", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
+                Spacer(Modifier.width(4.dp))
+                if (prevPoints != null && prevPoints != 0) {
+                    Text(
+                        (if (prevPoints > 0) "\u2191 " else "\u2193 ") + "${kotlin.math.abs(prevPoints)}%",
+                        fontSize = 9.sp, fontWeight = FontWeight.Bold,
+                        color = if (prevPoints > 0) MiColors.EmeraldDark else MiColors.Red, maxLines = 1
+                    )
+                }
+            }
+            Spacer(Modifier.height(2.dp))
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.semantics {
+                    contentDescription = "Weekly completion: " +
+                        weeks.joinToString(", ") { "${it.label} ${it.percent}%" }
+                }
+            ) {
+                weeks.forEach { w ->
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        // A week with no open days has not happened yet: it gets
+                        // no bar at all, never a zero-height stub that reads as
+                        // "0% attended".
+                        if (w.openDays > 0) {
+                            Box(
+                                Modifier
+                                    .width(9.dp)
+                                    .height((3 + w.percent / 100f * 22).dp)
+                                    .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+                                    .background(MiColors.Emerald)
+                            )
+                        } else {
+                            Spacer(Modifier.height(25.dp))
+                        }
+                        Spacer(Modifier.height(1.dp))
+                        Text(
+                            w.label,
+                            fontSize = 7.sp,
+                            color = if (w.openDays > 0) MiColors.TextTertiary else MiColors.Border,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.width(8.dp))
+        MiniStatBox(
+            glyph = "\u25B6", tint = Color(0xFFEA580C),
+            value = "${month.currentStreak()}d", label = "Streak"
+        )
+        Spacer(Modifier.width(5.dp))
+        MiniStatBox(
+            glyph = "\uD83C\uDFC6", tint = Color(0xFFE59A1A),
+            value = "${month.longestStreak()}d", label = "Longest"
+        )
     }
 }
 

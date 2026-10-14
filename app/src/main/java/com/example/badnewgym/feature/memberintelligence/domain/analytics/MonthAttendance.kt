@@ -57,7 +57,46 @@ data class AttendanceMonth(
             .replaceFirstChar { it.uppercase() }
         return "$name $year"
     }
+
+    /**
+     * Monday-start weekly completion across the month, oldest first. Each week
+     * reports its own attended/open split, so a partial final week is honest
+     * rather than being padded out to look complete.
+     */
+    val weeklyBuckets: List<WeekBucket> get() {
+        if (days.isEmpty()) return emptyList()
+        val offset = LocalDate.of(year, month, 1).dayOfWeek.value - 1 // 0 = Monday
+        val grouped = linkedMapOf<Int, MutableList<AttendanceDay>>()
+        days.forEach { day ->
+            grouped.getOrPut((offset + day.dayOfMonth - 1) / 7) { mutableListOf() }.add(day)
+        }
+        return grouped.values.mapIndexed { i, list ->
+            val open = list.count {
+                it.state != AttendanceDayState.HOLIDAY && it.state != AttendanceDayState.CLOSED &&
+                    it.state != AttendanceDayState.FUTURE && it.state != AttendanceDayState.UNKNOWN
+            }
+            val att = list.count { it.state == AttendanceDayState.PRESENT || it.state == AttendanceDayState.LATE }
+            WeekBucket(
+                label = "W${i + 1}",
+                percent = if (open <= 0) 0 else att * 100 / open,
+                attended = att,
+                openDays = open,
+                startDom = list.minOf { it.dayOfMonth },
+                endDom = list.maxOf { it.dayOfMonth }
+            )
+        }
+    }
 }
+
+/** One Monday-start week of attendance completion. */
+data class WeekBucket(
+    val label: String,
+    val percent: Int,
+    val attended: Int,
+    val openDays: Int,
+    val startDom: Int,
+    val endDom: Int
+)
 
 /**
  * Builds a complete month. [marks] carries the recorded state per epoch day;

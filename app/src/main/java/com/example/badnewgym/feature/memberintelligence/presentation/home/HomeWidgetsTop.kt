@@ -344,9 +344,9 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit, checkIn: 
 private data class StripStyle(val glyph: String, val label: String, val tint: Color, val bg: Color)
 
 /**
- * Slim verified-context strip above the member's name. It renders only when
- * the records support a context, and never repeats the LIVE state the session
- * hero already shows prominently (an older live session yields null). The
+ * Verified context strip above the member's name. It renders only when the
+ * records support a context, and never repeats the LIVE state the hero already
+ * shows prominently (an older live session yields a plain location line). The
  * glyph and wording carry the meaning; the tint is decoration, never the only
  * signal.
  */
@@ -359,36 +359,69 @@ private fun ContextStrip(checkIn: HomeCheckIn) {
     val nowMs = remember { System.currentTimeMillis() }
     val ctx = remember(checkIn, todayStart, nowMs) {
         memberContext(checkIn, todayStart, nowMs)
-    } ?: return
-    val style = when (ctx) {
-        MemberContext.JUST_CHECKED_IN -> StripStyle(
-            "\u25CF", "Just checked in",
-            Color(0xFF0E7A4D), Color(0xFFE5F6EC)
-        )
-        MemberContext.COMPLETED_VISIT -> StripStyle(
-            "\u2713",
-            checkIn.lastDurationMs?.let { "Visit completed \u00B7 ${fmtDurationHm(it)}" }
-                ?: "Visit completed",
-            Color(0xFF1F5E87), Color(0xFFEAF2FD)
-        )
-        MemberContext.NO_ACTIVE_VISIT -> StripStyle(
-            "\u25CB", "No active visit",
-            MiColors.TextSecondary, MiColors.SurfaceSunken
-        )
     }
     Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        when (ctx) {
+            MemberContext.JUST_CHECKED_IN -> {
+                StripPill(
+                    glyph = "\u25CF",
+                    label = "Checked In \u00B7 ${fmtTime(checkIn.liveStartMs)}",
+                    tint = Color(0xFF0E7A4D), bg = Color(0xFFE5F6EC)
+                )
+            }
+            MemberContext.COMPLETED_VISIT -> {
+                StripPill(
+                    glyph = "\u2713",
+                    label = checkIn.lastDurationMs?.let { "Visit completed \u00B7 ${fmtDurationHm(it)}" }
+                        ?: "Visit completed",
+                    tint = Color(0xFF1F5E87), bg = Color(0xFFEAF2FD)
+                )
+            }
+            else -> {
+                StripPill(
+                    glyph = "\u25CB", label = "No active visit",
+                    tint = MiColors.TextSecondary, bg = MiColors.SurfaceSunken
+                )
+            }
+        }
+        // The reference shows a floor/location here; we have no location record,
+        // so we print the real check-in mechanism instead of inventing one.
+        val method = checkInMethodLabel(checkIn.methodLabel)
+        if (method != null) {
+            Spacer(Modifier.width(5.dp))
+            Text(
+                method,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MiColors.TextSecondary,
+                maxLines = 1,
+                modifier = Modifier.weight(1f, fill = false)
+            )
+        }
+        Spacer(Modifier.weight(1f))
+        if (checkIn.liveStartMs != null) {
+            Pill("Active Session", Color(0xFFE5F6EC), Color(0xFF0E7A4D), 9)
+        }
+    }
+    Spacer(Modifier.height(4.dp))
+}
+
+@Composable
+private fun StripPill(glyph: String, label: String, tint: Color, bg: Color) {
+    Row(
         Modifier
-            .fillMaxWidth()
             .clip(RoundedCornerShape(9.dp))
-            .background(style.bg)
+            .background(bg)
             .padding(horizontal = 7.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(style.glyph, fontSize = 9.sp, fontWeight = FontWeight.Black, color = style.tint, maxLines = 1)
-        Spacer(Modifier.width(5.dp))
-        Text(style.label, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = style.tint, maxLines = 1)
+        Text(glyph, fontSize = 9.sp, fontWeight = FontWeight.Black, color = tint, maxLines = 1)
+        Spacer(Modifier.width(4.dp))
+        Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = tint, maxLines = 1)
     }
-    Spacer(Modifier.height(4.dp))
 }
 
 private fun totalPlanDays(startMs: Long, endMs: Long): Int {
