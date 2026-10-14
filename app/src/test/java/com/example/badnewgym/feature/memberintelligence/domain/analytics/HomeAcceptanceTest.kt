@@ -253,4 +253,79 @@ class HomeAcceptanceTest {
         assertEquals("7D", WorkoutRange.D7.short)
         assertEquals("30D", WorkoutRange.D30.short)
     }
+
+    // ---------------------------------------------------------- weekly trend
+
+    @Test
+    fun monthWeeksClipToMondayStartSpansAndStopAtTheLastRecord() {
+        // Oct 1 2026 is a Thursday, so W1 runs Thu 1 - Sun 4.
+        val oct = java.time.YearMonth.of(2026, 10)
+        val full = WorkoutMonth(
+            year = 2026, month = 10,
+            sessions = listOf(
+                WorkoutSession(epochDay = LocalDate.of(2026, 10, 1).toEpochDay(), dayOfMonth = 1, minutes = 40),
+                WorkoutSession(epochDay = LocalDate.of(2026, 10, 20).toEpochDay(), dayOfMonth = 20, minutes = 60)
+            )
+        )
+        val weeks = WorkoutAnalytics.weeksOfMonth(full, oct)
+        // W5 starts Oct 26, after the last record, so it is not charted as a zero.
+        assertEquals(listOf("W1", "W2", "W3", "W4"), weeks.map { it.label })
+        assertEquals(listOf(1 to 4, 5 to 11, 12 to 18, 19 to 25), weeks.map { it.startDom to it.endDom })
+        assertEquals(40, weeks.first().totalMinutes)
+        assertEquals(60, weeks[3].totalMinutes)
+    }
+
+    @Test
+    fun weekBucketsSumToTheMonthTotal() {
+        val oct = java.time.YearMonth.of(2026, 10)
+        val days = WorkoutAnalytics.monthDays(month(), oct)
+        val weeks = WorkoutAnalytics.weeksOfMonth(month(), oct)
+        assertEquals(days.sumOf { it.minutes }, weeks.sumOf { it.totalMinutes })
+        assertEquals(days.count { it.minutes > 0 }, weeks.sumOf { it.activeDays })
+    }
+
+    @Test
+    fun weekOverWeekNeedsTwoRecordedWeeks() {
+        // Only one week carries a session: no honest comparator exists.
+        val oneWeek = WorkoutMonth(
+            year = 2026, month = 10,
+            sessions = listOf(
+                WorkoutSession(
+                    epochDay = LocalDate.of(2026, 10, 18).toEpochDay(),
+                    dayOfMonth = 18, minutes = 120
+                )
+            )
+        )
+        assertNull(WorkoutAnalytics.weekOverWeek(oneWeek, java.time.YearMonth.of(2026, 10)))
+    }
+
+    @Test
+    fun weekOverWeekSkipsAWeekStillInProgress() {
+        // The last recorded week (Oct 12-18) is only through the 13th, so it is
+        // not comparable to the full week before it and no delta is invented.
+        val inProgress = WorkoutMonth(
+            year = 2026, month = 10,
+            sessions = listOf(
+                WorkoutSession(epochDay = LocalDate.of(2026, 10, 6).toEpochDay(), dayOfMonth = 6, minutes = 100),
+                WorkoutSession(epochDay = LocalDate.of(2026, 10, 13).toEpochDay(), dayOfMonth = 13, minutes = 150)
+            )
+        )
+        assertNull(WorkoutAnalytics.weekOverWeek(inProgress, java.time.YearMonth.of(2026, 10)))
+    }
+
+    @Test
+    fun weekOverWeekComputesRealDelta() {
+        // Oct 18 closes W3, so the comparison against W2 is like-for-like.
+        val twoWeeks = WorkoutMonth(
+            year = 2026, month = 10,
+            sessions = listOf(
+                WorkoutSession(epochDay = LocalDate.of(2026, 10, 6).toEpochDay(), dayOfMonth = 6, minutes = 100),
+                WorkoutSession(epochDay = LocalDate.of(2026, 10, 18).toEpochDay(), dayOfMonth = 18, minutes = 150)
+            )
+        )
+        val delta = WorkoutAnalytics.weekOverWeek(twoWeeks, java.time.YearMonth.of(2026, 10))
+        assertEquals(150, delta!!.currentMinutes)
+        assertEquals(100, delta.previousMinutes)
+        assertEquals(50, delta.deltaPercent)
+    }
 }

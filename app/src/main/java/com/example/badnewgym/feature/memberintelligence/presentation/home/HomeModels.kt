@@ -183,6 +183,27 @@ enum class WorkoutRange(val days: Int, val short: String) {
 /** "Today's Visit #1" - only when the count is real. */
 fun visitOrdinal(n: Int): String = "Today's Visit #$n"
 
+/**
+ * Verified member context for the identity strip (master prompt 4B).
+ *
+ * It is derived purely from recorded visit timestamps. The LIVE state is
+ * deliberately absent: the session hero already shows it prominently, so
+ * returning null for an older live session keeps the strip non-duplicative.
+ */
+enum class MemberContext { JUST_CHECKED_IN, COMPLETED_VISIT, NO_ACTIVE_VISIT }
+
+/** A check-in this recent reads as "just checked in" rather than "in session". */
+const val JUST_CHECKED_IN_MS: Long = 30 * 60 * 1000L
+
+fun memberContext(checkIn: HomeCheckIn, todayStartMs: Long, nowMs: Long): MemberContext? {
+    val live = checkIn.liveStartMs
+    if (live != null) {
+        return if (nowMs - live <= JUST_CHECKED_IN_MS) MemberContext.JUST_CHECKED_IN else null
+    }
+    val startedToday = checkIn.lastStartMs?.let { it >= todayStartMs } == true
+    return if (startedToday) MemberContext.COMPLETED_VISIT else MemberContext.NO_ACTIVE_VISIT
+}
+
 /** Display label for a configured payment method. */
 fun paymentMethodLabel(method: com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMethod): String =
     when (method) {

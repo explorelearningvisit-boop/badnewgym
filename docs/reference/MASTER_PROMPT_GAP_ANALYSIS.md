@@ -1,6 +1,6 @@
 # Universal Master Prompt — Gap Analysis & Decision Record
 
-Date: 2026-10-14. Author: OpenCode (Muse Spark). Status: implemented items committed; theme decision pending user approval.
+Date: 2026-10-14. Author: OpenCode (Muse Spark). Status: implemented items committed; theme decision resolved — light mint/emerald system retained and now extended with the weekly workout trend and the member context strip (see §6).
 
 ## 1. Reference element inventory (new blue reference)
 
@@ -42,3 +42,54 @@ A dark-theme rewrite would invalidate all verified milestones and violate standi
 - Reference attendance shows "27/30 Open Days" with 22+3+2 present/late/absent = 27 — consistent; ours computes the same way over real records.
 - Reference body "Focus Legs 43%" vs panel "Chest 43%" is internally inconsistent; ours uses one aggregation for both.
 - Small-print side panels are process documentation, not implementable UI.
+
+## 6. Green/emerald pass — weekly workout trend + member context strip
+
+The green/emerald reference matches the repo's existing light mint system, so no
+re-theme was needed. This pass adds the two elements the reference has that the
+dashboard lacked, without touching navigation or business logic.
+
+- **Weekly workout trend** (`HomeWidgetsBottom.kt` `WeeklyTrendRow`, logic in
+  `WorkoutAnalytics.weeksOfMonth` / `weekOverWeek`). A compact weekly-volume
+  strip sits above the full-month daily chart, so the month itself is never
+  hidden. Bars are Monday-start weeks of the selected month; buckets hold
+  recorded minutes only.
+- **Member context strip** (`HomeWidgetsTop.kt` `ContextStrip`, logic in
+  `HomeModels.memberContext`). A slim verified-context line above the member
+  name: Just checked in / Visit completed / No active visit.
+
+### Honesty rules encoded (and tested)
+
+- Weeks that start after the last recorded day are **dropped**, never charted as
+  zeros: a week that has not happened is "no record", not "recorded zero".
+- The `wk/wk` delta is **omitted unless the final recorded week has finished**,
+  because a week still in progress is not a comparable period. For the current
+  month this means no delta is shown at all — by design.
+- A zero baseline yields no delta (no division-by-zero percentage).
+- The context strip returns **null for an older live session**, so it never
+  repeats the LIVE state the session hero already shows; and it no longer
+  repeats the check-in time that the adjacent hero already prints.
+
+### Evidence (this milestone)
+
+- `.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest` — BUILD SUCCESSFUL,
+  133 tests, 0 failures (was 123; +10 for week geometry, week-over-week
+  comparability, and member context).
+- Device `zxdada69gunb7ls4` (1080x2400 @ 440dpi ≈ 393dp wide): screenshot
+  `OPPO/pulled_screens/h2_top.png`, UI dump `OPPO/h2.xml`. Confirmed present and
+  correct: `Just checked in`, `Weekly recorded minutes: W1 223, W2 405, W3 223`
+  (no W4/W5), no `wk/wk` label. No horizontal overflow (max x = 1080 = screen).
+
+### Honest limitations (not verified)
+
+- **The coding agent cannot read images.** The reference image itself was never
+  analysed; this pass was built from the written specification only. "Pixel
+  perfect" against the reference is therefore not claimed.
+- **360dp could not be device-verified.** MIUI rejects `wm size`/`wm density`
+  (no WRITE_SECURE_SETTINGS), so the narrowest tested width is the device's
+  ~393dp. The layout is weight-based with no fixed content widths, which is why
+  it should reflow at 360dp, but that is a structural argument, not a
+  measurement.
+- Screenshot comparison was done by the user viewing `h2_top.png`; the agent
+  verified structure via the UI dump (bounds, text presence) instead of vision.
+

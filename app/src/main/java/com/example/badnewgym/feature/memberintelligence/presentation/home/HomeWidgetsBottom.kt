@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -147,6 +149,17 @@ fun WorkoutWidget(
             }
         }
         Spacer(Modifier.height(2.dp))
+        if (isMonth) {
+            val weeks = remember(month, workoutYearMonth) {
+                WorkoutAnalytics.weeksOfMonth(month, workoutYearMonth)
+            }
+            val wow = remember(month, workoutYearMonth) {
+                WorkoutAnalytics.weekOverWeek(month, workoutYearMonth)
+            }
+            if (weeks.size >= 2) {
+                WeeklyTrendRow(weeks, wow)
+            }
+        }
         if (range == WorkoutRange.D7) {
             Text(
                 if (count > 1) "Wk ${pagerState.currentPage + 1}/$count \u00B7 swipe >" else "This week",
@@ -290,6 +303,62 @@ private fun RangeChart(days: List<WorkoutAnalytics.WorkoutDay>) {
                 Text("${day.dayOfMonth}", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = MiColors.TextSecondary, maxLines = 1)
                 Text(day.monthShort, fontSize = 9.sp, color = MiColors.TextTertiary, maxLines = 1)
             }
+        }
+    }
+}
+
+/**
+ * Compact weekly-volume trend beside the full-month daily chart.
+ *
+ * Every bar is the recorded minutes of one Monday-start week of the selected
+ * month, so the strip always describes the same period as the chart beneath
+ * it. The right-hand figure is the latest recorded week against the week
+ * before it; it is omitted entirely when there is no honest comparator.
+ */
+@Composable
+private fun WeeklyTrendRow(
+    weeks: List<WorkoutAnalytics.WeekBucket>,
+    delta: WorkoutAnalytics.WeekDelta?
+) {
+    val max = (weeks.maxOfOrNull { it.totalMinutes } ?: 1).coerceAtLeast(1)
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            "Weekly", fontSize = 9.sp, fontWeight = FontWeight.Bold,
+            color = MiColors.TextSecondary, maxLines = 1
+        )
+        Spacer(Modifier.width(6.dp))
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
+            modifier = Modifier.semantics {
+                contentDescription = "Weekly recorded minutes: " +
+                    weeks.joinToString(", ") { "${it.label} ${it.totalMinutes}" }
+            }
+        ) {
+            weeks.forEach { w ->
+                Box(
+                    Modifier
+                        .width(12.dp)
+                        .height(
+                            if (w.totalMinutes > 0) (4 + (w.totalMinutes.toFloat() / max * 14)).dp
+                            else 3.dp
+                        )
+                        .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                        .background(if (w.totalMinutes > 0) MiColors.Emerald else MiColors.Border)
+                )
+            }
+        }
+        Spacer(Modifier.weight(1f))
+        if (delta != null) {
+            val up = delta.deltaPercent > 0
+            val flat = delta.deltaPercent == 0
+            Text(
+                (if (flat) "\u25AC flat" else if (up) "\u25B2 +${delta.deltaPercent}%" else "\u25BC ${delta.deltaPercent}%") +
+                    " wk/wk",
+                fontSize = 9.sp, fontWeight = FontWeight.Black,
+                color = if (flat) MiColors.TextTertiary else if (up) MiColors.EmeraldDark else MiColors.Red,
+                maxLines = 1
+            )
         }
     }
 }

@@ -197,11 +197,14 @@ private fun TimeBlock(label: String, value: String, fg: Color) {
 
 /** Member summary: photo ring, identity, plan badges, days progress, days left. */
 @Composable
-fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
+fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit, checkIn: HomeCheckIn? = null) {
     val identity = snapshot.identity
     val membership = snapshot.membership
     val planTheme = themeForPlan(membership?.planName)
     HomeCard(onClick = onOpen, padding = 6.dp) {
+        if (checkIn != null) {
+            ContextStrip(checkIn)
+        }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(contentAlignment = Alignment.BottomEnd) {
                 val photo = identity.photoUrl
@@ -326,6 +329,56 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit) {
             }
         }
     }
+}
+
+private data class StripStyle(val glyph: String, val label: String, val tint: Color, val bg: Color)
+
+/**
+ * Slim verified-context strip above the member's name. It renders only when
+ * the records support a context, and never repeats the LIVE state the session
+ * hero already shows prominently (an older live session yields null). The
+ * glyph and wording carry the meaning; the tint is decoration, never the only
+ * signal.
+ */
+@Composable
+private fun ContextStrip(checkIn: HomeCheckIn) {
+    val zone = java.time.ZoneId.systemDefault()
+    val todayStart = remember {
+        java.time.LocalDate.now(zone).atStartOfDay(zone).toInstant().toEpochMilli()
+    }
+    val nowMs = remember { System.currentTimeMillis() }
+    val ctx = remember(checkIn, todayStart, nowMs) {
+        memberContext(checkIn, todayStart, nowMs)
+    } ?: return
+    val style = when (ctx) {
+        MemberContext.JUST_CHECKED_IN -> StripStyle(
+            "\u25CF", "Just checked in",
+            Color(0xFF0E7A4D), Color(0xFFE5F6EC)
+        )
+        MemberContext.COMPLETED_VISIT -> StripStyle(
+            "\u2713",
+            checkIn.lastDurationMs?.let { "Visit completed \u00B7 ${fmtDurationHm(it)}" }
+                ?: "Visit completed",
+            Color(0xFF1F5E87), Color(0xFFEAF2FD)
+        )
+        MemberContext.NO_ACTIVE_VISIT -> StripStyle(
+            "\u25CB", "No active visit",
+            MiColors.TextSecondary, MiColors.SurfaceSunken
+        )
+    }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(9.dp))
+            .background(style.bg)
+            .padding(horizontal = 7.dp, vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(style.glyph, fontSize = 9.sp, fontWeight = FontWeight.Black, color = style.tint, maxLines = 1)
+        Spacer(Modifier.width(5.dp))
+        Text(style.label, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = style.tint, maxLines = 1)
+    }
+    Spacer(Modifier.height(4.dp))
 }
 
 private fun totalPlanDays(startMs: Long, endMs: Long): Int {

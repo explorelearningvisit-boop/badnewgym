@@ -300,7 +300,8 @@ fun MemberIntelligenceHome(
                             )
                             MemberIdentityWidget(
                                 snapshot = data.snapshot,
-                                onOpen = { vm.openModule(HomeWidgetId.IDENTITY) }
+                                onOpen = { vm.openModule(HomeWidgetId.IDENTITY) },
+                                checkIn = data.checkIn
                             )
                             PaymentWidget(
                                 payment = data.snapshot.payment,

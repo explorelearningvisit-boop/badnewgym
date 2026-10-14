@@ -267,6 +267,70 @@ object WorkoutAnalytics {
         )
     }
 
+    /** One Monday-start calendar week clipped to the selected month. */
+    data class WeekBucket(
+        val label: String,
+        val startDom: Int,
+        val endDom: Int,
+        val totalMinutes: Int,
+        val activeDays: Int
+    )
+
+    /** Latest recorded week against the week before it, in recorded minutes. */
+    data class WeekDelta(val currentMinutes: Int, val previousMinutes: Int, val deltaPercent: Int)
+
+    /**
+     * Monday-start weeks of [yearMonth] up to the last recorded day, oldest
+     * first. Buckets hold recorded minutes only; a day inside the range with
+     * no session contributes zero. Weeks that start after the last recorded
+     * day are dropped rather than charted as zeros, because a week that has
+     * not happened yet is "no record", not "recorded zero". The first and
+     * last buckets are still clipped to the month, so their real day span is
+     * carried alongside the label instead of being implied.
+     */
+    fun weeksOfMonth(month: WorkoutMonth, yearMonth: java.time.YearMonth): List<WeekBucket> {
+        val days = monthDays(month, yearMonth)
+        if (days.isEmpty()) return emptyList()
+        val lastRecorded = days.lastOrNull { it.minutes > 0 }?.dayOfMonth ?: return emptyList()
+        val offset = yearMonth.atDay(1).dayOfWeek.value - 1 // 0 = Monday
+        val grouped = linkedMapOf<Int, MutableList<WorkoutDay>>()
+        days.forEach { day ->
+            val week = (offset + day.dayOfMonth - 1) / PAGE_SIZE
+            grouped.getOrPut(week) { mutableListOf() }.add(day)
+        }
+        return grouped.values
+            .filter { it.first().dayOfMonth <= lastRecorded }
+            .mapIndexed { i, list ->
+                WeekBucket(
+                    label = "W${i + 1}",
+                    startDom = list.first().dayOfMonth,
+                    endDom = list.last().dayOfMonth,
+                    totalMinutes = list.sumOf { it.minutes },
+                    activeDays = list.count { it.minutes > 0 }
+                )
+            }
+    }
+
+    /**
+     * The last recorded week of [yearMonth] against the week before it, in
+     * recorded minutes. It is deliberately null unless the final recorded week
+     * has actually finished: a week still in progress is not a comparable
+     * period, so no delta is invented for it. A zero baseline also yields
+     * null, since it has no honest percentage.
+     */
+    fun weekOverWeek(month: WorkoutMonth, yearMonth: java.time.YearMonth): WeekDelta? {
+        val lastRecorded = monthDays(month, yearMonth).lastOrNull { it.minutes > 0 }
+            ?: return null
+        val weeks = weeksOfMonth(month, yearMonth)
+        if (weeks.size < 2) return null
+        val last = weeks.last()
+        if (last.endDom > lastRecorded.dayOfMonth) return null // week still running
+        val previous = weeks[weeks.size - 2].totalMinutes
+        if (previous <= 0) return null
+        val pct = ((last.totalMinutes - previous).toDouble() / previous * 100).toInt()
+        return WeekDelta(last.totalMinutes, previous, pct)
+    }
+
     private fun dayOfSession(s: com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSession) = WorkoutDay(
         dayOfMonth = s.dayOfMonth,
         minutes = s.minutes,
