@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -64,6 +66,7 @@ fun CheckInWidget(
     Box(
         Modifier
             .fillMaxWidth()
+            .height(if (compact) 45.dp else 118.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(Color(0xFF06231A))
             .clickable(onClick = onOpen)
@@ -72,18 +75,50 @@ fun CheckInWidget(
             model = MediaAssets.GYM_BG,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            alpha = 0.38f,
+            alpha = if (compact) 0.38f else 0.5f,
             modifier = Modifier.matchParentSize()
         )
         Box(
             Modifier.matchParentSize().background(
-                Brush.horizontalGradient(
-                    listOf(Color(0xE6062E20), Color(0x9E062E20), Color(0xCC041D16))
+                Brush.verticalGradient(
+                    listOf(Color(0xCC041D16), Color(0x99062E20), Color(0xF2062320))
                 )
             )
         )
+        Column(
+            Modifier.fillMaxSize().padding(horizontal = 9.dp, vertical = 7.dp)
+        ) {
+            if (!compact) {
+                // The reference gives the photo its own breathing room with a
+                // motivational line. At compact height there is no room for it,
+                // so it is dropped rather than clipped.
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        "GOOD WORKOUT",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        maxLines = 1
+                    )
+                    Text(
+                        "A HEALTHY YOU",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF7FE8B8),
+                        maxLines = 1
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        "\u201CDiscipline Builds Freedom\u201D",
+                        fontSize = 9.sp,
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFFB8E8CE),
+                        maxLines = 1
+                    )
+                }
+            }
         Row(
-            Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -165,6 +200,7 @@ fun CheckInWidget(
                     )
                 }
             }
+        }
         }
     }
 }
