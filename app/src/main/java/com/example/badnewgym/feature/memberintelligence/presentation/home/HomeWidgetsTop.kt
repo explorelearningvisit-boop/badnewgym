@@ -43,6 +43,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.badnewgym.feature.memberintelligence.design.MediaAssets
 import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceMonth
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.currentStreak
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.longestStreak
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
 import kotlinx.coroutines.delay
 
@@ -223,7 +226,12 @@ private fun TimeBlock(label: String, value: String, fg: Color) {
 
 /** Member summary: photo ring, identity, plan badges, days progress, days left. */
 @Composable
-fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit, checkIn: HomeCheckIn? = null) {
+fun MemberIdentityWidget(
+    snapshot: MemberSnapshot,
+    onOpen: () -> Unit,
+    checkIn: HomeCheckIn? = null,
+    stats: IdentityStats? = null
+) {
     val identity = snapshot.identity
     val membership = snapshot.membership
     val planTheme = themeForPlan(membership?.planName)
@@ -345,6 +353,112 @@ fun MemberIdentityWidget(snapshot: MemberSnapshot, onOpen: () -> Unit, checkIn: 
                     )
                 }
             }
+        }
+        // Stat tiles mirror the reference: streak, lifetime visits and average
+        // visit time. Each tile renders only when its record exists; invented
+        // month-over-month deltas are not shown.
+        if (stats != null && (stats.streak != null || stats.totalVisits != null || stats.avgVisitMin != null)) {
+            Spacer(Modifier.height(5.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                stats.streak?.let {
+                    IdentityTile(
+                        glyph = "\uD83D\uDD25",
+                        value = "$it",
+                        label = "Current Streak",
+                        sub = stats.bestStreak?.let { best -> "Best: $best" },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                stats.totalVisits?.let {
+                    IdentityTile(
+                        glyph = "\uD83D\uDCCA",
+                        value = "$it",
+                        label = "Total Visits",
+                        sub = "Lifetime",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                stats.avgVisitMin?.let {
+                    IdentityTile(
+                        glyph = "\u23F1",
+                        value = if (it >= 60) "${it / 60}h ${it % 60}m" else "${it}m",
+                        label = "Avg. Visit",
+                        sub = "This month",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Numbers behind the profile stat tiles. Every field is nullable: a tile with
+ * no record is omitted rather than filled with a plausible-looking zero.
+ */
+data class IdentityStats(
+    val streak: Int? = null,
+    val bestStreak: Int? = null,
+    val totalVisits: Int? = null,
+    val avgVisitMin: Int? = null
+)
+
+/**
+ * Derives profile tiles from recorded state.
+ *
+ * Streak and best come from the selected month's real day states; total visits
+ * is the recorded lifetime count; the average uses only days that carry a
+ * recorded visit length, so days without a duration never drag it down.
+ */
+fun identityStats(
+    snapshot: MemberSnapshot,
+    month: AttendanceMonth?
+): IdentityStats {
+    val streak = month?.currentStreak()?.takeIf { it > 0 }
+    val best = month?.longestStreak()?.takeIf { it > 0 }
+    val mins = month?.days?.mapNotNull { d ->
+        d.visitMinutes?.takeIf { d.isAttended }
+    }.orEmpty()
+    return IdentityStats(
+        streak = streak,
+        bestStreak = best,
+        totalVisits = snapshot.attendance?.lifetimeVisits?.takeIf { it > 0 },
+        avgVisitMin = if (mins.isEmpty()) null else mins.sum() / mins.size
+    )
+}
+
+@Composable
+private fun IdentityTile(
+    glyph: String,
+    value: String,
+    label: String,
+    sub: String?,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(MiColors.SurfaceSunken)
+            .padding(horizontal = 6.dp, vertical = 5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(glyph, fontSize = 13.sp, maxLines = 1)
+        Text(
+            value, fontSize = 13.sp, fontWeight = FontWeight.Black,
+            color = MiColors.TextPrimary, maxLines = 1
+        )
+        Text(
+            label, fontSize = 8.sp, fontWeight = FontWeight.Medium,
+            color = MiColors.TextSecondary, maxLines = 1
+        )
+        sub?.let {
+            Text(
+                it, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold,
+                color = MiColors.EmeraldDark, maxLines = 1
+            )
         }
     }
 }

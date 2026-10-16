@@ -36,9 +36,11 @@ import com.example.badnewgym.feature.memberintelligence.domain.analytics.longest
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDay
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDayState
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceWindow
+import com.example.badnewgym.feature.memberintelligence.domain.model.MembershipHistory
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentReceipt
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSituation
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSummary
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTransaction
 import java.time.LocalDate
 
 // ------------------------------------------------------------------ PAYMENT
@@ -59,6 +61,8 @@ fun PaymentWidget(
     planName: String? = null,
     planPeriod: String? = null,
     validTill: String? = null,
+    previousPlan: PreviousPlan? = null,
+    history: List<PaymentTransaction> = emptyList(),
     onPlan: () -> Unit = onOpen,
     onHistory: () -> Unit = onOpen,
     onUnavailable: (String) -> Unit = {}
@@ -72,14 +76,14 @@ fun PaymentWidget(
         return
     }
     when (situation) {
-        is PaymentSituation.Overdue -> PaymentOverdueCard(payment, situation.overdueDays, onCollect, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
-        is PaymentSituation.Due -> PaymentDueSoonCard(payment, situation, onCollect, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
-        is PaymentSituation.Partial -> PaymentPartialCard(payment, situation, onCollect, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
+        is PaymentSituation.Overdue -> PaymentOverdueCard(payment, situation.overdueDays, onCollect, onOpen, planName, planPeriod, validTill, previousPlan, history, onPlan, onHistory, onUnavailable)
+        is PaymentSituation.Due -> PaymentDueSoonCard(payment, situation, onCollect, onOpen, planName, planPeriod, validTill, previousPlan, history, onPlan, onHistory, onUnavailable)
+        is PaymentSituation.Partial -> PaymentPartialCard(payment, situation, onCollect, onOpen, planName, planPeriod, validTill, previousPlan, history, onPlan, onHistory, onUnavailable)
         // A fresh receipt means this session cleared the balance: success,
         // not silence. Otherwise a settled account is calmly CURRENT.
         PaymentSituation.Settled ->
-            if (receipt != null) PaymentSuccessfulCard(payment, receipt, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
-            else PaymentCurrentCard(payment, onOpen, planName, planPeriod, validTill, onPlan, onHistory, onUnavailable)
+            if (receipt != null) PaymentSuccessfulCard(payment, receipt, onOpen, planName, planPeriod, validTill, previousPlan, history, onPlan, onHistory, onUnavailable)
+            else PaymentCurrentCard(payment, onOpen, planName, planPeriod, validTill, previousPlan, history, onPlan, onHistory, onUnavailable)
     }
 }
 
@@ -166,6 +170,8 @@ private fun PaymentDueSoonCard(
     planName: String?,
     planPeriod: String?,
     validTill: String?,
+    previousPlan: PreviousPlan?,
+    history: List<PaymentTransaction>,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -183,11 +189,25 @@ private fun PaymentDueSoonCard(
     val daysLeft = dueMs?.let { Math.round((it - System.currentTimeMillis()) / 86_400_000.0).toInt() }
     HomeCard(onClick = onOpen, padding = 6.dp) {
         PaymentHeader("DUE SOON", MiColors.AmberSoft, MiColors.Amber, onCollect, onOpen)
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(3.dp))
+        // Four columns mirror the reference: what the member has, what is due
+        // next, what they had before, and the amount the gym must collect.
         Row(verticalAlignment = Alignment.Top) {
-            PlanCell(planName, planPeriod, validTill, Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
-                Text("Amount", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+                Text("Current Plan", fontSize = 8.5.sp, color = MiColors.TextSecondary, maxLines = 1)
+                Text(
+                    planName ?: "-", fontSize = 11.5.sp, fontWeight = FontWeight.ExtraBold,
+                    color = MiColors.TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    listOfNotNull(planPeriod?.takeIf { it.isNotBlank() }, validTill?.let { "till $it" })
+                        .joinToString(" \u00B7 ").ifBlank { "-" },
+                    fontSize = 8.5.sp, color = MiColors.TextSecondary,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Next Payment", fontSize = 8.5.sp, color = MiColors.TextSecondary, maxLines = 1)
                 Text(fmtRupees(amount), fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
                 Text(
                     listOfNotNull(
@@ -199,30 +219,165 @@ private fun PaymentDueSoonCard(
                         },
                         fmtDate(dueMs).takeIf { daysLeft != null }
                     ).joinToString(" \u00B7 "),
-                    fontSize = 9.sp, fontWeight = FontWeight.Bold, color = MiColors.Red, maxLines = 1
+                    fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = MiColors.Red, maxLines = 2
                 )
             }
             Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Last Paid", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
-                    Spacer(Modifier.width(3.dp))
-                    Box(
-                        Modifier.clip(RoundedCornerShape(8.dp)).background(Color(0xFFE5F6EC))
-                            .padding(horizontal = 5.dp, vertical = 1.dp)
-                    ) { Text("Paid", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0E7A4D)) }
-                }
-                Text(fmtRupees(payment.lastPaymentAmount), fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
-                Text(fmtDate(payment.lastPaymentDate), fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+                Text("Previous Plan", fontSize = 8.5.sp, color = MiColors.TextSecondary, maxLines = 1)
+                // Only a recorded previous plan is shown. Inferring an upgrade
+                // or downgrade from a price difference would be fabrication.
+                Text(
+                    previousPlan?.name ?: "No record",
+                    fontSize = 11.5.sp, fontWeight = FontWeight.ExtraBold,
+                    color = if (previousPlan == null) MiColors.TextTertiary else MiColors.TextPrimary,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    previousPlan?.period ?: "",
+                    fontSize = 8.5.sp, color = MiColors.TextSecondary,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis
+                )
             }
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-                // State rides in the header badge; the date below is enough.
-                Text("Next Due", fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
-                Text(fmtRupees(amount), fontSize = 13.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary, maxLines = 1)
-                Text(fmtDate(dueMs), fontSize = 9.sp, color = MiColors.TextSecondary, maxLines = 1)
+                Text("Amount Due", fontSize = 8.5.sp, color = MiColors.TextSecondary, maxLines = 1)
+                Text(fmtRupees(amount), fontSize = 14.sp, fontWeight = FontWeight.Black, color = MiColors.Red, maxLines = 1)
             }
         }
+        Spacer(Modifier.height(3.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.fillMaxWidth()) {
+            Box(
+                Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MiColors.Emerald)
+                    .clickable(onClick = onCollect)
+                    .padding(vertical = 6.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Collect Payment", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color.White, maxLines = 1)
+            }
+        }
+        Spacer(Modifier.height(3.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.fillMaxWidth()) {
+            PaymentNavChip("Send Reminder", MiColors.EmeraldDark, MiColors.Mint, Modifier.weight(1f)) {
+                onUnavailable("Reminders are not available in this build.")
+            }
+            PaymentNavChip("View Details", MiColors.TextPrimary, MiColors.SurfaceSunken, Modifier.weight(1f), onHistory)
+        }
+        Spacer(Modifier.height(3.dp))
+        PaymentTimeline(history = history, outstanding = amount)
         Spacer(Modifier.height(4.dp))
         PaymentSubNav(onPlan, onHistory, onUnavailable)
+    }
+}
+
+/**
+ * A previous plan the records actually name. The period is only present when a
+ * membership-history entry corroborates it.
+ */
+data class PreviousPlan(val name: String, val period: String?)
+
+/**
+ * Resolves the previous plan without inventing upgrades or downgrades.
+ * A history entry for a different plan than the current one corroborates the
+ * period; the recorded previous-plan name alone is still shown, but dateless.
+ */
+fun previousPlanOf(
+    currentPlanName: String?,
+    previousPlanName: String?,
+    history: List<MembershipHistory>
+): PreviousPlan? {
+    if (previousPlanName.isNullOrBlank()) return null
+    val entry = history
+        .filter { it.planName != currentPlanName }
+        .maxByOrNull { it.endDate }
+    val period = entry?.let { "${fmtDate(it.startDate)} - ${fmtDate(it.endDate)}" }
+    return PreviousPlan(previousPlanName, period)
+}
+
+/** One month of the payment timeline: real transaction, due now, or no record. */
+data class TimelineMonth(
+    val yearMonth: java.time.YearMonth,
+    val hasTransaction: Boolean,
+    val isDueMonth: Boolean
+)
+
+/**
+ * Twelve real calendar months ending with the current one. A month is marked
+ * paid only when a transaction timestamp falls inside it; every other month is
+ * explicitly no-record rather than assumed unpaid.
+ */
+fun paymentTimelineMonths(
+    history: List<PaymentTransaction>,
+    now: java.time.YearMonth = java.time.YearMonth.now()
+): List<TimelineMonth> {
+    val zone = java.time.ZoneId.systemDefault()
+    return (11 downTo 0).map { back ->
+        val ym = now.minusMonths(back.toLong())
+        val has = history.any { t ->
+            java.time.YearMonth.from(
+                java.time.Instant.ofEpochMilli(t.occurredAt).atZone(zone)
+            ) == ym
+        }
+        TimelineMonth(ym, has, back == 0)
+    }
+}
+
+@Composable
+private fun PaymentTimeline(history: List<PaymentTransaction>, outstanding: Double) {
+    val months = remember(history) { paymentTimelineMonths(history) }
+    Column(Modifier.fillMaxWidth()) {
+        Text(
+            "12-month record",
+            fontSize = 8.5.sp, fontWeight = FontWeight.Bold,
+            color = MiColors.TextSecondary, maxLines = 1
+        )
+        Spacer(Modifier.height(2.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            months.forEach { m ->
+                Column(
+                    Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val label = m.yearMonth.month.name.take(3).lowercase()
+                        .replaceFirstChar { it.uppercase() }
+                    Text(
+                        label, fontSize = 6.5.sp, fontWeight = FontWeight.Medium,
+                        color = MiColors.TextTertiary, maxLines = 1
+                    )
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(20.dp)
+                            .clip(RoundedCornerShape(5.dp))
+                            .background(
+                                when {
+                                    m.hasTransaction -> Color(0xFFD8F5E4)
+                                    m.isDueMonth && outstanding > 0.009 -> Color(0xFFFDF3E2)
+                                    else -> MiColors.SurfaceSunken
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            when {
+                                m.hasTransaction -> "\u2713"
+                                m.isDueMonth && outstanding > 0.009 -> "\u25D4"
+                                else -> "\u2212"
+                            },
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Black,
+                            color = when {
+                                m.hasTransaction -> Color(0xFF0E7A4D)
+                                m.isDueMonth && outstanding > 0.009 -> MiColors.Amber
+                                else -> MiColors.TextTertiary
+                            },
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -235,6 +390,8 @@ private fun PaymentPartialCard(
     planName: String?,
     planPeriod: String?,
     validTill: String?,
+    previousPlan: PreviousPlan?,
+    history: List<PaymentTransaction>,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -253,6 +410,8 @@ private fun PaymentPartialCard(
         }
         Spacer(Modifier.height(2.dp))
         KvRow("Next", fmtDate(situation.dueAtEpoch), dense = true)
+        Spacer(Modifier.height(3.dp))
+        PaymentTimeline(history = history, outstanding = situation.remaining)
         Spacer(Modifier.height(6.dp))
         PaymentSubNav(onPlan, onHistory, onUnavailable)
     }
@@ -267,6 +426,8 @@ private fun PaymentOverdueCard(
     planName: String?,
     planPeriod: String?,
     validTill: String?,
+    previousPlan: PreviousPlan?,
+    history: List<PaymentTransaction>,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -291,6 +452,8 @@ private fun PaymentOverdueCard(
             dense = true
         )
         KvRow("Next", fmtDate(payment.dueDate), dense = true)
+        Spacer(Modifier.height(3.dp))
+        PaymentTimeline(history = history, outstanding = payment.totalOutstanding)
         Spacer(Modifier.height(6.dp))
         PaymentSubNav(onPlan, onHistory, onUnavailable)
     }
@@ -303,6 +466,8 @@ private fun PaymentCurrentCard(
     planName: String?,
     planPeriod: String?,
     validTill: String?,
+    previousPlan: PreviousPlan?,
+    history: List<PaymentTransaction>,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -317,6 +482,8 @@ private fun PaymentCurrentCard(
             dense = true
         )
         KvRow("Next", fmtDate(payment.dueDate), dense = true)
+        Spacer(Modifier.height(3.dp))
+        PaymentTimeline(history = history, outstanding = payment.totalOutstanding)
         Spacer(Modifier.height(6.dp))
         PaymentSubNav(onPlan, onHistory, onUnavailable)
     }
@@ -330,6 +497,8 @@ private fun PaymentSuccessfulCard(
     planName: String?,
     planPeriod: String?,
     validTill: String?,
+    previousPlan: PreviousPlan?,
+    history: List<PaymentTransaction>,
     onPlan: () -> Unit,
     onHistory: () -> Unit,
     onUnavailable: (String) -> Unit
@@ -349,6 +518,8 @@ private fun PaymentSuccessfulCard(
         Spacer(Modifier.height(2.dp))
         KvRow("Receipt", receipt.receiptId, dense = true)
         KvRow("Remaining", fmtRupees(payment.totalOutstanding), dense = true)
+        Spacer(Modifier.height(3.dp))
+        PaymentTimeline(history = history, outstanding = payment.totalOutstanding)
         Spacer(Modifier.height(6.dp))
         PaymentSubNav(onPlan, onHistory, onUnavailable)
     }

@@ -65,6 +65,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -112,45 +113,52 @@ private fun HomeRail(
 ) {
     Column(
         Modifier
-            .width(62.dp)
+            .width(66.dp)
             .fillMaxHeight()
             .verticalScroll(rememberScrollState())
-            .padding(vertical = 6.dp),
+            .padding(top = 6.dp, bottom = 6.dp, end = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(3.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         RAIL_ITEMS.forEach { item ->
             val selected = item.id == selectedId
+            // The approved reference puts white pill cards on the pale-mint
+            // canvas, with the active item filled emerald rather than sitting in
+            // a dark chrome frame.
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .width(58.dp)
-                    .clip(RoundedCornerShape(15.dp))
-                    .then(if (selected) Modifier.background(RailActiveGradient) else Modifier)
+                    .width(62.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .then(
+                        if (selected) Modifier.background(RailActiveGradient)
+                        else Modifier.background(Color.White)
+                    )
                     .clickable(onClick = { onSelect(item.id) })
-                    .padding(vertical = 6.dp)
+                    .padding(vertical = 7.dp)
             ) {
                 androidx.compose.material3.Icon(
                     item.icon,
                     contentDescription = item.label,
-                    tint = if (selected) Color.White else MiColors.ChromeTextDim,
-                    modifier = Modifier.size(20.dp)
+                    tint = if (selected) Color.White else MiColors.Emerald,
+                    modifier = Modifier.size(19.dp)
                 )
-                Spacer(Modifier.height(3.dp))
+                Spacer(Modifier.height(2.dp))
                 Text(
                     item.label,
-                    fontSize = 9.sp,
+                    fontSize = 8.5.sp,
                     fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                    color = if (selected) Color.White else MiColors.ChromeTextDim,
+                    color = if (selected) Color.White else MiColors.TextSecondary,
                     maxLines = 1,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis
                 )
                 badges[item.id]?.let { value ->
                     Text(
                         value,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Black,
-                        color = if (selected) Color.White else MiColors.ChromeGlow,
+                        color = if (selected) Color.White else MiColors.Emerald,
                         maxLines = 1,
                         textAlign = TextAlign.Center
                     )
@@ -161,8 +169,9 @@ private fun HomeRail(
 }
 
 /**
- * Deep-emerald header: wordmark, real member search, and the shell's global
- * actions. Every control here opens something real - there is no inert icon.
+ * Event header card: the live event, not a product wordmark. Light green card
+ * with dark text per the approved reference. Every control opens something
+ * real - there is no inert icon.
  */
 @Composable
 private fun AppHeader(
@@ -176,7 +185,7 @@ private fun AppHeader(
     Row(
         Modifier
             .fillMaxWidth()
-            .height(52.dp)
+            .height(56.dp)
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -186,51 +195,63 @@ private fun AppHeader(
         Row(
             Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(11.dp))
-                .background(RailActiveGradient)
+                .clip(RoundedCornerShape(16.dp))
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(Color(0xFFC9F5DE), Color(0xFF9DEBC4), Color(0xFF7FE0B2))
+                    )
+                )
                 .clickable(onClick = onOpenEvent)
-                .padding(start = 8.dp, end = 6.dp, top = 5.dp, bottom = 5.dp),
+                .padding(start = 8.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 Modifier
-                    .size(28.dp)
-                    .clip(RoundedCornerShape(9.dp))
-                    .background(Color(0x33FFFFFF)),
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MiColors.Emerald),
                 contentAlignment = Alignment.Center
             ) {
                 androidx.compose.material3.Icon(
                     event.icon,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(17.dp)
                 )
             }
-            Spacer(Modifier.width(7.dp))
+            Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f)) {
                 Text(
                     event.title,
-                    fontSize = 13.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Black,
-                    color = Color.White,
+                    color = Color(0xFF0B3B2A),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     event.subtitle,
-                    fontSize = 8.5.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFFE8FFF2),
+                    color = Color(0xFF2F6B52),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            androidx.compose.material3.Icon(
-                Icons.Filled.KeyboardArrowRight,
-                contentDescription = "Open ${event.title}",
-                tint = Color.White,
-                modifier = Modifier.size(18.dp)
-            )
+            Box(
+                Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(MiColors.Emerald),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.Icon(
+                    Icons.Filled.KeyboardArrowRight,
+                    contentDescription = "Open ${event.title}",
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
         }
         Spacer(Modifier.width(4.dp))
         // Search doubles as the current-member affordance, so the header always
@@ -240,7 +261,7 @@ private fun AppHeader(
                 .height(34.dp)
                 .widthIn(max = 104.dp)
                 .clip(RoundedCornerShape(17.dp))
-                .background(Color(0x22FFFFFF))
+                .background(Color.White)
                 .clickable(onClick = onOpenSearch)
                 .padding(horizontal = 9.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -248,7 +269,7 @@ private fun AppHeader(
             androidx.compose.material3.Icon(
                 Icons.Filled.Search,
                 contentDescription = "Search members",
-                tint = MiColors.ChromeTextDim,
+                tint = MiColors.TextSecondary,
                 modifier = Modifier.size(15.dp)
             )
             if (memberName != null) {
@@ -257,7 +278,7 @@ private fun AppHeader(
                     memberName.substringBefore(' '),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = MiColors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -276,14 +297,14 @@ private fun HeaderIcon(icon: ImageVector, label: String, onClick: () -> Unit) {
             .padding(start = 4.dp)
             .size(34.dp)
             .clip(RoundedCornerShape(11.dp))
-            .background(Color(0x22FFFFFF))
+            .background(Color.White)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         androidx.compose.material3.Icon(
             icon,
             contentDescription = label,
-            tint = Color.White,
+            tint = MiColors.TextSecondary,
             modifier = Modifier.size(17.dp)
         )
     }
@@ -468,7 +489,7 @@ fun MemberIntelligenceHome(
     Box(
         Modifier
             .fillMaxSize()
-            .background(ChromeGradient)
+            .background(PageGradient)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Column(Modifier.fillMaxSize()) {
@@ -514,8 +535,8 @@ fun MemberIntelligenceHome(
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
-                    .background(PageGradient)
+                    .clip(RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp))
+                    .background(Color(0x00FFFFFF))
             ) {
                 // Light bloom over the emerald field, matching the reference.
                 Box(
@@ -548,7 +569,10 @@ fun MemberIntelligenceHome(
                             MemberIdentityWidget(
                                 snapshot = data.snapshot,
                                 onOpen = { vm.openModule(HomeWidgetId.IDENTITY) },
-                                checkIn = data.checkIn
+                                checkIn = data.checkIn,
+                                stats = remember(data.snapshot, data.attendanceMonth) {
+                                    identityStats(data.snapshot, data.attendanceMonth)
+                                }
                             )
                             PaymentWidget(
                                 payment = data.snapshot.payment,
@@ -556,6 +580,14 @@ fun MemberIntelligenceHome(
                                 planName = data.snapshot.membership?.planName,
                                 planPeriod = data.snapshot.membership?.planType,
                                 validTill = data.snapshot.membership?.expiryDate?.let { fmtDate(it) },
+                                previousPlan = remember(data.snapshot.membership, data.snapshot.membershipHistory) {
+                                    previousPlanOf(
+                                        data.snapshot.membership?.planName,
+                                        data.snapshot.membership?.previousPlanName,
+                                        data.snapshot.membershipHistory
+                                    )
+                                },
+                                history = data.snapshot.payment?.history.orEmpty(),
                                 onCollect = { vm.openModule(HomeWidgetId.PAYMENT) },
                                 onOpen = { vm.openModule(HomeWidgetId.PAYMENT) },
                                 onPlan = { vm.openModule(HomeWidgetId.IDENTITY) },
@@ -647,7 +679,10 @@ private fun buildRailBadges(
 ): Map<String, String> {
     if (data == null) return emptyMap()
     val out = mutableMapOf<String, String>()
-    data.snapshot.membership?.daysRemaining?.let { out["members"] = "${it}d" }
+    // Members shows how many member records this dashboard can actually open,
+    // not a plan countdown. Days-remaining already has its own home.
+    val directorySize = memberDirectory().size
+    if (directorySize > 0) out["members"] = "$directorySize"
     val checkIn = data.checkIn
     if (checkIn.liveStartMs != null) {
         out["checkin"] = "LIVE"
