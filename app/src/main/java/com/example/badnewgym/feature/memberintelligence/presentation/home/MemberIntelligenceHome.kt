@@ -235,15 +235,15 @@ private fun AppHeader(
         Spacer(Modifier.width(4.dp))
         // Search doubles as the current-member affordance, so the header always
         // names who is on screen.
-        Box(
+        Row(
             Modifier
                 .height(34.dp)
-                .widthIn(max = 96.dp)
+                .widthIn(max = 104.dp)
                 .clip(RoundedCornerShape(17.dp))
                 .background(Color(0x22FFFFFF))
                 .clickable(onClick = onOpenSearch)
                 .padding(horizontal = 9.dp),
-            contentAlignment = Alignment.Center
+            verticalAlignment = Alignment.CenterVertically
         ) {
             androidx.compose.material3.Icon(
                 Icons.Filled.Search,

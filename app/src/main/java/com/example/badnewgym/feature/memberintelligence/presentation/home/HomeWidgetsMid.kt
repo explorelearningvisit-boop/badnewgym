@@ -33,11 +33,13 @@ import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import com.example.badnewgym.feature.memberintelligence.domain.analytics.AttendanceMonth
 import com.example.badnewgym.feature.memberintelligence.domain.analytics.currentStreak
 import com.example.badnewgym.feature.memberintelligence.domain.analytics.longestStreak
+import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDay
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDayState
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceWindow
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentReceipt
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSituation
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSummary
+import java.time.LocalDate
 
 // ------------------------------------------------------------------ PAYMENT
 
@@ -473,14 +475,111 @@ fun AttendanceWidget(
             StatusCount(Color(0xFF9AA5B1), "\u2212", Color.White, "${month.closed}", "Closed")
         }
         Spacer(Modifier.height(4.dp))
-        val first = remember(month) { month.days.filter { it.dayOfMonth <= 15 } }
-        val second = remember(month) { month.days.filter { it.dayOfMonth > 15 } }
-        MonthDayRow(first)
-        Spacer(Modifier.height(1.dp))
-        MonthDayRow(second)
+        MonthGrid(month)
         Spacer(Modifier.height(2.dp))
         AttendanceTrendRow(month, prevPoints)
     }
+}
+
+/**
+ * True seven-column Sun-Sat month grid, matching the approved reference.
+ *
+ * The previous layout printed days 1-15 then 16-31 as two even rows, which is
+ * not a calendar: weekday columns were meaningless and a reader could not tell
+ * which day fell on which weekday. Alignment here comes from each day's real
+ * epochDay, so leap Februaries and 28/29/30/31-day months are all handled by
+ * construction rather than by special cases.
+ */
+@Composable
+private fun MonthGrid(month: AttendanceMonth) {
+    val cells = remember(month) { monthGridCells(month) }
+    if (cells.isEmpty()) return
+
+    Column(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth()) {
+            listOf("S", "M", "T", "W", "T", "F", "S").forEach { d ->
+                Text(
+                    d,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MiColors.TextTertiary,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        Spacer(Modifier.height(2.dp))
+        cells.chunked(7).forEach { week ->
+            Row(Modifier.fillMaxWidth()) {
+                week.forEach { day ->
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .height(22.dp)
+                            .padding(1.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(
+                                if (day == null) Color.Transparent
+                                else day.cellBg()
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (day != null) {
+                            Text(
+                                "${day.dayOfMonth}",
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = day.cellFg(),
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+                // Pad the final short week so the row keeps seven equal columns.
+                repeat(7 - week.size) {
+                    Box(Modifier.weight(1f).height(22.dp))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Lays a month out as Sunday-first weeks, padding the first and last rows.
+ *
+ * Alignment is derived from the real first-of-month weekday, so 28, 29, 30 and
+ * 31-day months and leap Februaries all work without special cases. Returned
+ * list is always a whole number of weeks.
+ */
+fun monthGridCells(month: AttendanceMonth): List<AttendanceDay?> {
+    val days = month.days
+    if (days.isEmpty()) return emptyList()
+    // java.time DayOfWeek is MONDAY=1..SUNDAY=7; modulo 7 puts Sunday in column 0.
+    val leading = LocalDate.of(month.year, month.month, 1).dayOfWeek.value % 7
+    val trailing = (7 - (leading + days.size) % 7) % 7
+    return List(leading) { null } + days + List(trailing) { null }
+}
+
+/** Tint behind a day cell. Never encodes state by colour alone: the legend counts it. */
+private fun AttendanceDay.cellBg(): Color = when (state) {
+    AttendanceDayState.PRESENT -> Color(0xFFD8F5E4)
+    AttendanceDayState.LATE -> Color(0xFFFDEFD2)
+    AttendanceDayState.ABSENT -> Color(0xFFFBE3E3)
+    AttendanceDayState.HOLIDAY -> Color(0xFFEEE7FD)
+    AttendanceDayState.CLOSED -> Color(0xFFEFF2F4)
+    AttendanceDayState.FUTURE -> Color(0xFFF7FAF9)
+    AttendanceDayState.UNKNOWN -> Color(0xFFF2F4F5)
+}
+
+private fun AttendanceDay.cellFg(): Color = when (state) {
+    AttendanceDayState.PRESENT -> Color(0xFF0E7A4D)
+    AttendanceDayState.LATE -> Color(0xFF8A6100)
+    AttendanceDayState.ABSENT -> Color(0xFFC0392B)
+    AttendanceDayState.HOLIDAY -> Color(0xFF6B4FD8)
+    AttendanceDayState.CLOSED -> Color(0xFF8A97A0)
+    AttendanceDayState.FUTURE -> Color(0xFFB9C4C0)
+    AttendanceDayState.UNKNOWN -> Color(0xFF8A97A0)
 }
 
 /**
