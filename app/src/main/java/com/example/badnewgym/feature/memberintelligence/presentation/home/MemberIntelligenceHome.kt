@@ -42,6 +42,9 @@ import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.LocalPharmacy
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.People
@@ -65,6 +68,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -163,6 +167,8 @@ private fun HomeRail(
 @Composable
 private fun AppHeader(
     memberName: String?,
+    event: HomeEventHeader,
+    onOpenEvent: () -> Unit,
     onOpenSearch: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenAlerts: () -> Unit
@@ -174,48 +180,70 @@ private fun AppHeader(
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            Modifier
-                .size(34.dp)
-                .clip(RoundedCornerShape(11.dp))
-                .background(RailActiveGradient),
-            contentAlignment = Alignment.Center
-        ) {
-            androidx.compose.material3.Icon(
-                Icons.Filled.FitnessCenter,
-                contentDescription = "BAD GYM",
-                tint = Color.White,
-                modifier = Modifier.size(19.dp)
-            )
-        }
-        Spacer(Modifier.width(8.dp))
-        Column(Modifier.weight(1f)) {
-            Text(
-                "BAD GYM",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.White,
-                maxLines = 1
-            )
-            Text(
-                "MEMBER INTELLIGENCE",
-                fontSize = 8.sp,
-                fontWeight = FontWeight.Bold,
-                color = MiColors.ChromeTextDim,
-                maxLines = 1
-            )
-        }
-        // Search doubles as the current-member affordance, so the header always
-        // names who is on screen.
+        // The approved reference has no decorative wordmark here: the top of the
+        // screen is the current event, so the header states the event and the
+        // action it offers rather than the product name.
         Row(
             Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(11.dp))
+                .background(RailActiveGradient)
+                .clickable(onClick = onOpenEvent)
+                .padding(start = 8.dp, end = 6.dp, top = 5.dp, bottom = 5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                Modifier
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(Color(0x33FFFFFF)),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.Icon(
+                    event.icon,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Spacer(Modifier.width(7.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    event.title,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    event.subtitle,
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFE8FFF2),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            androidx.compose.material3.Icon(
+                Icons.Filled.KeyboardArrowRight,
+                contentDescription = "Open ${event.title}",
+                tint = Color.White,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        Spacer(Modifier.width(4.dp))
+        // Search doubles as the current-member affordance, so the header always
+        // names who is on screen.
+        Box(
+            Modifier
                 .height(34.dp)
-                .widthIn(max = 132.dp)
+                .widthIn(max = 96.dp)
                 .clip(RoundedCornerShape(17.dp))
                 .background(Color(0x22FFFFFF))
                 .clickable(onClick = onOpenSearch)
                 .padding(horizontal = 9.dp),
-            verticalAlignment = Alignment.CenterVertically
+            contentAlignment = Alignment.Center
         ) {
             androidx.compose.material3.Icon(
                 Icons.Filled.Search,
@@ -223,14 +251,17 @@ private fun AppHeader(
                 tint = MiColors.ChromeTextDim,
                 modifier = Modifier.size(15.dp)
             )
-            Spacer(Modifier.width(5.dp))
-            Text(
-                memberName ?: "Search",
-                fontSize = 10.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = if (memberName != null) Color.White else MiColors.ChromeTextDim,
-                maxLines = 1
-            )
+            if (memberName != null) {
+                Spacer(Modifier.width(5.dp))
+                Text(
+                    memberName.substringBefore(' '),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
         Spacer(Modifier.width(4.dp))
         HeaderIcon(Icons.Filled.Settings, "Settings", onOpenSettings)
@@ -443,6 +474,19 @@ fun MemberIntelligenceHome(
         Column(Modifier.fillMaxSize()) {
             AppHeader(
                 memberName = readyData?.snapshot?.identity?.name,
+                event = homeEventHeader(
+                    readyData?.let {
+                        val zone = java.time.ZoneId.systemDefault()
+                        memberContext(
+                            it.checkIn,
+                            java.time.LocalDate.now(zone).atStartOfDay(zone).toInstant().toEpochMilli(),
+                            System.currentTimeMillis()
+                        )
+                    },
+                    if (readyData?.checkIn?.liveStartMs != null) Icons.Filled.Logout
+                    else Icons.Filled.DirectionsRun
+                ),
+                onOpenEvent = { vm.openModule(HomeWidgetId.CHECK_IN) },
                 onOpenSearch = { searchOpen = true },
                 onOpenSettings = { vm.openModule(HomeWidgetId.MORE) },
                 onOpenAlerts = { vm.openModule(HomeWidgetId.INSIGHTS) }

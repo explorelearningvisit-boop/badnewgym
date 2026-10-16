@@ -172,6 +172,50 @@ fun fmtDurationHm(ms: Long): String {
     return "%02dh %02dm".format(m / 60, m % 60)
 }
 
+/**
+ * The event the screen is currently asking the owner about.
+ *
+ * The approved reference replaces the usual product wordmark with the live
+ * event, so this is derived purely from recorded state. Nothing here invents a
+ * visit: [CHECK_OUT] appears only while a session is genuinely open.
+ */
+enum class HomeEventType(
+    val label: String,
+    val activeSubtitle: String,
+    val idleSubtitle: String
+) {
+    CHECK_IN("Check-In", "Tap to end this visit", "Tap to check-in this member"),
+    CHECK_OUT("Check-Out", "Visit in progress", "Tap to check-in this member")
+}
+
+/** A concrete event header, resolved from real check-in state. */
+data class HomeEventHeader(
+    val type: HomeEventType,
+    val title: String,
+    val subtitle: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
+
+/**
+ * Resolves the event header.
+ *
+ * [context] already distinguishes a live visit from a completed or absent one,
+ * so the header reuses it instead of re-deriving live status independently.
+ */
+fun homeEventHeader(
+    context: MemberContext?,
+    icon: androidx.compose.ui.graphics.vector.ImageVector
+): HomeEventHeader {
+    val live = context == MemberContext.JUST_CHECKED_IN
+    val type = if (live) HomeEventType.CHECK_OUT else HomeEventType.CHECK_IN
+    return HomeEventHeader(
+        type = type,
+        title = type.label,
+        subtitle = if (live) type.activeSubtitle else type.idleSubtitle,
+        icon = icon
+    )
+}
+
 /** Workout history ranges. THIS_MONTH shows the selected calendar month. */
 /** [short] is the dense chip form; [label] is the dropdown/menu form. */
 enum class WorkoutRange(val days: Int, val short: String, val label: String) {
