@@ -1,6 +1,7 @@
 package com.example.badnewgym.feature.memberintelligence.presentation.home
 
 import androidx.compose.ui.graphics.Color
+import com.example.badnewgym.feature.memberintelligence.domain.analytics.WorkoutAnalytics
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceWindow
 import com.example.badnewgym.feature.memberintelligence.domain.model.BodyGoal
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
@@ -8,6 +9,8 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MetricHisto
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSituation
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutMonth
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.YearMonth
 import java.util.Date
 import java.util.Locale
 
@@ -171,6 +174,68 @@ fun fmtDurationHm(ms: Long): String {
     val m = (ms / 60_000).coerceAtLeast(0)
     return "%02dh %02dm".format(m / 60, m % 60)
 }
+
+/**
+ * What a single day in the workout chart means.
+ *
+ * The approved reference separates a recorded session from a day with nothing
+ * recorded. Collapsing "no record" into "rest day" would assert the member was
+ * resting, which the records do not say, so future and untracked days are
+ * reported as NO_RECORD.
+ */
+enum class WorkoutDayKind {
+    /** A session was recorded on this day. */
+    WORKOUT,
+    /** The day has happened and is inside the tracked period, with no session. */
+    REST_DAY,
+    /** The day has not happened yet, so nothing can be said about it. */
+    NO_RECORD
+}
+
+fun workoutDayKind(
+    dayOfMonth: Int,
+    minutes: Int,
+    anchor: LocalDate,
+    yearMonth: YearMonth
+): WorkoutDayKind = when {
+    minutes > 0 -> WorkoutDayKind.WORKOUT
+    yearMonth == YearMonth.from(anchor) && dayOfMonth > anchor.dayOfMonth -> WorkoutDayKind.NO_RECORD
+    yearMonth.isAfter(YearMonth.from(anchor)) -> WorkoutDayKind.NO_RECORD
+    else -> WorkoutDayKind.REST_DAY
+}
+
+/** Counts of each day kind across a month. They must sum to the month length. */
+data class WorkoutDayChips(val workout: Int, val rest: Int, val noRecord: Int) {
+    val total: Int get() = workout + rest + noRecord
+}
+
+fun workoutDayChips(
+    days: List<WorkoutAnalytics.WorkoutDay>,
+    anchor: LocalDate,
+    yearMonth: YearMonth
+): WorkoutDayChips {
+    var w = 0
+    var r = 0
+    var n = 0
+    days.forEach { d ->
+        when (workoutDayKind(d.dayOfMonth, d.minutes, anchor, yearMonth)) {
+            WorkoutDayKind.WORKOUT -> w++
+            WorkoutDayKind.REST_DAY -> r++
+            WorkoutDayKind.NO_RECORD -> n++
+        }
+    }
+    return WorkoutDayChips(w, r, n)
+}
+
+/**
+ * Readable duration for chart axes and stat rows.
+ *
+ * Long sessions read as hours with one decimal, matching the reference's
+ * "2.0 hr"; anything under an hour stays in whole minutes so a 20-minute
+ * session never becomes "0.3 hr".
+ */
+fun fmtWorkoutDuration(min: Int): String =
+    if (min >= 60) String.format(Locale.US, "%.1f hr", min / 60.0) else "$min min"
 
 /**
  * The event the screen is currently asking the owner about.

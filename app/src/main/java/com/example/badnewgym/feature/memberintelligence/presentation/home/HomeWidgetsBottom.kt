@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -39,6 +41,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import java.time.LocalDate
+import java.time.YearMonth
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -173,15 +177,130 @@ fun WorkoutWidget(
         }
         if (isMonth) {
             Spacer(Modifier.height(2.dp))
-            IntensityLegend(days = chartDays)
+            WorkoutDayLegend(days = chartDays, yearMonth = workoutYearMonth)
         }
         Spacer(Modifier.height(2.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            StatChip("Sessions", "${rangeSummary.activeDays}", MiColors.TextPrimary, Modifier.weight(1f), dense = true, singleLine = true)
-            StatChip("Total", "${rangeSummary.totalMinutes}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true, singleLine = true)
-            StatChip("Avg", "${rangeSummary.averageMinutes}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true, singleLine = true)
-            StatChip("Peak", "${rangeSummary.peak?.minutes ?: 0}m", MiColors.TextPrimary, Modifier.weight(1f), dense = true, singleLine = true)
+        // Reference stat rows: totals first, then the best and lowest recorded
+        // days. "Lowest Day" is the smallest non-zero session, never a rest day.
+        Column(Modifier.fillMaxWidth()) {
+            WorkoutStatRow("Total Sessions", "${rangeSummary.activeDays}", rangeSummary.activeDays)
+            WorkoutStatRow("Total Duration", fmtWorkoutDuration(rangeSummary.totalMinutes), rangeSummary.activeDays)
+            WorkoutStatRow(
+                "Avg / Session",
+                fmtWorkoutDuration(rangeSummary.averageMinutes),
+                rangeSummary.activeDays
+            )
+            WorkoutStatRow(
+                "Best Day",
+                rangeSummary.peak?.let { fmtWorkoutDuration(it.minutes) } ?: "-",
+                rangeSummary.activeDays,
+                sub = rangeSummary.peak?.dateLabel
+            )
+            WorkoutStatRow(
+                "Lowest Day",
+                rangeSummary.lowest?.let { fmtWorkoutDuration(it.minutes) } ?: "-",
+                rangeSummary.lowest?.minutes ?: 0,
+                sub = rangeSummary.lowest?.dateLabel,
+                highlight = true
+            )
         }
+    }
+}
+
+/** One reference-style stat row: label, value, and a bar scaled to the range. */
+@Composable
+private fun WorkoutStatRow(
+    label: String,
+    value: String,
+    scaleMax: Int,
+    sub: String? = null,
+    highlight: Boolean = false
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 1.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            label,
+            fontSize = 8.5.sp,
+            fontWeight = FontWeight.Medium,
+            color = MiColors.TextSecondary,
+            maxLines = 1,
+            modifier = Modifier.weight(1f)
+        )
+        sub?.let {
+            Text(
+                it,
+                fontSize = 7.5.sp,
+                color = MiColors.TextTertiary,
+                maxLines = 1
+            )
+        }
+        Spacer(Modifier.width(4.dp))
+        Text(
+            value,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Black,
+            color = if (highlight) MiColors.EmeraldDark else MiColors.TextPrimary,
+            maxLines = 1
+        )
+        Spacer(Modifier.width(5.dp))
+        Box(
+            Modifier
+                .width(38.dp)
+                .height(5.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(MiColors.Border)
+        ) {
+            if (scaleMax > 0) {
+                Box(
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth((scaleMax.toFloat() / maxOf(scaleMax, 1)).coerceIn(0.05f, 1f))
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(if (highlight) MiColors.Emerald else MiColors.Blue)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Three-state day legend matching the reference.
+ *
+ * Separates a recorded session from a day that happened without one, and from a
+ * day that has not happened yet. A future day is never counted as a rest day:
+ * the records say nothing about it.
+ */
+@Composable
+private fun WorkoutDayLegend(
+    days: List<WorkoutAnalytics.WorkoutDay>,
+    yearMonth: YearMonth
+) {
+    val chips = remember(days, yearMonth) {
+        workoutDayChips(days, LocalDate.now(), yearMonth)
+    }
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        LegendDot("Workout", chips.workout, MiColors.Emerald)
+        LegendDot("Rest Day", chips.rest, MiColors.Blue)
+        LegendDot("No Record", chips.noRecord, MiColors.Neutral)
+    }
+}
+
+@Composable
+private fun LegendDot(label: String, count: Int, tint: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier.size(7.dp).clip(CircleShape).background(tint)
+        )
+        Spacer(Modifier.width(3.dp))
+        Text(
+            "$label ($count)",
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Medium,
+            color = MiColors.TextSecondary,
+            maxLines = 1
+        )
     }
 }
 
