@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -151,7 +152,7 @@ fun ReferenceMemberIntelligenceDashboard(
                     }
                 )
             }
-            item(key = "payment") { PaymentPlanPanel(snapshot) }
+            item(key = "payment") { PaymentPlanPanel(snapshot, onMenuSelected) }
             item(key = "attendance") { AttendancePanel(snapshot) }
             item(key = "workout") { WorkoutPanel(snapshot) }
             item(key = "body") { BodyProgressPanel(snapshot) }
@@ -377,7 +378,7 @@ private fun SectionCard(
 }
 
 @Composable
-private fun PaymentPlanPanel(snapshot: MemberSnapshot) {
+private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType) -> Unit) {
     val payment = snapshot.payment
     val membership = snapshot.membership
     val outstanding = payment?.totalOutstanding ?: 0.0
@@ -425,7 +426,7 @@ private fun PaymentPlanPanel(snapshot: MemberSnapshot) {
             }
         }
         Button(
-            onClick = { /* Payment action is routed by the parent menu/detail flow. */ },
+            onClick = { onMenuSelected(MenuType.PAYMENT) },
             modifier = Modifier.fillMaxWidth().height(44.dp),
             shape = RoundedCornerShape(13.dp),
             colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = MIColor.white)
@@ -722,9 +723,9 @@ private fun MiniSparkline(values: List<Double>, color: Color, modifier: Modifier
 }
 
 @Composable
-private fun MiniStat(label: String, value: String, accent: Color) {
+private fun RowScope.MiniStat(label: String, value: String, accent: Color) {
     Column(
-        Modifier.weightSafeFill().clip(RoundedCornerShape(12.dp)).background(MIColor.white)
+        Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(MIColor.white)
             .border(1.dp, MIColor.line, RoundedCornerShape(12.dp)).padding(horizontal = 8.dp, vertical = 7.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
@@ -733,7 +734,6 @@ private fun MiniStat(label: String, value: String, accent: Color) {
     }
 }
 
-private fun Modifier.weightSafeFill(): Modifier = this
 
 @Composable
 private fun LegendDot(label: String, color: Color) {
