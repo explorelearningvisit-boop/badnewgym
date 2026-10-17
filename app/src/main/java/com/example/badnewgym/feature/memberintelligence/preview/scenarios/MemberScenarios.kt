@@ -3,6 +3,12 @@ package com.example.badnewgym.feature.memberintelligence.preview.scenarios
 import com.example.badnewgym.feature.memberintelligence.design.MediaAssets
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceSummary
+import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDay
+import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDayStatus
+import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDay
+import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDayStatus
+import com.example.badnewgym.feature.memberintelligence.domain.model.BodyMeasurement
+import java.util.Calendar
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventSource
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
 import com.example.badnewgym.feature.memberintelligence.domain.model.IssueSeverity
@@ -38,6 +44,70 @@ object MemberScenarios {
             ThemeId.VIBRANT_GRADIENT -> vibrantGradientAarav(now)
             ThemeId.BEAST_MODE -> beastModeRohan(now)
             ThemeId.PURPLE_ROYAL -> purpleRoyalSimran(now)
+        }
+    }
+
+    // Analytics below are deterministic demo fixtures for the StubMemberRepository only.
+    // Production repositories must map persisted daily logs and measurements instead.
+    private fun demoAttendanceHistory(now: Long): List<AttendanceDay> {
+        val start = Calendar.getInstance().apply {
+            timeInMillis = now
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val today = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_MONTH)
+        val daysInMonth = Calendar.getInstance().apply { timeInMillis = now }.getActualMaximum(Calendar.DAY_OF_MONTH)
+        return (1..daysInMonth).map { day ->
+            val date = (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            val status = when {
+                day > today -> AttendanceDayStatus.UNKNOWN
+                (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY -> AttendanceDayStatus.CLOSED
+                day % 11 == 0 -> AttendanceDayStatus.ABSENT
+                day % 7 == 0 -> AttendanceDayStatus.LATE
+                else -> AttendanceDayStatus.PRESENT
+            }
+            AttendanceDay(date, status)
+        }
+    }
+
+    private fun demoWorkoutHistory(now: Long): List<WorkoutDay> {
+        val start = Calendar.getInstance().apply {
+            timeInMillis = now
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val today = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_MONTH)
+        val daysInMonth = Calendar.getInstance().apply { timeInMillis = now }.getActualMaximum(Calendar.DAY_OF_MONTH)
+        return (1..daysInMonth).map { day ->
+            val date = (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            when {
+                day > today -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
+                day % 4 == 0 -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
+                day % 6 == 0 -> WorkoutDay(date, 0, WorkoutDayStatus.CONFIRMED_NO_WORKOUT)
+                else -> WorkoutDay(date, listOf(28, 36, 42, 51, 64, 47, 33)[day % 7], WorkoutDayStatus.RECORDED)
+            }
+        }
+    }
+
+    private fun demoBodyProgress(now: Long): List<BodyMeasurement> {
+        val weight = listOf(73.0, 72.4, 71.8, 71.2, 70.3, 69.8)
+        val muscle = listOf(54.8, 55.1, 55.5, 56.0, 56.4, 56.9)
+        val fat = listOf(20.8, 20.1, 19.5, 19.0, 18.4, 17.9)
+        val bmi = listOf(24.1, 23.9, 23.7, 23.5, 23.2, 23.0)
+        return weight.indices.map { index ->
+            BodyMeasurement(
+                date = now - DAY * 30L * (weight.lastIndex - index),
+                weightKg = weight[index],
+                muscleKg = muscle[index],
+                bodyFatPercent = fat[index],
+                bmi = bmi[index]
+            )
         }
     }
 
@@ -92,7 +162,10 @@ object MemberScenarios {
             nutrition = NutritionSummary(true, "BAD GYM Nutrition", now + DAY * 20, 2000.0),
             services = listOf(ServiceSummary("Locker L12", true, now + DAY * 45, 500.0)),
             recentEvents = listOf(MemberEvent("e1", "1", "gym1", EventType.CHECK_IN, now, EventSource.GATE)),
-            issues = listOf(MemberIssue("i1", "Payment Due: ₹4,500 (3 days overdue)", IssueSeverity.HIGH))
+            issues = listOf(MemberIssue("i1", "Payment Due: ₹4,500 (3 days overdue)", IssueSeverity.HIGH)),
+            attendanceHistory = demoAttendanceHistory(now),
+            workoutHistory = demoWorkoutHistory(now),
+            bodyProgress = demoBodyProgress(now)
         )
         val event = MemberEvent("live_1", "1", "gym1", EventType.CHECK_IN, now, EventSource.GATE)
         return snapshot to event
