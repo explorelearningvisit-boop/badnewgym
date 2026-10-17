@@ -73,6 +73,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnaps
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentLifecycle
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTimeliness
+import com.example.badnewgym.feature.memberintelligence.domain.model.SignalAction
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDayStatus
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -112,6 +113,8 @@ fun ReferenceMemberIntelligenceDashboard(
     menus: List<com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu>,
     activeMenu: MenuType?,
     onMenuSelected: (MenuType) -> Unit,
+    cta: SignalAction? = null,
+    onCta: (SignalAction) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -153,7 +156,7 @@ fun ReferenceMemberIntelligenceDashboard(
                     }
                 )
             }
-            item(key = "payment") { PaymentPlanPanel(snapshot, onMenuSelected) }
+            item(key = "payment") { PaymentPlanPanel(snapshot, onMenuSelected, cta, onCta) }
             item(key = "attendance") { AttendancePanel(snapshot) }
             item(key = "workout") { WorkoutPanel(snapshot) }
             item(key = "body") { BodyProgressPanel(snapshot) }
@@ -380,7 +383,7 @@ private fun SectionCard(
 }
 
 @Composable
-private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType) -> Unit) {
+private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType) -> Unit, cta: SignalAction?, onCta: (SignalAction) -> Unit) {
     val payment = snapshot.payment
     val membership = snapshot.membership
     val outstanding = payment?.totalOutstanding ?: 0.0
@@ -428,7 +431,7 @@ private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType
             }
         }
         Button(
-            onClick = { onMenuSelected(MenuType.PAYMENT) },
+            onClick = { if (due && cta != null) onCta(cta) else onMenuSelected(MenuType.PAYMENT) },
             modifier = Modifier.fillMaxWidth().height(44.dp),
             shape = RoundedCornerShape(13.dp),
             colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = MIColor.white)
