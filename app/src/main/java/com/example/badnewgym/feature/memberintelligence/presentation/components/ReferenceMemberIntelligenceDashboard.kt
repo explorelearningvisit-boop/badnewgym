@@ -293,15 +293,16 @@ private fun MemberIdentityPanel(snapshot: MemberSnapshot) {
 
 @Composable
 private fun MembershipRing(remainingFraction: Float, daysRemaining: Int) {
+    val elapsedFraction = (1f - remainingFraction).coerceIn(0f, 1f)
     Box(Modifier.size(78.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val stroke = 7.dp.toPx()
             drawArc(Color(0xFFE6EDE8), -90f, 360f, false, style = Stroke(stroke, cap = StrokeCap.Round))
-            drawArc(MIColor.green, -90f, 360f * remainingFraction, false, style = Stroke(stroke, cap = StrokeCap.Round))
+            drawArc(MIColor.green, -90f, 360f * elapsedFraction, false, style = Stroke(stroke, cap = StrokeCap.Round))
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(0.dp)) {
-            Text("${(remainingFraction * 100).roundToInt()}%", color = MIColor.ink, fontSize = 18.sp, fontWeight = FontWeight.Black)
-            Text("left", color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text("${(elapsedFraction * 100).roundToInt()}%", color = MIColor.ink, fontSize = 18.sp, fontWeight = FontWeight.Black)
+            Text("${daysRemaining}d left", color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -421,7 +422,7 @@ private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType
                     color = MIColor.ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    if (membership != null) "${membership.daysRemaining.coerceAtLeast(0)} plan days left" else "Plan not available",
+                    membership?.planType ?: "Validity not available",
                     color = MIColor.muted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis
                 )
             }
@@ -509,7 +510,7 @@ private fun AttendancePanel(snapshot: MemberSnapshot) {
     val days = snapshot.attendanceHistory
     val percent = attendance?.let { if ((it.target ?: 0) > 0) (it.visits * 100 / (it.target ?: 1)) else 0 } ?: 0
     val monthDays = remember(days) { currentMonthDayCount() }
-    val dayMap = remember(days) { days.associateBy { dayOfMonth(it.date) } }
+    val dayMap = remember(days) { days.filter { sameMonth(it.date, System.currentTimeMillis()) }.associateBy { dayOfMonth(it.date) } }
 
     SectionCard(
         title = "Attendance",
@@ -618,7 +619,7 @@ private fun WorkoutBars(days: List<com.example.badnewgym.feature.memberintellige
         horizontalArrangement = Arrangement.spacedBy(3.dp),
         verticalAlignment = Alignment.Bottom
     ) {
-        days.takeLast(30).forEach { day ->
+        days.take(30).forEach { day ->
             val duration = day.durationMinutes
             val color = when {
                 day.status == WorkoutDayStatus.CONFIRMED_NO_WORKOUT -> MIColor.red
@@ -638,8 +639,8 @@ private fun WorkoutBars(days: List<com.example.badnewgym.feature.memberintellige
         }
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text("30d ago", color = MIColor.muted, fontSize = 9.sp)
-        Text("Today", color = MIColor.muted, fontSize = 9.sp)
+        Text("Day 1", color = MIColor.muted, fontSize = 9.sp)
+        Text("Day 30", color = MIColor.muted, fontSize = 9.sp)
     }
 }
 
