@@ -21,6 +21,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MembershipT
 import com.example.badnewgym.feature.memberintelligence.domain.model.NutritionSummary
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentBreakdownLine
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentLifecycle
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTimeliness
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSummary
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTransaction
 import com.example.badnewgym.feature.memberintelligence.domain.model.ServiceSummary
@@ -154,7 +155,23 @@ object MemberScenarios {
                 lifetimePaid = 22_200.0,
                 lifecycle = PaymentLifecycle.OVERDUE,
                 breakdown = listOf(PaymentBreakdownLine("Gold Plan Due", 4500.0)),
-                history = listOf(PaymentTransaction("p1", 1400.0, now - DAY * 28, "UPI", "Plan"))
+                // Twelve-month chart fixture belongs only to this stub scenario.
+                history = listOf(1400.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 2800.0)
+                    .mapIndexed { index, amount ->
+                        PaymentTransaction(
+                            id = "demo_payment_$index",
+                            amount = amount,
+                            occurredAt = now - DAY * (28L + index * 30L),
+                            method = "UPI",
+                            purpose = "Membership",
+                            timeliness = when (index) {
+                                2, 8 -> PaymentTimeliness.LATE
+                                4 -> PaymentTimeliness.VERY_LATE
+                                else -> PaymentTimeliness.ON_TIME
+                            },
+                            planUpgraded = index == 5
+                        )
+                    }
             ),
             trainer = TrainerSummary("Vikas Yadav", MediaAssets.TRAINER_VIKAS, 12, 7, now + DAY, "Chest & Triceps", now - DAY * 2),
             workout = WorkoutSummary(now - DAY, "Functional Fitness", 60),
