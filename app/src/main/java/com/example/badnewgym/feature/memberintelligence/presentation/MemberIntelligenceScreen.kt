@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugBridge
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiver
-import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
+import com.example.badnewgym.feature.memberintelligence.presentation.components.ReferenceMemberIntelligenceDashboard
 
 @Composable
 fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
@@ -43,22 +43,30 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     }
 
     val success = state as? MemberIntelligenceUiState.Success
-    PixelPerfectMemberCard(
-        snapshot = success?.snapshot,
-        currentEvent = success?.currentEvent,
-        signals = success?.signals.orEmpty(),
-        menus = success?.menus.orEmpty(),
-        activeMenu = success?.activeMenu,
-        primarySignal = success?.primarySignal,
-        secondarySignals = success?.secondarySignals.orEmpty(),
-        cta = success?.cta,
-        visitWidgetEntitlements = success?.visitWidgetEntitlements
-            ?: com.example.badnewgym.feature.memberintelligence.domain.model.VisitWidgetEntitlements(),
-        onMenuSelected = viewModel::selectMenu,
-        onCta = viewModel::executeCta,
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-    )
+    val resolved = success
+    if (resolved == null) {
+        androidx.compose.foundation.layout.Box(
+            Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding(),
+            contentAlignment = androidx.compose.ui.Alignment.Center
+        ) {
+            androidx.compose.material3.Text(
+                text = when (state) {
+                    is MemberIntelligenceUiState.Error -> (state as MemberIntelligenceUiState.Error).message
+                    else -> "Loading member intelligence…"
+                }
+            )
+        }
+    } else {
+        ReferenceMemberIntelligenceDashboard(
+            snapshot = resolved.snapshot,
+            currentEvent = resolved.currentEvent,
+            menus = resolved.menus,
+            activeMenu = resolved.activeMenu,
+            onMenuSelected = viewModel::selectMenu,
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+        )
+    }
 }
