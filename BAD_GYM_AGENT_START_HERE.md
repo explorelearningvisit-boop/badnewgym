@@ -1,6 +1,6 @@
 # BAD GYM — AI Agent Start Here
 
-**Read this file first whenever OpenCode, Google Antigravity, Gemini, Cursor or another coding agent opens this repository.**
+**Repository entrypoint:** start with `PULL_AND_RUN.md` for the one-command setup and full handoff. Then read this file for the product-specific source-of-truth rules. If the repository is opened manually without the launcher, read this file before editing.
 
 ## Active task
 
