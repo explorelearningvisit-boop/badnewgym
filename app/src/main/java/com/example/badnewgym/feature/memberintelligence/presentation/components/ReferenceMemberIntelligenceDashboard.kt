@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -35,11 +34,9 @@ import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Insights
-import androidx.compose.material.icons.rounded.MonitorWeight
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Payment
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.Search
@@ -66,12 +63,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDayStatus
-import com.example.badnewgym.feature.memberintelligence.domain.model.BodyMeasurement
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
-import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentLifecycle
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTimeliness
 import com.example.badnewgym.feature.memberintelligence.domain.model.SignalAction
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDayStatus
@@ -797,5 +792,4 @@ private fun sameMonth(first: Long, second: Long): Boolean {
     val b = Calendar.getInstance().apply { timeInMillis = second }
     return a.get(Calendar.YEAR) == b.get(Calendar.YEAR) && a.get(Calendar.MONTH) == b.get(Calendar.MONTH)
 }
-private fun moneyLabel(amount: Double): String = compactMoney(amount)
 private const val DAY_MS = 86_400_000L
