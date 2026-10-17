@@ -10,7 +10,8 @@ Use this as a test record. Check an item only after evidence exists. A build pas
 - [ ] Each visible data value has a declared source or is explicitly demo-only.
 
 ## B. Geometry
-- [ ] Target screenshot captured at the agreed 20:9 canvas, approximately 691×1536 px.
+- [ ] Exact supplied reference (921×1536 px, portrait ratio 0.600) is available under `docs/reference/assets/member-intelligence-full-screen-reference.jpg`.
+- [ ] App screenshot captured at the same viewport/crop as the reference; do not stretch it to force a match.
 - [ ] Runtime layout checked at 360dp width.
 - [ ] Narrow layout checked at approximately 320dp.
 - [ ] Content respects status/navigation bars.
