@@ -72,6 +72,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentLifecycle
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTimeliness
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDayStatus
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -445,9 +446,10 @@ private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType
 private fun PaymentHistoryChart(snapshot: MemberSnapshot) {
     val history = snapshot.payment?.history.orEmpty()
     val months = remember(history) { lastTwelveMonths() }
-    val values = months.map { month ->
-        history.filter { sameMonth(it.occurredAt, month.first) }.sumOf { it.amount }
+    val monthlyTransactions = months.map { month ->
+        history.filter { sameMonth(it.occurredAt, month.first) }
     }
+    val values = monthlyTransactions.map { transactions -> transactions.sumOf { it.amount } }
     val maxValue = values.maxOrNull()?.coerceAtLeast(1.0) ?: 1.0
     Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -464,6 +466,15 @@ private fun PaymentHistoryChart(snapshot: MemberSnapshot) {
             ) {
                 months.forEachIndexed { index, month ->
                     val amount = values[index]
+                    val transactions = monthlyTransactions[index]
+                    val monthColor = when {
+                        transactions.any { it.planUpgraded } -> MIColor.gold
+                        transactions.any { it.timeliness == PaymentTimeliness.VERY_LATE } -> MIColor.red
+                        transactions.any { it.timeliness == PaymentTimeliness.LATE } -> MIColor.amber
+                        transactions.any { it.timeliness == PaymentTimeliness.ON_TIME } -> MIColor.green
+                        transactions.isNotEmpty() -> MIColor.slate
+                        else -> MIColor.slate.copy(alpha = 0.28f)
+                    }
                     Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
                         if (amount > 0.0) {
                             Text(compactMoney(amount), color = MIColor.ink, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1)
@@ -474,14 +485,20 @@ private fun PaymentHistoryChart(snapshot: MemberSnapshot) {
                             Modifier.fillMaxWidth(0.68f)
                                 .height(if (amount > 0.0) (10 + (amount / maxValue * 32).toInt()).dp else 4.dp)
                                 .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(if (amount > 0.0) MIColor.green else MIColor.slate.copy(alpha = 0.28f))
+                                .background(monthColor)
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(month.second, color = MIColor.muted, fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
-            Text("Bars reflect recorded transaction totals; blank months are not treated as missed payments.", color = MIColor.muted, fontSize = 9.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                LegendDot("On time", MIColor.green)
+                LegendDot("Late", MIColor.amber)
+                LegendDot("Very late", MIColor.red)
+                LegendDot("Unknown", MIColor.slate)
+            }
+            Text("No transaction is shown as an empty month, not as a confirmed missed payment.", color = MIColor.muted, fontSize = 9.sp)
         }
     }
 }
