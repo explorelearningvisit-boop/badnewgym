@@ -42,7 +42,7 @@ Do not silently confuse two different surfaces:
 
 Inspect the navigation and product flow before deciding where the expanded dashboard is entered. If integration requirements conflict, document the exact conflict and choose the smallest safe integration; do not delete the existing canonical card/domain engine merely to get a screenshot match.
 
-The latest user image is a visual reference provided in the conversation. If the actual image file is not present in the repository, do not claim it was committed. Ask for it to be added to `docs/reference/assets/` or use the exact visible reference available in the current task environment.
+The exact latest reference available in the current task environment is 921×1536 pixels (portrait ratio 0.600; JPEG bytes despite an earlier `.png` filename). It is not yet committed to this branch. Add it as `docs/reference/assets/member-intelligence-full-screen-reference.jpg` for reproducible pixel comparison. The older V4 spec's 691×1536 canvas applies to the previous compact-card reference and is not the pixel canvas for this newer screenshot. Runtime dp geometry must still be measured independently from screenshot pixels.
 
 ## User's goal
 
