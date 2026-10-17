@@ -113,7 +113,7 @@ fun ReferenceMemberIntelligenceDashboard(
     menus: List<com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu>,
     activeMenu: MenuType?,
     onMenuSelected: (MenuType) -> Unit,
-    cta: SignalAction? = null,
+    paymentAction: SignalAction? = null,
     onCta: (SignalAction) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -156,7 +156,7 @@ fun ReferenceMemberIntelligenceDashboard(
                     }
                 )
             }
-            item(key = "payment") { PaymentPlanPanel(snapshot, onMenuSelected, cta, onCta) }
+            item(key = "payment") { PaymentPlanPanel(snapshot, onMenuSelected, paymentAction, onCta) }
             item(key = "attendance") { AttendancePanel(snapshot) }
             item(key = "workout") { WorkoutPanel(snapshot) }
             item(key = "body") { BodyProgressPanel(snapshot) }
@@ -383,7 +383,7 @@ private fun SectionCard(
 }
 
 @Composable
-private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType) -> Unit, cta: SignalAction?, onCta: (SignalAction) -> Unit) {
+private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType) -> Unit, paymentAction: SignalAction?, onCta: (SignalAction) -> Unit) {
     val payment = snapshot.payment
     val membership = snapshot.membership
     val outstanding = payment?.totalOutstanding ?: 0.0
@@ -431,7 +431,7 @@ private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType
             }
         }
         Button(
-            onClick = { onMenuSelected(MenuType.PAYMENT); if (due && cta != null) onCta(cta) },
+            onClick = { onMenuSelected(MenuType.PAYMENT); if (due && paymentAction != null) onCta(paymentAction) },
             modifier = Modifier.fillMaxWidth().height(44.dp),
             shape = RoundedCornerShape(13.dp),
             colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = MIColor.white)
