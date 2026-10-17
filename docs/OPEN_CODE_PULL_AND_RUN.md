@@ -110,7 +110,7 @@ If `adb devices` lists no authorized device, device verification is blocked; use
 
 ## 7. Screenshot / pixel-perfect verification
 
-The expected reference canvas is approximately 691×1536 pixels (20:9), while layout dimensions are expressed in dp. Do not compare screenshots from different viewport sizes without accounting for density and status/navigation bars.
+The latest supplied full-screen reference is 921×1536 pixels (portrait ratio 0.600; JPEG image). The older 691×1536 / 20:9 canvas belongs to the earlier compact-card reference and must not be used as the pixel target for this task. Runtime geometry is expressed in dp; record device width, density, font scale and safe areas, and compare screenshots at the same viewport/crop.
 
 Required checks:
 - 360dp phone width and approximately 320dp narrow width.
