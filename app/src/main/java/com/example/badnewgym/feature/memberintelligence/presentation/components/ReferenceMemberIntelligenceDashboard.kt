@@ -694,10 +694,10 @@ private fun MetricTile(metric: MetricValue, modifier: Modifier = Modifier) {
         if (delta != null) {
             val positive = delta >= 0
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(if (positive) Icons.Rounded.ArrowUpward else Icons.Rounded.ArrowDownward, null, tint = metric.accent, modifier = Modifier.size(13.dp))
+                Icon(if (positive) Icons.Rounded.ArrowUpward else Icons.Rounded.ArrowDownward, null, tint = MIColor.muted, modifier = Modifier.size(13.dp))
                 Text(
                     String.format(Locale.getDefault(), "%.1f", kotlin.math.abs(delta)),
-                    color = metric.accent, fontSize = 11.sp, fontWeight = FontWeight.Bold
+                    color = MIColor.muted, fontSize = 11.sp, fontWeight = FontWeight.Bold
                 )
             }
         } else {
