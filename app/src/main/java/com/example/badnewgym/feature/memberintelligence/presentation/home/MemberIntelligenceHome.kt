@@ -1,6 +1,7 @@
 package com.example.badnewgym.feature.memberintelligence.presentation.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -68,12 +69,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressUiState
 import com.example.badnewgym.feature.bodyprogress.presentation.BodyProgressViewModel
 import com.example.badnewgym.feature.memberintelligence.debug.HomeDebugBridge
@@ -88,7 +91,13 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentMeth
 
 private data class RailItem(val id: String, val label: String, val icon: ImageVector)
 
-/** Rail order follows the reference: Home through More, no extras. */
+/**
+ * Rail order and membership follow the reference exactly: Home, Members,
+ * Check-In, Payment, Attendance, Workout, Body, Supplements, History, Insights,
+ * More. Check-Out is deliberately absent - it is a state of the live session,
+ * reachable from the session card, not a separate destination, and listing it
+ * permanently alongside Check-In implied two independent screens.
+ */
 private val RAIL_ITEMS = listOf(
     RailItem("home", "Home", Icons.Filled.Home),
     RailItem("members", "Members", Icons.Filled.People),
@@ -98,10 +107,8 @@ private val RAIL_ITEMS = listOf(
     RailItem("workout", "Workout", Icons.Filled.FitnessCenter),
     RailItem("body", "Body", Icons.Filled.Accessibility),
     RailItem("supplements", "Supplements", Icons.Filled.LocalPharmacy),
-    RailItem("services", "Services", Icons.Filled.RoomService),
     RailItem("history", "History", Icons.Filled.History),
     RailItem("insights", "Insights", Icons.Filled.Insights),
-    RailItem("messages", "Messages", Icons.Filled.Message),
     RailItem("more", "More", Icons.Filled.MoreHoriz),
 )
 
@@ -169,124 +176,65 @@ private fun HomeRail(
 }
 
 /**
- * Event header card: the live event, not a product wordmark. Light green card
- * with dark text per the approved reference. Every control opens something
- * real - there is no inert icon.
+ * Header matching the Mobile Pixel-Perfect Guide.
+ * Green primary surface, BAD GYM identity, search, notifications, member avatar.
  */
 @Composable
 private fun AppHeader(
     memberName: String?,
-    event: HomeEventHeader,
-    onOpenEvent: () -> Unit,
+    photoUrl: String?,
     onOpenSearch: () -> Unit,
-    onOpenSettings: () -> Unit,
-    onOpenAlerts: () -> Unit
+    onOpenAlerts: () -> Unit,
+    onOpenProfile: () -> Unit
 ) {
     Row(
         Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // The approved reference has no decorative wordmark here: the top of the
-        // screen is the current event, so the header states the event and the
-        // action it offers rather than the product name.
-        Row(
-            Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(16.dp))
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(Color(0xFFC9F5DE), Color(0xFF9DEBC4), Color(0xFF7FE0B2))
-                    )
-                )
-                .clickable(onClick = onOpenEvent)
-                .padding(start = 8.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(MiColors.Emerald),
-                contentAlignment = Alignment.Center
-            ) {
-                androidx.compose.material3.Icon(
-                    event.icon,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(17.dp)
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            Column(Modifier.weight(1f)) {
-                Text(
-                    event.title,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFF0B3B2A),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    event.subtitle,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF2F6B52),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Box(
-                Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .background(MiColors.Emerald),
-                contentAlignment = Alignment.Center
-            ) {
-                androidx.compose.material3.Icon(
-                    Icons.Filled.KeyboardArrowRight,
-                    contentDescription = "Open ${event.title}",
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
+        Column(Modifier.weight(1f)) {
+            Text("BAD GYM", fontSize = 18.sp, fontWeight = FontWeight.Black, color = Color.White)
+            Text("Member Intelligence", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF7FE8B8))
         }
-        Spacer(Modifier.width(4.dp))
-        // Search doubles as the current-member affordance, so the header always
-        // names who is on screen.
-        Row(
-            Modifier
-                .height(34.dp)
-                .widthIn(max = 104.dp)
-                .clip(RoundedCornerShape(17.dp))
-                .background(Color.White)
-                .clickable(onClick = onOpenSearch)
-                .padding(horizontal = 9.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            androidx.compose.material3.Icon(
-                Icons.Filled.Search,
-                contentDescription = "Search members",
-                tint = MiColors.TextSecondary,
-                modifier = Modifier.size(15.dp)
+        HeaderIcon(Icons.Filled.Search, "Search", onOpenSearch)
+        Spacer(Modifier.width(8.dp))
+        Box(contentAlignment = Alignment.TopEnd) {
+            HeaderIcon(Icons.Filled.Notifications, "Alerts", onOpenAlerts)
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFE54848))
             )
-            if (memberName != null) {
-                Spacer(Modifier.width(5.dp))
+        }
+        Spacer(Modifier.width(8.dp))
+        Box(
+            Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(MiColors.Mint)
+                .clickable(onClick = onOpenProfile)
+                .border(1.dp, MiColors.Emerald, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            if (!photoUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = photoUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.matchParentSize()
+                )
+            } else {
                 Text(
-                    memberName.substringBefore(' '),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MiColors.TextPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    memberName?.take(1) ?: "",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Black,
+                    color = MiColors.EmeraldDark
                 )
             }
         }
-        Spacer(Modifier.width(4.dp))
-        HeaderIcon(Icons.Filled.Settings, "Settings", onOpenSettings)
-        HeaderIcon(Icons.Filled.Notifications, "Alerts", onOpenAlerts)
     }
 }
 
@@ -294,18 +242,17 @@ private fun AppHeader(
 private fun HeaderIcon(icon: ImageVector, label: String, onClick: () -> Unit) {
     Box(
         Modifier
-            .padding(start = 4.dp)
-            .size(34.dp)
+            .size(40.dp)
             .clip(RoundedCornerShape(11.dp))
-            .background(Color.White)
+            .background(Color.White.copy(alpha = 0.15f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         androidx.compose.material3.Icon(
             icon,
             contentDescription = label,
-            tint = MiColors.TextSecondary,
-            modifier = Modifier.size(17.dp)
+            tint = Color.White,
+            modifier = Modifier.size(20.dp)
         )
     }
 }
@@ -495,22 +442,10 @@ fun MemberIntelligenceHome(
         Column(Modifier.fillMaxSize()) {
             AppHeader(
                 memberName = readyData?.snapshot?.identity?.name,
-                event = homeEventHeader(
-                    readyData?.let {
-                        val zone = java.time.ZoneId.systemDefault()
-                        memberContext(
-                            it.checkIn,
-                            java.time.LocalDate.now(zone).atStartOfDay(zone).toInstant().toEpochMilli(),
-                            System.currentTimeMillis()
-                        )
-                    },
-                    if (readyData?.checkIn?.liveStartMs != null) Icons.Filled.Logout
-                    else Icons.Filled.DirectionsRun
-                ),
-                onOpenEvent = { vm.openModule(HomeWidgetId.CHECK_IN) },
+                photoUrl = readyData?.snapshot?.identity?.photoUrl,
                 onOpenSearch = { searchOpen = true },
-                onOpenSettings = { vm.openModule(HomeWidgetId.MORE) },
-                onOpenAlerts = { vm.openModule(HomeWidgetId.INSIGHTS) }
+                onOpenAlerts = { vm.openModule(HomeWidgetId.INSIGHTS) },
+                onOpenProfile = { vm.openModule(HomeWidgetId.IDENTITY) }
             )
             Row(Modifier.fillMaxSize()) {
                 HomeRail(badges = badges, onSelect = { id ->

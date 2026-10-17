@@ -1,7 +1,6 @@
-package com.example.badnewgym.feature.memberintelligence.preview.scenarios
+﻿package com.example.badnewgym.feature.memberintelligence.preview.scenarios
 
 import com.example.badnewgym.feature.memberintelligence.design.MediaAssets
-import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceSummary
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventSource
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
@@ -25,23 +24,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSumm
 object MemberScenarios {
     private const val DAY = 86_400_000L
 
-    fun getScenarioForTheme(
-        theme: ThemeId,
-        now: Long = System.currentTimeMillis()
-    ): Pair<MemberSnapshot, MemberEvent> {
-        return when (theme) {
-            ThemeId.NATURAL_FRESH -> naturalFreshYash(now)
-            ThemeId.FUTURISTIC_NEON -> futuristicNeonArjun(now)
-            ThemeId.MINIMAL_DARK -> minimalDarkRiya(now)
-            ThemeId.GLASSMORPHISM -> glassmorphismNeha(now)
-            ThemeId.PREMIUM_3D -> premium3dKabir(now)
-            ThemeId.VIBRANT_GRADIENT -> vibrantGradientAarav(now)
-            ThemeId.BEAST_MODE -> beastModeRohan(now)
-            ThemeId.PURPLE_ROYAL -> purpleRoyalSimran(now)
-        }
-    }
-
-    // 1. Yash Singh (BG204) - NATURAL FRESH
+    // 1. Yash Singh (BG204)
     fun naturalFreshYash(now: Long = System.currentTimeMillis()): Pair<MemberSnapshot, MemberEvent> {
         val snapshot = MemberSnapshot(
             id = "1",
@@ -113,7 +96,7 @@ object MemberScenarios {
                 MemberEvent("e_p1", "1", "gym1", EventType.PAYMENT_DUE, now - DAY * 3, EventSource.PAYMENT, metadata = mapOf("amount" to "4500")),
                 MemberEvent("e_c0", "1", "gym1", EventType.CHECK_IN, now - DAY, EventSource.GATE, metadata = mapOf("durationMinutes" to "95"))
             ),
-            issues = listOf(MemberIssue("i1", "Payment Due: ₹2,800 (due in 3 days)", IssueSeverity.MEDIUM))
+            issues = listOf(MemberIssue("i1", "Payment Due: â‚¹2,800 (due in 3 days)", IssueSeverity.MEDIUM))
         )
         val event = MemberEvent("live_1", "1", "gym1", EventType.CHECK_IN, now, EventSource.GATE)
         return snapshot to event
@@ -401,7 +384,7 @@ object MemberScenarios {
             nutrition = NutritionSummary(false, "", 0L, 0.0),
             services = emptyList(),
             recentEvents = listOf(MemberEvent("e6", "6", "gym1", EventType.PAYMENT, now - DAY * 2, EventSource.PAYMENT)),
-            issues = listOf(MemberIssue("i6", "Payment Due: ₹2,000 (2 days)", IssueSeverity.HIGH))
+            issues = listOf(MemberIssue("i6", "Payment Due: â‚¹2,000 (2 days)", IssueSeverity.HIGH))
         )
         val event = MemberEvent("live_6", "6", "gym1", EventType.PAYMENT, now - DAY * 2, EventSource.PAYMENT)
         return snapshot to event
@@ -458,7 +441,7 @@ object MemberScenarios {
             nutrition = NutritionSummary(true, "Beast Bulking Diet", now + DAY * 15, 3000.0),
             services = listOf(ServiceSummary("Heavy Duty Locker", true, now + DAY * 65, 500.0)),
             recentEvents = listOf(MemberEvent("e7", "7", "gym1", EventType.CHECK_IN, now, EventSource.GATE)),
-            issues = listOf(MemberIssue("i7", "Payment Due: ₹500 (5 days)", IssueSeverity.MEDIUM))
+            issues = listOf(MemberIssue("i7", "Payment Due: â‚¹500 (5 days)", IssueSeverity.MEDIUM))
         )
         val event = MemberEvent("live_7", "7", "gym1", EventType.CHECK_IN, now, EventSource.GATE)
         return snapshot to event
