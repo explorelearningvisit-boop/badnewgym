@@ -63,7 +63,7 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             menus = resolved.menus,
             activeMenu = resolved.activeMenu,
             onMenuSelected = viewModel::selectMenu,
-            cta = resolved.cta,
+            paymentAction = resolved.signals.firstOrNull { it.category == com.example.badnewgym.feature.memberintelligence.domain.model.SignalCategory.PAYMENT }?.action,
             onCta = viewModel::executeCta,
             modifier = Modifier
                 .fillMaxSize()
