@@ -18,6 +18,7 @@ import com.example.badnewgym.R
 import com.example.badnewgym.hybridtracking.model.LocationResult
 import com.example.badnewgym.hybridtracking.model.TelemetryPayload
 import com.example.badnewgym.hybridtracking.network.BatchDispatcher
+import com.example.badnewgym.hybridtracking.scanner.LocalLocationResolver
 import com.example.badnewgym.hybridtracking.scanner.TelemetryScannerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +39,7 @@ class NetworkScannerService : Service() {
 
     private lateinit var repository: TelemetryScannerRepository
     private lateinit var dispatcher: BatchDispatcher
+    private lateinit var localResolver: LocalLocationResolver
 
     private val _latestPayload = MutableStateFlow<TelemetryPayload?>(null)
     val latestPayload: StateFlow<TelemetryPayload?> = _latestPayload.asStateFlow()
@@ -56,6 +58,7 @@ class NetworkScannerService : Service() {
         super.onCreate()
         repository = TelemetryScannerRepository(applicationContext)
         dispatcher = BatchDispatcher(applicationContext)
+        localResolver = LocalLocationResolver(applicationContext)
         createNotificationChannel()
     }
 
@@ -90,13 +93,21 @@ class NetworkScannerService : Service() {
                     val payload = repository.captureTelemetry()
                     _latestPayload.value = payload
 
-                    // Flush batch telemetry to backend
-                    val result = dispatcher.flushPendingTelemetry()
-                    result.onSuccess { location ->
-                        if (location != null) {
-                            _latestLocation.value = location
-                            updateNotification("Location: ${location.locationSource} (${String.format("%.4f, %.4f", location.lat, location.lng)})")
+                    // 1. Autonomous on-device multi-sensor resolution (GPS / Wi-Fi Sniff / Cell Handover / Bike)
+                    val localLoc = localResolver.resolve(payload)
+                    _latestLocation.value = localLoc
+                    updateNotification("Location: ${localLoc.locationSource} (${String.format("%.4f, %.4f", localLoc.lat, localLoc.lng)})")
+
+                    // 2. Dispatch batch to backend in background if connected
+                    try {
+                        val result = dispatcher.flushPendingTelemetry()
+                        result.onSuccess { location ->
+                            if (location != null) {
+                                _latestLocation.value = location
+                            }
                         }
+                    } catch (e: Exception) {
+                        // Offline queue buffers records
                     }
                 } catch (e: Exception) {
                     // Handle scan failure gracefully
@@ -114,10 +125,21 @@ class NetworkScannerService : Service() {
     suspend fun triggerImmediateScanAndSync(): LocationResult? {
         val payload = repository.captureTelemetry()
         _latestPayload.value = payload
-        val result = dispatcher.flushPendingTelemetry()
-        return result.getOrNull()?.also {
-            _latestLocation.value = it
+        val localLoc = localResolver.resolve(payload)
+        _latestLocation.value = localLoc
+        updateNotification("Location: ${localLoc.locationSource} (${String.format("%.4f, %.4f", localLoc.lat, localLoc.lng)})")
+
+        try {
+            val result = dispatcher.flushPendingTelemetry()
+            val backendLoc = result.getOrNull()
+            if (backendLoc != null) {
+                _latestLocation.value = backendLoc
+                return backendLoc
+            }
+        } catch (e: Exception) {
+            // Keep localLoc
         }
+        return localLoc
     }
 
     override fun onDestroy() {

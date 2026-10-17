@@ -5,11 +5,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.example.badnewgym.deviceagent.DeviceAgentForegroundService
 import com.example.badnewgym.deviceagent.DeviceAgentRuntime
-import com.example.badnewgym.feature.memberintelligence.presentation.home.HomeViewModel
-import com.example.badnewgym.feature.memberintelligence.presentation.home.HomeWidgetId
-import com.example.badnewgym.feature.memberintelligence.presentation.home.MemberIntelligenceHome
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,20 +46,18 @@ class MainActivity : ComponentActivity() {
             }
         }
         setContent {
-            val memberId = intent?.getStringExtra(EXTRA_MEMBER_ID)
-                ?: HomeViewModel.DEFAULT_MEMBER_ID
-            val openModule = intent?.getStringExtra(EXTRA_OPEN_MODULE)
-            MemberIntelligenceHome(memberId = memberId, startModule = openModule)
+            // Blank starting surface. The Member Intelligence feature was removed
+            // deliberately; this is where the next screen gets built.
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF4FEFB))
+            )
         }
     }
 
     override fun onDestroy() {
         DeviceAgentRuntime.detach(this)
         super.onDestroy()
-    }
-
-    companion object {
-        const val EXTRA_MEMBER_ID = "member_id"
-        const val EXTRA_OPEN_MODULE = "home_open_module"
     }
 }

@@ -103,22 +103,28 @@ class WifiScanner(private val context: Context? = null) {
     private fun getSimulatedWifiAccessPoints(): List<WifiAccessPointInfo> {
         return listOf(
             WifiAccessPointInfo(
-                bssid = "00:14:22:01:23:45",
-                ssid = "Office_Network_5G",
-                rssi = -62,
+                bssid = "98:9D:B2:AB:1C:E0",
+                ssid = "SITI BRODBAND 5G",
+                rssi = -60,
                 isHotspot = false
             ),
             WifiAccessPointInfo(
-                bssid = "18:E8:29:4F:11:90",
-                ssid = "Gym_Member_Wi-Fi",
-                rssi = -71,
+                bssid = "98:9D:B2:AB:1C:E4",
+                ssid = "SITI BRODBAND 2.4G",
+                rssi = -54,
                 isHotspot = false
             ),
             WifiAccessPointInfo(
-                bssid = "DA:A1:19:88:44:11",
-                ssid = "John's iPhone",
-                rssi = -58,
-                isHotspot = true
+                bssid = "4C:AE:1C:B5:20:95",
+                ssid = "SULTAN -5G",
+                rssi = -95,
+                isHotspot = false
+            ),
+            WifiAccessPointInfo(
+                bssid = "34:24:3E:5C:42:3C",
+                ssid = "Airtel_Lado",
+                rssi = -99,
+                isHotspot = false
             )
         )
     }

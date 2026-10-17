@@ -1,4 +1,4 @@
-package com.example.badnewgym.feature.bodyprogress.presentation
+﻿package com.example.badnewgym.feature.bodyprogress.presentation
 
 import androidx.activity.ComponentActivity
 import android.os.Bundle
@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.badnewgym.feature.bodyprogress.domain.analytics.BodyRange
-import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 
 /**
  * Body Progress analytics host.

@@ -1,4 +1,4 @@
-package com.example.badnewgym.feature.bodyprogress.presentation
+﻿package com.example.badnewgym.feature.bodyprogress.presentation
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -33,7 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import kotlin.math.abs
 
 /**

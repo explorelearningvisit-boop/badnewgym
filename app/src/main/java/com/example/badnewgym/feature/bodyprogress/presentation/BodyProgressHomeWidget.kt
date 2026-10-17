@@ -1,4 +1,4 @@
-package com.example.badnewgym.feature.bodyprogress.presentation
+﻿package com.example.badnewgym.feature.bodyprogress.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +33,6 @@ import com.example.badnewgym.feature.bodyprogress.domain.GoalVerdict
 import com.example.badnewgym.feature.bodyprogress.domain.analytics.MetricSeries
 import com.example.badnewgym.feature.bodyprogress.domain.model.BodyMetric
 import com.example.badnewgym.feature.bodyprogress.domain.model.GoalMetric
-import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -95,16 +94,26 @@ fun BodyProgressHomeWidget(
             return@BodyCard
         }
 
-        // Compact mode keeps the dashboard on one screen: the headline value of
-        // each metric, nothing else. Sparklines, Top Exercise and Muscle Focus
-        // all live on the full Body Progress screen, so no analysis is hidden -
-        // it is one tap away.
+        // Compact mode: one row of tiles for the metrics that actually carry
+        // records. Never fabricate a measurement the member never took.
         if (compact) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                CompactMetric(summary.compositionSeries(BodyMetric.WEIGHT), Modifier.weight(1f))
-                CompactMetric(summary.compositionSeries(BodyMetric.MUSCLE_MASS), Modifier.weight(1f))
-                CompactMetric(summary.compositionSeries(BodyMetric.BODY_FAT), Modifier.weight(1f))
-                CompactFocus(summary, Modifier.weight(1f))
+            val metrics = listOf(BodyMetric.WEIGHT, BodyMetric.MUSCLE_MASS, BodyMetric.BODY_FAT, BodyMetric.BMI)
+                .filter { summary.compositionSeries.containsKey(it) }
+            if (metrics.isEmpty()) {
+                BodyEmptyState(
+                    "No recorded body or workout data",
+                    "Log a workout or measurement to start tracking."
+                )
+                return@BodyCard
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                metrics.forEach { metric ->
+                    BodyTile(
+                        series = summary.compositionSeries[metric]!!,
+                        summary = summary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
             return@BodyCard
         }
@@ -135,36 +144,148 @@ fun BodyProgressHomeWidget(
 }
 
 /** One headline metric for the compact dashboard row. */
+/**
+ * One body metric tile for the dashboard row.
+ *
+ * Reference treatment: colored icon, metric name, latest value, the change
+ * across the range with a direction glyph, a sparkline of the real readings,
+ * and a plain-language status. The status honours the member's own goal, so
+ * losing weight reads as good only when a loss was the goal.
+ */
 @Composable
-private fun CompactMetric(series: MetricSeries?, modifier: Modifier = Modifier) {
-    Column(modifier) {
+private fun BodyTile(
+    series: MetricSeries,
+    summary: BodyProgressSummary,
+    modifier: Modifier = Modifier
+) {
+    val latest = series.latest
+    if (latest == null) return
+    val value = latest.value
+    val delta = if (series.hasHistory) value - series.earliest!!.value else 0.0
+    val goalMetric = goalMetricFor(series.metric)
+    val tint = colorForMetric(series.metric.name)
+    val badge = statusBadge(series.metric, delta, summary.goal)
+
+    Column(
+        modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MiColors.SurfaceSunken)
+            .padding(5.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(18.dp).clip(RoundedCornerShape(6.dp)).background(tint),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    series.metric.label.take(1),
+                    fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color.White
+                )
+            }
+            Spacer(Modifier.width(4.dp))
+            Text(
+                series.metric.label,
+                fontSize = 8.5.sp, fontWeight = FontWeight.Medium,
+                color = MiColors.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.weight(1f))
+            badge?.let {
+                Text(
+                    it.text,
+                    fontSize = 7.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = it.fg,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(it.bg)
+                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                )
+            }
+        }
+        Spacer(Modifier.height(1.dp))
         Text(
-            series?.metric?.label ?: "-",
-            fontSize = 7.5.sp, color = MiColors.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis
+            valueText(value, series.metric.unit),
+            fontSize = 11.5.sp, fontWeight = FontWeight.Black,
+            color = MiColors.TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis
         )
-        val latest = series?.latest
-        Text(
-            if (latest == null) "-" else "${trim(latest.value)} ${series.metric.unit}",
-            fontSize = 11.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary,
-            maxLines = 1, overflow = TextOverflow.Ellipsis
-        )
+        if (series.hasHistory) {
+            Text(
+                deltaText(delta, series.metric.unit),
+                fontSize = 8.sp, fontWeight = FontWeight.Bold,
+                color = tileDeltaColor(summary, goalMetric, value, delta),
+                maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.height(1.dp))
+            BodyLineChart(
+                values = series.points.map { it.value },
+                labels = series.points.map { shortDay(it.day) },
+                color = tint,
+                unit = series.metric.unit,
+                modifier = Modifier.height(13.dp).fillMaxWidth(),
+                showAxis = false
+            )
+        } else {
+            // One reading and no dates: a sparkline or a trend line drawn from a
+            // single point would be decoration pretending to be a trend.
+            Text(
+                "One reading",
+                fontSize = 8.sp, color = MiColors.TextTertiary, maxLines = 1
+            )
+        }
     }
 }
 
-/** Muscle focus share, the fourth figure in the compact row. */
-@Composable
-private fun CompactFocus(summary: BodyProgressSummary, modifier: Modifier = Modifier) {
-    // Highest share wins: focusGroups is not ordered, so taking the first entry
-    // would report an arbitrary muscle instead of the one actually trained most.
-    val top = BodyProgressAggregator.focusGroups(summary.muscleFocus).maxByOrNull { it.sharePercent }
-    Column(modifier) {
-        Text("Focus", fontSize = 7.5.sp, color = MiColors.TextSecondary, maxLines = 1)
-        Text(
-            if (top == null) "-" else "${top.label} ${top.sharePercent}%",
-            fontSize = 11.sp, fontWeight = FontWeight.Black, color = MiColors.TextPrimary,
-            maxLines = 1, overflow = TextOverflow.Ellipsis
-        )
+private fun valueText(value: Double, unit: String): String =
+    if (unit == "%") "${trim(value)}%" else "${trim(value)} $unit".trim()
+
+/** Maps a metric onto the goal enum so delta colour can respect the member's goal. */
+private fun goalMetricFor(metric: BodyMetric): GoalMetric = when (metric) {
+    BodyMetric.WEIGHT -> GoalMetric.WEIGHT
+    BodyMetric.MUSCLE_MASS -> GoalMetric.MUSCLE_MASS
+    BodyMetric.BODY_FAT -> GoalMetric.BODY_FAT
+    else -> GoalMetric.WAIST
+}
+
+private data class StatusBadge(val text: String, val bg: Color, val fg: Color)
+
+/**
+ * Plain-language status for one tile.
+ *
+ * When the member has an explicit goal for this metric, the badge follows the
+ * goal: dropping body fat reads as progress because the goal was to reduce it.
+ * With no goal the badge stays neutral and only reports the direction of travel,
+ * because "good" is not universal.
+ */
+private fun statusBadge(
+    metric: BodyMetric,
+    delta: Double,
+    goal: com.example.badnewgym.feature.bodyprogress.domain.model.BodyGoalRecord?
+): StatusBadge? {
+    if (abs(delta) < 0.0001) {
+        return StatusBadge("Stable", Color(0xFFEFF3F6), MiColors.TextSecondary)
     }
+    val isGoalMetric = goal?.metric == goalMetricFor(metric)
+    val rising = delta > 0
+    val good = if (isGoalMetric) {
+        BodyProgressAggregator.movesTowardGoal(goal!!, delta)
+    } else {
+        // No goal: report the direction without judging it.
+        true
+    }
+    val label = if (isGoalMetric) {
+        when {
+            good && rising && metric == BodyMetric.MUSCLE_MASS -> "Building Muscle"
+            good -> "Great Progress"
+            else -> "Off Target"
+        }
+    } else {
+        if (rising) "Rising" else "Falling"
+    }
+    val bg = if (good) Color(0xFFE5F6EC) else Color(0xFFFDECEC)
+    val fg = if (good) Color(0xFF0E7A4D) else Color(0xFFC0392B)
+    return StatusBadge(label, bg, fg)
 }
 
 @Composable

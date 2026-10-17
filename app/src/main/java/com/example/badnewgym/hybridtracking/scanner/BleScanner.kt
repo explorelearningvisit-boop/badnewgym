@@ -20,7 +20,7 @@ class BleScanner(private val context: Context) {
     fun scanBleBeaconsSync(durationMs: Long = 2000L): List<BleBeaconInfo> {
         val scanner = bluetoothAdapter?.bluetoothLeScanner
         if (scanner == null || bluetoothAdapter?.isEnabled != true) {
-            return getSimulatedBleBeacons()
+            return emptyList()
         }
 
         val discoveredBeacons = mutableMapOf<String, BleBeaconInfo>()
@@ -45,7 +45,7 @@ class BleScanner(private val context: Context) {
             Thread.sleep(durationMs)
             scanner.stopScan(callback)
         } catch (e: Exception) {
-            return getSimulatedBleBeacons()
+            return emptyList()
         }
 
         return discoveredBeacons.values.toList()

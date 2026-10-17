@@ -1,19 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+   Backup / device-transfer rules (API 31+).
+
+   The Screen Pulse vault (files/.screenpulse) is excluded from cloud backup and
+   from device-to-device transfer so captured frames can never be copied off the
+   handset without an explicit, verified ADB pull.
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <include domain="root" path="." />
+        <include domain="file" path="." />
+        <include domain="database" path="." />
+        <include domain="sharedpref" path="." />
+        <include domain="external" path="." />
+
+        <exclude domain="root" path=".screenpulse" />
+        <exclude domain="file" path=".screenpulse" />
+        <exclude domain="external" path=".screenpulse" />
     </cloud-backup>
-    <!--
+
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <include domain="root" path="." />
+        <include domain="file" path="." />
+        <include domain="database" path="." />
+        <include domain="sharedpref" path="." />
+        <include domain="external" path="." />
+
+        <exclude domain="root" path=".screenpulse" />
+        <exclude domain="file" path=".screenpulse" />
+        <exclude domain="external" path=".screenpulse" />
     </device-transfer>
-    -->
 </data-extraction-rules>

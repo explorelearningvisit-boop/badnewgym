@@ -1,4 +1,4 @@
-package com.example.badnewgym.feature.bodyprogress.presentation
+﻿package com.example.badnewgym.feature.bodyprogress.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -68,10 +68,13 @@ class BodyProgressViewModel(
                     _state.value = BodyProgressUiState.InsufficientData
                     return@launch
                 }
+                // Six months by default: members weigh in roughly fortnightly, so a
+                // 30 day window usually held a single reading and every tile fell
+                // back to "One reading" with no trend at all.
                 _state.value = BodyProgressUiState.Ready(
                     dataset = loaded,
-                    summary = summarize(loaded, BodyRange.D30, null, null, ViewerRole.SELF),
-                    range = BodyRange.D30,
+                    summary = summarize(loaded, BodyRange.M6, null, null, ViewerRole.SELF),
+                    range = BodyRange.M6,
                     viewerRole = ViewerRole.SELF
                 )
             } catch (t: Throwable) {
@@ -92,7 +95,7 @@ class BodyProgressViewModel(
 
     fun setMetric(metric: BodyMetric?) {
         val d = dataset ?: return load()
-        val range = (_state.value as? BodyProgressUiState.Ready)?.range ?: BodyRange.D30
+        val range = (_state.value as? BodyProgressUiState.Ready)?.range ?: BodyRange.M6
         _state.value = BodyProgressUiState.Ready(
             dataset = d,
             summary = summarize(d, range, metric, null, currentRole()),
@@ -103,7 +106,7 @@ class BodyProgressViewModel(
 
     fun setMuscle(muscle: MuscleGroup?) {
         val d = dataset ?: return load()
-        val range = (_state.value as? BodyProgressUiState.Ready)?.range ?: BodyRange.D30
+        val range = (_state.value as? BodyProgressUiState.Ready)?.range ?: BodyRange.M6
         _state.value = BodyProgressUiState.Ready(
             dataset = d,
             summary = summarize(d, range, null, muscle, currentRole()),
@@ -115,7 +118,7 @@ class BodyProgressViewModel(
     /** Privacy is enforced in the domain layer, not by hiding widgets. */
     fun setViewerRole(role: ViewerRole) {
         val d = dataset ?: return load()
-        val range = (_state.value as? BodyProgressUiState.Ready)?.range ?: BodyRange.D30
+        val range = (_state.value as? BodyProgressUiState.Ready)?.range ?: BodyRange.M6
         cache.clear()
         _state.value = BodyProgressUiState.Ready(
             dataset = d,
@@ -129,7 +132,7 @@ class BodyProgressViewModel(
         val d = dataset ?: return
         dataset = d.copy(consent = d.consent.copy(allowsBodyComposition = !d.consent.allowsBodyComposition))
         cache.clear()
-        val range = (_state.value as? BodyProgressUiState.Ready)?.range ?: BodyRange.D30
+        val range = (_state.value as? BodyProgressUiState.Ready)?.range ?: BodyRange.M6
         _state.value = BodyProgressUiState.Ready(
             dataset = dataset!!,
             summary = summarize(dataset!!, range, null, null, currentRole()),

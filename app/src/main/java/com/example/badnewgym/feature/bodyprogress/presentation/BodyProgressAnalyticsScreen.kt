@@ -1,4 +1,4 @@
-package com.example.badnewgym.feature.bodyprogress.presentation
+﻿package com.example.badnewgym.feature.bodyprogress.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,7 +52,6 @@ import com.example.badnewgym.feature.bodyprogress.domain.model.EquipmentCategory
 import com.example.badnewgym.feature.bodyprogress.domain.model.GoalMetric
 import com.example.badnewgym.feature.bodyprogress.domain.model.MuscleGroup
 import com.example.badnewgym.feature.bodyprogress.domain.model.ViewerRole
-import com.example.badnewgym.feature.memberintelligence.design.tokens.MiColors
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
