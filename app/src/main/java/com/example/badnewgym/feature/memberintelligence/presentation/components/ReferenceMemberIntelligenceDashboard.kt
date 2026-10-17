@@ -125,7 +125,7 @@ fun ReferenceMemberIntelligenceDashboard(
             MenuItemUi(MenuType.PAYMENT, "Payment", Icons.Rounded.Payment, 3),
             MenuItemUi(MenuType.ATTENDANCE, "Attendance", Icons.Rounded.CalendarMonth, 4),
             MenuItemUi(MenuType.WORKOUT, "Workout", Icons.Rounded.FitnessCenter, 5),
-            MenuItemUi(MenuType.PLAN, "Plan", Icons.Rounded.Verified, 1),
+            MenuItemUi(MenuType.PLAN, "Plan", Icons.Rounded.Verified, 3),
             MenuItemUi(MenuType.INSIGHT, "Progress", Icons.Rounded.Insights, 6),
             MenuItemUi(MenuType.NUTRITION, "Nutrition", Icons.Rounded.Restaurant, 6),
             MenuItemUi(MenuType.SERVICES, "More", Icons.Rounded.GridView, 6)
@@ -431,7 +431,7 @@ private fun PaymentPlanPanel(snapshot: MemberSnapshot, onMenuSelected: (MenuType
             }
         }
         Button(
-            onClick = { if (due && cta != null) onCta(cta) else onMenuSelected(MenuType.PAYMENT) },
+            onClick = { onMenuSelected(MenuType.PAYMENT); if (due && cta != null) onCta(cta) },
             modifier = Modifier.fillMaxWidth().height(44.dp),
             shape = RoundedCornerShape(13.dp),
             colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = MIColor.white)
