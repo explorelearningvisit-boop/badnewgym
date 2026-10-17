@@ -63,6 +63,8 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
             menus = resolved.menus,
             activeMenu = resolved.activeMenu,
             onMenuSelected = viewModel::selectMenu,
+            cta = resolved.cta,
+            onCta = viewModel::executeCta,
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
