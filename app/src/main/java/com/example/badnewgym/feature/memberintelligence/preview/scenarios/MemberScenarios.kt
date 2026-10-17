@@ -65,7 +65,6 @@ object MemberScenarios {
             val date = (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
             val status = when {
                 day > today -> AttendanceDayStatus.UNKNOWN
-                (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY -> AttendanceDayStatus.CLOSED
                 day % 11 == 0 -> AttendanceDayStatus.ABSENT
                 day % 7 == 0 -> AttendanceDayStatus.LATE
                 else -> AttendanceDayStatus.PRESENT
