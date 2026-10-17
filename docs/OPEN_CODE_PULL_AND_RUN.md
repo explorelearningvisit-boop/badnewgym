@@ -1,5 +1,7 @@
 # Pull and Run — BAD GYM Member Intelligence
 
+**Single entry point:** read the repository-root `PULL_AND_RUN.md` first. On Windows, `tools/pull-and-start-agent.ps1` pulls the feature branch, checks the handoff documents/assets, and starts OpenCode with instructions to read the entire documentation set before editing. This file contains the detailed environment and Android build/run guide.
+
 This guide is for the branch that contains the latest full-screen reference implementation.
 
 - Repository: https://github.com/explorelearningvisit-boop/badnewgym
