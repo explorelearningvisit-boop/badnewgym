@@ -1,58 +1,68 @@
-# BAD GYM — Visit Based Member Card System
+# BAD GYM — Visit-Based Member Intelligence
 
-BAD GYM is an Android Jetpack Compose gym-management application centered on a **Visit Based Member Card**.
+BAD GYM is a native Android gym-management application built with Kotlin and Jetpack Compose. It supports gym operations such as member identity, check-in/check-out, membership, payment, attendance, workout, body progress and conditional operational widgets.
 
-## Current implementation contract
+## Start here — AI agents and developers
 
-The production workflow is now reference-image driven:
+**Read `BAD_GYM_AGENT_START_HERE.md` first.** It contains the context and file reading order for OpenCode, Google Antigravity, Gemini and other coding agents.
 
-**reference image → atomic decomposition → component implementation → build → device screenshot → visual comparison → correction → verification → next component → full integration → logic/state verification → regression**
+Current expanded Member Intelligence reference task:
+- Branch: `member-intelligence-reference-dashboard`
+- Draft PR: https://github.com/explorelearningvisit-boop/badnewgym/pull/6
+- Pull/build/run instructions: `docs/OPEN_CODE_PULL_AND_RUN.md`
+- Product/business/user context: `docs/BAD_GYM_PRODUCT_AND_USER_CONTEXT.md`
+- Hyper-detailed implementation blueprint and master coding prompt: `docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_HYPERDETAILED_IMPLEMENTATION_BLUEPRINT.md`
+- Pixel-perfect acceptance checklist: `docs/PIXEL_PERFECT_ACCEPTANCE.md`
+- Automated Windows pull/build/optional install helper: `tools/pull-and-run-member-intelligence.ps1`
 
-The complete Google Antigravity execution contract is:
+> **Branch warning:** this implementation is currently a draft feature branch, not `main`. Clone or switch to the branch above to see these changes. Build, runtime and screenshot verification remain outstanding.
 
-`docs/reference/ANTIGRAVITY_END_TO_END_CONTRACT.md`
+## Pull and run (Windows PowerShell)
 
-Google Antigravity must not implement a supplied reference image as one approximate pass.
+First time:
 
-## Current member-card renderer
+```powershell
+git clone --branch member-intelligence-reference-dashboard --single-branch https://github.com/explorelearningvisit-boop/badnewgym.git
+Set-Location badnewgym
+.\tools\pull-and-run-member-intelligence.ps1
+```
 
-The old eight-theme card presentation and old 360dp/3:4/four-column documentation are retired/stale.
+Already cloned:
 
-The current renderer uses:
+```powershell
+git switch member-intelligence-reference-dashboard
+git pull --ff-only origin member-intelligence-reference-dashboard
+.\tools\pull-and-run-member-intelligence.ps1
+```
 
-- full available mobile viewport
-- approximately 420dp maximum content width
-- light premium Material surface
-- emerald/blue/red/amber/purple semantic accents
-- compact header
-- vertical rail navigation
-- Home command-center content
-- compact visit/payment/attendance information
-- event/visit-driven widget resolution
-- server-authoritative commercial entitlements
-
-Primary implementation:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/PixelPerfectMemberCard.kt`
-
-Domain:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/VisitWidgetSystem.kt`
-
-Server access contract:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/GymWidgetAccess.kt`
-
-Tests:
-
-`app/src/test/java/com/example/badnewgym/feature/memberintelligence/domain/engine/VisitWidgetConditionResolverTest.kt`
+The helper checks for local changes, pulls without force, runs unit tests/build, and installs/requests launch only if an authorized Android device is detected. It does not perform screenshot comparison automatically.
 
 ## Build
+
+Run from the repository root:
 
 ```bash
 ./gradlew clean testDebugUnitTest assembleDebug
 ```
 
-## Scope
+Windows PowerShell:
 
-BAD GYM changes must remain inside BAD GYM application/test/documentation paths. Do not modify unrelated OPPO/mobile-control tooling or Banaras Tour Gold / Manchester-company work.
+```powershell
+.\gradlew.bat clean testDebugUnitTest assembleDebug
+```
+
+## Product and design contract
+
+The current full-screen user reference is the visual target for the expanded dashboard. The older V4 compact event-first member card and its event/entitlement/domain architecture remain part of the product and must not be silently deleted or bypassed. See `CURRENT_TASK.md` and `BAD_GYM_AGENT_START_HERE.md` for the integration rule.
+
+Design intent: premium light surfaces, mint/white/emerald-led colors, semantic coral/red/blue/purple/gold accents, readable mobile charts, real data, accessible interactions and no dark-heavy background.
+
+## Pixel-perfect workflow
+
+Reference image → component decomposition → inspect existing architecture → implement one component → build/test → run → capture screenshot → compare → record discrepancies → fix → rebuild → capture again → verify states/actions → document evidence.
+
+A successful compile alone is not a visual pass. If the exact reference image is not present in the repository, request it as a tracked asset under `docs/reference/assets/`; never claim it has been committed if it has not.
+
+## Scope boundaries
+
+Only modify BAD GYM app code, tests, assets and documentation. Do not modify `OPPO/`, `Launch_Oppo_Dev_Studio.bat`, unrelated mobile-control projects, Banaras Tour Gold work or Banaras Pure Gold mustard-oil business files.
