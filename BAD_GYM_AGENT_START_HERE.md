@@ -40,7 +40,7 @@ Do not silently confuse two different surfaces:
 - **Expanded dashboard/reference page:** the latest full-screen image, with identity, payment history, attendance calendar, workout trend and body progress.
 - **Compact event-first visit/member card:** the existing V4 runtime surface and its event/entitlement architecture.
 
-Inspect the navigation and product flow before deciding where the expanded dashboard is entered. If integration requirements conflict, document the exact conflict and choose the smallest safe integration; do not delete the existing canonical card/domain engine merely to get a screenshot match.
+Current branch status: `MemberIntelligenceScreen.kt` is wired to `ReferenceMemberIntelligenceDashboard` as the active screen, while `PixelPerfectMemberCard.kt` and the existing domain/event system remain in the repository. This was the initial visual integration for the new reference, not proof that navigation/regression is complete. During verification, confirm the intended app entry flow. If the compact canonical card must remain directly reachable, add a deliberate navigation route rather than deleting it or bypassing its domain/entitlement logic.
 
 The exact latest reference available in the current task environment is 921×1536 pixels (portrait ratio 0.600; JPEG bytes despite an earlier `.png` filename). It is not yet committed to this branch. Add it as `docs/reference/assets/member-intelligence-full-screen-reference.jpg` for reproducible pixel comparison. The older V4 spec's 691×1536 canvas applies to the previous compact-card reference and is not the pixel canvas for this newer screenshot. Runtime dp geometry must still be measured independently from screenshot pixels.
 
