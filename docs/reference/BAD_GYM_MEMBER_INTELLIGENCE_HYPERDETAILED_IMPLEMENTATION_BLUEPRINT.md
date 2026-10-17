@@ -39,6 +39,7 @@ This is a real component system, not a screenshot background, HTML page, tablet 
 The attached reference is a long mobile dashboard, not a desktop dashboard. Implement a responsive screen whose content width is the available phone width, with a compact member intelligence surface and vertical scroll for the full set of analytics.
 
 Recommended values:
+- Reference screenshot: 921×1536 px (portrait ratio 0.600). This is pixel-space, not dp.
 - Reference device width: 360dp.
 - Outer horizontal padding: 12dp on 360dp devices; reduce to 8dp if available width is below 340dp.
 - Main content max width: 440dp; center only on wider screens.
