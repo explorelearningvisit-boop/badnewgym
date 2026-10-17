@@ -40,6 +40,22 @@ git status
 
 If you have local changes, do not discard them blindly. Review `git status` and commit/stash your work before pulling.
 
+## 2A. Add the exact visual reference to GitHub (recommended for pixel diff)
+
+The exact 921×1536 JPEG is available as a file attachment from the assistant's response. Download it and save it locally as:
+
+`docs/reference/assets/member-intelligence-full-screen-reference.jpg`
+
+Then from repository root:
+
+```powershell
+git add docs/reference/assets/member-intelligence-full-screen-reference.jpg
+git commit -m "docs: add approved member intelligence reference image"
+git push origin member-intelligence-reference-dashboard
+```
+
+This makes the reference reproducible for every agent and reviewer. Do not convert it to PNG merely because an earlier filename used that extension; preserve the original JPEG bytes and 921×1536 dimensions. If the downloaded file is named differently, rename it to the canonical path above before committing.
+
 ## 3. Read project instructions before asking an AI to edit
 
 ```powershell
