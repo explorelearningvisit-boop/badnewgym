@@ -15,7 +15,7 @@ Use the latest user-supplied image from the conversation plus:
 
 The reference contains: brand/header, member identity and membership ring, horizontal navigation, Payment & Plan with 12-month payment history, attendance calendar, monthly workout trend, and body progress metrics. It is a long mobile dashboard; implement it as a scrollable responsive screen rather than compressing the entire image into a tiny card.
 
-If the original image file is not present in this branch, do not pretend it is an asset in Git. Ask for the exact reference image to be committed under `docs/reference/assets/` for repeatable screenshot comparison.
+The exact reference screenshot is 921×1536 pixels, portrait ratio 0.600, and is currently not committed as a binary asset in this branch. Add it as `docs/reference/assets/member-intelligence-full-screen-reference.jpg` for repeatable pixel comparison. This new full-screen screenshot supersedes the older V4 reference canvas of 691×1536 for this expanded-dashboard task only. Measure runtime dp dimensions separately; pixel dimensions are not dp.
 
 ## Architecture integration decision
 Existing V4 documentation defines a compact event-first canonical visit/member card (approximately 350dp width, preferred 500–540dp height, event-first hero, conditional widgets, server-authoritative entitlements). The new full-screen reference is an expanded dashboard surface and may be taller/scrollable. Preserve the compact canonical card, event priority/domain engine, repository/ViewModel patterns, privacy, and entitlement rules. Inspect navigation and decide how the expanded dashboard is reached. Do not silently replace or delete the canonical V4 surface or bypass its business rules just to match the screenshot.
