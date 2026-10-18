@@ -90,8 +90,8 @@ fun MemberSummaryCard(
 ) {
     val membership = snapshot.membership
     val now = remember { System.currentTimeMillis() }
-    val elapsedPercent = DashboardMath.elapsedPercent(membership, now)
-    val daysLeft = DashboardMath.daysRemaining(membership, now)
+    val elapsedPercent = membership?.let { DashboardMath.elapsedPercent(it, now) }
+    val daysLeft = membership?.let { DashboardMath.daysRemaining(it, now) }
     val active = membership?.isActive == true
 
     Box(
@@ -162,7 +162,7 @@ fun MemberSummaryCard(
                 }
                 StatusRing(
                     percent = elapsedPercent,
-                    daysLeft = if (membership != null) daysLeft else null,
+                    daysLeft = daysLeft,
                     active = active && membership != null,
                     modifier = Modifier.size(64.dp)
                 )
