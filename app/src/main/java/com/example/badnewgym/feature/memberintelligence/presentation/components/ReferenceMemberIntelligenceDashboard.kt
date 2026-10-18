@@ -30,12 +30,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Home
@@ -49,6 +53,7 @@ import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Verified
+import androidx.compose.material.icons.rounded.WorkspacePremium
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -154,13 +159,13 @@ fun ReferenceMemberIntelligenceDashboard(
     val menuItems = remember(menus) {
         listOf(
             MenuItemUi(MenuType.HOME, "Overview", Icons.Rounded.Home, SECTION_BRAND),
-            MenuItemUi(MenuType.PAYMENT, "Payment", Icons.Rounded.Payment, SECTION_PAYMENT),
+            MenuItemUi(MenuType.PAYMENT, "Payment", Icons.Rounded.AccountBalanceWallet, SECTION_PAYMENT),
             MenuItemUi(MenuType.ATTENDANCE, "Attendance", Icons.Rounded.CalendarMonth, SECTION_ATTENDANCE),
             MenuItemUi(MenuType.WORKOUT, "Workout", Icons.Rounded.FitnessCenter, SECTION_WORKOUT),
-            MenuItemUi(MenuType.INSIGHT, "Progress", Icons.Rounded.Insights, SECTION_BODY),
+            MenuItemUi(MenuType.INSIGHT, "Progress", Icons.Rounded.BarChart, SECTION_BODY),
             MenuItemUi(MenuType.NUTRITION, "Nutrition", Icons.Rounded.Restaurant, null),
-            MenuItemUi(MenuType.SERVICES, "Machine", Icons.Rounded.GridView, null),
-            MenuItemUi(MenuType.HOME, "More", Icons.Rounded.MoreHoriz, dialog = DashboardDialog.ABOUT)
+            MenuItemUi(MenuType.SERVICES, "Machine", Icons.Rounded.Build, null),
+            MenuItemUi(MenuType.HOME, "More", Icons.Rounded.GridView, dialog = DashboardDialog.ABOUT)
         ).filter { item ->
             menus.firstOrNull { it.id == item.id }?.let { it.isVisible && it.isEnabled && !it.isLocked }
                 ?: (item.id == MenuType.HOME)
@@ -431,12 +436,23 @@ private fun PaymentPlanPanel(
         accent = accent,
         surface = surface,
         titleColor = MIColor.ink,
-        leadingIcon = Icons.Rounded.ReceiptLong,
+        leadingIcon = Icons.Rounded.AccountBalanceWallet,
         trailing = {
             membership?.let { PlanRangeChip(it) }
         }
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Box(
+                Modifier.size(24.dp).clip(RoundedCornerShape(8.dp)).background(paymentStateColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    if (due) Icons.Rounded.Error else Icons.Rounded.CheckCircle,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
             Column(Modifier.weight(1.05f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(if (due) "PAYMENT DUE" else "PAID · ON TIME", color = paymentStateColor, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                 val paidAmount = if (due) outstanding else payment?.lastPaymentAmount
@@ -445,23 +461,40 @@ private fun PaymentPlanPanel(
                     when {
                         due && (payment?.overdueDays ?: 0) > 0 -> "${payment?.overdueDays} days overdue"
                         due && payment?.dueDate != null -> "Due ${formatDate(payment.dueDate!!)}"
-                        !due && payment?.lastPaymentDate != null -> "Paid ${formatDate(payment.lastPaymentDate)}"
+                        !due && payment?.lastPaymentDate != null -> "Paid on ${formatDate(payment.lastPaymentDate)}"
                         else -> "No receipt linked"
                     }, color = if (due) MIColor.red else MIColor.muted, fontSize = 7.sp, maxLines = 1
                 )
             }
             Box(Modifier.width(1.dp).height(43.dp).background(MIColor.line))
+            Box(
+                Modifier.size(24.dp).clip(RoundedCornerShape(8.dp)).background(MIColor.blue),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.CalendarMonth, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+            }
             Column(Modifier.weight(0.9f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text("Next Due", color = MIColor.muted, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                 val nextAmount = if (due) outstanding else membership?.currentCost
                 Text(nextAmount?.let { MoneyFormat.inr(it) } ?: "—", color = MIColor.ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
-                Text(
-                    when {
-                        due && payment?.dueDate != null -> "${formatDate(payment.dueDate!!)} · ${dueRelativeLabel(payment.dueDate!!, now)}"
-                        membership != null -> "${formatDate(membership.expiryDate)} · ${dueRelativeLabel(membership.expiryDate, now)}"
-                        else -> "Date unavailable"
-                    }, color = MIColor.muted, fontSize = 7.sp, maxLines = 1, overflow = TextOverflow.Ellipsis
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                    val dueTarget = if (due && payment?.dueDate != null) payment.dueDate!! else membership?.expiryDate
+                    Text(
+                        dueTarget?.let { formatDate(it) } ?: "Date unavailable",
+                        color = MIColor.muted, fontSize = 7.sp, maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                    if (dueTarget != null) {
+                        Box(
+                            Modifier.clip(RoundedCornerShape(6.dp)).background(MIColor.blueSoft)
+                                .padding(horizontal = 4.dp, vertical = 1.dp)
+                        ) {
+                            Text(
+                                dueRelativeLabel(dueTarget, now),
+                                color = MIColor.blue, fontSize = 6.5.sp, fontWeight = FontWeight.Bold, maxLines = 1
+                            )
+                        }
+                    }
+                }
             }
             Button(
                 onClick = {
@@ -523,14 +556,18 @@ private fun PaymentHistoryChart(snapshot: MemberSnapshot) {
                     val amount = values[index]
                     val transactions = monthlyTransactions[index]
                     val monthColor = when {
-                        transactions.any { it.planUpgraded } -> MIColor.gold
                         transactions.any { it.timeliness == PaymentTimeliness.VERY_LATE } -> MIColor.red
                         transactions.any { it.timeliness == PaymentTimeliness.LATE } -> MIColor.amber
                         transactions.any { it.timeliness == PaymentTimeliness.ON_TIME } -> MIColor.green
+                        transactions.any { it.planUpgraded } -> MIColor.gold
                         transactions.isNotEmpty() -> MIColor.slate
                         else -> MIColor.slate.copy(alpha = 0.28f)
                     }
+                    val upgraded = transactions.any { it.planUpgraded }
                     Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
+                        if (upgraded) {
+                            Icon(Icons.Rounded.WorkspacePremium, contentDescription = "Plan upgraded", tint = MIColor.gold, modifier = Modifier.size(8.dp))
+                        }
                         if (amount > 0.0) {
                             Text(compactMoney(amount), color = MIColor.ink, fontSize = 6.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                         } else {
@@ -729,12 +766,17 @@ private fun WorkoutPanel(snapshot: MemberSnapshot) {
                     )
                 }
                 WorkoutAverageRing(average, Modifier.size(62.dp))
-                Column(Modifier.width(72.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Column(Modifier.width(80.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     CompactWorkoutStat("Peak", peak?.durationMinutes?.let { "${it}m" } ?: "—", MIColor.green, peak?.let { formatDate(it.date) })
                     CompactWorkoutStat("Lowest", lowest?.durationMinutes?.let { "${it}m" } ?: "—", MIColor.red, lowest?.let { formatDate(it.date) })
                     if (monthOverMonth != null) {
                         val rounded = monthOverMonth.roundToInt()
-                        CompactWorkoutStat("vs ${monthLabelFromKey(previousKey)}", "${if (rounded >= 0) "+" else ""}$rounded%", if (rounded >= 0) MIColor.green else MIColor.amber, "avg / day")
+                        CompactWorkoutStat(
+                            "vs ${monthLabelFromKey(previousKey)}",
+                            "${if (rounded >= 0) "+" else ""}$rounded%",
+                            if (rounded >= 0) MIColor.green else MIColor.amber,
+                            "avg / day"
+                        )
                     } else {
                         CompactWorkoutStat("Average", average?.let { "${it}m" } ?: "—", MIColor.blue, "per day")
                     }
