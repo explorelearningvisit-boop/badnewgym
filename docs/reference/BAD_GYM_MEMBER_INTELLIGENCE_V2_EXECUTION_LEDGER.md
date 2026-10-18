@@ -108,6 +108,7 @@ Status values: PENDING | IN_PROGRESS | BLOCKED | VERIFIED
   (tests kept for CI); payment persistence in-memory on stub repository
   pending production backend wiring.
 
+
 ## Milestone 5.0 - Mobile Member Check-in Card (2026-10-18)
 - Branch: main, SHA 0a65f5a8a868af85251f5cf772ea5a6346a529e8
 - Scope: Pixel-perfect BAD GYM Member Check-in Card matching user reference:
@@ -120,5 +121,23 @@ Status values: PENDING | IN_PROGRESS | BLOCKED | VERIFIED
   - Live screenshot captured at docs/reference/images/live_device_screenshot.png.
   - All 76 unit tests pass (`./gradlew testDebugUnitTest`).
   - Build succeeds (`./gradlew assembleDebug`).
+
+## Milestone 6.0 - Professional Member Intelligence Dashboard UI/UX (2026-10-18)
+- Branch: main, SHA 9a1b3792b20ad1524e7d6e72707e46265cf750b2
+- Scope: Professional full-screen Member Intelligence dashboard matching high-end UI/UX reference:
+  - Deep Sapphire Blue hero header with branding, search bar, notification counter badge (3), active member profile, 75% 25 Days Left gauge, metadata strip (joined, goal, branch), and 5 horizontal filter tabs (Overview, Payment, Attendance, Workout, Progress).
+  - 4-card Body Stats grid with smooth cubic Bezier wave sparklines for Weight, Muscle, Body Fat, and BMI.
+  - Payment & Plan section with Prime Plan banner, ₹2,800 / mo Paid on Time status, Next Due 30 Sep 2026, and View Receipt action.
+  - Attendance section with 77% radial gauge, counts breakdown, and full 7-column calendar month grid with status dots above dates.
+  - Workout Trend section with 30-day colored intensity bars (emerald, amber, red, cyan), and 3 summary highlight cards.
+  - Floating bottom CTA button: "View Detailed Analytics →" with gradient styling.
+- Verified on Xiaomi 11i 5G (zxdada69gunb7ls4):
+  - Installed and launched debug APK via ADB.
+  - Live screenshots captured:
+    - Top Hero & Body View: `docs/reference/images/live_device_screenshot_v2.png`
+    - Scrolled Lower View: `docs/reference/images/live_device_screenshot_scrolled.png`
+  - All 76 unit tests pass (`./gradlew testDebugUnitTest`).
+  - Clean build succeeds (`./gradlew assembleDebug`).
+
 
 
