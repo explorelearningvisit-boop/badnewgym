@@ -3,7 +3,7 @@
 **Task:** Implement and verify the latest user-supplied full-screen Member Intelligence reference.
 **Branch:** `member-intelligence-reference-dashboard`
 **Review:** https://github.com/explorelearningvisit-boop/badnewgym/pull/6
-**Status:** Draft implementation committed; build, runtime and pixel-level screenshot verification remain outstanding.
+**Status:** Milestone verified: full-screen dashboard rebuilt and live on device (commit a020f9d), acceptance build + 51 unit tests green, real payment/member/dialog/chip flows captured on screen, compared against the committed reference. Remaining honest gaps and narrow-width checks are listed in `docs/PIXEL_PERFECT_ACCEPTANCE.md` (evidence record 2026-10-18). PR stays draft.
 
 ## Goal
 Deliver a premium native Android Member Intelligence experience that lets a gym owner quickly understand member identity, plan status, payment state, attendance behavior, workout consistency and body-progress trends. The reference must become real Compose UI connected to actual domain/repository data, not a screenshot background or decorative mockup.
@@ -15,7 +15,7 @@ Use the latest user-supplied image from the conversation plus:
 
 The reference contains: brand/header, member identity and membership ring, horizontal navigation, Payment & Plan with 12-month payment history, attendance calendar, monthly workout trend, and body progress metrics. It is a long mobile dashboard; implement it as a scrollable responsive screen rather than compressing the entire image into a tiny card.
 
-The exact reference screenshot is 921×1536 pixels, portrait ratio 0.600, and is currently not committed as a binary asset in this branch. Add it as `docs/reference/assets/member-intelligence-full-screen-reference.jpg` for repeatable pixel comparison. This new full-screen screenshot supersedes the older V4 reference canvas of 691×1536 for this expanded-dashboard task only. Measure runtime dp dimensions separately; pixel dimensions are not dp.
+The exact reference screenshot is 921×1536 pixels, portrait ratio 0.600, and is committed at `docs/reference/assets/member-intelligence-full-screen-reference.jpg` (with `docs/reference/assets/manifest.md`) for repeatable comparison. This new full-screen screenshot supersedes the older V4 reference canvas of 691×1536 for this expanded-dashboard task only. Measure runtime dp dimensions separately; pixel dimensions are not dp.
 
 ## Architecture integration decision
 Existing V4 documentation defines a compact event-first canonical visit/member card (approximately 350dp width, preferred 500–540dp height, event-first hero, conditional widgets, server-authoritative entitlements). The new full-screen reference is an expanded dashboard surface and may be taller/scrollable. Preserve the existing compact canonical card component, event priority/domain engine, repository/ViewModel patterns, privacy, and entitlement rules. Current branch wires `MemberIntelligenceScreen.kt` to `ReferenceMemberIntelligenceDashboard` as the active screen; `PixelPerfectMemberCard.kt` remains in the repository. Verify whether the product flow needs an explicit route back to the compact canonical card and implement it if required. Do not delete the canonical component or bypass its business rules just to match the screenshot.
