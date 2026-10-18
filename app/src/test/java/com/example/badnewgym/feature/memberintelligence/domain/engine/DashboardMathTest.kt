@@ -118,6 +118,43 @@ class DashboardMathTest {
         assertEquals(31, DashboardMath.daysInMonth(october2026(15)))
     }
 
+    @Test
+    fun `month-key helpers agree with the timestamp helpers for the same month`() {
+        val octoberKey = DashboardMath.monthKey(october2026(15))
+        assertEquals(4, DashboardMath.firstWeekdayOffsetForMonth(octoberKey))
+        assertEquals(31, DashboardMath.daysInMonthForMonth(octoberKey))
+    }
+
+    @Test
+    fun `february in a leap year has twenty nine days`() {
+        val feb2028Key = DashboardMath.monthKey(
+            Calendar.getInstance().apply {
+                set(2028, Calendar.FEBRUARY, 10, 12, 0, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+        )
+        assertEquals(29, DashboardMath.daysInMonthForMonth(feb2028Key))
+    }
+
+    @Test
+    fun `month-key status counts include only the requested month`() {
+        val septemberKey = DashboardMath.monthKey(october2026(1) - day * 5)
+        val octoberKey = DashboardMath.monthKey(october2026(15))
+        val days = listOf(
+            AttendanceDay(october2026(1), AttendanceDayStatus.PRESENT),
+            AttendanceDay(october2026(2), AttendanceDayStatus.LATE),
+            AttendanceDay(october2026(1) - day * 5, AttendanceDayStatus.PRESENT) // September
+        )
+        val octoberCounts = DashboardMath.statusCountsForMonth(days, octoberKey)
+        assertEquals(1, octoberCounts[AttendanceDayStatus.PRESENT])
+        assertEquals(1, octoberCounts[AttendanceDayStatus.LATE])
+        assertEquals(0, octoberCounts[AttendanceDayStatus.ABSENT])
+
+        val septemberCounts = DashboardMath.statusCountsForMonth(days, septemberKey)
+        assertEquals(1, septemberCounts[AttendanceDayStatus.PRESENT])
+        assertEquals(0, septemberCounts[AttendanceDayStatus.LATE])
+    }
+
     // ---------------------------------------------------------------- workout
 
     private fun workout(date: Long, minutes: Int?, status: WorkoutDayStatus = WorkoutDayStatus.RECORDED) =

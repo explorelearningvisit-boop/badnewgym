@@ -48,28 +48,29 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Compact summary card palette, matched to the approved reference image.
+// Compact summary card palette, matched to the approved dark reference image.
 private object SumColor {
-    val ink = Color(0xFF1B2C3A)
-    val meta = Color(0xFF64747F)
-    val label = Color(0xFF7E90A0)
-    val value = Color(0xFF24333D)
-    val cardStart = Color(0xFFF7FBEC)
-    val cardEnd = Color(0xFFEDF8F2)
-    val goldGlow = Color(0xFFF6EC9E)
+    val ink = Color(0xFFEDF4FF)
+    val meta = Color(0xFFA7BCDF)
+    val label = Color(0xFF8FA5C9)
+    val value = Color(0xFFEDF4FF)
+    val cardStart = Color(0xFF11294E)
+    val cardEnd = Color(0xFF0B1D3C)
+    val goldGlow = Color(0xFF2E7A6B)
     val goldRing = Color(0xFFF3C64A)
-    val goldText = Color(0xFFBB8014)
-    val goldChip = Color(0xFFFFF1CC)
+    val goldText = Color(0xFFFFE9A8)
+    val goldChip = Color(0xFF4A3A10)
     val goldDisc = Color(0xFFF0C244)
     val green = Color(0xFF2FBE72)
-    val greenChip = Color(0xFFDFF5E9)
-    val greenChipText = Color(0xFF17995B)
-    val red = Color(0xFFE7495B)
-    val redChip = Color(0xFFFBE5E1)
-    val redChipText = Color(0xFFD5443C)
-    val ringTrack = Color(0xFFDFEEE5)
-    val divider = Color(0xFFE2EFE6)
-    val validity = Color(0xFF6E8396)
+    val greenChip = Color(0xFF0E4B31)
+    val greenChipText = Color(0xFF8CF0C0)
+    val red = Color(0xFFFF7182)
+    val redChip = Color(0xFF59212A)
+    val redChipText = Color(0xFFFFC2C9)
+    val ringTrack = Color(0xFF1E3A63)
+    val ringRest = Color(0xFF1A4D7A)
+    val divider = Color(0xFF1D3559)
+    val validity = Color(0xFF9DB2D8)
 }
 
 /**
@@ -123,7 +124,15 @@ fun MemberSummaryCard(
                     active = active,
                     modifier = Modifier.size(52.dp)
                 )
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        timeGreeting() + " \uD83D\uDC4B",
+                        color = SumColor.meta,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     Text(
                         snapshot.identity.name,
                         color = SumColor.ink,
@@ -196,21 +205,11 @@ fun MemberSummaryCard(
                         FooterItem(
                             icon = Icons.Rounded.LocationOn,
                             iconTint = SumColor.green,
-                            label = "Main Branch",
+                            label = "Branch",
                             value = it,
                             modifier = Modifier.weight(1f)
                         )
                     }
-                }
-                membership?.let {
-                    Text(
-                        formatPlanRange(it.startDate, it.expiryDate),
-                        color = SumColor.validity,
-                        fontSize = 7.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        modifier = Modifier.width(76.dp)
-                    )
                 }
             }
         }
@@ -355,7 +354,7 @@ private fun StatusRing(
             val sweep = (percent ?: 0).coerceIn(0, 100) * 3.6f
             if (active && sweep < 360f && sweep > 0f) {
                 drawArc(
-                    color = SumColor.goldRing,
+                    color = SumColor.ringRest,
                     startAngle = -90f + sweep,
                     sweepAngle = 360f - sweep,
                     useCenter = false,
@@ -422,16 +421,12 @@ private fun FooterItem(
 // --------------------------------------------------------------------- format
 
 private val dayFullFormat by lazy { SimpleDateFormat("d MMM yyyy", Locale.ENGLISH) }
-private val dayFormat by lazy { SimpleDateFormat("d MMM", Locale.ENGLISH) }
+
+private fun timeGreeting(): String = when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
+    in 5..11 -> "Good Morning"
+    in 12..16 -> "Good Afternoon"
+    in 17..21 -> "Good Evening"
+    else -> "Good Night"
+}
 
 private fun formatDayFull(time: Long): String = dayFullFormat.format(Date(time))
-
-private fun formatPlanRange(start: Long, end: Long): String {
-    val startYear = SimpleDateFormat("yyyy", Locale.ENGLISH).format(Date(start))
-    val endYear = SimpleDateFormat("yyyy", Locale.ENGLISH).format(Date(end))
-    return if (startYear == endYear) {
-        "${dayFormat.format(Date(start))} – ${dayFullFormat.format(Date(end))}"
-    } else {
-        "${dayFullFormat.format(Date(start))} – ${dayFullFormat.format(Date(end))}"
-    }
-}
