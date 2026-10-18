@@ -18,10 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
-import com.example.badnewgym.feature.membercard.presentation.components.AttendanceWorkoutSection
-import com.example.badnewgym.feature.membercard.presentation.components.BodyStatsSection
+import com.example.badnewgym.feature.membercard.presentation.components.AttendanceCalendarSection
+import com.example.badnewgym.feature.membercard.presentation.components.BodyStatsSparklineSection
 import com.example.badnewgym.feature.membercard.presentation.components.MemberHeaderBlock
-import com.example.badnewgym.feature.membercard.presentation.components.PaymentPlanSection
+import com.example.badnewgym.feature.membercard.presentation.components.PaymentPlanDetailedSection
+import com.example.badnewgym.feature.membercard.presentation.components.WorkoutTrendDetailedSection
 
 @Composable
 fun MemberCheckInCard(
@@ -62,7 +63,7 @@ fun MemberCheckInCard(
             Spacer(modifier = Modifier.height(14.dp))
 
             // 2. Body Stats Section
-            BodyStatsSection(
+            BodyStatsSparklineSection(
                 stats = data.bodyStats,
                 onDetailsClick = onBodyStatsClick
             )
@@ -70,17 +71,23 @@ fun MemberCheckInCard(
             Spacer(modifier = Modifier.height(14.dp))
 
             // 3. Payment & Plan Section
-            PaymentPlanSection(
+            PaymentPlanDetailedSection(
                 paymentPlan = data.paymentPlan,
-                onDetailsClick = onPaymentClick
+                onPlanClick = onPaymentClick
             )
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 4. Attendance & Workout Activity Section
-            AttendanceWorkoutSection(
-                summary = data.attendanceWorkout,
-                onMonthClick = onMonthClick
+            // 4. Attendance Section
+            AttendanceCalendarSection(
+                data = data.attendance
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // 5. Workout Trend Section
+            WorkoutTrendDetailedSection(
+                data = data.workoutTrend
             )
         }
     }
