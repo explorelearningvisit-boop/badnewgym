@@ -108,3 +108,17 @@ Status values: PENDING | IN_PROGRESS | BLOCKED | VERIFIED
   (tests kept for CI); payment persistence in-memory on stub repository
   pending production backend wiring.
 
+## Milestone 5.0 - Mobile Member Check-in Card (2026-10-18)
+- Branch: main, SHA 0a65f5a8a868af85251f5cf772ea5a6346a529e8
+- Scope: Pixel-perfect BAD GYM Member Check-in Card matching user reference:
+  - Header with italic Bad Gym branding, Aman Tripathi identity, crown & active badges, and 75% radial attendance gauge.
+  - 4-metric Body Stats row (Weight, Muscle, Body Fat %, BMI).
+  - Split Payment & Plan cards (₹2,800 Paid On-Time + Next Due countdown + Prime badge).
+  - 31-day stacked Workout & Attendance chart (dual-gradient blue base + emerald cap, red absent, striped off days), 3 highlight cards, and 4-tier attendance pills.
+- Verified on Xiaomi 11i 5G (zxdada69gunb7ls4):
+  - Installed and launched debug APK via ADB.
+  - Live screenshot captured at docs/reference/images/live_device_screenshot.png.
+  - All 76 unit tests pass (`./gradlew testDebugUnitTest`).
+  - Build succeeds (`./gradlew assembleDebug`).
+
+
