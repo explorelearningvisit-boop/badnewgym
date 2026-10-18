@@ -46,13 +46,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         setContent {
-            // Blank starting surface. The Member Intelligence feature was removed
-            // deliberately; this is where the next screen gets built.
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFF4FEFB))
-            )
+            com.example.badnewgym.feature.membercard.presentation.MemberCheckInScreen()
         }
     }
 
