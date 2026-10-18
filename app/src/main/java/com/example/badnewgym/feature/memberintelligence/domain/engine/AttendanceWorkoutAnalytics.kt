@@ -40,6 +40,19 @@ data class CombinedDay(
     /** Counted as an attended day. `LATE` is a visit; `UNKNOWN` is not. */
     val isVisit: Boolean
         get() = attendance == AttendanceDayStatus.PRESENT || attendance == AttendanceDayStatus.LATE
+
+    /**
+     * A day carries a real workout only when it is recorded **and** the duration is a
+     * positive measurement.
+     *
+     * A `RECORDED` day with a null or non-positive duration is contradictory data: it
+     * is not evidence of a session. Treating it as one would both draw a bar in the
+     * chart and drag the monthly average down, so it is read as "no workout" instead.
+     */
+    val hasRecordedWorkout: Boolean
+        get() = !isGymClosed &&
+            workoutStatus == WorkoutDayStatus.RECORDED &&
+            (workoutMinutes ?: 0) > 0
 }
 
 /**
@@ -147,34 +160,31 @@ fun attendanceBreakdown(days: List<CombinedDay>): AttendanceBreakdown = Attendan
 /**
  * Average workout minutes per **recorded** day in the month.
  *
- * Only `RECORDED` days with a duration count. Unknown days and gym-closed days are
- * excluded rather than averaged in as zero. Null when nothing was recorded.
+ * Only days with a real recorded session ([CombinedDay.hasRecordedWorkout]) count.
+ * Unknown days, gym-closed days and contradictory zero/non-positive "recorded" days
+ * are excluded rather than averaged in as zero. Null when nothing was recorded.
  */
 fun averageRecordedMinutes(days: List<CombinedDay>): Int? {
-    val recorded = days.filterNot { it.isGymClosed }
-        .filter { it.workoutStatus == WorkoutDayStatus.RECORDED && it.workoutMinutes != null }
-        .mapNotNull { it.workoutMinutes }
+    val recorded = days.filter { it.hasRecordedWorkout }.mapNotNull { it.workoutMinutes }
     if (recorded.isEmpty()) return null
     return (recorded.sum().toDouble() / recorded.size).toInt()
 }
 
 /** Peak recorded session in the month, or null when nothing was recorded. */
 fun peakRecordedMinutes(days: List<CombinedDay>): Pair<Int, Int>? =
-    days.filterNot { it.isGymClosed }
-        .filter { it.workoutStatus == WorkoutDayStatus.RECORDED && it.workoutMinutes != null }
+    days.filter { it.hasRecordedWorkout }
         .maxByOrNull { it.workoutMinutes!! }
         ?.let { it.workoutMinutes!! to it.dayOfMonth }
 
 /** Lowest recorded session in the month, or null when nothing was recorded. */
 fun lowestRecordedMinutes(days: List<CombinedDay>): Pair<Int, Int>? =
-    days.filterNot { it.isGymClosed }
-        .filter { it.workoutStatus == WorkoutDayStatus.RECORDED && it.workoutMinutes != null }
+    days.filter { it.hasRecordedWorkout }
         .minByOrNull { it.workoutMinutes!! }
         ?.let { it.workoutMinutes!! to it.dayOfMonth }
 
 /** Highest recorded minutes in the month, used to scale the chart axis. Null when empty. */
 fun chartCeilingMinutes(days: List<CombinedDay>): Int =
-    days.filterNot { it.isGymClosed }
+    days.filter { it.hasRecordedWorkout }
         .mapNotNull { it.workoutMinutes }
         .maxOrNull()
         ?.let { maxOf(60, ((it + 29) / 30) * 30) }

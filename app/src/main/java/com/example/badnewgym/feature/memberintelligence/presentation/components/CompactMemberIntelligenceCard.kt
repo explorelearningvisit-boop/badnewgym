@@ -50,10 +50,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,6 +79,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDayS
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 /**
  * Semantic palette for the compact member intelligence card.
@@ -128,7 +130,15 @@ private val CardShape = RoundedCornerShape(13.dp)
 private val SectionShape = RoundedCornerShape(8.dp)
 
 private val dayLabelFormat = SimpleDateFormat("d MMM", Locale.ENGLISH)
-private val shortDateFormat = SimpleDateFormat("d MMM", Locale.ENGLISH)
+
+/**
+ * One locale for every derived number on the card.
+ *
+ * The money formatter is pinned to `en-IN`, so the body-stat values must not drift to a
+ * device locale that uses a comma decimal separator, which would render "69,5" beside
+ * "₹2,800".
+ */
+private val numberLocale = Locale("en", "IN")
 
 /**
  * The approved BAD GYM Member Intelligence card.
@@ -297,19 +307,21 @@ internal fun MemberIdentityBlock(snapshot: MemberSnapshot, now: Long) {
                         .background(Color(0xFFEFF3F8)),
                     contentAlignment = Alignment.Center
                 ) {
+                    // The initial is always painted underneath. If the photo is missing,
+                    // still loading, or fails to load, the circle shows the member's
+                    // initial instead of an empty grey disc.
+                    Text(
+                        identity.name.trim().take(1).uppercase(Locale.getDefault()),
+                        color = CardPalette.Muted,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Black
+                    )
                     if (identity.photoUrl != null) {
                         AsyncImage(
                             model = identity.photoUrl,
                             contentDescription = "Photo of ${identity.name}",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Text(
-                            identity.name.take(1).uppercase(Locale.getDefault()),
-                            color = CardPalette.Muted,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Black
                         )
                     }
                 }
@@ -543,6 +555,7 @@ internal fun BodyStatsRow(snapshot: MemberSnapshot) {
     val history = remember(snapshot.bodyProgress) { snapshot.bodyProgress.sortedBy { it.date } }
     val latest = history.lastOrNull()
     val previous = history.dropLast(1).lastOrNull()
+    val goal = snapshot.identity.goal
 
     if (latest == null) {
         Text(
@@ -558,7 +571,7 @@ internal fun BodyStatsRow(snapshot: MemberSnapshot) {
         MetricTile(
             value = formatNumber(latest.weightKg),
             unit = "kg",
-            delta = change(latest.weightKg, previous?.weightKg),
+            delta = change("Weight", goal, latest.weightKg, previous?.weightKg),
             label = "Weight",
             tint = CardPalette.Mint,
             icon = Icons.Rounded.MonitorWeight,
@@ -567,7 +580,7 @@ internal fun BodyStatsRow(snapshot: MemberSnapshot) {
         MetricTile(
             value = formatNumber(latest.muscleKg),
             unit = "kg",
-            delta = change(latest.muscleKg, previous?.muscleKg),
+            delta = change("Muscle", goal, latest.muscleKg, previous?.muscleKg),
             label = "Muscle",
             tint = CardPalette.Purple,
             icon = Icons.Rounded.FitnessCenter,
@@ -576,7 +589,7 @@ internal fun BodyStatsRow(snapshot: MemberSnapshot) {
         MetricTile(
             value = formatNumber(latest.bodyFatPercent),
             unit = "%",
-            delta = change(latest.bodyFatPercent, previous?.bodyFatPercent),
+            delta = change("Body Fat", goal, latest.bodyFatPercent, previous?.bodyFatPercent),
             label = "Body Fat",
             tint = CardPalette.Coral,
             icon = Icons.Rounded.WaterDrop,
@@ -595,17 +608,32 @@ internal fun BodyStatsRow(snapshot: MemberSnapshot) {
     }
 }
 
-private data class MetricDelta(val text: String, val isDown: Boolean)
+private data class MetricDelta(
+    val text: String,
+    val isDown: Boolean,
+    val direction: DashboardMath.DeltaDirection
+)
 
-private fun change(latest: Double?, previous: Double?): MetricDelta? {
+/**
+ * Change between the two most recent measurements.
+ *
+ * The direction is graded only against a recognised goal. With no goal the change stays
+ * [DashboardMath.DeltaDirection.NEUTRAL] and is rendered in muted grey — the card must
+ * not imply a change was good or bad without knowing what the member is training for.
+ */
+private fun change(metric: String, goal: String?, latest: Double?, previous: Double?): MetricDelta? {
     if (latest == null || previous == null) return null
     val delta = latest - previous
     if (delta == 0.0) return null
-    return MetricDelta(String.format(Locale.getDefault(), "%.1f", kotlin.math.abs(delta)), delta < 0)
+    return MetricDelta(
+        text = String.format(numberLocale, "%.1f", kotlin.math.abs(delta)),
+        isDown = delta < 0,
+        direction = DashboardMath.deltaDirection(metric, goal, delta)
+    )
 }
 
 private fun formatNumber(value: Double?): String =
-    value?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "—"
+    value?.let { String.format(numberLocale, "%.1f", it) } ?: "—"
 
 @Composable
 private fun MetricTile(
@@ -661,16 +689,23 @@ private fun MetricTile(
             }
         }
         if (delta != null) {
+            // FAVORABLE/UNFAVORABLE only ever come from a recognised goal; otherwise the
+            // change is neutral and must read as information, not as praise or alarm.
+            val deltaColor = when (delta.direction) {
+                DashboardMath.DeltaDirection.FAVORABLE -> CardPalette.Mint
+                DashboardMath.DeltaDirection.UNFAVORABLE -> CardPalette.Coral
+                DashboardMath.DeltaDirection.NEUTRAL -> CardPalette.Muted
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     if (delta.isDown) Icons.Rounded.ArrowDownward else Icons.Rounded.ArrowUpward,
                     contentDescription = null,
-                    tint = tint,
+                    tint = deltaColor,
                     modifier = Modifier.size(5.dp)
                 )
                 Text(
                     delta.text,
-                    color = tint,
+                    color = deltaColor,
                     fontSize = 4.5.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
@@ -726,6 +761,23 @@ internal fun PaymentPlanRow(snapshot: MemberSnapshot, now: Long) {
     val headAmount = if (due) MoneyFormat.inr(outstanding) else payment?.lastPaymentAmount?.let { MoneyFormat.inr(it) } ?: "—"
     val dueTarget = if (due) payment?.dueDate else membership?.expiryDate
     val daysToDue = dueTarget?.let { DashboardMath.daysBetween(now, it) }
+    // The date means two different things. With money outstanding it is a payment due
+    // date; with nothing owed it is the plan's own renewal date. They must not share
+    // wording: an expired plan with a zero balance is not an overdue payment.
+    val dueCaption = when {
+        daysToDue == null -> "Not scheduled"
+        due && daysToDue > 0 -> "$daysToDue Days Left"
+        due && daysToDue == 0 -> "Due Today"
+        due -> "${-daysToDue} Days Overdue"
+        daysToDue > 0 -> "$daysToDue Days Left"
+        daysToDue == 0 -> "Ends Today"
+        else -> "Expired"
+    }
+    val dueCaptionColor = when {
+        due && daysToDue != null && daysToDue < 0 -> CardPalette.Coral
+        !due && daysToDue != null && daysToDue <= 0 -> CardPalette.Coral
+        else -> CardPalette.Cobalt
+    }
     val (tierFg, tierBg) = CardPalette.tierStyle(snapshot.identity.tier)
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -766,7 +818,7 @@ internal fun PaymentPlanRow(snapshot: MemberSnapshot, now: Long) {
         Spacer(Modifier.width(3.dp))
         Column(Modifier.weight(1f)) {
             Text(
-                "Next Due",
+                if (due) "Next Due" else "Plan Renewal",
                 color = CardPalette.Muted,
                 fontSize = 4.5.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -781,14 +833,8 @@ internal fun PaymentPlanRow(snapshot: MemberSnapshot, now: Long) {
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                daysToDue?.let { days ->
-                    when {
-                        days > 0 -> "$days Days Left"
-                        days == 0 -> "Due Today"
-                        else -> "${-days} Days Overdue"
-                    }
-                } ?: "Not scheduled",
-                color = if ((daysToDue ?: 1) < 0) CardPalette.Coral else CardPalette.Cobalt,
+                dueCaption,
+                color = dueCaptionColor,
                 fontSize = 4.5.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -994,22 +1040,25 @@ internal fun CombinedActivityChart(
                         )
                     }
 
-                    // Workout bar: only for a recorded session on an open day.
+                    // Workout bar: only for a genuine recorded session on an open day.
                     val minutes = day.workoutMinutes
-                    if (!day.isGymClosed &&
-                        day.workoutStatus == WorkoutDayStatus.RECORDED &&
-                        minutes != null
-                    ) {
+                    if (day.hasRecordedWorkout && minutes != null) {
                         val barHeight = (minutes.toFloat() / ceilingMinutes.toFloat())
                             .coerceIn(0f, 1f) * plotHeight
                         drawRoundRect(
                             color = barColor,
                             topLeft = Offset(centerX - colWidth * 0.28f, plotHeight - barHeight),
-                            size = Size(colWidth * 0.56f, barHeight.coerceAtLeast(0.6f)),
+                            size = Size(colWidth * 0.56f, barHeight),
                             cornerRadius = androidx.compose.ui.geometry.CornerRadius(0.7.dp.toPx())
                         )
-                    } else if (!day.isGymClosed && day.workoutStatus == WorkoutDayStatus.CONFIRMED_NO_WORKOUT) {
-                        // Confirmed no-workout: a small explicit zero tick, never a tall "0m" bar.
+                    } else if (!day.isGymClosed && (
+                            day.workoutStatus == WorkoutDayStatus.CONFIRMED_NO_WORKOUT ||
+                                (day.workoutStatus == WorkoutDayStatus.RECORDED && (minutes ?: 0) <= 0)
+                            )
+                    ) {
+                        // A confirmed no-workout day — including a contradictory "recorded"
+                        // entry of zero minutes — gets an explicit zero tick, never a
+                        // minimum-height bar that would read as a session.
                         val tickHeight = 1.4.dp.toPx()
                         drawRoundRect(
                             color = CardPalette.Coral,
@@ -1021,26 +1070,50 @@ internal fun CombinedActivityChart(
                 }
             }
         }
-        // X axis day labels.
-        Row(Modifier.fillMaxWidth().padding(start = 11.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            val marks = remember(days) { dayLabelMarks(days.size) }
-            marks.forEach { mark ->
-                Text(
-                    mark,
-                    color = CardPalette.Muted,
-                    fontSize = 3.5.sp,
-                    maxLines = 1,
-                    textAlign = TextAlign.Center
-                )
+        // X axis day labels, centred on the column each number names.
+        //
+        // A `SpaceBetween` row would spread the labels edge to edge while the bars sit at
+        // their own column centres, leaving "30" visibly to the right of day 30. Laying
+        // them out with the same column arithmetic keeps the axis honest.
+        val marks = remember(days) { dayLabelMarks(days.size) }
+        val dayCount = days.size.coerceAtLeast(1)
+        Layout(
+            content = {
+                marks.forEach { (_, label) ->
+                    Text(
+                        label,
+                        color = CardPalette.Muted,
+                        fontSize = 3.5.sp,
+                        maxLines = 1
+                    )
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 11.dp)
+        ) { measurables, constraints ->
+            val placeables = measurables.map { measurable ->
+                measurable.measure(androidx.compose.ui.unit.Constraints())
+            }
+            val width = constraints.maxWidth
+            val height = placeables.maxOfOrNull { it.height } ?: 0
+            layout(width, height) {
+                placeables.forEachIndexed { index, placeable ->
+                    val day = marks[index].first
+                    val center = (day - 0.5f) / dayCount * width
+                    val x = (center - placeable.width / 2f).roundToInt()
+                        .coerceIn(0, (width - placeable.width).coerceAtLeast(0))
+                    placeable.place(x, 0)
+                }
             }
         }
     }
 }
 
-private fun dayLabelMarks(dayCount: Int): List<String> {
+private fun dayLabelMarks(dayCount: Int): List<Pair<Int, String>> {
     if (dayCount <= 0) return emptyList()
     val preferred = listOf(1, 5, 10, 15, 20, 25, 30, dayCount)
-    return preferred.distinct().filter { it in 1..dayCount }.sorted().take(7).map { it.toString() }
+    return preferred.distinct().filter { it in 1..dayCount }.sorted().take(7).map { it to it.toString() }
 }
 
 @Composable
@@ -1164,7 +1237,15 @@ internal fun CardSectionHeader(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            // The whole row is the control, not just the chevron. The header reads as a
+            // full-width row, so an 8dp icon alone would be a misleading target.
+            .clickable(
+                onClickLabel = "Open $title",
+                role = Role.Button,
+                onClick = onClick
+            )
     ) {
         Box(
             Modifier
@@ -1196,11 +1277,9 @@ internal fun CardSectionHeader(
         }
         Icon(
             Icons.Rounded.ChevronRight,
-            contentDescription = "Open $title",
+            contentDescription = null,
             tint = CardPalette.Muted,
-            modifier = Modifier
-                .size(8.dp)
-                .clickable(onClick = onClick)
+            modifier = Modifier.size(8.dp)
         )
     }
 }
