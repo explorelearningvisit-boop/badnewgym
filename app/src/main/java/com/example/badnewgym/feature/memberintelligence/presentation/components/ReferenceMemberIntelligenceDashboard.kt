@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -30,6 +32,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -40,6 +43,7 @@ import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Payment
 import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Restaurant
@@ -62,6 +66,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Offset
@@ -71,7 +76,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.memberintelligence.domain.engine.DashboardMath
-import com.example.badnewgym.feature.memberintelligence.domain.engine.PaymentCalculator
 import com.example.badnewgym.feature.memberintelligence.domain.format.MoneyFormat
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDayStatus
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
@@ -306,6 +310,24 @@ private fun TinyStatusChip(label: String, bg: Color, fg: Color) {
     }
 }
 
+@Composable
+private fun PlanRangeChip(membership: com.example.badnewgym.feature.memberintelligence.domain.model.MembershipStatus) {
+    Row(
+        Modifier.clip(RoundedCornerShape(10.dp)).background(Color.White)
+            .border(1.dp, MIColor.redSoft, RoundedCornerShape(10.dp)).padding(horizontal = 5.dp, vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(Modifier.size(18.dp).clip(CircleShape).background(MIColor.amberSoft), contentAlignment = Alignment.Center) {
+            Icon(Icons.Rounded.Bolt, contentDescription = null, tint = MIColor.amber, modifier = Modifier.size(13.dp))
+        }
+        Column {
+            Text("${membership.planName} (${membership.planType})", color = MIColor.gold, fontSize = 7.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("${formatDate(membership.startDate)} – ${formatDate(membership.expiryDate)}", color = MIColor.ink, fontSize = 6.sp, maxLines = 1)
+        }
+    }
+}
+
 // ------------------------------------------------------------------ navigation rail
 
 @Composable
@@ -351,6 +373,8 @@ private fun SectionCard(
     subtitle: String? = null,
     accent: Color,
     surface: Color = MIColor.white,
+    titleColor: Color = accent,
+    leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     trailing: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
@@ -362,10 +386,16 @@ private fun SectionCard(
     ) {
         Column(Modifier.fillMaxWidth().padding(8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(3.dp).height(20.dp).clip(RoundedCornerShape(3.dp)).background(accent))
+                if (leadingIcon != null) {
+                    Box(Modifier.size(25.dp).clip(RoundedCornerShape(7.dp)).background(accent), contentAlignment = Alignment.Center) {
+                        Icon(leadingIcon, null, tint = MIColor.white, modifier = Modifier.size(15.dp))
+                    }
+                } else {
+                    Box(Modifier.width(3.dp).height(20.dp).clip(RoundedCornerShape(3.dp)).background(accent))
+                }
                 Spacer(Modifier.width(6.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                    Text(title, color = accent, fontSize = 15.sp, fontWeight = FontWeight.Black, maxLines = 1)
+                    Text(title, color = titleColor, fontSize = 15.sp, fontWeight = FontWeight.Black, maxLines = 1)
                     if (subtitle != null) {
                         Text(subtitle, color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.Medium, maxLines = 1)
                     }
@@ -388,31 +418,29 @@ private fun PaymentPlanPanel(
 ) {
     val payment = snapshot.payment
     val membership = snapshot.membership
-    val lifecycle = PaymentCalculator.resolve(payment)
     val outstanding = payment?.totalOutstanding ?: 0.0
     val due = outstanding > 0.0
-    val accent = if (due) MIColor.red else MIColor.green
-    val surface = if (due) Color(0xFFFFF5F5) else Color(0xFFF4FFF8)
+    val accent = MIColor.red
+    val paymentStateColor = if (due) MIColor.red else MIColor.green
+    val surface = Color(0xFFFFF5F5)
     val now = System.currentTimeMillis()
 
     SectionCard(
         title = "Payment & Plan",
-        subtitle = membership?.let { "${it.planName} · ${it.planType}" },
+        subtitle = null,
         accent = accent,
         surface = surface,
+        titleColor = MIColor.ink,
+        leadingIcon = Icons.Rounded.ReceiptLong,
         trailing = {
-            TinyStatusChip(
-                label = if (due) "ACTION NEEDED" else "PAID",
-                bg = if (due) MIColor.redSoft else MIColor.mint,
-                fg = accent
-            )
+            membership?.let { PlanRangeChip(it) }
         }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             Column(Modifier.weight(1.05f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                Text(if (due) "DUE" else "PAID · ON TIME", color = accent, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(if (due) "PAYMENT DUE" else "PAID · ON TIME", color = paymentStateColor, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                 val paidAmount = if (due) outstanding else payment?.lastPaymentAmount
-                Text(paidAmount?.let { MoneyFormat.inr(it) } ?: "—", color = accent, fontSize = 17.sp, fontWeight = FontWeight.Black, maxLines = 1)
+                Text(paidAmount?.let { MoneyFormat.inr(it) } ?: "—", color = paymentStateColor, fontSize = 17.sp, fontWeight = FontWeight.Black, maxLines = 1)
                 Text(
                     when {
                         due && (payment?.overdueDays ?: 0) > 0 -> "${payment?.overdueDays} days overdue"
@@ -558,7 +586,9 @@ private fun AttendancePanel(snapshot: MemberSnapshot) {
         title = "Attendance",
         subtitle = currentMonthLabel(),
         accent = MIColor.green,
-        surface = Color(0xFFF2FFF8)
+        surface = Color(0xFFF2FFF8),
+        titleColor = MIColor.ink,
+        leadingIcon = Icons.Rounded.CalendarMonth
     ) {
         if (days.isEmpty()) {
             EmptyDataLine("Daily attendance history is not available yet.")
@@ -680,15 +710,8 @@ private fun WorkoutPanel(snapshot: MemberSnapshot) {
         subtitle = "${currentMonthLabel()} · minutes per session",
         accent = MIColor.blue,
         surface = Color(0xFFF2F8FF),
-        trailing = {
-            CircularKpi(
-                ringPercent = (((average ?: 0) * 100.0) / 120.0).toInt().coerceIn(0, 100),
-                centerText = average?.let { "${it}m" } ?: "—",
-                caption = "avg / day",
-                accent = MIColor.blue,
-                track = MIColor.blueSoft
-            )
-        }
+        titleColor = MIColor.ink,
+        leadingIcon = Icons.Rounded.FitnessCenter
     ) {
         if (workoutDays.isEmpty()) {
             EmptyDataLine(
@@ -697,7 +720,7 @@ private fun WorkoutPanel(snapshot: MemberSnapshot) {
                 } ?: "Daily workout history is not available yet."
             )
         } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) {
                     WorkoutMonthChart(
                         monthDayCount = monthDayCount,
@@ -705,7 +728,8 @@ private fun WorkoutPanel(snapshot: MemberSnapshot) {
                         average = average
                     )
                 }
-                Column(Modifier.width(74.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                WorkoutAverageRing(average, Modifier.size(62.dp))
+                Column(Modifier.width(72.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     CompactWorkoutStat("Peak", peak?.durationMinutes?.let { "${it}m" } ?: "—", MIColor.green, peak?.let { formatDate(it.date) })
                     CompactWorkoutStat("Lowest", lowest?.durationMinutes?.let { "${it}m" } ?: "—", MIColor.red, lowest?.let { formatDate(it.date) })
                     if (monthOverMonth != null) {
@@ -731,6 +755,31 @@ private fun WorkoutPanel(snapshot: MemberSnapshot) {
                 color = MIColor.muted, fontSize = 9.sp
             )
         }
+    }
+}
+
+@Composable
+private fun WorkoutAverageRing(average: Int?, modifier: Modifier = Modifier) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Box(Modifier.size(54.dp), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.fillMaxSize()) {
+                val stroke = 5.dp.toPx()
+                drawArc(MIColor.line, -90f, 360f, false, style = Stroke(stroke, cap = StrokeCap.Round))
+                if (average != null) {
+                    drawArc(
+                        brush = Brush.sweepGradient(
+                            listOf(MIColor.blue, MIColor.green, MIColor.amber, MIColor.red, MIColor.blue)
+                        ),
+                        startAngle = -90f,
+                        sweepAngle = (average / 60f * 360f).coerceIn(0f, 360f),
+                        useCenter = false,
+                        style = Stroke(stroke, cap = StrokeCap.Round)
+                    )
+                }
+            }
+            Text(average?.let { "${it}m" } ?: "—", color = MIColor.ink, fontSize = 12.sp, fontWeight = FontWeight.Black)
+        }
+        Text("Avg / Day", color = MIColor.muted, fontSize = 7.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -766,14 +815,14 @@ private fun WorkoutMonthChart(
         Column(
             Modifier
                 .height(70.dp)
-                .fillMaxWidth(0.075f)
-                .widthIn(min = 22.dp),
+                .fillMaxWidth(0.1f)
+                .widthIn(min = 26.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.End
         ) {
-            Text("${scale}m", color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
-            Text("${scale / 2}m", color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
-            Text("0m", color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+            Text("${scale}m", color = MIColor.muted, fontSize = 7.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false)
+            Text("${scale / 2}m", color = MIColor.muted, fontSize = 7.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false)
+            Text("0m", color = MIColor.muted, fontSize = 7.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false)
         }
         Column(Modifier.weight(1f)) {
             Row(
@@ -813,15 +862,15 @@ private fun WorkoutMonthChart(
                     }
                 }
             }
-            Row(Modifier.fillMaxWidth()) {
-                (1..monthDayCount).forEach { day ->
-                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                        if (day in labels) {
-                            Text(day.toString(), color = MIColor.muted, fontSize = 6.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                        } else {
-                            Spacer(Modifier.height(11.dp))
-                        }
-                    }
+            BoxWithConstraints(Modifier.fillMaxWidth().height(12.dp)) {
+                labels.forEach { day ->
+                    val fraction = if (monthDayCount <= 1) 0f else (day - 1).toFloat() / (monthDayCount - 1)
+                    Text(
+                        day.toString(), color = MIColor.muted, fontSize = 6.sp,
+                        fontWeight = FontWeight.SemiBold, maxLines = 1,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.offset(x = (maxWidth - 14.dp) * fraction).width(14.dp)
+                    )
                 }
             }
         }
@@ -845,7 +894,7 @@ private fun LightDot(color: Color) {
 private fun BodyProgressPanel(snapshot: MemberSnapshot) {
     val history = snapshot.bodyProgress.sortedBy { it.date }
     val latest = history.lastOrNull()
-    val previous = history.dropLast(1).lastOrNull()
+    val baseline = history.firstOrNull()
     val goal = snapshot.identity.goal
 
     SectionCard(
@@ -856,16 +905,18 @@ private fun BodyProgressPanel(snapshot: MemberSnapshot) {
             "Measurements & goal-aligned trends"
         },
         accent = MIColor.purple,
-        surface = Color(0xFFFAF7FF)
+        surface = Color(0xFFFAF7FF),
+        titleColor = MIColor.ink,
+        leadingIcon = Icons.Rounded.Person
     ) {
         if (latest == null) {
             EmptyDataLine("No body measurements recorded. Add a measurement to start a real trend.")
         } else {
             val metrics = buildList {
-                add(BodyMetric("Weight", latest.weightKg, previous?.weightKg, "kg", history.mapNotNull { it.weightKg }))
-                add(BodyMetric("Muscle", latest.muscleKg, previous?.muscleKg, "kg", history.mapNotNull { it.muscleKg }))
-                add(BodyMetric("Body fat", latest.bodyFatPercent, previous?.bodyFatPercent, "%", history.mapNotNull { it.bodyFatPercent }))
-                add(BodyMetric("BMI", latest.bmi, previous?.bmi, null, history.mapNotNull { it.bmi }))
+                add(BodyMetric("Weight", latest.weightKg, baseline?.weightKg, "kg", history.mapNotNull { it.weightKg }))
+                add(BodyMetric("Muscle", latest.muscleKg, baseline?.muscleKg, "kg", history.mapNotNull { it.muscleKg }))
+                add(BodyMetric("Body fat", latest.bodyFatPercent, baseline?.bodyFatPercent, "%", history.mapNotNull { it.bodyFatPercent }))
+                add(BodyMetric("BMI", latest.bmi, null, null, history.mapNotNull { it.bmi }))
             }.filter { it.latest != null }
             metrics.chunked(4).forEach { rowMetrics ->
                 Row(horizontalArrangement = Arrangement.spacedBy(7.dp), modifier = Modifier.fillMaxWidth()) {
@@ -912,7 +963,18 @@ private fun BodyMetricTile(metric: BodyMetric, goal: String?, modifier: Modifier
             .border(1.dp, directionColor.copy(alpha = 0.22f), RoundedCornerShape(14.dp))
             .padding(horizontal = 5.dp, vertical = 5.dp)
     ) {
-        Text(metric.label, color = MIColor.muted, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        val badgeColor = when (metric.label) {
+            "Weight" -> MIColor.green
+            "Muscle" -> MIColor.purple
+            "Body fat" -> MIColor.red
+            else -> MIColor.blue
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+            Box(Modifier.size(13.dp).clip(RoundedCornerShape(4.dp)).background(badgeColor), contentAlignment = Alignment.Center) {
+                Text(when (metric.label) { "Body fat" -> "%"; "BMI" -> "BI"; else -> metric.label.take(1) }, color = MIColor.white, fontSize = 6.sp, fontWeight = FontWeight.Black)
+            }
+            Text(metric.label, color = MIColor.muted, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
         Text(
             formatMetricValue(metric.latest, metric.unit),
             color = MIColor.ink, fontSize = 13.sp, fontWeight = FontWeight.Black,
@@ -924,7 +986,7 @@ private fun BodyMetricTile(metric: BodyMetric, goal: String?, modifier: Modifier
                 Text(band, color = directionColor, fontSize = 8.sp, fontWeight = FontWeight.Bold)
             }
         }
-        if (delta != null) {
+        if (metric.label != "BMI" && delta != null) {
             val growing = delta >= 0
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                 Icon(
@@ -937,7 +999,7 @@ private fun BodyMetricTile(metric: BodyMetric, goal: String?, modifier: Modifier
                     color = directionColor, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1
                 )
             }
-        } else {
+        } else if (metric.label != "BMI") {
             Text("Baseline", color = MIColor.muted, fontSize = 8.sp)
         }
         MiniSparkline(values = metric.series, color = directionColor, modifier = Modifier.fillMaxWidth().height(12.dp))

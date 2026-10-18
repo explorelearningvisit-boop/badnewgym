@@ -142,6 +142,57 @@ object MemberScenarios {
         }
     }
 
+    /** Reference-shaped Aman workout ledger; all bars still come from dated stub records. */
+    private fun demoAmanWorkoutHistory(now: Long): List<WorkoutDay> {
+        val current = Calendar.getInstance().apply {
+            timeInMillis = now
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val today = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_MONTH)
+        val durationByDay = mapOf(
+            1 to 50, 2 to 51, 3 to 50, 4 to 50, 5 to 51, 6 to 50, 7 to 50, 8 to 51,
+            9 to 50, 10 to 52, 11 to 50, 12 to 51, 14 to 50, 15 to 50, 16 to 12, 18 to 50
+        )
+        val monthLength = current.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val currentDays = (1..monthLength).map { day ->
+            val date = (current.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            when {
+                day > today -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
+                day in setOf(13, 17) -> WorkoutDay(date, 0, WorkoutDayStatus.CONFIRMED_NO_WORKOUT)
+                durationByDay[day] != null -> WorkoutDay(date, durationByDay.getValue(day), WorkoutDayStatus.RECORDED)
+                else -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
+            }
+        }
+        val previous = (current.clone() as Calendar).apply { add(Calendar.MONTH, -1) }
+        val previousDates = listOf(2, 6, 10, 14, 18, 22, 26)
+        val previousDays = previousDates.mapIndexed { index, day ->
+            val date = (previous.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            WorkoutDay(date, if (index == 6) 42 else 43, WorkoutDayStatus.RECORDED)
+        }
+        return previousDays + currentDays
+    }
+
+    /** Demo measurements mirror the provided reference values and exact displayed deltas. */
+    private fun demoAmanBodyProgress(now: Long): List<BodyMeasurement> {
+        val weight = listOf(72.0, 71.7, 71.2, 70.8, 70.2, 69.5)
+        val muscle = listOf(55.8, 56.0, 56.4, 56.7, 57.0, 57.2)
+        val fat = listOf(18.8, 18.5, 18.2, 18.0, 17.8, 17.6)
+        val bmi = listOf(23.8, 23.6, 23.4, 23.1, 23.0, 22.8)
+        return weight.indices.map { index ->
+            BodyMeasurement(
+                date = now - DAY * (75L - 15L * index),
+                weightKg = weight[index],
+                muscleKg = muscle[index],
+                bodyFatPercent = fat[index],
+                bmi = bmi[index]
+            )
+        }
+    }
+
     // 1. Yash Singh (BG204) - NATURAL FRESH
     fun naturalFreshYash(now: Long = System.currentTimeMillis()): Pair<MemberSnapshot, MemberEvent> {
         val snapshot = MemberSnapshot(
@@ -687,6 +738,8 @@ object MemberScenarios {
                 breakdown = emptyList(),
                 history = history
             ),
+            workoutHistory = demoAmanWorkoutHistory(now),
+            bodyProgress = demoAmanBodyProgress(now),
             recentEvents = listOf(MemberEvent("e9", "9", "gym1", EventType.CHECK_IN, now, EventSource.SYSTEM)),
             issues = emptyList()
         )

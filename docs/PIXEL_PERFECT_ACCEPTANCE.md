@@ -134,3 +134,13 @@ If a device or screenshot tool is unavailable, mark that check BLOCKED. Do not m
 - **Device verification:** Aman profile shows BG305 · 23 yrs · Male, Prime Plan, Active, 75% elapsed / 25 Days Left; payment receipt action opens a receipt showing ₹33,600 lifetime paid and ₹0 outstanding; the eight rail labels all fit; top and bottom captures show no clipping/overlap in the compact profile footer or four-tile body panel.
 - **Data honesty:** Aman's profile and analytics are explicitly stub-only. Age/gender/goal/branch render only when present. Existing other members retain their own data and missing states. Aman portrait is a cropped Pexels demo asset; source recorded in `app/src/main/assets/media/README.md`.
 - **Remaining gaps:** the reference image supplied in chat is not checked into the repo as a standalone image; screenshot viewport differs from the 393dp device, so no pixel-perfect claim. 360dp/320dp and 1.3× font scale not newly exercised; all evidence is from ≈393dp/default font scale. No production backend changes were made.
+
+### 2026-10-18 — component-level fidelity pass
+
+- **Branch:** `member-dashboard-pixel-polish`, based on the merged member-summary implementation.
+- **Component breakdown:** see `docs/reference/AMAN_DASHBOARD_COMPONENT_MAP.md` for the screenshot-to-Compose map, data sources, actions and fixture boundary.
+- **Last device captures:** `OPPO/pulled_screens/pixel_final2_top.png` and `pixel_final2_bottom.png` (Redmi 21091116I, 1080×2400 @ ~440dpi, ≈393dp, default font scale).
+- **Fidelity pass:** payment header now has the selected-plan capsule and compact paid/next-due/receipt row; workout ring sits beside the chart, with unclipped 1/5/10/15/20/25/31 labels; body deltas now compare against the joined baseline; BMI shows the band without a misleading delta; plan chevron removed because no plan-switch action exists; missing membership ring uses an em dash.
+- **Demo data:** Aman's stub-only dated fixture derives 48m average, 52m peak on Oct 10, 12m low on Oct 16, +12% MoM, and 69.5kg / 57.2kg / 17.6% / BMI 22.8 body values. `AmanReferenceScenarioTest` locks these calculated values.
+- **Verification:** `gradlew.bat clean testDebugUnitTest assembleDebug` → **BUILD SUCCESSFUL in 2m 41s; 53 tests / 0 failures**. Final artifact installed and reviewed on device.
+- **Limitations:** native scrollable 393dp layout cannot reproduce the chat artwork's shorter aspect ratio without shrinking touch targets or stretching. No pixel-perfect claim; 320/360dp morph and 1.3× font scale remain unverified.
