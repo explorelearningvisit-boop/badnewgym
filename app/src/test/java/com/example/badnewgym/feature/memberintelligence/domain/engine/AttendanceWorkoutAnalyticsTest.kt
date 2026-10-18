@@ -76,8 +76,11 @@ class AttendanceWorkoutAnalyticsTest {
         assertEquals(1, breakdown.absent)
         assertEquals("all four Mondays are gym off", 4, breakdown.off)
         assertEquals("31 days minus 4 closures", 27, breakdown.operatingDays)
-        // 3 visits across 27 operating days = 11%
-        assertEquals(11, attendanceRateExcludingClosures(days))
+        assertEquals("the breakdown partitions the month", 31, breakdown.monthDays)
+        // 3 visits out of the 4 days that carry a recorded outcome (3 present, 1 absent).
+        // The other 23 days are unrecorded, so they are excluded rather than counted
+        // as absences, and the 4 closures never enter the denominator at all.
+        assertEquals(75, attendanceRateExcludingClosures(days))
     }
 
     @Test
@@ -195,7 +198,7 @@ class AttendanceWorkoutAnalyticsTest {
     }
 
     @Test
-    fun `attendance rate excludes unknown days from the visit tally`() {
+    fun `attendance rate ignores days with no recorded outcome`() {
         val days = buildCombinedDays(
             attendanceHistory = listOf(
                 AttendanceDay(dateIn(2026, Calendar.OCTOBER, 2), AttendanceDayStatus.PRESENT),
@@ -210,9 +213,44 @@ class AttendanceWorkoutAnalyticsTest {
         assertEquals(1, breakdown.present)
         assertEquals(1, breakdown.absent)
         assertEquals(1, breakdown.late)
-        assertEquals(31, breakdown.operatingDays)
-        // 2 visits (present + late) across 31 operating days.
-        assertEquals(6, attendanceRateExcludingClosures(days))
+        assertEquals("no schedule means no closures", 31, breakdown.operatingDays)
+        assertEquals("the other 28 days are unrecorded", 28, breakdown.unknown)
+        assertEquals(31, breakdown.monthDays)
+        // 2 visits (present + late) out of the 3 days with a known outcome. The 28
+        // unrecorded days must not be treated as absences: that would read 6%.
+        assertEquals(66, attendanceRateExcludingClosures(days))
+    }
+
+    @Test
+    fun `a null schedule marks days unknown rather than assumed open`() {
+        val days = buildCombinedDays(emptyList(), emptyList(), october2026, null)
+        assertTrue(
+            "with no configured schedule every day is UNKNOWN, never silently OPEN",
+            days.all { it.closure == DayClosure.UNKNOWN }
+        )
+        assertFalse("UNKNOWN is not a closure", days.any { it.isGymClosed })
+        assertNull(attendanceRateExcludingClosures(days))
+    }
+
+    @Test
+    fun `off share and the other counters partition the month without exceeding 100 percent`() {
+        val schedule = GymWeeklySchedule(closedWeekdays = setOf(Calendar.MONDAY))
+        val attendance = listOf(
+            6 to AttendanceDayStatus.PRESENT,
+            7 to AttendanceDayStatus.PRESENT,
+            8 to AttendanceDayStatus.PRESENT,
+            9 to AttendanceDayStatus.ABSENT
+        ).map { (day, status) -> AttendanceDay(dateIn(2026, Calendar.OCTOBER, day), status) }
+        val breakdown = attendanceBreakdown(buildCombinedDays(attendance, emptyList(), october2026, schedule))
+
+        val sum = breakdown.present + breakdown.absent + breakdown.late + breakdown.off + breakdown.unknown
+        assertEquals("buckets must partition the month", breakdown.monthDays, sum)
+        assertEquals(
+            "off must be a share of the month, not of the operating days it is excluded from",
+            4 * 100 / 31,
+            breakdown.off * 100 / breakdown.monthDays
+        )
+        assertTrue("no bucket share may exceed the month", breakdown.off <= breakdown.monthDays)
     }
 
     @Test

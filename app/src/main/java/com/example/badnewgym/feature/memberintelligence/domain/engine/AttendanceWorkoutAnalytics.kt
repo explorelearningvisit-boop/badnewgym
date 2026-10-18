@@ -70,7 +70,10 @@ fun buildCombinedDays(
         val closure = when {
             attendance == AttendanceDayStatus.HOLIDAY || attendance == AttendanceDayStatus.CLOSED ->
                 DayClosure.CLOSED_RECORD
-            schedule != null && schedule.isClosedOnWeekday(weekday) -> DayClosure.CLOSED_SCHEDULE
+            // No schedule configured: the day is genuinely unknown. It is never assumed
+            // closed, and it is never assumed to be an open day with data either.
+            schedule == null -> DayClosure.UNKNOWN
+            schedule.isClosedOnWeekday(weekday) -> DayClosure.CLOSED_SCHEDULE
             else -> DayClosure.OPEN
         }
         CombinedDay(
@@ -89,16 +92,21 @@ fun dayOfMonthOf(date: Long): Int =
     Calendar.getInstance().apply { timeInMillis = date }.get(Calendar.DAY_OF_MONTH)
 
 /**
- * Attendance rate over **operating days only**.
+ * Attendance rate over **recorded operating days only**.
  *
- * Gym-closed days are removed from the denominator so a closure can never look like
- * an absence. Returns null when the month has no known operating day.
+ * Two exclusions, for two different reasons:
+ *  * gym-closed days, so a closure can never look like an absence;
+ *  * days with no recorded outcome (`UNKNOWN`), which are not evidence of either way.
+ *
+ * Days still in the future inside the current month are `UNKNOWN`, so they can never
+ * depress the rate. Returns null when no day in the month carries a known outcome.
  */
 fun attendanceRateExcludingClosures(days: List<CombinedDay>): Int? {
-    val operating = days.filterNot { it.isGymClosed }
-    if (operating.isEmpty()) return null
-    val visits = operating.count { it.isVisit }
-    return ((visits.toDouble() / operating.size) * 100).toInt()
+    val recorded = days.filterNot { it.isGymClosed }
+        .filter { it.attendance != AttendanceDayStatus.UNKNOWN }
+    if (recorded.isEmpty()) return null
+    val visits = recorded.count { it.isVisit }
+    return ((visits.toDouble() / recorded.size) * 100).toInt()
 }
 
 /** Number of operating days (closures removed) in the given month model. */
@@ -109,6 +117,11 @@ fun operatingDayCount(days: List<CombinedDay>): Int = days.count { !it.isGymClos
  *
  * `off` merges schedule closures and explicit closure records, and is reported
  * separately from `absent` so the two are never conflated.
+ *
+ * The buckets are a **disjoint partition of [monthDays]**: any day is at most one of
+ * present / absent / late / off / unknown. `off` is *not* a subset of
+ * [operatingDays] — closures are exactly the days removed from it — so a share taken
+ * against [operatingDays] could exceed 100%. Shares must be taken against [monthDays].
  */
 data class AttendanceBreakdown(
     val present: Int,
@@ -116,7 +129,9 @@ data class AttendanceBreakdown(
     val late: Int,
     val off: Int,
     val unknown: Int,
-    val operatingDays: Int
+    val operatingDays: Int,
+    /** Every calendar day in the month; the buckets above partition it. */
+    val monthDays: Int
 )
 
 fun attendanceBreakdown(days: List<CombinedDay>): AttendanceBreakdown = AttendanceBreakdown(
@@ -125,7 +140,8 @@ fun attendanceBreakdown(days: List<CombinedDay>): AttendanceBreakdown = Attendan
     late = days.count { !it.isGymClosed && it.attendance == AttendanceDayStatus.LATE },
     off = days.count { it.isGymClosed },
     unknown = days.count { !it.isGymClosed && it.attendance == AttendanceDayStatus.UNKNOWN },
-    operatingDays = operatingDayCount(days)
+    operatingDays = operatingDayCount(days),
+    monthDays = days.size
 )
 
 /**

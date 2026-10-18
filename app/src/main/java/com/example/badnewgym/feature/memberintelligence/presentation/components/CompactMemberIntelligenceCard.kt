@@ -29,8 +29,11 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.MonitorWeight
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -139,13 +142,18 @@ private val shortDateFormat = SimpleDateFormat("d MMM", Locale.ENGLISH)
 fun CompactMemberIntelligenceCard(
     snapshot: MemberSnapshot,
     modifier: Modifier = Modifier,
-    now: Long = System.currentTimeMillis(),
+    now: Long? = null,
     onOpenBodyStats: () -> Unit = {},
     onOpenPayment: () -> Unit = {},
     onOpenActivity: () -> Unit = {},
     onOpenOverflow: () -> Unit = {}
 ) {
-    val monthKey = remember(now) { DashboardMath.monthKey(now) }
+    // A caller-supplied clock must win so that recomposition cannot move the data.
+    // When none is given, sample the clock exactly once and keep it for this instance:
+    // a bare `now = System.currentTimeMillis()` default would re-read on every
+    // recomposition and defeat every `remember(now)` downstream.
+    val clock = now ?: remember { System.currentTimeMillis() }
+    val monthKey = remember(clock) { DashboardMath.monthKey(clock) }
 
     Box(
         modifier
@@ -162,7 +170,7 @@ fun CompactMemberIntelligenceCard(
             verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             CardBrandStrip(onOpenOverflow)
-            MemberIdentityBlock(snapshot, now)
+            MemberIdentityBlock(snapshot, clock)
             CardSectionBox {
                 CardSectionHeader(
                     icon = Icons.Rounded.Person,
@@ -181,7 +189,7 @@ fun CompactMemberIntelligenceCard(
                     title = "Payment & Plan",
                     onClick = onOpenPayment
                 )
-                PaymentPlanRow(snapshot, now)
+                PaymentPlanRow(snapshot, clock)
             }
             CardSectionBox(Modifier.weight(1f)) {
                 CardSectionHeader(
@@ -205,7 +213,7 @@ val CARD_HEIGHT = 300.dp
 // ------------------------------------------------------------------ brand strip
 
 @Composable
-private fun CardBrandStrip(onOverflow: () -> Unit) {
+internal fun CardBrandStrip(onOverflow: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.Bottom,
@@ -256,12 +264,16 @@ private fun CardBrandStrip(onOverflow: () -> Unit) {
 // ------------------------------------------------------------------ identity
 
 @Composable
-private fun MemberIdentityBlock(snapshot: MemberSnapshot, now: Long) {
+internal fun MemberIdentityBlock(snapshot: MemberSnapshot, now: Long) {
     val identity = snapshot.identity
     val membership = snapshot.membership
     val elapsed = DashboardMath.elapsedPercent(membership, now)
     val daysLeft = DashboardMath.daysRemaining(membership, now)
     val (tierFg, tierBg) = CardPalette.tierStyle(identity.tier)
+    // Terminal lifecycles must not read as live, even when a stale `isActive` says yes.
+    val live = membership != null && membership.isActive &&
+        membership.lifecycle != MembershipLifecycle.EXPIRED &&
+        membership.lifecycle != MembershipLifecycle.CANCELLED
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         // Portrait with crown badge and online dot.
@@ -319,7 +331,7 @@ private fun MemberIdentityBlock(snapshot: MemberSnapshot, now: Long) {
                     )
                 }
             }
-            if (membership?.isActive == true) {
+            if (live) {
                 Box(
                     Modifier
                         .size(9.dp)
@@ -361,12 +373,12 @@ private fun MemberIdentityBlock(snapshot: MemberSnapshot, now: Long) {
             Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                 MiniBadge(
                     icon = Icons.Rounded.Bolt,
-                    label = membership?.planName?.substringBefore(" Plan") ?: tierLabel(identity.tier),
+                    label = planBadgeLabel(snapshot),
                     fg = tierFg,
                     bg = tierBg,
                     modifier = Modifier.weight(1f, fill = false)
                 )
-                MembershipStatusBadge(membership?.lifecycle, membership?.isActive == true)
+                MembershipStatusBadge(membership?.lifecycle, live)
             }
         }
 
@@ -375,6 +387,19 @@ private fun MemberIdentityBlock(snapshot: MemberSnapshot, now: Long) {
         MembershipRing(elapsed, daysLeft, DashboardMath.planTotalDays(membership))
     }
 }
+
+/**
+ * Single source for the plan badge text.
+ *
+ * Uses the member's real plan name when the backend provides one, so the identity
+ * badge and the payment badge can never disagree (both previously derived differently).
+ */
+internal fun planBadgeLabel(snapshot: MemberSnapshot): String =
+    snapshot.membership?.planName
+        ?.removeSuffix(" Plan")
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?: tierLabel(snapshot.identity.tier)
 
 private fun tierLabel(tier: MembershipTier): String = when (tier) {
     MembershipTier.PREMIUM -> "Premium"
@@ -415,11 +440,27 @@ private fun MiniBadge(
 
 @Composable
 private fun MembershipStatusBadge(lifecycle: MembershipLifecycle?, isActive: Boolean) {
-    val (label, fg, bg) = when {
-        isActive && lifecycle == MembershipLifecycle.EXPIRING -> Triple("Expiring", CardPalette.Amber, Color(0xFFFFF6E3))
-        isActive -> Triple("Active", CardPalette.Mint, CardPalette.MintPale)
-        else -> Triple(lifecycle?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Inactive", CardPalette.Coral, CardPalette.CoralPale)
+    // Terminal lifecycles outrank the `isActive` flag: a stale `isActive == true` must
+    // never paint an expired/cancelled membership green.
+    val (label, fg, bg) = when (lifecycle) {
+        MembershipLifecycle.EXPIRED -> Triple("Expired", CardPalette.Coral, CardPalette.CoralPale)
+        MembershipLifecycle.CANCELLED -> Triple("Cancelled", CardPalette.Coral, CardPalette.CoralPale)
+        MembershipLifecycle.FROZEN -> Triple("Frozen", CardPalette.Cobalt, CardPalette.CobaltPale)
+        MembershipLifecycle.PENDING -> Triple("Pending", CardPalette.Amber, Color(0xFFFFF6E3))
+        MembershipLifecycle.EXPIRING -> Triple("Expiring", CardPalette.Amber, Color(0xFFFFF6E3))
+        MembershipLifecycle.ACTIVE, MembershipLifecycle.REACTIVATED ->
+            if (isActive) {
+                Triple("Active", CardPalette.Mint, CardPalette.MintPale)
+            } else {
+                Triple("Inactive", CardPalette.Slate, Color(0xFFF1F5F9))
+            }
+        null -> if (isActive) {
+            Triple("Active", CardPalette.Mint, CardPalette.MintPale)
+        } else {
+            Triple("Inactive", CardPalette.Slate, Color(0xFFF1F5F9))
+        }
     }
+    val allGood = fg == CardPalette.Mint
     Row(
         Modifier
             .clip(RoundedCornerShape(6.dp))
@@ -428,14 +469,19 @@ private fun MembershipStatusBadge(lifecycle: MembershipLifecycle?, isActive: Boo
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(1.5.dp)
     ) {
-        Icon(Icons.Rounded.CheckCircle, contentDescription = null, tint = fg, modifier = Modifier.size(6.dp))
+        Icon(
+            if (allGood) Icons.Rounded.CheckCircle else Icons.Rounded.ErrorOutline,
+            contentDescription = null,
+            tint = fg,
+            modifier = Modifier.size(6.dp)
+        )
         Text(label, color = fg, fontSize = 6.sp, fontWeight = FontWeight.Bold, maxLines = 1)
     }
 }
 
 @Composable
-private fun MembershipRing(elapsedPercent: Int?, daysLeft: Int?, totalDays: Int?) {
-    val pct = elapsedPercent?.coerceIn(0, 100) ?: 0
+private fun MembershipRing(elapsedPercent: Int, daysLeft: Int, totalDays: Int) {
+    val pct = elapsedPercent.coerceIn(0, 100)
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(36.dp)) {
         Box(Modifier.size(30.dp), contentAlignment = Alignment.Center) {
             Canvas(Modifier.fillMaxSize()) {
@@ -466,15 +512,15 @@ private fun MembershipRing(elapsedPercent: Int?, daysLeft: Int?, totalDays: Int?
                 }
             }
             Text(
-                elapsedPercent?.let { "$it%" } ?: "—",
+                "$pct%",
                 color = CardPalette.Ink,
                 fontSize = 8.sp,
                 fontWeight = FontWeight.Black
             )
         }
-        // Days caption only when both the remaining and total span are known.
+        // The plan span is only meaningful when the validity window is known.
         Text(
-            if (daysLeft != null && totalDays != null && totalDays > 0) "$daysLeft / $totalDays" else "—",
+            if (totalDays > 0) "$daysLeft / $totalDays" else "—",
             color = CardPalette.Ink,
             fontSize = 5.sp,
             fontWeight = FontWeight.Bold,
@@ -493,7 +539,7 @@ private fun MembershipRing(elapsedPercent: Int?, daysLeft: Int?, totalDays: Int?
 // ------------------------------------------------------------------ body stats
 
 @Composable
-private fun BodyStatsRow(snapshot: MemberSnapshot) {
+internal fun BodyStatsRow(snapshot: MemberSnapshot) {
     val history = remember(snapshot.bodyProgress) { snapshot.bodyProgress.sortedBy { it.date } }
     val latest = history.lastOrNull()
     val previous = history.dropLast(1).lastOrNull()
@@ -515,6 +561,7 @@ private fun BodyStatsRow(snapshot: MemberSnapshot) {
             delta = change(latest.weightKg, previous?.weightKg),
             label = "Weight",
             tint = CardPalette.Mint,
+            icon = Icons.Rounded.MonitorWeight,
             modifier = Modifier.weight(1f)
         )
         MetricTile(
@@ -523,6 +570,7 @@ private fun BodyStatsRow(snapshot: MemberSnapshot) {
             delta = change(latest.muscleKg, previous?.muscleKg),
             label = "Muscle",
             tint = CardPalette.Purple,
+            icon = Icons.Rounded.FitnessCenter,
             modifier = Modifier.weight(1f)
         )
         MetricTile(
@@ -531,6 +579,7 @@ private fun BodyStatsRow(snapshot: MemberSnapshot) {
             delta = change(latest.bodyFatPercent, previous?.bodyFatPercent),
             label = "Body Fat",
             tint = CardPalette.Coral,
+            icon = Icons.Rounded.WaterDrop,
             modifier = Modifier.weight(1f)
         )
         MetricTile(
@@ -540,6 +589,7 @@ private fun BodyStatsRow(snapshot: MemberSnapshot) {
             band = DashboardMath.bmiBand(latest.bmi),
             label = "BMI",
             tint = CardPalette.Cobalt,
+            icon = Icons.Rounded.Speed,
             modifier = Modifier.weight(1f)
         )
     }
@@ -564,6 +614,7 @@ private fun MetricTile(
     delta: MetricDelta?,
     label: String,
     tint: Color,
+    icon: ImageVector,
     modifier: Modifier = Modifier,
     band: String? = null
 ) {
@@ -579,17 +630,16 @@ private fun MetricTile(
     ) {
         Box(
             Modifier
-                .size(9.dp)
-                .clip(RoundedCornerShape(2.5.dp))
+                .size(11.dp)
+                .clip(RoundedCornerShape(3.dp))
                 .background(tint),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = label.take(2).uppercase(Locale.getDefault()),
-                color = Color.White,
-                fontSize = 3.5.sp,
-                fontWeight = FontWeight.Black,
-                maxLines = 1
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(7.dp)
             )
         }
         Row(verticalAlignment = Alignment.Bottom) {
@@ -643,18 +693,35 @@ private fun MetricTile(
 // ------------------------------------------------------------------ payment
 
 @Composable
-private fun PaymentPlanRow(snapshot: MemberSnapshot, now: Long) {
+internal fun PaymentPlanRow(snapshot: MemberSnapshot, now: Long) {
     val payment = snapshot.payment
     val membership = snapshot.membership
     val outstanding = payment?.totalOutstanding ?: 0.0
     val due = outstanding > 0.0
     val lifecycle = payment?.lifecycle
+    // Only a real, settled payment may claim "Paid". A missing payment record or an
+    // outstanding balance of zero with no settled record is explicitly not "Paid".
     val (stateLabel, stateFg) = when {
         due && lifecycle == PaymentLifecycle.OVERDUE -> "Overdue" to CardPalette.Coral
         due -> "Payment Due" to CardPalette.Coral
         lifecycle == PaymentLifecycle.FAILED -> "Failed" to CardPalette.Coral
-        lifecycle == PaymentLifecycle.PAID || outstanding <= 0.0 -> "Paid · On Time" to CardPalette.Mint
+        lifecycle == PaymentLifecycle.PARTIAL -> "Partly Paid" to CardPalette.Amber
+        lifecycle == PaymentLifecycle.PAID -> "Paid · On Time" to CardPalette.Mint
+        lifecycle == PaymentLifecycle.REFUNDED -> "Refunded" to CardPalette.Muted
+        lifecycle == PaymentLifecycle.DUE -> "Due" to CardPalette.Muted
+        payment == null -> "No payment record" to CardPalette.Muted
         else -> "Unknown" to CardPalette.Muted
+    }
+    val settled = lifecycle == PaymentLifecycle.PAID && !due
+    val accent = when {
+        due -> CardPalette.Coral
+        settled -> CardPalette.Mint
+        else -> CardPalette.Slate
+    }
+    val stateIcon = when {
+        due -> Icons.Rounded.ErrorOutline
+        settled -> Icons.Rounded.CheckCircle
+        else -> Icons.Rounded.AccessTime
     }
     val headAmount = if (due) MoneyFormat.inr(outstanding) else payment?.lastPaymentAmount?.let { MoneyFormat.inr(it) } ?: "—"
     val dueTarget = if (due) payment?.dueDate else membership?.expiryDate
@@ -666,11 +733,11 @@ private fun PaymentPlanRow(snapshot: MemberSnapshot, now: Long) {
             Modifier
                 .size(17.dp)
                 .clip(CircleShape)
-                .background(if (due) CardPalette.Coral else CardPalette.Mint),
+                .background(accent),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                if (due) Icons.Rounded.ErrorOutline else Icons.Rounded.CheckCircle,
+                stateIcon,
                 contentDescription = stateLabel,
                 tint = Color.White,
                 modifier = Modifier.size(11.dp)
@@ -730,7 +797,7 @@ private fun PaymentPlanRow(snapshot: MemberSnapshot, now: Long) {
         }
         MiniBadge(
             icon = Icons.Rounded.Bolt,
-            label = tierLabel(snapshot.identity.tier),
+            label = planBadgeLabel(snapshot),
             fg = tierFg,
             bg = tierBg
         )
@@ -740,7 +807,7 @@ private fun PaymentPlanRow(snapshot: MemberSnapshot, now: Long) {
 // ------------------------------------------------------------------ attendance + workout
 
 @Composable
-private fun ActivityBlock(snapshot: MemberSnapshot, monthKey: Long) {
+internal fun ActivityBlock(snapshot: MemberSnapshot, monthKey: Long) {
     val days = remember(snapshot.attendanceHistory, snapshot.workoutHistory, monthKey, snapshot.gymSchedule) {
         buildCombinedDays(
             snapshot.attendanceHistory,
@@ -757,7 +824,7 @@ private fun ActivityBlock(snapshot: MemberSnapshot, monthKey: Long) {
     val ceiling = remember(days) { chartCeilingMinutes(days) }
 
     Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.fillMaxWidth()) {
-        ActivityLegend()
+        ActivityLegend(rate)
         CombinedActivityChart(days, ceiling)
         Row(horizontalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.fillMaxWidth()) {
             SummaryPill(
@@ -782,25 +849,45 @@ private fun ActivityBlock(snapshot: MemberSnapshot, monthKey: Long) {
                 modifier = Modifier.weight(1f)
             )
         }
-        AttendanceSummaryRow(breakdown, rate)
+        AttendanceSummaryRow(breakdown)
     }
 }
 
 /**
- * Persistent legend. Attendance (status markers) and workout (minute bars) are
- * visually distinct encodings, never two similar series in the same colour.
+ * Persistent legend plus the month's overall attendance rate.
+ *
+ * Attendance (status markers) and workout (minute bars) are visually distinct
+ * encodings, never two similar series in the same colour. The rate is the honest
+ * closure- and unknown-adjusted figure, so it is labelled rather than being attached
+ * to the `Present` counter (which is a raw count, not a rate).
  */
 @Composable
-private fun ActivityLegend() {
+internal fun ActivityLegend(rate: Int?) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        LegendDot("Present", CardPalette.Mint)
-        LegendDot("Absent", CardPalette.Coral)
-        LegendDot("Off", CardPalette.Slate)
-        LegendDot("Workout", CardPalette.Cobalt)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            LegendDot("Present", CardPalette.Mint)
+            LegendDot("Absent", CardPalette.Coral)
+            LegendDot("Off", CardPalette.Slate)
+            LegendDot("Workout", CardPalette.Cobalt)
+        }
+        Text(
+            rate?.let { "Overall $it%" } ?: "Overall —",
+            color = CardPalette.Mint,
+            fontSize = 4.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            modifier = Modifier.semantics {
+                contentDescription = rate?.let { "Overall attendance rate $it percent" }
+                    ?: "Overall attendance rate unavailable"
+            }
+        )
     }
 }
 
@@ -821,7 +908,7 @@ private fun LegendDot(label: String, color: Color) {
  * both attendance rate and workout averages, so a closure never reads as inactivity.
  */
 @Composable
-private fun CombinedActivityChart(
+internal fun CombinedActivityChart(
     days: List<com.example.badnewgym.feature.memberintelligence.domain.engine.CombinedDay>,
     ceilingMinutes: Int
 ) {
@@ -831,12 +918,12 @@ private fun CombinedActivityChart(
     val labelCount = 7
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().height(40.dp)) {
+        Row(Modifier.fillMaxWidth().height(58.dp)) {
             // Y axis labels.
             Column(
                 Modifier
                     .width(11.dp)
-                    .height(34.dp),
+                    .height(52.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.Start
             ) {
@@ -847,7 +934,7 @@ private fun CombinedActivityChart(
             Canvas(
                 Modifier
                     .weight(1f)
-                    .height(34.dp)
+                    .height(52.dp)
                     .semantics {
                         contentDescription =
                             "Attendance and workout chart: blue bars are recorded workout minutes, the strip marks daily attendance"
@@ -871,10 +958,17 @@ private fun CombinedActivityChart(
                 days.forEachIndexed { index, day ->
                     val centerX = colWidth * (index + 0.5f)
 
-                    // Attendance status strip on the baseline.
+                    // Attendance status strip on the baseline. A gym closure always reads
+                    // as "Off" (slate), never as the faint UNKNOWN grey — an unworked
+                    // closure day is not missing attendance data.
                     val stripTop = size.height - bandHeight.toPx()
+                    val stripColor = if (day.isGymClosed) {
+                        CardPalette.Slate
+                    } else {
+                        CardPalette.attendanceColor(day.attendance)
+                    }
                     drawRoundRect(
-                        color = CardPalette.attendanceColor(day.attendance),
+                        color = stripColor,
                         topLeft = Offset(colWidth * index + colWidth * 0.12f, stripTop),
                         size = Size(colWidth * 0.76f, bandHeight.toPx()),
                         cornerRadius = androidx.compose.ui.geometry.CornerRadius(0.8.dp.toPx())
@@ -989,10 +1083,14 @@ private fun SummaryPill(
 }
 
 @Composable
-private fun AttendanceSummaryRow(
-    breakdown: com.example.badnewgym.feature.memberintelligence.domain.engine.AttendanceBreakdown,
-    rate: Int?
+internal fun AttendanceSummaryRow(
+    breakdown: com.example.badnewgym.feature.memberintelligence.domain.engine.AttendanceBreakdown
 ) {
+    // Every share is taken against the whole month. The four buckets partition the
+    // month's days, so they can never sum above 100%; using the operating-day count
+    // for `off` would be wrong, because closures are exactly what `operatingDays`
+    // excludes.
+    val monthDays = breakdown.monthDays
     Row(
         Modifier
             .fillMaxWidth()
@@ -1002,10 +1100,10 @@ private fun AttendanceSummaryRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        SummaryCell(Icons.Rounded.CalendarMonth, CardPalette.Mint, "${breakdown.present}", "Present", rate)
-        SummaryCell(Icons.Rounded.ErrorOutline, CardPalette.Coral, "${breakdown.absent}", "Absent", percentOf(breakdown.absent, breakdown.operatingDays))
-        SummaryCell(Icons.Rounded.AccessTime, CardPalette.Slate, "${breakdown.off}", "Off", percentOf(breakdown.off, breakdown.operatingDays))
-        SummaryCell(Icons.Rounded.AccessTime, CardPalette.Amber, "${breakdown.late}", "Late", percentOf(breakdown.late, breakdown.operatingDays))
+        SummaryCell(Icons.Rounded.CalendarMonth, CardPalette.Mint, "${breakdown.present}", "Present", percentOf(breakdown.present, monthDays))
+        SummaryCell(Icons.Rounded.ErrorOutline, CardPalette.Coral, "${breakdown.absent}", "Absent", percentOf(breakdown.absent, monthDays))
+        SummaryCell(Icons.Rounded.AccessTime, CardPalette.Slate, "${breakdown.off}", "Off", percentOf(breakdown.off, monthDays))
+        SummaryCell(Icons.Rounded.AccessTime, CardPalette.Amber, "${breakdown.late}", "Late", percentOf(breakdown.late, monthDays))
     }
 }
 
@@ -1039,7 +1137,7 @@ private fun SummaryCell(icon: ImageVector, tint: Color, value: String, label: St
 // ------------------------------------------------------------------ section chrome
 
 @Composable
-private fun CardSectionBox(
+internal fun CardSectionBox(
     modifier: Modifier = Modifier,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
 ) {
@@ -1056,7 +1154,7 @@ private fun CardSectionBox(
 }
 
 @Composable
-private fun CardSectionHeader(
+internal fun CardSectionHeader(
     icon: ImageVector,
     iconTint: Color,
     iconPale: Color,
