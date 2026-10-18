@@ -1,9 +1,9 @@
 # BAD GYM — Current Task
 
-**Task:** Implement the user-supplied dark-theme Member Intelligence dashboard reference.
-**Branch:** `member-dashboard-dark-reference`
-**Base:** `main` (PRs #6/#7/#8/#9 merged; latest `773eea0`).
-**Status:** Dark re-theme implemented and device-verified on Aman BG305 — navy shell (page/header/member card/rail), Body Stats above Payment, compact Payment block with history moved to the "View Detailed Analytics" dialog, ring-left Attendance and full-width Workout with real join-bounded month navigation, workout stat tiles below the chart. `clean testDebugUnitTest assembleDebug` green: **56 tests / 0 failures**. Device evidence: `OPPO/pulled_screens/fin_top.png`, `fin_bot2.png`, `fin_dlg2.png`, `dk6.png` (Sept attendance empty state), `dk7.png` (Sept workout records). PR pending.
+**Task:** Start Member Intelligence from a new design (previous card/dashboard deleted; blank white screen in its place).
+**Branch:** `member-intelligence-reset` (tag `pre-mi-reset` @ `e8b75ce` restores the previous work).
+**Base:** `main` (`e8b75ce`, PR #10 merged).
+**Status:** Previous member intelligence presentation **deleted** — the entire `presentation/components` package and `preview` screens were removed (39 files). `MemberIntelligenceScreen` is now a blank white `Box` so the route/navigation contract survives for the new design. Domain/engine/data layers and the `MemberScenarios` fixture are **retained** (still used by `StubMemberRepositoryImpl` and `AmanReferenceScenarioTest`), so the app stays buildable and a new design can reuse real derived data. Zero dangling references to deleted components.
 
 ## Goal
 Deliver a premium native Android Member Intelligence experience that lets a gym owner quickly understand member identity, plan status, payment state, attendance behavior, workout consistency and body-progress trends. The reference must become real Compose UI connected to actual domain/repository data, not a screenshot background or decorative mockup.
