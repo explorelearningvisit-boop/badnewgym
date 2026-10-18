@@ -6,8 +6,14 @@ data class PaymentTransaction(
     val occurredAt: Long,
     val method: String,
     val purpose: String? = null,
-    val invoiceId: String? = null
+    val invoiceId: String? = null,
+    val timeliness: PaymentTimeliness = PaymentTimeliness.UNKNOWN,
+    val planUpgraded: Boolean = false
 )
+
+enum class PaymentTimeliness {
+    ON_TIME, LATE, VERY_LATE, UNKNOWN
+}
 
 data class PaymentBreakdownLine(
     val label: String,

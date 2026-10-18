@@ -3,6 +3,12 @@ package com.example.badnewgym.feature.memberintelligence.preview.scenarios
 import com.example.badnewgym.feature.memberintelligence.design.MediaAssets
 import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceSummary
+import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDay
+import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDayStatus
+import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDay
+import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDayStatus
+import com.example.badnewgym.feature.memberintelligence.domain.model.BodyMeasurement
+import java.util.Calendar
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventSource
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
 import com.example.badnewgym.feature.memberintelligence.domain.model.IssueSeverity
@@ -15,6 +21,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MembershipT
 import com.example.badnewgym.feature.memberintelligence.domain.model.NutritionSummary
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentBreakdownLine
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentLifecycle
+import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTimeliness
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentSummary
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTransaction
 import com.example.badnewgym.feature.memberintelligence.domain.model.ServiceSummary
@@ -24,6 +31,21 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSumm
 
 object MemberScenarios {
     private const val DAY = 86_400_000L
+
+    /** One selectable demo member for the header search. Codes match StubMemberRepositoryImpl keys. */
+    data class DemoMember(val code: String, val name: String)
+
+    /** Roster exposed to the dashboards search dialog in the stub build only. */
+    val demoRoster: List<DemoMember> = listOf(
+        DemoMember("BG204", "Yash Singh"),
+        DemoMember("BG105", "Arjun Mehta"),
+        DemoMember("BG310", "Riya Kapoor"),
+        DemoMember("BG407", "Neha Sharma"),
+        DemoMember("BG001", "Kabir Khan"),
+        DemoMember("BG220", "Aarav Patel"),
+        DemoMember("BG330", "Rohan Verma"),
+        DemoMember("BG502", "Simran Kaur")
+    )
 
     fun getScenarioForTheme(
         theme: ThemeId,
@@ -41,6 +63,84 @@ object MemberScenarios {
         }
     }
 
+    // Analytics below are deterministic demo fixtures for the StubMemberRepository only.
+    // Production repositories must map persisted daily logs and measurements instead.
+    private fun demoAttendanceHistory(now: Long): List<AttendanceDay> {
+        val start = Calendar.getInstance().apply {
+            timeInMillis = now
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val today = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_MONTH)
+        val daysInMonth = Calendar.getInstance().apply { timeInMillis = now }.getActualMaximum(Calendar.DAY_OF_MONTH)
+        return (1..daysInMonth).map { day ->
+            val date = (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            val status = when {
+                day > today -> AttendanceDayStatus.UNKNOWN
+                // Two absents (day 3 and 11 outside the current streak) keep the
+                // marked ledger equal to the summary above: 14 present + 2 late = 16 visits.
+                day % 11 == 0 || day == 3 -> AttendanceDayStatus.ABSENT
+                day % 7 == 0 -> AttendanceDayStatus.LATE
+                else -> AttendanceDayStatus.PRESENT
+            }
+            AttendanceDay(date, status)
+        }
+    }
+
+    // Current month + the previous month, so month-over-month change is computable
+    // from real history instead of a hardcoded percentage.
+    private fun demoWorkoutHistory(now: Long): List<WorkoutDay> {
+        val current = Calendar.getInstance().apply {
+            timeInMillis = now
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val today = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_MONTH)
+        val daysInMonth = Calendar.getInstance().apply { timeInMillis = now }.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val currentDays = (1..daysInMonth).map { day ->
+            val date = (current.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            when {
+                day > today -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
+                day % 4 == 0 -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
+                day % 6 == 0 -> WorkoutDay(date, 0, WorkoutDayStatus.CONFIRMED_NO_WORKOUT)
+                else -> WorkoutDay(date, listOf(28, 36, 42, 51, 64, 47, 33)[day % 7], WorkoutDayStatus.RECORDED)
+            }
+        }
+        val previous = (current.clone() as Calendar).apply { add(Calendar.MONTH, -1) }
+        val daysInPrevious = previous.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val previousDays = (1..daysInPrevious).map { day ->
+            val date = (previous.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            when {
+                day % 5 == 0 -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
+                day % 7 == 0 -> WorkoutDay(date, 0, WorkoutDayStatus.CONFIRMED_NO_WORKOUT)
+                else -> WorkoutDay(date, listOf(24, 31, 39, 45, 57, 41, 29)[day % 7], WorkoutDayStatus.RECORDED)
+            }
+        }
+        return previousDays + currentDays
+    }
+
+    private fun demoBodyProgress(now: Long): List<BodyMeasurement> {
+        val weight = listOf(73.0, 72.4, 71.8, 71.2, 70.3, 69.8)
+        val muscle = listOf(54.8, 55.1, 55.5, 56.0, 56.4, 56.9)
+        val fat = listOf(20.8, 20.1, 19.5, 19.0, 18.4, 17.9)
+        val bmi = listOf(24.1, 23.9, 23.7, 23.5, 23.2, 23.0)
+        return weight.indices.map { index ->
+            BodyMeasurement(
+                date = now - DAY * 30L * (weight.lastIndex - index),
+                weightKg = weight[index],
+                muscleKg = muscle[index],
+                bodyFatPercent = fat[index],
+                bmi = bmi[index]
+            )
+        }
+    }
+
     // 1. Yash Singh (BG204) - NATURAL FRESH
     fun naturalFreshYash(now: Long = System.currentTimeMillis()): Pair<MemberSnapshot, MemberEvent> {
         val snapshot = MemberSnapshot(
@@ -52,7 +152,9 @@ object MemberScenarios {
                 tier = MembershipTier.PREMIUM,
                 memberSince = now - DAY * 365,
                 code = "BG204",
-                isVerified = true
+                isVerified = true,
+                goal = "Muscle Gain",
+                branchName = "Varanasi Main"
             ),
             membership = MembershipStatus(
                 planName = "Gold Plan",
@@ -84,7 +186,23 @@ object MemberScenarios {
                 lifetimePaid = 22_200.0,
                 lifecycle = PaymentLifecycle.OVERDUE,
                 breakdown = listOf(PaymentBreakdownLine("Gold Plan Due", 4500.0)),
-                history = listOf(PaymentTransaction("p1", 1400.0, now - DAY * 28, "UPI", "Plan"))
+                // Twelve-month chart fixture belongs only to this stub scenario.
+                history = listOf(1400.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 1800.0, 2800.0)
+                    .mapIndexed { index, amount ->
+                        PaymentTransaction(
+                            id = "demo_payment_$index",
+                            amount = amount,
+                            occurredAt = now - DAY * (28L + index * 30L),
+                            method = "UPI",
+                            purpose = "Membership",
+                            timeliness = when (index) {
+                                2, 8 -> PaymentTimeliness.LATE
+                                4 -> PaymentTimeliness.VERY_LATE
+                                else -> PaymentTimeliness.ON_TIME
+                            },
+                            planUpgraded = index == 5
+                        )
+                    }
             ),
             trainer = TrainerSummary("Vikas Yadav", MediaAssets.TRAINER_VIKAS, 12, 7, now + DAY, "Chest & Triceps", now - DAY * 2),
             workout = WorkoutSummary(now - DAY, "Functional Fitness", 60),
@@ -92,7 +210,10 @@ object MemberScenarios {
             nutrition = NutritionSummary(true, "BAD GYM Nutrition", now + DAY * 20, 2000.0),
             services = listOf(ServiceSummary("Locker L12", true, now + DAY * 45, 500.0)),
             recentEvents = listOf(MemberEvent("e1", "1", "gym1", EventType.CHECK_IN, now, EventSource.GATE)),
-            issues = listOf(MemberIssue("i1", "Payment Due: ₹4,500 (3 days overdue)", IssueSeverity.HIGH))
+            issues = listOf(MemberIssue("i1", "Payment Due: ₹4,500 (3 days overdue)", IssueSeverity.HIGH)),
+            attendanceHistory = demoAttendanceHistory(now),
+            workoutHistory = demoWorkoutHistory(now),
+            bodyProgress = demoBodyProgress(now)
         )
         val event = MemberEvent("live_1", "1", "gym1", EventType.CHECK_IN, now, EventSource.GATE)
         return snapshot to event

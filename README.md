@@ -1,58 +1,43 @@
-# BAD GYM — Visit Based Member Card System
+# BAD GYM — Member Intelligence
 
-BAD GYM is an Android Jetpack Compose gym-management application centered on a **Visit Based Member Card**.
+**Single starting point: [PULL_AND_RUN.md](PULL_AND_RUN.md).**
 
-## Current implementation contract
+This repository contains the BAD GYM native Android app and the Member Intelligence implementation handoff for AI coding agents.
 
-The production workflow is now reference-image driven:
+## One-command setup (Windows PowerShell)
 
-**reference image → atomic decomposition → component implementation → build → device screenshot → visual comparison → correction → verification → next component → full integration → logic/state verification → regression**
+First install Git, Android Studio/Android SDK and the compatible JDK. Install OpenCode if you want the launcher to start the coding agent.
 
-The complete Google Antigravity execution contract is:
-
-`docs/reference/ANTIGRAVITY_END_TO_END_CONTRACT.md`
-
-Google Antigravity must not implement a supplied reference image as one approximate pass.
-
-## Current member-card renderer
-
-The old eight-theme card presentation and old 360dp/3:4/four-column documentation are retired/stale.
-
-The current renderer uses:
-
-- full available mobile viewport
-- approximately 420dp maximum content width
-- light premium Material surface
-- emerald/blue/red/amber/purple semantic accents
-- compact header
-- vertical rail navigation
-- Home command-center content
-- compact visit/payment/attendance information
-- event/visit-driven widget resolution
-- server-authoritative commercial entitlements
-
-Primary implementation:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/PixelPerfectMemberCard.kt`
-
-Domain:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/VisitWidgetSystem.kt`
-
-Server access contract:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/GymWidgetAccess.kt`
-
-Tests:
-
-`app/src/test/java/com/example/badnewgym/feature/memberintelligence/domain/engine/VisitWidgetConditionResolverTest.kt`
-
-## Build
-
-```bash
-./gradlew clean testDebugUnitTest assembleDebug
+```powershell
+git clone --branch member-intelligence-reference-dashboard --single-branch https://github.com/explorelearningvisit-boop/badnewgym.git
+Set-Location badnewgym
+.\tools\pull-and-start-agent.ps1
 ```
 
-## Scope
+This pulls the feature branch, checks required instruction files, warns if the canonical reference image is missing, and starts OpenCode with an explicit read-everything-first prompt. If OpenCode is not installed, the script reports that and leaves the repository ready to open in another coding agent.
 
-BAD GYM changes must remain inside BAD GYM application/test/documentation paths. Do not modify unrelated OPPO/mobile-control tooling or Banaras Tour Gold / Manchester-company work.
+After the agent's code changes, build/test/install the app with:
+
+```powershell
+.\tools\pull-and-run-member-intelligence.ps1
+```
+
+## Important links
+
+- [One-entry setup, complete read order, assets and build/run workflow](PULL_AND_RUN.md)
+- [AI agent start-here instructions](BAD_GYM_AGENT_START_HERE.md)
+- [Product/business/user context](docs/BAD_GYM_PRODUCT_AND_USER_CONTEXT.md)
+- [Hyper-detailed implementation blueprint](docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_HYPERDETAILED_IMPLEMENTATION_BLUEPRINT.md)
+- [Pixel-perfect acceptance checklist](docs/PIXEL_PERFECT_ACCEPTANCE.md)
+- [Pull/build/run guide](docs/OPEN_CODE_PULL_AND_RUN.md)
+- [Draft PR #6](https://github.com/explorelearningvisit-boop/badnewgym/pull/6)
+
+## Branch and verification status
+
+The current work is on `member-intelligence-reference-dashboard`, not `main`. Do not expect this work on `main` until the draft PR is reviewed and merged.
+
+The exact approved 921×1536 JPEG reference is required at `docs/reference/assets/member-intelligence-full-screen-reference.jpg`. Documentation indicates that this binary has not yet been committed. The one-command launcher warns if it is absent. Build/runtime and pixel-comparison verification must be performed and recorded before describing the result as production-ready.
+
+## Product boundaries
+
+Use Kotlin + Jetpack Compose and inspect existing architecture before changing dependencies. Preserve the V4 event/domain/entitlement behavior, use real data, avoid repeated metrics and false payment/attendance claims, keep the UI light and mobile-first, and do not modify unrelated projects.

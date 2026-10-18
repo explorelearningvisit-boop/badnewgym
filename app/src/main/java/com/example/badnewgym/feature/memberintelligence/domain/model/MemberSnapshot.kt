@@ -17,7 +17,10 @@ data class MemberSnapshot(
     val recentEvents: List<MemberEvent> = emptyList(),
     val issues: List<MemberIssue> = emptyList(),
     val promotion: PromotionSlot? = null,
-    val membershipHistory: List<MembershipHistory> = emptyList()
+    val membershipHistory: List<MembershipHistory> = emptyList(),
+    val attendanceHistory: List<AttendanceDay> = emptyList(),
+    val workoutHistory: List<WorkoutDay> = emptyList(),
+    val bodyProgress: List<BodyMeasurement> = emptyList()
 )
 
 data class MembershipHistory(
@@ -32,7 +35,11 @@ data class MemberIdentity(
     val tier: MembershipTier,
     val memberSince: Long,
     val code: String? = null,
-    val isVerified: Boolean = false
+    val isVerified: Boolean = false,
+    /** Optional target declared by the member, e.g. "Muscle Gain". Displays only when present. */
+    val goal: String? = null,
+    /** Optional home branch of the member. Displays only when present. */
+    val branchName: String? = null
 )
 
 enum class MembershipTier {
@@ -131,3 +138,34 @@ data class MemberIssue(
 enum class IssueSeverity {
     LOW, MEDIUM, HIGH, CRITICAL
 }
+
+
+/** One source-backed attendance state for a local gym calendar date. */
+data class AttendanceDay(
+    val date: Long,
+    val status: AttendanceDayStatus
+)
+
+enum class AttendanceDayStatus {
+    PRESENT, ABSENT, LATE, HOLIDAY, CLOSED, UNKNOWN
+}
+
+/** Daily workout aggregate. null duration means unknown, not zero. */
+data class WorkoutDay(
+    val date: Long,
+    val durationMinutes: Int?,
+    val status: WorkoutDayStatus = WorkoutDayStatus.RECORDED
+)
+
+enum class WorkoutDayStatus {
+    RECORDED, CONFIRMED_NO_WORKOUT, UNKNOWN
+}
+
+/** A real measurement point. Optional values allow different gym measurement devices. */
+data class BodyMeasurement(
+    val date: Long,
+    val weightKg: Double? = null,
+    val muscleKg: Double? = null,
+    val bodyFatPercent: Double? = null,
+    val bmi: Double? = null
+)
