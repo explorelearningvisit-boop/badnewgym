@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.design.MemberCardTokens
 import com.example.badnewgym.feature.membercard.domain.model.AttendanceSectionData
+import com.example.badnewgym.feature.membercard.domain.model.CalendarDay
 import com.example.badnewgym.feature.membercard.domain.model.DayAttendanceStatus
 
 @Composable
@@ -44,6 +45,7 @@ fun AttendanceCalendarSection(
     data: AttendanceSectionData,
     onPrevMonth: () -> Unit = {},
     onNextMonth: () -> Unit = {},
+    onDayClick: (CalendarDay) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -231,7 +233,11 @@ fun AttendanceCalendarSection(
                         ) {
                             week.forEach { day ->
                                 Column(
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .clickable { onDayClick(day) }
+                                        .padding(vertical = 2.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     // Status Dot

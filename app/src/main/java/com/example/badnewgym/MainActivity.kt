@@ -14,8 +14,11 @@ import com.example.badnewgym.deviceagent.DeviceAgentForegroundService
 import com.example.badnewgym.deviceagent.DeviceAgentRuntime
 
 class MainActivity : ComponentActivity() {
+    private val initialSheetState = androidx.compose.runtime.mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleSheetIntent(intent)
         DeviceAgentRuntime.attach(this)
         enableEdgeToEdge(
             statusBarStyle = androidx.activity.SystemBarStyle.light(
@@ -46,8 +49,19 @@ class MainActivity : ComponentActivity() {
             }
         }
         setContent {
-            com.example.badnewgym.feature.membercard.presentation.MemberCheckInScreen()
+            com.example.badnewgym.feature.membercard.presentation.MemberCheckInScreen(
+                initialSheet = initialSheetState.value
+            )
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleSheetIntent(intent)
+    }
+
+    private fun handleSheetIntent(intent: Intent?) {
+        initialSheetState.value = intent?.getStringExtra("sheet")
     }
 
     override fun onDestroy() {

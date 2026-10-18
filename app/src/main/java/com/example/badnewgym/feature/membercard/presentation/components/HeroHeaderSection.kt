@@ -55,6 +55,7 @@ import com.example.badnewgym.feature.membercard.domain.model.MemberProfile
 @Composable
 fun HeroHeaderSection(
     profile: MemberProfile,
+    selectedTab: String = "Overview",
     onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
@@ -520,11 +521,11 @@ fun HeroHeaderSection(
 
             // 4. Horizontal Navigation Tabs
             val tabs = listOf(
-                "Overview" to true,
-                "Payment" to false,
-                "Attendance" to false,
-                "Workout" to false,
-                "Progress" to false
+                "Overview",
+                "Payment",
+                "Attendance",
+                "Workout",
+                "Progress"
             )
             val scrollState = rememberScrollState()
 
@@ -534,7 +535,8 @@ fun HeroHeaderSection(
                     .horizontalScroll(scrollState),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                tabs.forEach { (title, isSelected) ->
+                tabs.forEach { title ->
+                    val isSelected = (title == selectedTab)
                     val bg = if (isSelected) Color(0xFF10B981) else Color(0x25FFFFFF)
                     val border = if (isSelected) Color(0xFF00E676) else Color(0x20FFFFFF)
 
