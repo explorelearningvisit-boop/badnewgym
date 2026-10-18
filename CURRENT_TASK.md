@@ -1,9 +1,9 @@
 # BAD GYM — Current Task
 
-**Task:** Implement and verify the latest user-supplied full Member Intelligence dashboard reference (Aman Tripathi).
-**Branch:** `member-dashboard-reference-final`
-**Base:** `main` (PRs #6/#7/#8 merged; latest `f2540f7`).
-**Status:** Final reference-delta pass implemented, clean-built (53 tests green) and device-verified on Aman BG305. Rail glyphs, payment tiles/chip, plan-upgrade marker, workout stat width and active avatar ring now match the supplied artwork. Component map: `docs/reference/AMAN_DASHBOARD_COMPONENT_MAP.md`; latest captures `OPPO/pulled_screens/reffinal_top.png` and `reffinal_bottom.png`.
+**Task:** Implement the user-supplied dark-theme Member Intelligence dashboard reference.
+**Branch:** `member-dashboard-dark-reference`
+**Base:** `main` (PRs #6/#7/#8/#9 merged; latest `773eea0`).
+**Status:** Dark re-theme implemented and device-verified on Aman BG305 — navy shell (page/header/member card/rail), Body Stats above Payment, compact Payment block with history moved to the "View Detailed Analytics" dialog, ring-left Attendance and full-width Workout with real join-bounded month navigation, workout stat tiles below the chart. `clean testDebugUnitTest assembleDebug` green: **56 tests / 0 failures**. Device evidence: `OPPO/pulled_screens/fin_top.png`, `fin_bot2.png`, `fin_dlg2.png`, `dk6.png` (Sept attendance empty state), `dk7.png` (Sept workout records). PR pending.
 
 ## Goal
 Deliver a premium native Android Member Intelligence experience that lets a gym owner quickly understand member identity, plan status, payment state, attendance behavior, workout consistency and body-progress trends. The reference must become real Compose UI connected to actual domain/repository data, not a screenshot background or decorative mockup.
@@ -13,14 +13,14 @@ Use the latest user-supplied image from the conversation plus:
 - `docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_HYPERDETAILED_IMPLEMENTATION_BLUEPRINT.md`
 - `docs/PIXEL_PERFECT_ACCEPTANCE.md`
 
-The reference contains: brand/header, member identity and membership ring, horizontal navigation, Payment & Plan with 12-month payment history, attendance calendar, monthly workout trend, and body progress metrics. It is a long mobile dashboard; implement it as a scrollable responsive screen rather than compressing the entire image into a tiny card.
+The current reference is the user-attached **dark-theme** full-screen dashboard (not committed to the repo): navy shell, "Good Morning 👋" member card with green progress ring, pill nav rail (Overview active in green), then **Body Stats → Payment & Plan → Attendance → Workout Trend** order, month navigation arrows on Attendance/Workout, workout stat tiles (Avg/Peak/Lowest) under a full-width chart, and a "View Detailed Analytics" action at the bottom. It is a long mobile dashboard; implement it as a scrollable responsive screen rather than compressing the entire image into a tiny card.
 
 The exact reference screenshot is 921×1536 pixels, portrait ratio 0.600, and is committed at `docs/reference/assets/member-intelligence-full-screen-reference.jpg` (with `docs/reference/assets/manifest.md`) for repeatable comparison. This new full-screen screenshot supersedes the older V4 reference canvas of 691×1536 for this expanded-dashboard task only. Measure runtime dp dimensions separately; pixel dimensions are not dp.
 
 ## Architecture integration decision
 Existing V4 documentation defines a compact event-first canonical visit/member card. The active UI now follows the user-approved full dashboard reference with a compact Aman-style member header. At the user's explicit request, the former `PixelPerfectMemberCard` presentation component was removed and its preview hosts now render `MemberSummaryCard`; domain engines, event priority, repository/ViewModel flows, privacy and entitlement rules remain intact.
 
-The latest user reference supersedes older visual assumptions for this expanded dashboard only. Keep the visual language light, mint/white/emerald-led, with coral/red urgent states, blue workout/info, purple body-progress and gold plan accents. No black/dark-heavy background.
+The latest user reference supersedes older visual assumptions for this expanded dashboard only. **Decision (current reference):** the user explicitly supplied a dark-theme reference (deep navy shell, white data cards, green/blue/purple/red accents) and asked to implement it — the dashboard shell (page, header, member card, nav rail) is now dark navy with white section cards; the old "light/mint only, no dark background" rule is retired for this screen. Section accents stay: green attendance/active, red payment, blue workout, purple body stats, gold plan.
 
 ## Required regions
 1. Compact BAD GYM application header.

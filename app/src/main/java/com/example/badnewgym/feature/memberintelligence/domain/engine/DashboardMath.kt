@@ -85,6 +85,42 @@ object DashboardMath {
     fun daysInMonth(now: Long): Int = Calendar.getInstance().apply { timeInMillis = now }
         .getActualMaximum(Calendar.DAY_OF_MONTH)
 
+    /** Column offset (0..6, Sunday = 0) that the 1st of an arbitrary month key occupies. */
+    fun firstWeekdayOffsetForMonth(monthKey: Long): Int {
+        val calendar = monthCalendar(monthKey)
+        return when (calendar.get(Calendar.DAY_OF_WEEK)) {
+            Calendar.SUNDAY -> 0
+            Calendar.MONDAY -> 1
+            Calendar.TUESDAY -> 2
+            Calendar.WEDNESDAY -> 3
+            Calendar.THURSDAY -> 4
+            Calendar.FRIDAY -> 5
+            else -> 6
+        }
+    }
+
+    fun daysInMonthForMonth(monthKey: Long): Int =
+        monthCalendar(monthKey).getActualMaximum(Calendar.DAY_OF_MONTH)
+
+    /** Counts of each status inside an arbitrary month key. */
+    fun statusCountsForMonth(days: List<AttendanceDay>, key: Long): Map<AttendanceDayStatus, Int> {
+        val counted = days
+            .filter { monthKey(it.date) == key }
+            .groupingBy { it.status }
+            .eachCount()
+        return AttendanceDayStatus.entries.associateWith { counted[it] ?: 0 }
+    }
+
+    private fun monthCalendar(monthKey: Long): Calendar {
+        val year = (monthKey / 12).toInt()
+        val month = (monthKey % 12).toInt()
+        return Calendar.getInstance().apply {
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month)
+            set(Calendar.DAY_OF_MONTH, 1)
+        }
+    }
+
     // ------------------------------------------------------------------ workout
 
     enum class WorkoutBucket { ABOVE_AVERAGE, BELOW_AVERAGE, NO_WORKOUT, NO_RECORD }

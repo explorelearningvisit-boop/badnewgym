@@ -21,7 +21,7 @@ Use this as a test record. Check an item only after evidence exists. A build pas
 - [ ] Long member names, localized dates and large currency values tested. *(Dates (Sept/Oct labels) and currency (₹1.8k bars, ₹26,700 lifetime, ₹28,000 receipt) verified; long-name stress not in device captures.)*
 
 ## C. Visual language
-- [x] Light mint/white/pale-blue surfaces; no dark-heavy background.
+- [x] **Dark reference direction (current):** deep-navy page shell (`#0A1B3B`), dark header/member-card/nav-rail surfaces, white-to-off-white (`#F8FBFF`) section cards. The earlier "light mint/white only, no dark background" rule was retired for this screen when the user supplied the dark reference; white cards remain the data surfaces.
 - [x] Emerald success, coral-red urgent/payment, amber caution, blue workout/info, purple body-progress, gold plan upgrade.
 - [x] Text contrast is readable and semantic color is not the only state signal.
 - [x] Icons are from a consistent family and aligned to a consistent grid.
@@ -153,3 +153,14 @@ If a device or screenshot tool is unavailable, mark that check BLOCKED. Do not m
 - **Build/test:** `gradlew.bat clean testDebugUnitTest assembleDebug` → BUILD SUCCESSFUL in 3m 33s; 53 tests / 0 failures.
 - **Intentional differences kept:** payment legend says "No transaction" (not "Missed"); workout bars are derived from dated records so heights are honest rather than artistically varied; attendance counts reflect real October records; header badge appears only when the member actually has issues. Fixture dates remain relative to the current date, so ranges like "4 Aug – 12 Nov 2026" drift with the demo clock rather than hardcoding artwork dates.
 - **Still unverified:** 320/360dp width morph (MIUI `wm size` blocked), 1.3× font scale, expiring/expired visuals. No pixel-perfect claim.
+
+### 2026-10-18 — dark-theme reference pass
+
+- **Branch:** `member-dashboard-dark-reference`, based on merged `main` (`773eea0` / content `6c9838f`).
+- **Direction:** the user attached a new dark-theme dashboard reference and asked to implement it, superseding the earlier "light surfaces only" visual rule for this screen (recorded in `CURRENT_TASK.md` § Visual source). Page shell, header, member card and nav rail are deep navy (`#0A1B3B`); section cards remain light data surfaces.
+- **Restructure:** Body Stats now precedes Payment & Plan (section constants + LazyColumn order + nav-scroll keys updated together); Attendance is ring-left / counts-middle / calendar-right; Workout is a full-width chart with Avg/Peak/Lowest stat tiles below; the 12-month payment history moved out of the Payment block into a new "View Detailed Analytics" dialog (also carries attendance counts, workout MoM and body deltas).
+- **New real interactions:** month browsing on Attendance and Workout (bounded join-month → current-month, arrows disable at bounds, driven by new `DashboardMath` month-key helpers with 4 unit tests); time-of-day greeting in the member card; Next Due leads with the date + relative-days chip per reference. No control renders dead: the reference's Body Stats chevron and plan-chip chevron are omitted (commented in source) because no such flows exist.
+- **Honesty kept:** browsing a month without records shows "No records for …" with an em-dash ring (never 0%); the dialog attendance line lists only categories that exist (no "Holiday 0"); workout legend and "never drawn as 0" note retained; bell badge hidden at zero issues (reference shows "3").
+- **Device captures:** `OPPO/pulled_screens/fin_top.png` (shell + member card + Body Stats + Payment + Attendance header), `fin_bot2.png` (Payment full, Attendance, Workout tiles, legend, analytics button), `fin_dlg2.png` (analytics dialog), plus `dk6.png` (Attendance → Sept 2026 honest empty month) and `dk7.png` (Workout → Sept 2026 with real records). Redmi 21091116I, 1080×2400 @ ~440dpi ≡ ≈393dp, default font scale.
+- **Build/test:** `gradlew.bat clean testDebugUnitTest assembleDebug` → BUILD SUCCESSFUL (clean pass 4m 16s; follow-up fix pass 1m 14s); 56 tests / 0 failures.
+- **Still unverified:** 320/360dp width morph (MIUI `wm size` blocked), 1.3× font scale, expiring/expired visuals. No pixel-perfect claim; the reference is a stylized artwork, so card spacing and bar heights follow our honest data rather than being stretched to match.
