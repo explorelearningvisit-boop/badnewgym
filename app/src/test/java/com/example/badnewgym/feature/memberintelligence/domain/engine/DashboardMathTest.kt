@@ -60,6 +60,18 @@ class DashboardMathTest {
     }
 
     @Test
+    fun `days remaining rounds a partial future day up`() {
+        val now = october2026(1)
+        val membership = MembershipStatus(
+            planName = "Prime Plan", planType = "100 Days",
+            startDate = now - DashboardMath.DAY_MS * 75,
+            expiryDate = now + DashboardMath.DAY_MS * 25 - 1,
+            daysRemaining = 25, isActive = true
+        )
+        assertEquals(25, DashboardMath.daysRemaining(membership, now))
+    }
+
+    @Test
     fun `membership without plan is treated as zero elapsed`() {
         assertEquals(0, DashboardMath.elapsedPercent(null, october2026(1)))
     }

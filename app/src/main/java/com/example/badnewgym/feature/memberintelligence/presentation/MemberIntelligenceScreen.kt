@@ -37,7 +37,7 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loadMemberData("BG204", "gym1")
+        viewModel.loadMemberData("BG305", "gym1")
     }
 
     LaunchedEffect(viewModel) {

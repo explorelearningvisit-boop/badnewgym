@@ -1,9 +1,9 @@
 # BAD GYM — Current Task
 
-**Task:** Implement and verify the latest user-supplied full-screen Member Intelligence reference.
-**Branch:** `member-intelligence-reference-dashboard`
-**Review:** https://github.com/explorelearningvisit-boop/badnewgym/pull/6
-**Status:** Milestone verified: full-screen dashboard rebuilt and live on device (commit a020f9d), acceptance build + 51 unit tests green, real payment/member/dialog/chip flows captured on screen, compared against the committed reference. Remaining honest gaps and narrow-width checks are listed in `docs/PIXEL_PERFECT_ACCEPTANCE.md` (evidence record 2026-10-18). PR stays draft.
+**Task:** Implement and verify the latest user-supplied full Member Intelligence dashboard reference (Aman Tripathi).
+**Branch:** `member-summary-card`
+**Base:** `main` (prior dashboard PR #6 merged at `facb56f`).
+**Status:** Implemented, clean-built and device-verified on Aman BG305 (52 tests green). The former `PixelPerfectMemberCard` UI is removed at user request. Evidence: `docs/PIXEL_PERFECT_ACCEPTANCE.md` (2026-10-18 follow-up record); final captures `OPPO/pulled_screens/ref_final2_top.png`, `ref_final2_bottom.png`, and `ref_receipt.png`.
 
 ## Goal
 Deliver a premium native Android Member Intelligence experience that lets a gym owner quickly understand member identity, plan status, payment state, attendance behavior, workout consistency and body-progress trends. The reference must become real Compose UI connected to actual domain/repository data, not a screenshot background or decorative mockup.
@@ -18,7 +18,7 @@ The reference contains: brand/header, member identity and membership ring, horiz
 The exact reference screenshot is 921×1536 pixels, portrait ratio 0.600, and is committed at `docs/reference/assets/member-intelligence-full-screen-reference.jpg` (with `docs/reference/assets/manifest.md`) for repeatable comparison. This new full-screen screenshot supersedes the older V4 reference canvas of 691×1536 for this expanded-dashboard task only. Measure runtime dp dimensions separately; pixel dimensions are not dp.
 
 ## Architecture integration decision
-Existing V4 documentation defines a compact event-first canonical visit/member card (approximately 350dp width, preferred 500–540dp height, event-first hero, conditional widgets, server-authoritative entitlements). The new full-screen reference is an expanded dashboard surface and may be taller/scrollable. Preserve the existing compact canonical card component, event priority/domain engine, repository/ViewModel patterns, privacy, and entitlement rules. Current branch wires `MemberIntelligenceScreen.kt` to `ReferenceMemberIntelligenceDashboard` as the active screen; `PixelPerfectMemberCard.kt` remains in the repository. Verify whether the product flow needs an explicit route back to the compact canonical card and implement it if required. Do not delete the canonical component or bypass its business rules just to match the screenshot.
+Existing V4 documentation defines a compact event-first canonical visit/member card. The active UI now follows the user-approved full dashboard reference with a compact Aman-style member header. At the user's explicit request, the former `PixelPerfectMemberCard` presentation component was removed and its preview hosts now render `MemberSummaryCard`; domain engines, event priority, repository/ViewModel flows, privacy and entitlement rules remain intact.
 
 The latest user reference supersedes older visual assumptions for this expanded dashboard only. Keep the visual language light, mint/white/emerald-led, with coral/red urgent states, blue workout/info, purple body-progress and gold plan accents. No black/dark-heavy background.
 

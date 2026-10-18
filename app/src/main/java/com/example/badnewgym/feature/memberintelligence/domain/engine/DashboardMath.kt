@@ -8,6 +8,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDay
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDayStatus
 import java.util.Calendar
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /**
@@ -26,7 +27,7 @@ object DashboardMath {
     fun daysRemaining(membership: MembershipStatus?, now: Long): Int {
         if (membership == null) return 0
         val reported = membership.daysRemaining
-        val derived = ((membership.expiryDate - now) / DAY_MS).toInt()
+        val derived = ceil((membership.expiryDate - now).toDouble() / DAY_MS).toInt()
         return maxOf(0, minOf(reported, derived))
     }
 
