@@ -32,6 +32,21 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutSumm
 object MemberScenarios {
     private const val DAY = 86_400_000L
 
+    /** One selectable demo member for the header search. Codes match StubMemberRepositoryImpl keys. */
+    data class DemoMember(val code: String, val name: String)
+
+    /** Roster exposed to the dashboards search dialog in the stub build only. */
+    val demoRoster: List<DemoMember> = listOf(
+        DemoMember("BG204", "Yash Singh"),
+        DemoMember("BG105", "Arjun Mehta"),
+        DemoMember("BG310", "Riya Kapoor"),
+        DemoMember("BG407", "Neha Sharma"),
+        DemoMember("BG001", "Kabir Khan"),
+        DemoMember("BG220", "Aarav Patel"),
+        DemoMember("BG330", "Rohan Verma"),
+        DemoMember("BG502", "Simran Kaur")
+    )
+
     fun getScenarioForTheme(
         theme: ThemeId,
         now: Long = System.currentTimeMillis()
@@ -65,7 +80,9 @@ object MemberScenarios {
             val date = (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
             val status = when {
                 day > today -> AttendanceDayStatus.UNKNOWN
-                day % 11 == 0 -> AttendanceDayStatus.ABSENT
+                // Two absents (day 3 and 11 outside the current streak) keep the
+                // marked ledger equal to the summary above: 14 present + 2 late = 16 visits.
+                day % 11 == 0 || day == 3 -> AttendanceDayStatus.ABSENT
                 day % 7 == 0 -> AttendanceDayStatus.LATE
                 else -> AttendanceDayStatus.PRESENT
             }
@@ -73,8 +90,10 @@ object MemberScenarios {
         }
     }
 
+    // Current month + the previous month, so month-over-month change is computable
+    // from real history instead of a hardcoded percentage.
     private fun demoWorkoutHistory(now: Long): List<WorkoutDay> {
-        val start = Calendar.getInstance().apply {
+        val current = Calendar.getInstance().apply {
             timeInMillis = now
             set(Calendar.DAY_OF_MONTH, 1)
             set(Calendar.HOUR_OF_DAY, 0)
@@ -84,8 +103,8 @@ object MemberScenarios {
         }
         val today = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_MONTH)
         val daysInMonth = Calendar.getInstance().apply { timeInMillis = now }.getActualMaximum(Calendar.DAY_OF_MONTH)
-        return (1..daysInMonth).map { day ->
-            val date = (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+        val currentDays = (1..daysInMonth).map { day ->
+            val date = (current.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
             when {
                 day > today -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
                 day % 4 == 0 -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
@@ -93,6 +112,17 @@ object MemberScenarios {
                 else -> WorkoutDay(date, listOf(28, 36, 42, 51, 64, 47, 33)[day % 7], WorkoutDayStatus.RECORDED)
             }
         }
+        val previous = (current.clone() as Calendar).apply { add(Calendar.MONTH, -1) }
+        val daysInPrevious = previous.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val previousDays = (1..daysInPrevious).map { day ->
+            val date = (previous.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            when {
+                day % 5 == 0 -> WorkoutDay(date, null, WorkoutDayStatus.UNKNOWN)
+                day % 7 == 0 -> WorkoutDay(date, 0, WorkoutDayStatus.CONFIRMED_NO_WORKOUT)
+                else -> WorkoutDay(date, listOf(24, 31, 39, 45, 57, 41, 29)[day % 7], WorkoutDayStatus.RECORDED)
+            }
+        }
+        return previousDays + currentDays
     }
 
     private fun demoBodyProgress(now: Long): List<BodyMeasurement> {
@@ -122,7 +152,9 @@ object MemberScenarios {
                 tier = MembershipTier.PREMIUM,
                 memberSince = now - DAY * 365,
                 code = "BG204",
-                isVerified = true
+                isVerified = true,
+                goal = "Muscle Gain",
+                branchName = "Varanasi Main"
             ),
             membership = MembershipStatus(
                 planName = "Gold Plan",

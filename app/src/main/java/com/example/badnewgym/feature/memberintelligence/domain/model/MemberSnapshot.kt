@@ -35,7 +35,11 @@ data class MemberIdentity(
     val tier: MembershipTier,
     val memberSince: Long,
     val code: String? = null,
-    val isVerified: Boolean = false
+    val isVerified: Boolean = false,
+    /** Optional target declared by the member, e.g. "Muscle Gain". Displays only when present. */
+    val goal: String? = null,
+    /** Optional home branch of the member. Displays only when present. */
+    val branchName: String? = null
 )
 
 enum class MembershipTier {

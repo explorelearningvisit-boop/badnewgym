@@ -14,10 +14,13 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.SignalActio
 import com.example.badnewgym.feature.memberintelligence.domain.model.StubGymWidgetAccessRepository
 import com.example.badnewgym.feature.memberintelligence.domain.model.GymWidgetAccessRepository
 import com.example.badnewgym.feature.memberintelligence.domain.model.VisitWidgetEntitlements
+import com.example.badnewgym.feature.memberintelligence.domain.format.MoneyFormat
 import com.example.badnewgym.feature.memberintelligence.domain.repository.MemberIntelligenceRepository
 import com.example.badnewgym.feature.memberintelligence.data.repository.StubMemberRepositoryImpl
 import com.example.badnewgym.feature.memberintelligence.integration.MemberIntelligenceNavigator
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -32,12 +35,18 @@ class MemberIntelligenceViewModel(
     private val _state = MutableStateFlow<MemberIntelligenceUiState>(MemberIntelligenceUiState.Loading)
     val state: StateFlow<MemberIntelligenceUiState> = _state.asStateFlow()
 
+    /** One-shot user notices (snackbar level) for actions that complete or are not connected. */
+    private val _notices = MutableSharedFlow<String>(extraBufferCapacity = 4)
+    val notices: SharedFlow<String> = _notices
+
     private var themeId: ThemeId = ThemeId.NATURAL_FRESH
+    private var lastMemberId: String = "BG204"
 
     fun loadMemberData(memberId: String, gymId: String = "gym1") {
         // Never reload the business snapshot just because the visual theme changes.
         // This keeps theme transitions instant and prevents the old screen from
         // flashing/replacing member data while the user browses themes.
+        lastMemberId = memberId
         viewModelScope.launch {
             _state.value = MemberIntelligenceUiState.Loading
             val snapshotResult = repository.getMemberSnapshot(memberId)
@@ -78,7 +87,57 @@ class MemberIntelligenceViewModel(
     }
 
     fun executeCta(action: SignalAction) {
-        navigator.onAction(action)
+        when (action.actionType) {
+            "COLLECT_PAYMENT" -> recordOutstandingPayment()
+            else -> _notices.tryEmit(
+                "${action.label} belongs to another module and is not connected in this build yet."
+            )
+        }
+    }
+
+    /**
+     * Records the member's full outstanding amount through the repository and
+     * refreshes the snapshot so the payment panel reflects the real recorded state.
+     */
+    private fun recordOutstandingPayment() {
+        val current = _state.value as? MemberIntelligenceUiState.Success ?: return
+        val amount = current.snapshot.payment?.totalOutstanding ?: 0.0
+        if (amount <= 0.0) {
+            _notices.tryEmit("Nothing is due. The payment is already settled.")
+            return
+        }
+        val event = MemberEvent(
+            id = "collect_${System.currentTimeMillis()}",
+            memberId = lastMemberId,
+            gymId = "gym1",
+            eventType = EventType.PAYMENT,
+            occurredAt = System.currentTimeMillis(),
+            source = EventSource.STAFF,
+            metadata = mapOf("amount" to amount.toString()),
+            idempotencyKey = "collect_${lastMemberId}_${System.currentTimeMillis()}"
+        )
+        viewModelScope.launch {
+            val recorded = repository.recordEvent(event)
+            if (recorded.isFailure) {
+                _notices.tryEmit("Payment could not be recorded. The desk flow must be connected first.")
+                return@launch
+            }
+            val refreshed = repository.refreshMember(lastMemberId)
+            val refreshedSnapshot = refreshed.getOrNull()
+            if (refreshedSnapshot == null) {
+                _notices.tryEmit("Payment recorded, but the refreshed member data failed to load.")
+                return@launch
+            }
+            publishSuccess(
+                snapshot = refreshedSnapshot,
+                event = current.currentEvent,
+                menu = current.activeMenu,
+                widgetEntitlements = current.visitWidgetEntitlements
+            )
+            _notices.tryEmit(
+                "Recorded payment of ${MoneyFormat.inr(amount)} for ${refreshedSnapshot.identity.name}."
+            )
+        }
     }
 
     private fun publishSuccess(
