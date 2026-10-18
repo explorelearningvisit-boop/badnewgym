@@ -1,9 +1,22 @@
 # BAD GYM — Current Task
 
-**Task:** Start Member Intelligence from a new design (previous card/dashboard deleted; blank white screen in its place).
-**Branch:** `member-intelligence-reset` (tag `pre-mi-reset` @ `e8b75ce` restores the previous work).
-**Base:** `main` (`e8b75ce`, PR #10 merged).
-**Status:** Previous member intelligence presentation **deleted** — the entire `presentation/components` package and `preview` screens were removed (39 files). `MemberIntelligenceScreen` is now a blank white `Box` so the route/navigation contract survives for the new design. Domain/engine/data layers and the `MemberScenarios` fixture are **retained** (still used by `StubMemberRepositoryImpl` and `AmanReferenceScenarioTest`), so the app stays buildable and a new design can reuse real derived data. Zero dangling references to deleted components.
+**Task:** Implement the approved **compact Member Intelligence card** (200dp x 300dp) against the attached final reference image.
+**Branch:** `member-intelligence-reference-dashboard` (rebased onto `main` @ `66226c6`, which merged PR #11 deleting the previous presentation).
+**Status:** In progress. New `CompactMemberIntelligenceCard.kt` (200x300dp, light mint/white), new closure-aware domain layer (`GymSchedule.kt`, `AttendanceWorkoutAnalytics.kt`) plus 13 new data-rule tests. Build/test/device evidence pending this pass.
+
+## Architecture decision (supersedes the full-screen dashboard direction)
+
+The user supplied a compact **200dp x 300dp single-card** reference and ruled out the earlier output explicitly: "Do not introduce a full-screen dashboard when the requested output is a compact card" and "Dark navy ... never as a black/dark background theme". The repository rules agree ("Light, premium, mint/white/emerald-led ... user dislikes dark/black backgrounds").
+
+Therefore the previous full-screen navy dashboard was removed (PR #11, tag `pre-mi-reset` @ `e8b75ce`) and replaced by a single self-contained card. The canonical compact visit/member card remains the V4 runtime surface; this card is the Member Intelligence summary surface hosted by `MemberIntelligenceScreen`, which preserves loading/error/locked states and routes section headers to real flows.
+
+## Data rules enforced for this card
+
+- Gym closure is never inferred from the weekday; Sunday is an ordinary operating day. Closure comes from `GymWeeklySchedule` (configured) or an explicit closure record.
+- `Gym Off` is a distinct domain state and is excluded from the attendance denominator and from workout averages, so a closure can never read as inactivity.
+- Missing workout data stays `null` (never a 0-minute workout); a confirmed no-workout renders a small explicit tick, never a tall zero bar.
+- The pencil/closure marker means "gym recorded as closed", not an attendance failure.
+- Attendance and workout are calculated separately in the domain layer even though they share one chart.
 
 ## Goal
 Deliver a premium native Android Member Intelligence experience that lets a gym owner quickly understand member identity, plan status, payment state, attendance behavior, workout consistency and body-progress trends. The reference must become real Compose UI connected to actual domain/repository data, not a screenshot background or decorative mockup.

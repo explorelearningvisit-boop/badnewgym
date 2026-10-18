@@ -41,6 +41,16 @@ object DashboardMath {
 
     // ------------------------------------------------------------------ attendance
 
+    /** Total length of the plan term in whole days, from the real validity dates. */
+    fun planTotalDays(membership: MembershipStatus?): Int {
+        if (membership == null) return 0
+        return ((membership.expiryDate - membership.startDate) / DAY_MS).toInt().coerceAtLeast(1)
+    }
+
+    /** Whole days from [now] until [target]; negative once the target has passed. */
+    fun daysBetween(now: Long, target: Long): Int =
+        ((target - now).toDouble() / DAY_MS).let { kotlin.math.ceil(it).toInt() }
+
     /** visits/target share in whole percent; null target means not computable. */
     fun attendancePercent(visits: Int, target: Int?): Int? {
         if (target == null || target <= 0) return null
@@ -54,6 +64,47 @@ object DashboardMath {
     }
 
     fun previousMonthKey(key: Long): Long = key - 1L
+
+    /** Inverse of [monthKey]: builds a calendar positioned at 00:00 on day 1 of that month. */
+    private fun calendarForMonthKey(key: Long): Calendar = Calendar.getInstance().apply {
+        set(Calendar.YEAR, (key / 12L).toInt())
+        set(Calendar.MONTH, (key % 12L).toInt())
+        set(Calendar.DAY_OF_MONTH, 1)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+
+    /** Number of days in the month identified by [key] (leap years handled by Calendar). */
+    fun daysInMonthForMonthKey(key: Long): Int =
+        calendarForMonthKey(key).getActualMaximum(Calendar.DAY_OF_MONTH)
+
+    /** Epoch-millis at 00:00 on [dayOfMonth] of the month identified by [key]. */
+    fun dateForMonthDay(key: Long, dayOfMonth: Int): Long =
+        calendarForMonthKey(key).apply { set(Calendar.DAY_OF_MONTH, dayOfMonth) }.timeInMillis
+
+    /** Column offset (0..6, Sunday = 0) that the 1st of [key]'s month occupies. */
+    fun firstWeekdayOffsetForMonthKey(key: Long): Int =
+        when (calendarForMonthKey(key).get(Calendar.DAY_OF_WEEK)) {
+            Calendar.SUNDAY -> 0
+            Calendar.MONDAY -> 1
+            Calendar.TUESDAY -> 2
+            Calendar.WEDNESDAY -> 3
+            Calendar.THURSDAY -> 4
+            Calendar.FRIDAY -> 5
+            else -> 6
+        }
+
+    /** "Oct 2026" style label for a month key. */
+    fun monthLabelForKey(key: Long): String {
+        val calendar = calendarForMonthKey(key)
+        return "${MONTH_ABBREVIATIONS[calendar.get(Calendar.MONTH)]} ${calendar.get(Calendar.YEAR)}"
+    }
+
+    private val MONTH_ABBREVIATIONS = arrayOf(
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    )
 
     /** Counts of each status inside the calendar month of [now]. */
     fun statusCounts(days: List<AttendanceDay>, now: Long): Map<AttendanceDayStatus, Int> {
