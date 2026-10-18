@@ -39,7 +39,11 @@ data class MemberIdentity(
     /** Optional target declared by the member, e.g. "Muscle Gain". Displays only when present. */
     val goal: String? = null,
     /** Optional home branch of the member. Displays only when present. */
-    val branchName: String? = null
+    val branchName: String? = null,
+    /** Optional declared age in years. Displays only when present. */
+    val ageYears: Int? = null,
+    /** Optional declared gender for the summary meta row. Displays only when present. */
+    val gender: String? = null
 )
 
 enum class MembershipTier {

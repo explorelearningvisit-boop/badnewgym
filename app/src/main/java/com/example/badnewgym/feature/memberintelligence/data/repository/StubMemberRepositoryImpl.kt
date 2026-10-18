@@ -39,6 +39,7 @@ class StubMemberRepositoryImpl : MemberIntelligenceRepository {
             "BG220" -> MemberScenarios.vibrantGradientAarav()
             "BG330" -> MemberScenarios.beastModeRohan()
             "BG502" -> MemberScenarios.purpleRoyalSimran()
+            "BG305" -> MemberScenarios.compactSummaryAman()
             else -> MemberScenarios.naturalFreshYash()
         }
         val effective = snapshot.withSessionPayments(canonicalCodeForId(memberId))
@@ -95,6 +96,7 @@ class StubMemberRepositoryImpl : MemberIntelligenceRepository {
         "6", "BG220" -> "BG220"
         "7", "BG330" -> "BG330"
         "8", "BG502" -> "BG502"
+        "9", "BG305" -> "BG305"
         else -> memberId
     }
 

@@ -44,7 +44,8 @@ object MemberScenarios {
         DemoMember("BG001", "Kabir Khan"),
         DemoMember("BG220", "Aarav Patel"),
         DemoMember("BG330", "Rohan Verma"),
-        DemoMember("BG502", "Simran Kaur")
+        DemoMember("BG502", "Simran Kaur"),
+        DemoMember("BG305", "Aman Tripathi")
     )
 
     fun getScenarioForTheme(
@@ -618,6 +619,78 @@ object MemberScenarios {
             issues = emptyList()
         )
         val event = MemberEvent("live_8", "8", "gym1", EventType.TRAINER_SESSION, now, EventSource.TRAINER)
+        return snapshot to event
+    }
+
+    // Compact member-card demo for the approved Aman Tripathi reference image
+    // (BG305 | 23 yrs | Male, Prime Plan, Active, 75% elapsed, 25 days left).
+    // Dates are anchored to "now" so the card shows true values today:
+    // 100-day plan, 75 consumed, 25 remaining => 75% elapsed, exactly 25 days left.
+    fun compactSummaryAman(
+        now: Long = System.currentTimeMillis()
+    ): Pair<MemberSnapshot, MemberEvent> {
+        val (base, _) = naturalFreshYash(now)
+        val start = now - DAY * 75
+        val expiry = now + DAY * 25
+        val history = base.payment!!.history.mapIndexed { index, transaction ->
+            transaction.copy(
+                id = "aman_payment_$index",
+                amount = 2800.0,
+                occurredAt = now - DAY * (47L + index * 30L),
+                timeliness = when (index) {
+                    2, 8 -> PaymentTimeliness.LATE
+                    4 -> PaymentTimeliness.VERY_LATE
+                    else -> PaymentTimeliness.ON_TIME
+                },
+                planUpgraded = index == 6
+            )
+        }
+        val snapshot = base.copy(
+            id = "9",
+            identity = MemberIdentity(
+                name = "Aman Tripathi",
+                photoUrl = MediaAssets.MEMBER_AMAN,
+                tier = MembershipTier.PREMIUM,
+                memberSince = start,
+                code = "BG305",
+                isVerified = true,
+                goal = "Muscle Gain",
+                branchName = "Varanasi",
+                ageYears = 23,
+                gender = "Male"
+            ),
+            membership = MembershipStatus(
+                planName = "Prime Plan",
+                planType = "100 Days",
+                startDate = start,
+                expiryDate = expiry,
+                daysRemaining = 25,
+                isActive = true
+            ).copy(currentCost = 2800.0),
+            attendance = base.attendance!!.copy(
+                visits = 24,
+                target = 31,
+                periodName = "Current Month",
+                streakDays = 6,
+                avgVisitsPerWeek = 5.6,
+                lifetimeVisits = 248
+            ),
+            payment = PaymentSummary(
+                totalOutstanding = 0.0,
+                overdueDays = 0,
+                dueDate = expiry,
+                lastPaymentAmount = 2800.0,
+                lastPaymentDate = now - DAY * 47,
+                lastPaymentMethod = "UPI",
+                lifetimePaid = 33_600.0,
+                lifecycle = PaymentLifecycle.PAID,
+                breakdown = emptyList(),
+                history = history
+            ),
+            recentEvents = listOf(MemberEvent("e9", "9", "gym1", EventType.CHECK_IN, now, EventSource.SYSTEM)),
+            issues = emptyList()
+        )
+        val event = MemberEvent("live_9", "9", "gym1", EventType.CHECK_IN, now, EventSource.SYSTEM)
         return snapshot to event
     }
 

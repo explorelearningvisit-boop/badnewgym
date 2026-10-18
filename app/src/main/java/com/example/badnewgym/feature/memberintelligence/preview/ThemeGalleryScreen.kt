@@ -26,7 +26,7 @@ import com.example.badnewgym.feature.memberintelligence.design.shapes
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
 import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
-import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
+import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberSummaryCard
 import com.example.badnewgym.feature.memberintelligence.preview.scenarios.MemberScenarios
 
 @Composable
@@ -99,17 +99,7 @@ fun ThemeGalleryScreen() {
                     elevation = themeId.elevation(),
                     adaptiveContext = adaptiveContext
                 ) {
-                    PixelPerfectMemberCard(
-                        snapshot = snapshot,
-                        currentEvent = event,
-                        signals = result.signals,
-                        menus = MenuAvailabilityResolver.resolve(snapshot, result.signals),
-                        activeMenu = MenuType.HOME,
-                        onMenuSelected = {},
-                        primarySignal = result.primary,
-                        secondarySignals = result.secondary,
-                        cta = result.cta
-                    )
+                    MemberSummaryCard(snapshot = snapshot)
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))

@@ -38,6 +38,7 @@ import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.MoreHoriz
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Payment
 import androidx.compose.material.icons.rounded.ReceiptLong
@@ -64,19 +65,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.badnewgym.feature.memberintelligence.domain.engine.DashboardMath
 import com.example.badnewgym.feature.memberintelligence.domain.engine.PaymentCalculator
 import com.example.badnewgym.feature.memberintelligence.domain.format.MoneyFormat
 import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceDayStatus
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberEvent
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnapshot
-import com.example.badnewgym.feature.memberintelligence.domain.model.MembershipLifecycle
 import com.example.badnewgym.feature.memberintelligence.domain.model.MemberMenu
 import com.example.badnewgym.feature.memberintelligence.domain.model.MenuType
 import com.example.badnewgym.feature.memberintelligence.domain.model.PaymentTimeliness
@@ -125,7 +124,8 @@ private data class MenuItemUi(
     val id: MenuType,
     val label: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val scrollTo: Int? = null
+    val scrollTo: Int? = null,
+    val dialog: DashboardDialog? = null
 )
 
 private enum class DashboardDialog { SEARCH, NOTIFICATIONS, ABOUT, RECEIPT }
@@ -153,10 +153,10 @@ fun ReferenceMemberIntelligenceDashboard(
             MenuItemUi(MenuType.PAYMENT, "Payment", Icons.Rounded.Payment, SECTION_PAYMENT),
             MenuItemUi(MenuType.ATTENDANCE, "Attendance", Icons.Rounded.CalendarMonth, SECTION_ATTENDANCE),
             MenuItemUi(MenuType.WORKOUT, "Workout", Icons.Rounded.FitnessCenter, SECTION_WORKOUT),
-            MenuItemUi(MenuType.PLAN, "Plan", Icons.Rounded.Verified, SECTION_PAYMENT),
             MenuItemUi(MenuType.INSIGHT, "Progress", Icons.Rounded.Insights, SECTION_BODY),
             MenuItemUi(MenuType.NUTRITION, "Nutrition", Icons.Rounded.Restaurant, null),
-            MenuItemUi(MenuType.SERVICES, "Machine", Icons.Rounded.GridView, null)
+            MenuItemUi(MenuType.SERVICES, "Machine", Icons.Rounded.GridView, null),
+            MenuItemUi(MenuType.HOME, "More", Icons.Rounded.MoreHoriz, dialog = DashboardDialog.ABOUT)
         ).filter { item ->
             menus.firstOrNull { it.id == item.id }?.let { it.isVisible && it.isEnabled && !it.isLocked }
                 ?: (item.id == MenuType.HOME)
@@ -164,6 +164,10 @@ fun ReferenceMemberIntelligenceDashboard(
     }
 
     fun openSection(item: MenuItemUi) {
+        if (item.dialog != null) {
+            openDialog = item.dialog
+            return
+        }
         onMenuSelected(item.id)
         val index = item.scrollTo
         if (index == null) {
@@ -180,8 +184,8 @@ fun ReferenceMemberIntelligenceDashboard(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize().widthIn(max = 480.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 5.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             item(key = "brand") {
                 AppBrandStrip(
@@ -191,7 +195,7 @@ fun ReferenceMemberIntelligenceDashboard(
                     onMore = { openDialog = DashboardDialog.ABOUT }
                 )
             }
-            item(key = "identity") { MemberIdentityPanel(snapshot) }
+            item(key = "identity") { MemberSummaryCard(snapshot) }
             item(key = "menu") {
                 HorizontalMemberMenu(
                     items = menuItems,
@@ -210,17 +214,6 @@ fun ReferenceMemberIntelligenceDashboard(
             item(key = "attendance") { AttendancePanel(snapshot) }
             item(key = "workout") { WorkoutPanel(snapshot) }
             item(key = "body") { BodyProgressPanel(snapshot) }
-            item(key = "footer") {
-                Text(
-                    text = currentEvent?.eventType?.displayLabel()?.let { "Current event · $it" }
-                        ?: "Member intelligence",
-                    color = MIColor.muted,
-                    fontSize = 11.sp,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
         }
     }
 
@@ -256,7 +249,10 @@ private fun AppBrandStrip(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(0.dp)) {
-            Text("BAD GYM", color = MIColor.green, fontSize = 25.sp, fontWeight = FontWeight.Black, letterSpacing = (-0.7).sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("BAD", color = MIColor.green, fontSize = 23.sp, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic, letterSpacing = (-0.7).sp)
+                Text(" GYM", color = MIColor.ink, fontSize = 23.sp, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic, letterSpacing = (-0.7).sp)
+            }
             Text("MEMBER INTELLIGENCE", color = MIColor.ink, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
         }
         SmallHeaderAction(Icons.Rounded.Search, "Search members", onSearch)
@@ -280,7 +276,7 @@ private fun AppBrandStrip(
             }
         }
         Spacer(Modifier.width(7.dp))
-        SmallHeaderAction(Icons.Rounded.MoreHoriz, "About this dashboard", onMore)
+        SmallHeaderAction(Icons.Rounded.MoreVert, "About this dashboard", onMore)
     }
 }
 
@@ -303,160 +299,6 @@ private fun SmallHeaderAction(
     }
 }
 
-// ------------------------------------------------------------------ identity
-
-@Composable
-private fun MemberIdentityPanel(snapshot: MemberSnapshot) {
-    val membership = snapshot.membership
-    val now = System.currentTimeMillis()
-    val daysRemaining = DashboardMath.daysRemaining(membership, now)
-    val elapsedPercent = DashboardMath.elapsedPercent(membership, now)
-    val tint = when (membership?.lifecycle) {
-        MembershipLifecycle.EXPIRED, MembershipLifecycle.CANCELLED -> MIColor.red
-        else -> MIColor.green
-    }
-
-    Surface(
-        shape = RoundedCornerShape(22.dp),
-        color = Color(0xFFFFFBE9),
-        shadowElevation = 3.dp,
-        border = BorderStroke(1.dp, Color(0xFFF3E8B9))
-    ) {
-        Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Box(
-                    Modifier.size(78.dp).clip(CircleShape).background(MIColor.white)
-                        .border(3.dp, Color(0xFFE8BD53), CircleShape).padding(3.dp)
-                ) {
-                    if (!snapshot.identity.photoUrl.isNullOrBlank()) {
-                        AsyncImage(
-                            model = snapshot.identity.photoUrl,
-                            contentDescription = "Photo of ${snapshot.identity.name}",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize().clip(CircleShape)
-                        )
-                    } else {
-                        Box(Modifier.fillMaxSize().clip(CircleShape).background(MIColor.goldSoft), contentAlignment = Alignment.Center) {
-                            Text(
-                                snapshot.identity.name.split(" ").take(2).mapNotNull { it.firstOrNull() }.joinToString(""),
-                                color = MIColor.gold, fontSize = 22.sp, fontWeight = FontWeight.Black
-                            )
-                        }
-                    }
-                    Box(Modifier.align(Alignment.BottomEnd).size(18.dp).clip(CircleShape).background(tint).border(2.dp, MIColor.white, CircleShape))
-                }
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        snapshot.identity.name,
-                        color = MIColor.ink, fontSize = 21.sp, fontWeight = FontWeight.Black,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis
-                    )
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            snapshot.identity.code ?: "Member ID unavailable",
-                            color = MIColor.muted, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1
-                        )
-                        if (snapshot.identity.isVerified) {
-                            Icon(
-                                Icons.Rounded.Verified,
-                                contentDescription = "Verified member",
-                                tint = MIColor.blue,
-                                modifier = Modifier.size(17.dp)
-                            )
-                        }
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                        TinyStatusChip(
-                            label = membership?.planName ?: snapshot.identity.tier.name.replace('_', ' '),
-                            bg = MIColor.goldSoft, fg = MIColor.gold
-                        )
-                        TinyStatusChip(
-                            label = when {
-                                membership == null -> "NO PLAN"
-                                !membership.isActive -> "INACTIVE"
-                                daysRemaining <= 7 -> "EXPIRING"
-                                else -> "ACTIVE"
-                            },
-                            bg = when {
-                                membership?.isActive == true && daysRemaining > 7 -> MIColor.mint
-                                daysRemaining <= 7 -> MIColor.amberSoft
-                                else -> MIColor.redSoft
-                            },
-                            fg = when {
-                                membership?.isActive == true && daysRemaining > 7 -> MIColor.green
-                                daysRemaining <= 7 -> MIColor.amber
-                                else -> MIColor.red
-                            }
-                        )
-                    }
-                }
-                MembershipRing(elapsedPercent = elapsedPercent, daysRemaining = daysRemaining)
-            }
-            Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp)).background(Color(0xFFFFF4CC))
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ProfileFactCell(Modifier.weight(1f), "MEMBER SINCE", formatDate(snapshot.identity.memberSince))
-                ProfileFactDivider()
-                Spacer(Modifier.width(9.dp))
-                ProfileFactCell(
-                    Modifier.weight(1f),
-                    "PLAN VALIDITY",
-                    if (membership != null) {
-                        "${formatDate(membership.startDate)} – ${formatDate(membership.expiryDate)}"
-                    } else "Not available"
-                )
-            }
-            if (snapshot.identity.goal != null || snapshot.identity.branchName != null) {
-                Row(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp)).background(Color(0xFFFFF4CC))
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (snapshot.identity.goal != null) {
-                        ProfileFactCell(Modifier.weight(1f), "GOAL", snapshot.identity.goal)
-                        ProfileFactDivider()
-                        Spacer(Modifier.width(9.dp))
-                    }
-                    if (snapshot.identity.branchName != null) {
-                        ProfileFactCell(Modifier.weight(1f), "MAIN BRANCH", snapshot.identity.branchName)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProfileFactCell(modifier: Modifier = Modifier, label: String, value: String) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(1.dp)) {
-        Text(label, color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-        Text(value, color = MIColor.ink, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-}
-
-@Composable
-private fun ProfileFactDivider() {
-    Box(Modifier.width(1.dp).height(30.dp).background(Color(0xFFE8DDAE)))
-}
-
-@Composable
-private fun MembershipRing(elapsedPercent: Int, daysRemaining: Int) {
-    val elapsedFraction = (elapsedPercent / 100f).coerceIn(0f, 1f)
-    Box(Modifier.size(78.dp), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxSize()) {
-            val stroke = 7.dp.toPx()
-            drawArc(Color(0xFFE6EDE8), -90f, 360f, false, style = Stroke(stroke, cap = StrokeCap.Round))
-            drawArc(MIColor.green, -90f, 360f * elapsedFraction, false, style = Stroke(stroke, cap = StrokeCap.Round))
-        }
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(0.dp)) {
-            Text("${(elapsedFraction * 100).roundToInt()}%", color = MIColor.ink, fontSize = 18.sp, fontWeight = FontWeight.Black)
-            Text("${daysRemaining}d left", color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
 @Composable
 private fun TinyStatusChip(label: String, bg: Color, fg: Color) {
     Box(Modifier.clip(RoundedCornerShape(30.dp)).background(bg).padding(horizontal = 8.dp, vertical = 5.dp)) {
@@ -469,23 +311,23 @@ private fun TinyStatusChip(label: String, bg: Color, fg: Color) {
 @Composable
 private fun HorizontalMemberMenu(items: List<MenuItemUi>, selected: MenuType, onSelect: (MenuItemUi) -> Unit) {
     Row(
-        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(7.dp)
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items.forEach { item ->
-            val active = item.id == selected
+            val active = item.label != "More" && item.id == selected
             Column(
-                Modifier.width(76.dp).defaultMinSize(minHeight = 64.dp)
-                    .clip(RoundedCornerShape(15.dp))
+                Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(if (active) MIColor.green else MIColor.white)
-                    .border(1.dp, if (active) MIColor.green else MIColor.line, RoundedCornerShape(15.dp))
+                    .border(1.dp, if (active) MIColor.green else MIColor.line, RoundedCornerShape(12.dp))
                     .clickable { onSelect(item) }
-                    .padding(horizontal = 6.dp, vertical = 8.dp),
+                    .padding(horizontal = 1.dp, vertical = 5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Icon(item.icon, contentDescription = item.label, tint = if (active) MIColor.white else menuTint(item.id), modifier = Modifier.size(22.dp))
-                Text(item.label, color = if (active) MIColor.white else MIColor.ink, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Icon(item.icon, contentDescription = item.label, tint = if (active) MIColor.white else menuTint(item.id), modifier = Modifier.size(17.dp))
+                Text(item.label, color = if (active) MIColor.white else MIColor.ink, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Clip)
             }
         }
     }
@@ -518,14 +360,14 @@ private fun SectionCard(
         shadowElevation = 2.dp,
         border = BorderStroke(1.dp, accent.copy(alpha = 0.22f))
     ) {
-        Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        Column(Modifier.fillMaxWidth().padding(8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(4.dp).height(24.dp).clip(RoundedCornerShape(3.dp)).background(accent))
-                Spacer(Modifier.width(8.dp))
+                Box(Modifier.width(3.dp).height(20.dp).clip(RoundedCornerShape(3.dp)).background(accent))
+                Spacer(Modifier.width(6.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                    Text(title, color = accent, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                    Text(title, color = accent, fontSize = 15.sp, fontWeight = FontWeight.Black, maxLines = 1)
                     if (subtitle != null) {
-                        Text(subtitle, color = MIColor.muted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                        Text(subtitle, color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.Medium, maxLines = 1)
                     }
                 }
                 trailing?.invoke()
@@ -566,82 +408,50 @@ private fun PaymentPlanPanel(
             )
         }
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Column(Modifier.weight(1.1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    if (due) "OUTSTANDING" else "LAST RECEIVED",
-                    color = MIColor.muted, fontSize = 10.sp, fontWeight = FontWeight.Bold
-                )
-                if (due || payment?.lastPaymentAmount != null) {
-                    val received = if (due) outstanding else payment?.lastPaymentAmount!!
-                    Text(
-                        MoneyFormat.inr(received),
-                        color = accent, fontSize = 25.sp, fontWeight = FontWeight.Black,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis
-                    )
-                } else {
-                    Text(
-                        "—",
-                        color = accent, fontSize = 25.sp, fontWeight = FontWeight.Black
-                    )
-                }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Column(Modifier.weight(1.05f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(if (due) "DUE" else "PAID · ON TIME", color = accent, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                val paidAmount = if (due) outstanding else payment?.lastPaymentAmount
+                Text(paidAmount?.let { MoneyFormat.inr(it) } ?: "—", color = accent, fontSize = 17.sp, fontWeight = FontWeight.Black, maxLines = 1)
                 Text(
                     when {
                         due && (payment?.overdueDays ?: 0) > 0 -> "${payment?.overdueDays} days overdue"
                         due && payment?.dueDate != null -> "Due ${formatDate(payment.dueDate!!)}"
-                        !due && payment?.lastPaymentDate != null ->
-                            "Received ${formatDate(payment.lastPaymentDate)} · ${payment.lastPaymentMethod ?: "method not recorded"}"
-                        !due -> "No receipt is linked to this member yet"
-                        else -> "Payment date unavailable"
-                    },
-                    color = if (due) MIColor.red else MIColor.muted,
-                    fontSize = 11.sp, fontWeight = FontWeight.SemiBold
+                        !due && payment?.lastPaymentDate != null -> "Paid ${formatDate(payment.lastPaymentDate)}"
+                        else -> "No receipt linked"
+                    }, color = if (due) MIColor.red else MIColor.muted, fontSize = 7.sp, maxLines = 1
                 )
             }
-            Box(Modifier.width(1.dp).height(62.dp).background(MIColor.line))
-            Column(Modifier.weight(0.9f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(if (due) "NEXT DUE" else "RENEWAL", color = MIColor.muted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Box(Modifier.width(1.dp).height(43.dp).background(MIColor.line))
+            Column(Modifier.weight(0.9f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text("Next Due", color = MIColor.muted, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                val nextAmount = if (due) outstanding else membership?.currentCost
+                Text(nextAmount?.let { MoneyFormat.inr(it) } ?: "—", color = MIColor.ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
                 Text(
                     when {
-                        due && payment?.dueDate != null -> formatDate(payment.dueDate!!)
-                        membership != null -> formatDate(membership.expiryDate)
-                        else -> "—"
-                    },
-                    color = MIColor.ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold
-                )
-                Text(
-                    when {
-                        due && payment?.dueDate != null -> dueRelativeLabel(payment.dueDate!!, now)
-                        membership != null -> dueRelativeLabel(membership.expiryDate, now).ifBlank { "Due today" }
-                        else -> "Validity not available"
-                    },
-                    color = MIColor.muted, fontSize = 10.sp,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis
+                        due && payment?.dueDate != null -> "${formatDate(payment.dueDate!!)} · ${dueRelativeLabel(payment.dueDate!!, now)}"
+                        membership != null -> "${formatDate(membership.expiryDate)} · ${dueRelativeLabel(membership.expiryDate, now)}"
+                        else -> "Date unavailable"
+                    }, color = MIColor.muted, fontSize = 7.sp, maxLines = 1, overflow = TextOverflow.Ellipsis
                 )
             }
-        }
-        Button(
-            onClick = {
-                if (due) {
-                    val action = paymentAction
-                        ?: SignalAction(label = "Collect ${MoneyFormat.inr(outstanding)}", actionType = "COLLECT_PAYMENT")
-                    onCta(action)
-                } else {
-                    onOpenReceipt()
-                }
-            },
-            modifier = Modifier.fillMaxWidth().height(44.dp),
-            shape = RoundedCornerShape(13.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = MIColor.white)
-        ) {
-            Icon(if (due) Icons.Rounded.Payment else Icons.Rounded.ReceiptLong, null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(7.dp))
-            Text(
-                if (due) "Collect ${MoneyFormat.inr(outstanding)}" else "View receipt & history",
-                fontSize = 13.sp, fontWeight = FontWeight.Bold
-            )
-            Spacer(Modifier.width(4.dp))
-            Icon(Icons.Rounded.ChevronRight, null, modifier = Modifier.size(18.dp))
+            Button(
+                onClick = {
+                    if (due) {
+                        val action = paymentAction
+                            ?: SignalAction(label = "Collect ${MoneyFormat.inr(outstanding)}", actionType = "COLLECT_PAYMENT")
+                        onCta(action)
+                    } else onOpenReceipt()
+                },
+                modifier = Modifier.weight(0.86f).height(42.dp),
+                shape = RoundedCornerShape(10.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = if (due) MIColor.blue else MIColor.blueSoft, contentColor = if (due) MIColor.white else MIColor.blue)
+            ) {
+                Icon(if (due) Icons.Rounded.Payment else Icons.Rounded.ReceiptLong, null, modifier = Modifier.size(15.dp))
+                Spacer(Modifier.width(3.dp))
+                Text(if (due) "Collect" else "View Receipt", fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+            }
         }
         PaymentHistoryChart(snapshot)
     }
@@ -668,17 +478,17 @@ private fun PaymentHistoryChart(snapshot: MemberSnapshot) {
     val values = monthlyTransactions.map { transactions -> transactions.sumOf { it.amount } }
     val maxValue = values.maxOrNull()?.coerceAtLeast(1.0) ?: 1.0
     val hasUpgrade = history.any { it.planUpgraded }
-    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Payment history", color = MIColor.ink, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
-            Text("12 months", color = MIColor.blue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text("Payment History", color = MIColor.ink, fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+            Text("12 Months", color = MIColor.blue, fontSize = 8.sp, fontWeight = FontWeight.Bold)
         }
         if (history.isEmpty()) {
             EmptyDataLine("No payment transactions are linked yet.")
         } else {
             Row(
-                Modifier.fillMaxWidth().height(84.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                Modifier.fillMaxWidth().height(48.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
                 months.forEachIndexed { index, month ->
@@ -694,35 +504,35 @@ private fun PaymentHistoryChart(snapshot: MemberSnapshot) {
                     }
                     Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
                         if (amount > 0.0) {
-                            Text(compactMoney(amount), color = MIColor.ink, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(compactMoney(amount), color = MIColor.ink, fontSize = 6.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                         } else {
-                            Spacer(Modifier.height(12.dp))
+                            Spacer(Modifier.height(8.dp))
                         }
                         Box(
                             Modifier.fillMaxWidth(0.68f)
-                                .height(if (amount > 0.0) (10 + (amount / maxValue * 34).toInt()).dp else 4.dp)
+                                .height(if (amount > 0.0) (8 + (amount / maxValue * 22).toInt()).dp else 3.dp)
                                 .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
                                 .background(monthColor)
                         )
-                        Spacer(Modifier.height(4.dp))
-                        Text(month.second, color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(2.dp))
+                        Text(month.second, color = MIColor.muted, fontSize = 6.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                LegendDot("On time", MIColor.green)
-                LegendDot("Late", MIColor.amber)
-                LegendDot("Very late", MIColor.red)
-                if (hasUpgrade) LegendDot("Plan upgraded", MIColor.gold)
-                LegendDot("No transaction", MIColor.slate.copy(alpha = 0.5f))
+                TinyLegend("On time", MIColor.green)
+                TinyLegend("Late", MIColor.amber)
+                TinyLegend("Very late", MIColor.red)
+                if (hasUpgrade) TinyLegend("Plan upgraded", MIColor.gold)
+                TinyLegend("No transaction", MIColor.slate.copy(alpha = 0.5f))
             }
             Text(
                 "No transaction is shown as an empty month, not as a confirmed missed payment.",
-                color = MIColor.muted, fontSize = 9.sp
+                color = MIColor.muted, fontSize = 6.sp, maxLines = 1, overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -748,77 +558,61 @@ private fun AttendancePanel(snapshot: MemberSnapshot) {
         title = "Attendance",
         subtitle = currentMonthLabel(),
         accent = MIColor.green,
-        surface = Color(0xFFF2FFF8),
-        trailing = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                CircularKpi(
-                    ringPercent = percent ?: 0,
-                    centerText = percent?.let { "$it%" } ?: "—",
-                    caption = if (attendance?.target != null) "${attendance.visits} / ${attendance.target}" else null,
-                    accent = MIColor.green,
-                    track = MIColor.mint
-                )
-            }
-        }
+        surface = Color(0xFFF2FFF8)
     ) {
         if (days.isEmpty()) {
             EmptyDataLine("Daily attendance history is not available yet.")
         } else {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
-                    listOf("S", "M", "T", "W", "T", "F", "S").forEach { letter ->
-                        Text(
-                            letter, color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.Bold,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            modifier = Modifier.weight(1f)
-                        )
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1.5f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.fillMaxWidth()) {
+                        listOf("S", "M", "T", "W", "T", "F", "S").forEach { letter ->
+                            Text(letter, color = MIColor.muted, fontSize = 7.sp, fontWeight = FontWeight.Bold,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center, modifier = Modifier.weight(1f))
+                        }
                     }
-                }
-                val padded: List<Int?> = List(leadingOffset) { null } + (1..monthDayCount).toList()
-                padded.chunked(7).forEach { week ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
-                        week.forEach { dayNumber ->
-                            Box(Modifier.weight(1f)) {
-                                if (dayNumber == null) {
-                                    Spacer(Modifier.height(45.dp))
-                                } else {
-                                    AttendanceDayCell(
+                    val padded: List<Int?> = List(leadingOffset) { null } + (1..monthDayCount).toList()
+                    padded.chunked(7).forEach { week ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.fillMaxWidth()) {
+                            week.forEach { dayNumber ->
+                                Box(Modifier.weight(1f)) {
+                                    if (dayNumber == null) Spacer(Modifier.height(20.dp))
+                                    else AttendanceDayCell(
                                         dayNumber = dayNumber,
                                         status = dayByNumber[dayNumber]?.status ?: AttendanceDayStatus.UNKNOWN
                                     )
                                 }
                             }
+                            repeat(7 - week.size) { Spacer(Modifier.weight(1f)) }
                         }
-                        repeat(7 - week.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    LegendDot("Present (${counts[AttendanceDayStatus.PRESENT] ?: 0})", MIColor.green)
-                    LegendDot("Absent (${counts[AttendanceDayStatus.ABSENT] ?: 0})", MIColor.red)
-                    LegendDot("Late (${counts[AttendanceDayStatus.LATE] ?: 0})", MIColor.amber)
-                    if ((counts[AttendanceDayStatus.HOLIDAY] ?: 0) > 0) {
-                        LegendDot("Holiday (${counts[AttendanceDayStatus.HOLIDAY]})", MIColor.slate)
-                    }
-                    if ((counts[AttendanceDayStatus.CLOSED] ?: 0) > 0) {
-                        LegendDot("Closed (${counts[AttendanceDayStatus.CLOSED]})", MIColor.slate)
-                    }
-                    LegendDot("No record (${counts[AttendanceDayStatus.UNKNOWN] ?: 0})", MIColor.slate.copy(alpha = 0.5f))
+                Column(Modifier.weight(0.85f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    CompactAttendanceCount("Present", counts[AttendanceDayStatus.PRESENT] ?: 0, MIColor.green)
+                    CompactAttendanceCount("Absent", counts[AttendanceDayStatus.ABSENT] ?: 0, MIColor.red)
+                    CompactAttendanceCount("Late", counts[AttendanceDayStatus.LATE] ?: 0, MIColor.amber)
+                    val closures = (counts[AttendanceDayStatus.HOLIDAY] ?: 0) + (counts[AttendanceDayStatus.CLOSED] ?: 0)
+                    if (closures > 0) CompactAttendanceCount("Holiday", closures, MIColor.slate)
+                    if ((counts[AttendanceDayStatus.UNKNOWN] ?: 0) > 0) CompactAttendanceCount("No record", counts[AttendanceDayStatus.UNKNOWN] ?: 0, MIColor.slate)
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MiniStat("Streak", attendance?.streakDays?.let { "${it} days" } ?: "—", MIColor.green)
-                    MiniStat("Lifetime", attendance?.lifetimeVisits?.toString() ?: "—", MIColor.ink)
-                    MiniStat(
-                        "Per week",
-                        attendance?.avgVisitsPerWeek?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "—",
-                        MIColor.green
-                    )
-                }
+                CircularKpi(
+                    ringPercent = percent ?: 0,
+                    centerText = percent?.let { "$it%" } ?: "—",
+                    caption = if (attendance?.target != null) "${attendance.visits}/${attendance.target}" else null,
+                    accent = MIColor.green,
+                    track = MIColor.mint
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun CompactAttendanceCount(label: String, count: Int, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+        Box(Modifier.size(7.dp).clip(CircleShape).background(color))
+        Text(label, color = MIColor.ink, fontSize = 7.sp, maxLines = 1, modifier = Modifier.weight(1f))
+        Text(count.toString(), color = MIColor.ink, fontSize = 8.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -828,24 +622,24 @@ private fun AttendanceDayCell(dayNumber: Int, status: AttendanceDayStatus) {
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(3.dp)
+        verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         Box(
-            Modifier.size(23.dp).clip(CircleShape)
+            Modifier.size(14.dp).clip(CircleShape)
                 .background(attendanceDotColor(status))
                 .border(1.dp, if (status == AttendanceDayStatus.LATE) MIColor.amber else Color.Transparent, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             when (status) {
                 AttendanceDayStatus.HOLIDAY, AttendanceDayStatus.CLOSED ->
-                    Text("×", color = MIColor.white, fontSize = 14.sp, fontWeight = FontWeight.Black)
-                AttendanceDayStatus.UNKNOWN -> Text("·", color = MIColor.muted, fontSize = 15.sp, fontWeight = FontWeight.Black)
+                    Text("×", color = MIColor.white, fontSize = 10.sp, fontWeight = FontWeight.Black)
+                AttendanceDayStatus.UNKNOWN -> Text("·", color = MIColor.muted, fontSize = 11.sp, fontWeight = FontWeight.Black)
                 AttendanceDayStatus.PRESENT ->
-                    Icon(Icons.Rounded.CheckCircle, null, tint = MIColor.white, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Rounded.CheckCircle, null, tint = MIColor.white, modifier = Modifier.size(9.dp))
                 else -> Unit
             }
         }
-        Text(dayNumber.toString(), color = MIColor.ink, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+        Text(dayNumber.toString(), color = MIColor.ink, fontSize = 6.sp, fontWeight = FontWeight.SemiBold, lineHeight = 7.sp)
     }
 }
 
@@ -903,34 +697,23 @@ private fun WorkoutPanel(snapshot: MemberSnapshot) {
                 } ?: "Daily workout history is not available yet."
             )
         } else {
-            WorkoutMonthChart(
-                monthDayCount = monthDayCount,
-                dayByNumber = monthDays,
-                average = average
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                MiniStat(
-                    "Peak",
-                    peak?.durationMinutes?.let { "${it}m" } ?: "—",
-                    MIColor.green,
-                    caption = peak?.let { formatDate(it.date) }
-                )
-                MiniStat(
-                    "Lowest",
-                    lowest?.durationMinutes?.let { "${it}m" } ?: "—",
-                    MIColor.amber,
-                    caption = lowest?.let { formatDate(it.date) }
-                )
-                if (monthOverMonth != null) {
-                    val rounded = monthOverMonth.roundToInt()
-                    MiniStat(
-                        "vs " + monthLabelFromKey(previousKey),
-                        "${if (rounded >= 0) "+" else ""}$rounded%",
-                        if (rounded >= 0) MIColor.green else MIColor.amber,
-                        caption = "avg/day change"
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f)) {
+                    WorkoutMonthChart(
+                        monthDayCount = monthDayCount,
+                        dayByNumber = monthDays,
+                        average = average
                     )
-                } else {
-                    MiniStat("Average", average?.let { "${it}m" } ?: "—", MIColor.blue)
+                }
+                Column(Modifier.width(74.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    CompactWorkoutStat("Peak", peak?.durationMinutes?.let { "${it}m" } ?: "—", MIColor.green, peak?.let { formatDate(it.date) })
+                    CompactWorkoutStat("Lowest", lowest?.durationMinutes?.let { "${it}m" } ?: "—", MIColor.red, lowest?.let { formatDate(it.date) })
+                    if (monthOverMonth != null) {
+                        val rounded = monthOverMonth.roundToInt()
+                        CompactWorkoutStat("vs ${monthLabelFromKey(previousKey)}", "${if (rounded >= 0) "+" else ""}$rounded%", if (rounded >= 0) MIColor.green else MIColor.amber, "avg / day")
+                    } else {
+                        CompactWorkoutStat("Average", average?.let { "${it}m" } ?: "—", MIColor.blue, "per day")
+                    }
                 }
             }
             Row(
@@ -952,6 +735,22 @@ private fun WorkoutPanel(snapshot: MemberSnapshot) {
 }
 
 @Composable
+private fun CompactWorkoutStat(label: String, value: String, accent: Color, caption: String?) {
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp)).background(MIColor.white)
+            .border(1.dp, accent.copy(alpha = 0.18f), RoundedCornerShape(9.dp)).padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(value, color = accent, fontSize = 11.sp, fontWeight = FontWeight.Black, maxLines = 1)
+        Column(Modifier.weight(1f)) {
+            Text(label, color = MIColor.ink, fontSize = 7.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            caption?.let { Text(it, color = MIColor.muted, fontSize = 6.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+        }
+    }
+}
+
+@Composable
 private fun WorkoutMonthChart(
     monthDayCount: Int,
     dayByNumber: Map<Int, WorkoutDay>,
@@ -966,7 +765,7 @@ private fun WorkoutMonthChart(
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
         Column(
             Modifier
-                .height(96.dp)
+                .height(70.dp)
                 .fillMaxWidth(0.075f)
                 .widthIn(min = 22.dp),
             verticalArrangement = Arrangement.SpaceBetween,
@@ -978,7 +777,7 @@ private fun WorkoutMonthChart(
         }
         Column(Modifier.weight(1f)) {
             Row(
-                Modifier.fillMaxWidth().height(96.dp),
+                Modifier.fillMaxWidth().height(70.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -995,7 +794,7 @@ private fun WorkoutMonthChart(
                                 day.durationMinutes != null && day.durationMinutes > 0 -> {
                                 Box(
                                     Modifier.fillMaxWidth(0.7f)
-                                        .height((6 + (day.durationMinutes!!.toDouble() / scale * 84).toInt()).dp)
+                                        .height((4 + (day.durationMinutes!!.toDouble() / scale * 54).toInt()).dp)
                                         .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
                                         .background(
                                             when (bucket) {
@@ -1018,7 +817,7 @@ private fun WorkoutMonthChart(
                 (1..monthDayCount).forEach { day ->
                     Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                         if (day in labels) {
-                            Text(day.toString(), color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                            Text(day.toString(), color = MIColor.muted, fontSize = 6.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                         } else {
                             Spacer(Modifier.height(11.dp))
                         }
@@ -1068,12 +867,12 @@ private fun BodyProgressPanel(snapshot: MemberSnapshot) {
                 add(BodyMetric("Body fat", latest.bodyFatPercent, previous?.bodyFatPercent, "%", history.mapNotNull { it.bodyFatPercent }))
                 add(BodyMetric("BMI", latest.bmi, previous?.bmi, null, history.mapNotNull { it.bmi }))
             }.filter { it.latest != null }
-            metrics.chunked(2).forEach { rowMetrics ->
+            metrics.chunked(4).forEach { rowMetrics ->
                 Row(horizontalArrangement = Arrangement.spacedBy(7.dp), modifier = Modifier.fillMaxWidth()) {
                     rowMetrics.forEach { metric ->
                         BodyMetricTile(metric, goal, Modifier.weight(1f))
                     }
-                    repeat(2 - rowMetrics.size) { Spacer(Modifier.weight(1f)) }
+                    repeat(4 - rowMetrics.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
             Text(
@@ -1082,7 +881,7 @@ private fun BodyProgressPanel(snapshot: MemberSnapshot) {
                 } else {
                     "Trend colour is goal-aware only when the member goal is known; otherwise changes are shown neutrally."
                 },
-                color = MIColor.muted, fontSize = 9.sp
+                color = MIColor.muted, fontSize = 7.sp, maxLines = 1, overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -1111,18 +910,18 @@ private fun BodyMetricTile(metric: BodyMetric, goal: String?, modifier: Modifier
     Column(
         modifier.clip(RoundedCornerShape(14.dp)).background(MIColor.white)
             .border(1.dp, directionColor.copy(alpha = 0.22f), RoundedCornerShape(14.dp))
-            .padding(10.dp)
+            .padding(horizontal = 5.dp, vertical = 5.dp)
     ) {
-        Text(metric.label, color = MIColor.muted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+        Text(metric.label, color = MIColor.muted, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(
             formatMetricValue(metric.latest, metric.unit),
-            color = MIColor.ink, fontSize = 19.sp, fontWeight = FontWeight.Black,
+            color = MIColor.ink, fontSize = 13.sp, fontWeight = FontWeight.Black,
             maxLines = 1, overflow = TextOverflow.Ellipsis
         )
         if (metric.label == "BMI") {
             val band = DashboardMath.bmiBand(metric.latest)
             if (band != null) {
-                Text(band, color = directionColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Text(band, color = directionColor, fontSize = 8.sp, fontWeight = FontWeight.Bold)
             }
         }
         if (delta != null) {
@@ -1135,13 +934,13 @@ private fun BodyMetricTile(metric: BodyMetric, goal: String?, modifier: Modifier
                 Text(
                     String.format(Locale.getDefault(), "%.1f", kotlin.math.abs(delta)) +
                         if (metric.unit.isNullOrBlank()) "" else " ${metric.unit}",
-                    color = directionColor, fontSize = 11.sp, fontWeight = FontWeight.Bold
+                    color = directionColor, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1
                 )
             }
         } else {
-            Text("Baseline", color = MIColor.muted, fontSize = 10.sp)
+            Text("Baseline", color = MIColor.muted, fontSize = 8.sp)
         }
-        MiniSparkline(values = metric.series, color = directionColor, modifier = Modifier.fillMaxWidth().height(18.dp))
+        MiniSparkline(values = metric.series, color = directionColor, modifier = Modifier.fillMaxWidth().height(12.dp))
     }
 }
 
@@ -1209,6 +1008,14 @@ private fun LegendDot(label: String, color: Color) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Box(Modifier.size(8.dp).clip(CircleShape).background(color))
         Text(label, color = MIColor.muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun TinyLegend(label: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        Box(Modifier.size(6.dp).clip(CircleShape).background(color))
+        Text(label, color = MIColor.ink, fontSize = 6.sp, maxLines = 1)
     }
 }
 

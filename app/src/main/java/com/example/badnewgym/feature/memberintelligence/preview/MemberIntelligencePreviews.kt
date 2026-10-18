@@ -7,16 +7,13 @@ import com.example.badnewgym.feature.memberintelligence.design.ThemeId
 import com.example.badnewgym.feature.memberintelligence.design.elevation
 import com.example.badnewgym.feature.memberintelligence.design.motion
 import com.example.badnewgym.feature.memberintelligence.design.shapes
-import com.example.badnewgym.feature.memberintelligence.domain.engine.MemberIntelligenceEngine
-import com.example.badnewgym.feature.memberintelligence.domain.engine.MenuAvailabilityResolver
-import com.example.badnewgym.feature.memberintelligence.presentation.components.PixelPerfectMemberCard
+import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberSummaryCard
 import com.example.badnewgym.feature.memberintelligence.preview.scenarios.MemberScenarios
 
-@Preview(name = "360x500 light", widthDp = 360, heightDp = 640)
+@Preview(name = "Aman compact member dashboard", widthDp = 393, heightDp = 520)
 @Composable
-fun OverdueMemberPreview() {
-    val (snapshot, event) = MemberScenarios.naturalFreshYash()
-    val result = MemberIntelligenceEngine().evaluate(snapshot, event, event.occurredAt)
+fun AmanMemberSummaryPreview() {
+    val (snapshot, _) = MemberScenarios.compactSummaryAman()
     val theme = ThemeId.NATURAL_FRESH
     BADGymTheme(
         colors = theme.colors(),
@@ -24,16 +21,6 @@ fun OverdueMemberPreview() {
         motion = theme.motion(),
         elevation = theme.elevation()
     ) {
-        PixelPerfectMemberCard(
-            snapshot = snapshot,
-            currentEvent = event,
-            signals = result.signals,
-            menus = MenuAvailabilityResolver.resolve(snapshot, result.signals),
-            activeMenu = com.example.badnewgym.feature.memberintelligence.domain.model.MenuType.HOME,
-            onMenuSelected = {},
-            primarySignal = result.primary,
-            secondarySignals = result.secondary,
-            cta = result.cta
-        )
+        MemberSummaryCard(snapshot = snapshot)
     }
 }
