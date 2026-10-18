@@ -144,3 +144,12 @@ If a device or screenshot tool is unavailable, mark that check BLOCKED. Do not m
 - **Demo data:** Aman's stub-only dated fixture derives 48m average, 52m peak on Oct 10, 12m low on Oct 16, +12% MoM, and 69.5kg / 57.2kg / 17.6% / BMI 22.8 body values. `AmanReferenceScenarioTest` locks these calculated values.
 - **Verification:** `gradlew.bat clean testDebugUnitTest assembleDebug` → **BUILD SUCCESSFUL in 2m 41s; 53 tests / 0 failures**. Final artifact installed and reviewed on device.
 - **Limitations:** native scrollable 393dp layout cannot reproduce the chat artwork's shorter aspect ratio without shrinking touch targets or stretching. No pixel-perfect claim; 320/360dp morph and 1.3× font scale remain unverified.
+
+### 2026-10-18 — final reference delta pass (PR #9)
+
+- **Branch:** `member-dashboard-reference-final`, based on merged `main` (`f2540f7`).
+- **Remaining deltas closed:** rail glyphs now wallet / bar chart / wrench / 2×2 grid; Payment header uses a wallet tile; paid block has a green check tile and Next Due a blue calendar tile with a separate relative-days chip; plan-upgrade month keeps its timing color with a gold premium marker instead of a fully gold bar; "+12% vs Sep 2026" stat no longer truncates (column widened); member-card portrait ring is green while active.
+- **Device captures:** `OPPO/pulled_screens/reffinal_top.png` and `reffinal_bottom.png` (Redmi 21091116I, 1080×2400 @ ~440dpi, ≈393dp, default font scale). All six deltas visually confirmed against the supplied artwork.
+- **Build/test:** `gradlew.bat clean testDebugUnitTest assembleDebug` → BUILD SUCCESSFUL in 3m 33s; 53 tests / 0 failures.
+- **Intentional differences kept:** payment legend says "No transaction" (not "Missed"); workout bars are derived from dated records so heights are honest rather than artistically varied; attendance counts reflect real October records; header badge appears only when the member actually has issues. Fixture dates remain relative to the current date, so ranges like "4 Aug – 12 Nov 2026" drift with the demo clock rather than hardcoding artwork dates.
+- **Still unverified:** 320/360dp width morph (MIUI `wm size` blocked), 1.3× font scale, expiring/expired visuals. No pixel-perfect claim.

@@ -1,9 +1,9 @@
 # BAD GYM — Current Task
 
 **Task:** Implement and verify the latest user-supplied full Member Intelligence dashboard reference (Aman Tripathi).
-**Branch:** `member-dashboard-pixel-polish`
-**Base:** `main` (prior dashboard PR #6 merged at `facb56f`).
-**Status:** Component-level fidelity pass implemented, clean-built, and device-verified on Aman BG305 (53 tests green). The former `PixelPerfectMemberCard` UI is removed at user request. Component map: `docs/reference/AMAN_DASHBOARD_COMPONENT_MAP.md`; latest captures `OPPO/pulled_screens/pixel_final2_top.png` and `pixel_final2_bottom.png`.
+**Branch:** `member-dashboard-reference-final`
+**Base:** `main` (PRs #6/#7/#8 merged; latest `f2540f7`).
+**Status:** Final reference-delta pass implemented, clean-built (53 tests green) and device-verified on Aman BG305. Rail glyphs, payment tiles/chip, plan-upgrade marker, workout stat width and active avatar ring now match the supplied artwork. Component map: `docs/reference/AMAN_DASHBOARD_COMPONENT_MAP.md`; latest captures `OPPO/pulled_screens/reffinal_top.png` and `reffinal_bottom.png`.
 
 ## Goal
 Deliver a premium native Android Member Intelligence experience that lets a gym owner quickly understand member identity, plan status, payment state, attendance behavior, workout consistency and body-progress trends. The reference must become real Compose UI connected to actual domain/repository data, not a screenshot background or decorative mockup.

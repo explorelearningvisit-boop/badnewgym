@@ -232,7 +232,7 @@ private fun SummaryAvatar(
             Modifier
                 .fillMaxSize()
                 .clip(CircleShape)
-                .border(2.dp, SumColor.goldRing, CircleShape)
+                .border(2.dp, if (active) SumColor.green else SumColor.goldRing, CircleShape)
                 .padding(2.dp)
         ) {
             if (photoUrl.isNullOrBlank()) {
