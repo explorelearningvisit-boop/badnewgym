@@ -8,6 +8,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.AttendanceD
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDay
 import com.example.badnewgym.feature.memberintelligence.domain.model.WorkoutDayStatus
 import com.example.badnewgym.feature.memberintelligence.domain.model.BodyMeasurement
+import com.example.badnewgym.feature.memberintelligence.domain.model.GymWeeklySchedule
 import java.util.Calendar
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventSource
 import com.example.badnewgym.feature.memberintelligence.domain.model.EventType
@@ -79,8 +80,12 @@ object MemberScenarios {
         val daysInMonth = Calendar.getInstance().apply { timeInMillis = now }.getActualMaximum(Calendar.DAY_OF_MONTH)
         return (1..daysInMonth).map { day ->
             val date = (start.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }.timeInMillis
+            val weekday = Calendar.getInstance().apply { timeInMillis = date }.get(Calendar.DAY_OF_WEEK)
             val status = when {
                 day > today -> AttendanceDayStatus.UNKNOWN
+                // The demo gym runs a Monday closure. Sunday is an ordinary operating
+                // day: a weekday alone never implies a holiday.
+                weekday == Calendar.MONDAY -> AttendanceDayStatus.CLOSED
                 // Two absents (day 3 and 11 outside the current streak) keep the
                 // marked ledger equal to the summary above: 14 present + 2 late = 16 visits.
                 day % 11 == 0 || day == 3 -> AttendanceDayStatus.ABSENT
@@ -741,7 +746,9 @@ object MemberScenarios {
             workoutHistory = demoAmanWorkoutHistory(now),
             bodyProgress = demoAmanBodyProgress(now),
             recentEvents = listOf(MemberEvent("e9", "9", "gym1", EventType.CHECK_IN, now, EventSource.SYSTEM)),
-            issues = emptyList()
+            issues = emptyList(),
+            // Demo gym configuration: closed every Monday. Sunday stays open on purpose.
+            gymSchedule = GymWeeklySchedule(closedWeekdays = setOf(Calendar.MONDAY))
         )
         val event = MemberEvent("live_9", "9", "gym1", EventType.CHECK_IN, now, EventSource.SYSTEM)
         return snapshot to event

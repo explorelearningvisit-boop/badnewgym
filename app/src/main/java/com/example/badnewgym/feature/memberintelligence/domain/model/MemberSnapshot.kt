@@ -20,7 +20,13 @@ data class MemberSnapshot(
     val membershipHistory: List<MembershipHistory> = emptyList(),
     val attendanceHistory: List<AttendanceDay> = emptyList(),
     val workoutHistory: List<WorkoutDay> = emptyList(),
-    val bodyProgress: List<BodyMeasurement> = emptyList()
+    val bodyProgress: List<BodyMeasurement> = emptyList(),
+    /**
+     * Configured weekly opening schedule. `null` means the schedule is unknown, in
+     * which case only explicit closure records mark a day as "Gym Off" — the weekday
+     * itself never implies a closure.
+     */
+    val gymSchedule: GymWeeklySchedule? = null
 )
 
 data class MembershipHistory(
