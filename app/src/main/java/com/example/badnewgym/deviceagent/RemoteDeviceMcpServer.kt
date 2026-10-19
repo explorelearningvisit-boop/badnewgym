@@ -26,23 +26,38 @@ object DeviceAgentRuntime {
     fun detach(activity: androidx.activity.ComponentActivity) { if (this.activity === activity) this.activity = null }
 
     fun screenshotPng(): ByteArray {
-        val a = activity ?: error("BAD GYM activity is not visible")
-        var result: ByteArray? = null
-        val latch = java.util.concurrent.CountDownLatch(1)
-        main.post {
-            try {
-                val view = a.window.decorView
-                if (view.width <= 0 || view.height <= 0) error("BAD GYM window has no size")
-                val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-                view.draw(Canvas(bitmap))
-                val stream = java.io.ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                bitmap.recycle()
-                result = stream.toByteArray()
-            } finally { latch.countDown() }
+        val a = activity
+        if (a != null) {
+            var result: ByteArray? = null
+            val latch = java.util.concurrent.CountDownLatch(1)
+            main.post {
+                try {
+                    val view = a.window.decorView
+                    if (view.width > 0 && view.height > 0) {
+                        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+                        view.draw(Canvas(bitmap))
+                        val stream = java.io.ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                        bitmap.recycle()
+                        result = stream.toByteArray()
+                    }
+                } catch (_: Exception) {}
+                finally { latch.countDown() }
+            }
+            if (latch.await(5, TimeUnit.SECONDS) && result != null && result!!.isNotEmpty()) {
+                return result!!
+            }
         }
-        if (!latch.await(5, TimeUnit.SECONDS)) error("Screenshot timed out")
-        return result ?: error("Screenshot failed")
+
+        // Fallback: system screencap
+        try {
+            val p = Runtime.getRuntime().exec(arrayOf("screencap", "-p"))
+            val bytes = p.inputStream.readBytes()
+            p.waitFor()
+            if (bytes.isNotEmpty()) return bytes
+        } catch (_: Exception) {}
+
+        error("Screenshot failed: BAD GYM window is not visible and screencap unavailable")
     }
 
     fun onMain(block: () -> Unit) = main.post(block)
@@ -98,6 +113,15 @@ class RemoteDeviceMcpServer(
             val path = requestLine.split(' ').getOrNull(1) ?: "/"
             if (path == "/health") {
                 respond(s, 200, "application/json", """{"ok":true,"service":"badgym-device-agent"}""")
+                return
+            }
+            if (path == "/screenshot" || path == "/screenshot.png" || path == "/screen.png") {
+                try {
+                    val bytes = DeviceAgentRuntime.screenshotPng()
+                    respondBytes(s, 200, "image/png", bytes)
+                } catch (e: Exception) {
+                    respond(s, 500, "application/json", """{"error":"${e.message}"}""")
+                }
                 return
             }
             if (path != "/mcp" || headers["authorization"] != "Bearer $token") {
@@ -252,6 +276,16 @@ class RemoteDeviceMcpServer(
         val bytes = body.toByteArray(StandardCharsets.UTF_8)
         val w = OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)
         val phrase = when (status) { 200 -> "OK"; 202 -> "Accepted"; 401 -> "Unauthorized"; else -> "Bad Request" }
+        w.write("HTTP/1.1 $status $phrase\r\n")
+        w.write("Content-Type: $contentType\r\nContent-Length: ${bytes.size}\r\nConnection: close\r\n\r\n")
+        w.flush()
+        socket.getOutputStream().write(bytes)
+        socket.getOutputStream().flush()
+    }
+
+    private fun respondBytes(socket: Socket, status: Int, contentType: String, bytes: ByteArray) {
+        val w = OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)
+        val phrase = when (status) { 200 -> "OK"; 401 -> "Unauthorized"; else -> "Internal Error" }
         w.write("HTTP/1.1 $status $phrase\r\n")
         w.write("Content-Type: $contentType\r\nContent-Length: ${bytes.size}\r\nConnection: close\r\n\r\n")
         w.flush()
