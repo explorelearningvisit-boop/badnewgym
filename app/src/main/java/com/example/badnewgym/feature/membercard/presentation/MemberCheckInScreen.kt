@@ -35,6 +35,7 @@ import com.example.badnewgym.feature.membercard.presentation.components.Notifica
 import com.example.badnewgym.feature.membercard.presentation.components.PaymentPlanDetailedSection
 import com.example.badnewgym.feature.membercard.presentation.components.ReceiptBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.SearchBottomSheet
+import com.example.badnewgym.feature.membercard.presentation.components.TailscaleSettingsBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.WorkoutTrendDetailedSection
 import kotlinx.coroutines.launch
 
@@ -67,6 +68,9 @@ fun MemberCheckInScreen(
     var showSearchSheet by remember { mutableStateOf(false) }
     val searchSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    var showTailscaleSheet by remember { mutableStateOf(false) }
+    val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     androidx.compose.runtime.LaunchedEffect(initialSheet) {
         when (initialSheet?.lowercase()) {
             "receipt" -> showReceiptSheet = true
@@ -74,6 +78,7 @@ fun MemberCheckInScreen(
             "attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
             "notifications" -> showNotificationsSheet = true
             "search" -> showSearchSheet = true
+            "tailscale" -> showTailscaleSheet = true
             else -> {}
         }
     }
@@ -93,7 +98,10 @@ fun MemberCheckInScreen(
             HeroHeaderSection(
                 profile = data.profile,
                 selectedTab = selectedTab,
-                onMenuClick = onMenuClick,
+                onMenuClick = {
+                    showTailscaleSheet = true
+                    onMenuClick()
+                },
                 onSearchClick = { showSearchSheet = true },
                 onNotificationClick = { showNotificationsSheet = true },
                 onTabSelected = { tab ->
@@ -197,6 +205,14 @@ fun MemberCheckInScreen(
             SearchBottomSheet(
                 sheetState = searchSheetState,
                 onDismissRequest = { showSearchSheet = false }
+            )
+        }
+
+        // Tailscale Settings Sheet
+        if (showTailscaleSheet) {
+            TailscaleSettingsBottomSheet(
+                sheetState = tailscaleSheetState,
+                onDismissRequest = { showTailscaleSheet = false }
             )
         }
     }

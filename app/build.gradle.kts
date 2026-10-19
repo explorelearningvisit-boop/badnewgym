@@ -39,6 +39,11 @@ android {
             it.maxHeapSize = "512m"
         }
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 dependencies {

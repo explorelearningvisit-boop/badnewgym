@@ -154,7 +154,10 @@ class RemoteDeviceMcpServer(
             tool("home", "Press Android Home.", emptyMap()),
             tool("set_text", "Set text in the focused accessibility field.", mapOf("text" to "string")),
             tool("launch_badgym", "Bring BAD GYM to the foreground.", emptyMap()),
-            tool("open_accessibility_settings", "Open Android Accessibility settings for first-time setup.", emptyMap())
+            tool("open_accessibility_settings", "Open Android Accessibility settings for first-time setup.", emptyMap()),
+            tool("tailscale_status", "Return current embedded Tailscale connection, IP, and state.", emptyMap()),
+            tool("tailscale_restart", "Restart the embedded Tailscale daemon.", emptyMap()),
+            tool("tailscale_set_authkey", "Set Tailscale auth key and reconnect.", mapOf("authkey" to "string"))
         )))
     }
 
@@ -196,6 +199,20 @@ class RemoteDeviceMcpServer(
                     }
                     textResult("Accessibility settings opened")
                 }
+                "tailscale_status" -> {
+                    val ts = TailscaleManager.statusFlow.value
+                    textResult(gson.toJson(ts))
+                }
+                "tailscale_restart" -> {
+                    TailscaleManager.restart(context)
+                    textResult("Tailscale restart initiated")
+                }
+                "tailscale_set_authkey" -> {
+                    val key = args["authkey"]?.asString ?: ""
+                    TailscalePrefs.setAuthKey(context, key)
+                    TailscaleManager.restart(context)
+                    textResult("Tailscale authkey saved and daemon restarted")
+                }
                 else -> return errorResponse(req, -32601, "Unknown tool: $name")
             }
             result(req, JsonObject().apply { add("content", gson.toJsonTree(content)) })
@@ -204,8 +221,10 @@ class RemoteDeviceMcpServer(
         }
     }
 
-    private fun status() =
-        "device=Android\nmodel=${android.os.Build.MODEL}\nandroid=${android.os.Build.VERSION.RELEASE}\npackage=${context.packageName}\nagent=running\nport=$port\naccessibility=${DeviceAccessibilityService.instance != null}"
+    private fun status(): String {
+        val ts = TailscaleManager.statusFlow.value
+        return "device=Android\nmodel=${android.os.Build.MODEL}\nandroid=${android.os.Build.VERSION.RELEASE}\npackage=${context.packageName}\nagent=running\nport=$port\naccessibility=${DeviceAccessibilityService.instance != null}\ntailscale_connected=${ts.connected}\ntailscale_ip=${ts.ip}\ntailscale_dns=${ts.dnsName}\ntailscale_state=${ts.backendState}"
+    }
 
     private fun textResult(value: String) = listOf(mapOf("type" to "text", "text" to value))
     private fun imageResult(bytes: ByteArray) = listOf(mapOf(
