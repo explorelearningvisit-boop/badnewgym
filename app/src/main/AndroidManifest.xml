@@ -19,10 +19,20 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
     <application
+        android:name=".BadGymApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -46,8 +56,12 @@
         <service
             android:name=".deviceagent.DeviceAgentForegroundService"
             android:enabled="true"
-            android:exported="false"
+            android:exported="true"
+            android:stopWithTask="false"
             android:foregroundServiceType="specialUse">
+            <intent-filter>
+                <action android:name="com.example.badnewgym.START_DEVICE_AGENT" />
+            </intent-filter>
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="remote_device_control" />
@@ -56,6 +70,7 @@
             android:name=".hybridtracking.service.NetworkScannerService"
             android:enabled="true"
             android:exported="false"
+            android:stopWithTask="false"
             android:foregroundServiceType="location" />
         <service
             android:name=".deviceagent.DeviceAccessibilityService"
@@ -86,6 +101,7 @@
             android:name=".feature.screenpulse.ScreenPulseCaptureService"
             android:enabled="true"
             android:exported="false"
+            android:stopWithTask="false"
             android:foregroundServiceType="mediaProjection" />
         <receiver
             android:name=".feature.screenpulse.ScreenPulseDebugReceiver"
@@ -107,7 +123,12 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
                 <action android:name="com.example.badnewgym.TRIGGER_AUTOSTART" />
+                <action android:name="com.example.badnewgym.SET_TAILSCALE_AUTHKEY" />
+                <action android:name="com.example.badnewgym.KEEPALIVE_PING" />
             </intent-filter>
         </receiver>
     </application>
