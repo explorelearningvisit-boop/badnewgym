@@ -62,16 +62,24 @@ import com.example.badnewgym.feature.membercard.design.MemberCardTokens
 import com.example.badnewgym.feature.membercard.domain.model.CalendarDay
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 import com.example.badnewgym.feature.membercard.domain.model.MemberProfile
+import com.example.badnewgym.feature.membercard.presentation.components.AquaGlassMemberView
 import com.example.badnewgym.feature.membercard.presentation.components.AttendanceDayBottomSheet
+import com.example.badnewgym.feature.membercard.presentation.components.CompactViewportMemberScreen
 import com.example.badnewgym.feature.membercard.presentation.components.DetailedAnalyticsBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.NotificationsBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.ReceiptBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.SearchBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.TailscaleSettingsBottomSheet
 
+enum class MemberIntelligenceTheme {
+    DARK_AURORA,
+    COMPACT_VIEWPORT,
+    AQUA_GLASS
+}
+
 /**
  * BAD GYM — Member Intelligence Comprehensive Screen
- * Pixel-perfect implementation of the dark aurora member intelligence experience.
+ * Dual-Theme Engine supporting Aqua Glass Neumorphic (Mint Frost) & Dark Aurora.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,6 +108,9 @@ fun MemberCheckInScreen(
     var showTailscaleSheet by remember { mutableStateOf(false) }
     val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    // Multi-Theme Engine: Compact Viewport (Zero-Scroll) vs Dark Aurora vs Aqua Glass
+    var currentTheme by remember { mutableStateOf(MemberIntelligenceTheme.COMPACT_VIEWPORT) }
+
     // Active Navigation Tab
     var selectedTab by remember { mutableStateOf("Overview") }
 
@@ -116,94 +127,133 @@ fun MemberCheckInScreen(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MemberCardTokens.AuroraCanvasGradient)
-            .statusBarsPadding()
+        modifier = modifier.fillMaxSize()
     ) {
-        // Scrollable Screen Content
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 14.dp, vertical = 6.dp)
-                .padding(bottom = 76.dp) // padding for floating bottom bar
-        ) {
-            // 1. Top System & Brand Header
-            TopBrandHeader(
-                unreadNotifications = data.profile.unreadNotifications,
-                onSearchClick = { showSearchSheet = true },
-                onNotificationClick = { showNotificationsSheet = true }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // 2. Profile Hero Section with Greeting, 3 Metadata Chips & Circular Progress Gauge
-            HeroProfileSection(
-                profile = data.profile,
-                onAvatarClick = {
-                    showTailscaleSheet = true
-                    onMenuClick()
-                }
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // 3. Five Quick Navigation Action Pills (Overview, Payment, Attendance, Workout, Progress)
-            QuickActionPillsRow(
-                selectedTab = selectedTab,
-                onTabSelect = { tab ->
-                    selectedTab = tab
-                    when (tab) {
-                        "Payment" -> showReceiptSheet = true
-                        "Attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                        "Workout" -> showAnalyticsSheet = true
-                        "Progress" -> showAnalyticsSheet = true
+        when (currentTheme) {
+            MemberIntelligenceTheme.COMPACT_VIEWPORT -> {
+                CompactViewportMemberScreen(
+                    data = data,
+                    onToggleTheme = { currentTheme = MemberIntelligenceTheme.DARK_AURORA },
+                    onReceiptClick = { showReceiptSheet = true },
+                    onAttendanceClick = {
+                        selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                    },
+                    onAttendanceDayClick = { day -> selectedAttendanceDay = day },
+                    onAnalyticsClick = { showAnalyticsSheet = true },
+                    onMenuClick = {
+                        showTailscaleSheet = true
+                        onMenuClick()
                     }
-                }
-            )
+                )
+            }
+            MemberIntelligenceTheme.AQUA_GLASS -> {
+                AquaGlassMemberView(
+                    data = data,
+                    onToggleTheme = { currentTheme = MemberIntelligenceTheme.DARK_AURORA },
+                    onReceiptClick = { showReceiptSheet = true },
+                    onAttendanceDayClick = { day -> selectedAttendanceDay = day },
+                    onAnalyticsClick = { showAnalyticsSheet = true },
+                    onNotificationClick = { showNotificationsSheet = true },
+                    onMenuClick = {
+                        showTailscaleSheet = true
+                        onMenuClick()
+                    }
+                )
+            }
+            MemberIntelligenceTheme.DARK_AURORA -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MemberCardTokens.AuroraCanvasGradient)
+                    .statusBarsPadding()
+            ) {
+                // Scrollable Screen Content
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                        .padding(bottom = 76.dp) // padding for floating bottom bar
+                ) {
+                    // 1. Top System & Brand Header
+                    TopBrandHeader(
+                        unreadNotifications = data.profile.unreadNotifications,
+                        onSearchClick = { showSearchSheet = true },
+                        onNotificationClick = { showNotificationsSheet = true },
+                        onToggleTheme = { currentTheme = MemberIntelligenceTheme.COMPACT_VIEWPORT }
+                    )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-            // 4. Detailed Frosted White Cards (Payment & Plan, Attendance, Workout Trend, Body Stats)
-            MemberCheckInCard(
-                data = data,
-                onReceiptClick = { showReceiptSheet = true },
-                onAttendanceClick = {
-                    selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                },
-                onAttendanceDayClick = { day ->
-                    selectedAttendanceDay = day
-                },
-                onAnalyticsClick = { showAnalyticsSheet = true }
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-        }
-
-        // 5. Floating Dark Glassmorphic Bottom Navigation Bar
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = 14.dp, vertical = 8.dp)
-        ) {
-            FloatingBottomBar(
-                selectedTab = selectedTab,
-                onTabSelect = { tab ->
-                    selectedTab = tab
-                    when (tab) {
-                        "Payments" -> showReceiptSheet = true
-                        "Analytics" -> showAnalyticsSheet = true
-                        "Profile" -> {
+                    // 2. Profile Hero Section with Greeting, 3 Metadata Chips & Circular Progress Gauge
+                    HeroProfileSection(
+                        profile = data.profile,
+                        onAvatarClick = {
                             showTailscaleSheet = true
                             onMenuClick()
                         }
-                    }
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // 3. Five Quick Navigation Action Pills (Overview, Payment, Attendance, Workout, Progress)
+                    QuickActionPillsRow(
+                        selectedTab = selectedTab,
+                        onTabSelect = { tab ->
+                            selectedTab = tab
+                            when (tab) {
+                                "Payment" -> showReceiptSheet = true
+                                "Attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                                "Workout" -> showAnalyticsSheet = true
+                                "Progress" -> showAnalyticsSheet = true
+                            }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // 4. Detailed Frosted White Cards (Payment & Plan, Attendance, Workout Trend, Body Stats)
+                    MemberCheckInCard(
+                        data = data,
+                        onReceiptClick = { showReceiptSheet = true },
+                        onAttendanceClick = {
+                            selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                        },
+                        onAttendanceDayClick = { day ->
+                            selectedAttendanceDay = day
+                        },
+                        onAnalyticsClick = { showAnalyticsSheet = true }
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
                 }
-            )
+
+                // 5. Floating Dark Glassmorphic Bottom Navigation Bar
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                ) {
+                    FloatingBottomBar(
+                        selectedTab = selectedTab,
+                        onTabSelect = { tab ->
+                            selectedTab = tab
+                            when (tab) {
+                                "Payments" -> showReceiptSheet = true
+                                "Analytics" -> showAnalyticsSheet = true
+                                "Profile" -> {
+                                    showTailscaleSheet = true
+                                    onMenuClick()
+                                }
+                            }
+                        }
+                    )
+                }
+            }
         }
+    }
 
         // --- Bottom Sheets ---
         if (showReceiptSheet) {
@@ -258,7 +308,8 @@ fun MemberCheckInScreen(
 private fun TopBrandHeader(
     unreadNotifications: Int,
     onSearchClick: () -> Unit,
-    onNotificationClick: () -> Unit
+    onNotificationClick: () -> Unit,
+    onToggleTheme: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -294,8 +345,28 @@ private fun TopBrandHeader(
             )
         }
 
-        // Right Actions: Search & Notifications
+        // Right Actions: Theme Toggle, Search & Notifications
         Row(verticalAlignment = Alignment.CenterVertically) {
+            // Theme Switcher Toggle Pill
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color(0xFFE0F2FE))
+                    .border(1.dp, Color(0xFF0284C7), RoundedCornerShape(14.dp))
+                    .clickable(onClick = onToggleTheme)
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "📱 Compact View",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0369A1)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
             // Search Button
             Box(
                 modifier = Modifier
