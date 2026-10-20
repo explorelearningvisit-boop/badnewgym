@@ -83,4 +83,25 @@ object MemberCardTokens {
             Color(0xFF0284C7)
         )
     )
+
+    // Dark Aurora Canvas Tokens
+    val AuroraCanvasGradient = Brush.verticalGradient(
+        listOf(
+            Color(0xFF031410),
+            Color(0xFF06231B),
+            Color(0xFF0A2F25),
+            Color(0xFF08261E),
+            Color(0xFF041410)
+        )
+    )
+
+    val DarkGlassSurface = Color(0x38102F26)
+    val DarkGlassBorder = Color(0x3334D399)
+    val DarkNavSurface = Color(0xF2041410)
+    val DarkNavBorder = Color(0x2234D399)
+
+    val QuickPillPink = Color(0xFFFB7185)
+    val QuickPillGreen = Color(0xFF34D399)
+    val QuickPillPurple = Color(0xFFA78BFA)
+    val QuickPillGold = Color(0xFFFBBF24)
 }
