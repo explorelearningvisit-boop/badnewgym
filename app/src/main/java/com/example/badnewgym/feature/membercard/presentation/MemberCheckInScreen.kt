@@ -108,8 +108,8 @@ fun MemberCheckInScreen(
     var showTailscaleSheet by remember { mutableStateOf(false) }
     val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    // Multi-Theme Engine: Compact Viewport (Zero-Scroll) vs Dark Aurora vs Aqua Glass
-    var currentTheme by remember { mutableStateOf(MemberIntelligenceTheme.COMPACT_VIEWPORT) }
+    // Multi-Theme Engine: Dark Aurora (Default Luxury) vs Compact Viewport vs Aqua Glass
+    var currentTheme by remember { mutableStateOf(MemberIntelligenceTheme.DARK_AURORA) }
 
     // Active Navigation Tab
     var selectedTab by remember { mutableStateOf("Overview") }
@@ -167,13 +167,13 @@ fun MemberCheckInScreen(
                     .background(MemberCardTokens.AuroraCanvasGradient)
                     .statusBarsPadding()
             ) {
-                // Scrollable Screen Content
+                // Zero-Scroll Viewport Layout
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 14.dp, vertical = 6.dp)
-                        .padding(bottom = 76.dp) // padding for floating bottom bar
+                        .padding(horizontal = 12.dp, vertical = 2.dp)
+                        .padding(bottom = 58.dp), // padding for floating bottom bar
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     // 1. Top System & Brand Header
                     TopBrandHeader(
@@ -183,8 +183,6 @@ fun MemberCheckInScreen(
                         onToggleTheme = { currentTheme = MemberIntelligenceTheme.COMPACT_VIEWPORT }
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
-
                     // 2. Profile Hero Section with Greeting, 3 Metadata Chips & Circular Progress Gauge
                     HeroProfileSection(
                         profile = data.profile,
@@ -193,8 +191,6 @@ fun MemberCheckInScreen(
                             onMenuClick()
                         }
                     )
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
                     // 3. Five Quick Navigation Action Pills (Overview, Payment, Attendance, Workout, Progress)
                     QuickActionPillsRow(
@@ -210,8 +206,6 @@ fun MemberCheckInScreen(
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
                     // 4. Detailed Frosted White Cards (Payment & Plan, Attendance, Workout Trend, Body Stats)
                     MemberCheckInCard(
                         data = data,
@@ -224,8 +218,6 @@ fun MemberCheckInScreen(
                         },
                         onAnalyticsClick = { showAnalyticsSheet = true }
                     )
-
-                    Spacer(modifier = Modifier.height(14.dp))
                 }
 
                 // 5. Floating Dark Glassmorphic Bottom Navigation Bar
@@ -442,7 +434,7 @@ private fun HeroProfileSection(
                 // Circular Avatar with Pinned Crown & Verified Check
                 Box(
                     modifier = Modifier
-                        .size(68.dp)
+                        .size(56.dp)
                         .clickable(onClick = onAvatarClick)
                 ) {
                     Image(
@@ -450,7 +442,7 @@ private fun HeroProfileSection(
                         contentDescription = profile.name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(52.dp)
                             .align(Alignment.Center)
                             .clip(CircleShape)
                             .border(2.dp, Color(0xFF00E676), CircleShape)
@@ -459,7 +451,7 @@ private fun HeroProfileSection(
                     // Pinned Gold Crown at Top-Left
                     Box(
                         modifier = Modifier
-                            .size(20.dp)
+                            .size(17.dp)
                             .align(Alignment.TopStart)
                             .offset(x = (-1).dp, y = (-1).dp)
                             .clip(CircleShape)
@@ -591,11 +583,11 @@ private fun HeroProfileSection(
 
             // Right Glowing Circular Progress Gauge (75% / 25 Days Left)
             Box(
-                modifier = Modifier.size(76.dp),
+                modifier = Modifier.size(62.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Canvas(modifier = Modifier.size(76.dp)) {
-                    val strokeWidth = 8.dp.toPx()
+                Canvas(modifier = Modifier.size(62.dp)) {
+                    val strokeWidth = 6.dp.toPx()
                     val arcSize = size.copy(width = size.width - strokeWidth, height = size.height - strokeWidth)
                     val offset = Offset(strokeWidth / 2f, strokeWidth / 2f)
 
@@ -628,20 +620,20 @@ private fun HeroProfileSection(
                     Text(
                         text = "75%",
                         color = Color.White,
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
                     Text(
                         text = "25 Days Left",
                         color = Color(0xFF94A3B8),
-                        fontSize = 8.sp,
+                        fontSize = 7.5.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         // 3 Metadata Chips Below Avatar Row: Joined, Goal, Branch
         Row(
@@ -687,7 +679,7 @@ private fun HeroDetailChip(
             .clip(RoundedCornerShape(10.dp))
             .background(Color(0x2E103D31))
             .border(1.dp, Color(0x3334D399), RoundedCornerShape(10.dp))
-            .padding(horizontal = 6.dp, vertical = 4.dp),
+            .padding(horizontal = 6.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = icon, fontSize = 10.sp)
@@ -802,7 +794,7 @@ private fun QuickNavPill(
             .clip(RoundedCornerShape(14.dp))
             .then(bgModifier)
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 6.dp),
+            .padding(horizontal = 9.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         iconContent(iconTint)

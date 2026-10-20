@@ -68,7 +68,7 @@ fun MemberCheckInCard(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // 1. Payment & Plan Card
         PaymentPlanDetailedCard(
@@ -79,7 +79,7 @@ fun MemberCheckInCard(
         // 2. Attendance & Workout Trend Row (Side-by-Side 2 Columns)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             AttendanceDotCalendarCard(
                 attendance = data.attendance,
@@ -119,7 +119,7 @@ fun PaymentPlanDetailedCard(
             .clip(RoundedCornerShape(20.dp))
             .background(Color.White)
             .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp))
-            .padding(12.dp)
+            .padding(8.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Header Row: Red Wallet Icon + "Payment & Plan" + Prime Plan Banner
@@ -131,12 +131,12 @@ fun PaymentPlanDetailedCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .size(26.dp)
+                            .clip(RoundedCornerShape(7.dp))
                             .background(Color(0xFFF43F5E)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Canvas(modifier = Modifier.size(14.dp)) {
+                        Canvas(modifier = Modifier.size(13.dp)) {
                             drawRoundRect(
                                 color = Color.White,
                                 topLeft = Offset(0f, size.height * 0.15f),
@@ -145,16 +145,16 @@ fun PaymentPlanDetailedCard(
                             )
                             drawCircle(
                                 color = Color(0xFFF43F5E),
-                                radius = 2.dp.toPx(),
+                                radius = 1.8.dp.toPx(),
                                 center = Offset(size.width * 0.75f, size.height * 0.5f)
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(7.dp))
                     Text(
                         text = "Payment & Plan",
                         color = MemberCardTokens.DarkNavy,
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -166,49 +166,49 @@ fun PaymentPlanDetailedCard(
                         .background(Color(0xFFFFFBEB))
                         .border(1.dp, Color(0xFFFDE68A), RoundedCornerShape(12.dp))
                         .clickable(onClick = onReceiptClick)
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                        .padding(horizontal = 7.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(16.dp)
+                            .size(15.dp)
                             .clip(CircleShape)
                             .background(Color(0xFFF59E0B)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "⚡", color = Color.White, fontSize = 8.sp)
+                        Text(text = "⚡", color = Color.White, fontSize = 7.5.sp)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Column {
                         Text(
                             text = "Prime Plan (1 Month)",
                             color = Color(0xFF92400E),
-                            fontSize = 9.sp,
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "01 Sep – 30 Sep 2026",
                             color = Color(0xFF2563EB),
-                            fontSize = 8.sp,
+                            fontSize = 7.5.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = null,
                         tint = Color(0xFF92400E),
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // 3-Card Row: Paid Status, Next Due, View Receipt
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 // Sub-Card 1: Paid Status
                 Box(
@@ -218,12 +218,12 @@ fun PaymentPlanDetailedCard(
                         .background(Color(0xFFF0FDF4))
                         .border(1.dp, Color(0xFFDCFCE7), RoundedCornerShape(12.dp))
                         .clickable(onClick = onReceiptClick)
-                        .padding(8.dp)
+                        .padding(horizontal = 7.dp, vertical = 6.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(26.dp)
                                 .clip(CircleShape)
                                 .background(Color(0xFF10B981)),
                             contentAlignment = Alignment.Center
@@ -232,7 +232,7 @@ fun PaymentPlanDetailedCard(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(15.dp)
                             )
                         }
                         Spacer(modifier = Modifier.width(6.dp))
@@ -240,20 +240,20 @@ fun PaymentPlanDetailedCard(
                             Text(
                                 text = "PAID • ON TIME",
                                 color = Color(0xFF10B981),
-                                fontSize = 8.5.sp,
+                                fontSize = 8.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = paymentPlan.amountPaid,
                                 color = Color(0xFF047857),
-                                fontSize = 17.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 letterSpacing = (-0.5).sp
                             )
                             Text(
                                 text = paymentPlan.paidOnDate,
                                 color = Color(0xFF64748B),
-                                fontSize = 8.5.sp
+                                fontSize = 8.sp
                             )
                         }
                     }
@@ -267,12 +267,12 @@ fun PaymentPlanDetailedCard(
                         .background(Color(0xFFEFF6FF))
                         .border(1.dp, Color(0xFFDBEAFE), RoundedCornerShape(12.dp))
                         .clickable(onClick = onReceiptClick)
-                        .padding(8.dp)
+                        .padding(horizontal = 7.dp, vertical = 6.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(26.dp)
+                                .size(24.dp)
                                 .clip(RoundedCornerShape(6.dp))
                                 .background(Color(0xFF3B82F6)),
                             contentAlignment = Alignment.Center
@@ -281,29 +281,29 @@ fun PaymentPlanDetailedCard(
                                 imageVector = Icons.Default.DateRange,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(13.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Column {
                             Text(
                                 text = "Next Due",
                                 color = Color(0xFF64748B),
-                                fontSize = 8.5.sp,
+                                fontSize = 8.sp,
                                 fontWeight = FontWeight.Medium
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = paymentPlan.nextDueDate,
                                     color = MemberCardTokens.DarkNavy,
-                                    fontSize = 11.5.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                     contentDescription = null,
                                     tint = MemberCardTokens.DarkNavy,
-                                    modifier = Modifier.size(12.dp)
+                                    modifier = Modifier.size(11.dp)
                                 )
                             }
                         }
@@ -318,18 +318,18 @@ fun PaymentPlanDetailedCard(
                         .background(Color(0xFFEFF6FF))
                         .border(1.dp, Color(0xFFDBEAFE), RoundedCornerShape(12.dp))
                         .clickable(onClick = onReceiptClick)
-                        .padding(8.dp),
+                        .padding(horizontal = 6.dp, vertical = 6.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(24.dp)
-                                .clip(RoundedCornerShape(6.dp))
+                                .size(22.dp)
+                                .clip(RoundedCornerShape(5.dp))
                                 .background(Color(0xFF2563EB)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Canvas(modifier = Modifier.size(12.dp)) {
+                            Canvas(modifier = Modifier.size(11.dp)) {
                                 val w = size.width
                                 val h = size.height
                                 drawRoundRect(color = Color.White, topLeft = Offset(0f, 0f), size = Size(w, h), cornerRadius = CornerRadius(1.5.dp.toPx()))
@@ -341,9 +341,9 @@ fun PaymentPlanDetailedCard(
                         Text(
                             text = "View\nReceipt >",
                             color = Color(0xFF2563EB),
-                            fontSize = 9.sp,
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Bold,
-                            lineHeight = 11.sp
+                            lineHeight = 10.5.sp
                         )
                     }
                 }
@@ -368,7 +368,7 @@ fun AttendanceDotCalendarCard(
             .clip(RoundedCornerShape(20.dp))
             .background(Color.White)
             .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp))
-            .padding(11.dp)
+            .padding(8.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Header: Green Calendar Icon + "Attendance" + Chevron >
@@ -382,7 +382,7 @@ fun AttendanceDotCalendarCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(22.dp)
                             .clip(RoundedCornerShape(6.dp))
                             .background(Color(0xFF10B981)),
                         contentAlignment = Alignment.Center
@@ -391,14 +391,14 @@ fun AttendanceDotCalendarCard(
                             imageVector = Icons.Default.DateRange,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(13.dp)
+                            modifier = Modifier.size(12.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = "Attendance",
                         color = MemberCardTokens.DarkNavy,
-                        fontSize = 13.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -407,11 +407,11 @@ fun AttendanceDotCalendarCard(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(15.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // Body: Left Donut Ring + Right 7-Col Calendar Dot Matrix
             Row(
@@ -421,12 +421,12 @@ fun AttendanceDotCalendarCard(
                 // Donut Gauge
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(50.dp)
                         .clickable(onClick = onHeaderClick),
                     contentAlignment = Alignment.Center
                 ) {
-                    Canvas(modifier = Modifier.size(56.dp)) {
-                        val stroke = 6.dp.toPx()
+                    Canvas(modifier = Modifier.size(50.dp)) {
+                        val stroke = 5.dp.toPx()
                         val arcSize = size.copy(width = size.width - stroke, height = size.height - stroke)
                         val offset = Offset(stroke / 2f, stroke / 2f)
 
@@ -457,24 +457,24 @@ fun AttendanceDotCalendarCard(
                         Text(
                             text = "${attendance.percent}%",
                             color = MemberCardTokens.DarkNavy,
-                            fontSize = 11.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Black
                         )
                         Text(
                             text = "${attendance.attendedDays}/${attendance.totalDays}",
                             color = Color(0xFF10B981),
-                            fontSize = 8.sp,
+                            fontSize = 7.5.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "Days",
                             color = Color(0xFF64748B),
-                            fontSize = 7.sp
+                            fontSize = 6.5.sp
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
 
                 // Right: 7-Column Dot Matrix Calendar
                 Column(modifier = Modifier.weight(1f)) {
@@ -488,7 +488,7 @@ fun AttendanceDotCalendarCard(
                             Text(
                                 text = day,
                                 color = Color(0xFF64748B),
-                                fontSize = 8.5.sp,
+                                fontSize = 8.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.weight(1f)
@@ -496,7 +496,7 @@ fun AttendanceDotCalendarCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
 
                     // 4-5 Rows of Dots
                     val days = attendance.calendarDays.take(28)
@@ -505,7 +505,7 @@ fun AttendanceDotCalendarCard(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 1.5.dp),
+                                .padding(vertical = 1.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             week.forEach { day ->
@@ -519,13 +519,13 @@ fun AttendanceDotCalendarCard(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(10.dp)
+                                        .height(9.dp)
                                         .clickable { onDayClick(day) },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Box(
                                         modifier = Modifier
-                                            .size(6.dp)
+                                            .size(5.5.dp)
                                             .clip(CircleShape)
                                             .background(dotColor)
                                     )
@@ -536,7 +536,7 @@ fun AttendanceDotCalendarCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // Bottom Horizontal Legend Row
             Row(
@@ -562,11 +562,11 @@ private fun DotLegend(color: Color, text: String) {
                 .clip(CircleShape)
                 .background(color)
         )
-        Spacer(modifier = Modifier.width(2.5.dp))
+        Spacer(modifier = Modifier.width(2.dp))
         Text(
             text = text,
             color = Color(0xFF475569),
-            fontSize = 7.5.sp,
+            fontSize = 7.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1
         )
@@ -589,7 +589,7 @@ fun WorkoutTrendChartCard(
             .background(Color.White)
             .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
-            .padding(11.dp)
+            .padding(8.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Header: Blue Squircle + "Workout Trend" + Chevron >
@@ -601,24 +601,24 @@ fun WorkoutTrendChartCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(22.dp)
                             .clip(RoundedCornerShape(6.dp))
                             .background(Color(0xFF3B82F6)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Canvas(modifier = Modifier.size(13.dp)) {
+                        Canvas(modifier = Modifier.size(12.dp)) {
                             val w = size.width
                             val h = size.height
-                            drawLine(color = Color.White, start = Offset(w * 0.25f, h * 0.2f), end = Offset(w * 0.25f, h * 0.8f), strokeWidth = 1.6.dp.toPx())
-                            drawLine(color = Color.White, start = Offset(w * 0.2f, h * 0.5f), end = Offset(w * 0.8f, h * 0.5f), strokeWidth = 1.2.dp.toPx())
-                            drawLine(color = Color.White, start = Offset(w * 0.75f, h * 0.2f), end = Offset(w * 0.75f, h * 0.8f), strokeWidth = 1.6.dp.toPx())
+                            drawLine(color = Color.White, start = Offset(w * 0.25f, h * 0.2f), end = Offset(w * 0.25f, h * 0.8f), strokeWidth = 1.5.dp.toPx())
+                            drawLine(color = Color.White, start = Offset(w * 0.2f, h * 0.5f), end = Offset(w * 0.8f, h * 0.5f), strokeWidth = 1.1.dp.toPx())
+                            drawLine(color = Color.White, start = Offset(w * 0.75f, h * 0.2f), end = Offset(w * 0.75f, h * 0.8f), strokeWidth = 1.5.dp.toPx())
                         }
                     }
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = "Workout Trend",
                         color = MemberCardTokens.DarkNavy,
-                        fontSize = 13.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -627,17 +627,17 @@ fun WorkoutTrendChartCard(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(15.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Body: Y-Axis + 30-Day Bar Chart
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(40.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
                 // Y-Axis labels: 60m, 30m, 0m
@@ -647,9 +647,9 @@ fun WorkoutTrendChartCard(
                         .padding(end = 4.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "60m", color = Color(0xFF94A3B8), fontSize = 7.sp)
-                    Text(text = "30m", color = Color(0xFF94A3B8), fontSize = 7.sp)
-                    Text(text = "0m", color = Color(0xFF94A3B8), fontSize = 7.sp)
+                    Text(text = "60m", color = Color(0xFF94A3B8), fontSize = 6.5.sp)
+                    Text(text = "30m", color = Color(0xFF94A3B8), fontSize = 6.5.sp)
+                    Text(text = "0m", color = Color(0xFF94A3B8), fontSize = 6.5.sp)
                 }
 
                 // 25-30 Bars
@@ -666,7 +666,7 @@ fun WorkoutTrendChartCard(
                         38, 42, 58, 46, 50
                     )
                     barValues.forEach { minutes ->
-                        val barHeight = ((minutes / 60f) * 44).dp
+                        val barHeight = ((minutes / 60f) * 36).dp
                         val barColor = when {
                             minutes >= 50 -> Color(0xFF10B981)
                             minutes >= 35 -> Color(0xFF06B6D4)
@@ -689,15 +689,15 @@ fun WorkoutTrendChartCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 22.dp, top = 2.dp),
+                    .padding(start = 20.dp, top = 2.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 listOf("1", "5", "10", "15", "20", "25").forEach { label ->
-                    Text(text = label, color = Color(0xFF94A3B8), fontSize = 7.5.sp)
+                    Text(text = label, color = Color(0xFF94A3B8), fontSize = 7.sp)
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Bottom 3 Metric Chips: Avg/Day, Peak, Lowest
             Row(
@@ -709,17 +709,17 @@ fun WorkoutTrendChartCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(16.dp)
+                            .size(15.dp)
                             .clip(CircleShape)
                             .background(Color(0xFFDCFCE7)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "⏱", fontSize = 8.sp)
+                        Text(text = "⏱", fontSize = 7.5.sp)
                     }
                     Spacer(modifier = Modifier.width(3.dp))
                     Column {
-                        Text(text = "${workout.avgPerDayMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                        Text(text = "Avg / Day", color = Color(0xFF64748B), fontSize = 6.5.sp)
+                        Text(text = "${workout.avgPerDayMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Avg / Day", color = Color(0xFF64748B), fontSize = 6.sp)
                     }
                 }
 
@@ -727,17 +727,17 @@ fun WorkoutTrendChartCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(16.dp)
+                            .size(15.dp)
                             .clip(CircleShape)
                             .background(Color(0xFFDCFCE7)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "↗", color = Color(0xFF10B981), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "↗", color = Color(0xFF10B981), fontSize = 8.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(3.dp))
                     Column {
-                        Text(text = "${workout.peakMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                        Text(text = "Peak (${workout.peakDate})", color = Color(0xFF64748B), fontSize = 6.5.sp)
+                        Text(text = "${workout.peakMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Peak (${workout.peakDate})", color = Color(0xFF64748B), fontSize = 6.sp)
                     }
                 }
 
@@ -745,17 +745,17 @@ fun WorkoutTrendChartCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(16.dp)
+                            .size(15.dp)
                             .clip(CircleShape)
                             .background(Color(0xFFFEE2E2)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "↘", color = Color(0xFFEF4444), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "↘", color = Color(0xFFEF4444), fontSize = 8.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(3.dp))
                     Column {
-                        Text(text = "${workout.lowestMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                        Text(text = "Lowest (${workout.lowestDate})", color = Color(0xFF64748B), fontSize = 6.5.sp)
+                        Text(text = "${workout.lowestMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Lowest (${workout.lowestDate})", color = Color(0xFF64748B), fontSize = 6.sp)
                     }
                 }
             }
@@ -780,7 +780,7 @@ fun BodyStatsSparklineCard(
             .background(Color.White)
             .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
-            .padding(12.dp)
+            .padding(8.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Header: Purple Body Icon + "Body Stats" + Chevron >
@@ -792,8 +792,8 @@ fun BodyStatsSparklineCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .size(26.dp)
+                            .clip(RoundedCornerShape(7.dp))
                             .background(Color(0xFF8B5CF6)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -801,14 +801,14 @@ fun BodyStatsSparklineCard(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(7.dp))
                     Text(
                         text = "Body Stats",
                         color = MemberCardTokens.DarkNavy,
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -817,16 +817,16 @@ fun BodyStatsSparklineCard(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // 4 Micro Metrics Grid Row with Sparkline Graphs
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 // Metric 1: Weight (69.5 kg ↓ 2.5 kg)
                 SparklineMetricCard(
@@ -916,7 +916,7 @@ private fun SparklineMetricCard(
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFF8FAFC))
             .border(1.dp, Color(0xFFF1F5F9), RoundedCornerShape(12.dp))
-            .padding(6.dp)
+            .padding(horizontal = 4.dp, vertical = 4.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -924,22 +924,22 @@ private fun SparklineMetricCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(22.dp)
                     .clip(RoundedCornerShape(6.dp))
                     .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
-                Canvas(modifier = Modifier.size(13.dp)) {
+                Canvas(modifier = Modifier.size(12.dp)) {
                     iconDraw(iconTint)
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             Text(
                 text = value,
                 color = MemberCardTokens.DarkNavy,
-                fontSize = 11.5.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
@@ -947,18 +947,18 @@ private fun SparklineMetricCard(
             Text(
                 text = delta,
                 color = deltaColor,
-                fontSize = 9.sp,
+                fontSize = 8.5.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             // Mini Sparkline Curve Canvas
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(18.dp)
+                    .height(15.dp)
             ) {
                 if (sparklinePoints.size < 2) return@Canvas
                 val min = sparklinePoints.minOrNull() ?: 0f
