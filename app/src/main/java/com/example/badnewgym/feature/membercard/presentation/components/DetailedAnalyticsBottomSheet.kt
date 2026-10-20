@@ -272,7 +272,7 @@ fun DetailedAnalyticsBottomSheet(
                         .height(46.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MemberCardTokens.DarkNavy,
+                        containerColor = Color(0xFF059669),
                         contentColor = Color.White
                     )
                 ) {

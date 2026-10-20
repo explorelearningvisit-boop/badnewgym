@@ -82,13 +82,13 @@ fun TailscaleSettingsBottomSheet(
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF0F172A)),
+                            .background(Color(0xFFE0F2FE)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.VpnLock,
                             contentDescription = "Tailscale",
-                            tint = Color(0xFF38BDF8),
+                            tint = Color(0xFF0284C7),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -366,7 +366,7 @@ fun TailscaleSettingsBottomSheet(
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0F172A)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
                     shape = RoundedCornerShape(10.dp)
                 ) {
                     Text("Save & Apply", fontWeight = FontWeight.SemiBold)

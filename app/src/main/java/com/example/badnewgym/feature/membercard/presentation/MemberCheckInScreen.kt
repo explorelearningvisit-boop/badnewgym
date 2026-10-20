@@ -72,14 +72,14 @@ import com.example.badnewgym.feature.membercard.presentation.components.SearchBo
 import com.example.badnewgym.feature.membercard.presentation.components.TailscaleSettingsBottomSheet
 
 enum class MemberIntelligenceTheme {
-    DARK_AURORA,
+    LIGHT_LUXURY,
     COMPACT_VIEWPORT,
     AQUA_GLASS
 }
 
 /**
  * BAD GYM — Member Intelligence Comprehensive Screen
- * Dual-Theme Engine supporting Aqua Glass Neumorphic (Mint Frost) & Dark Aurora.
+ * Ultra-Luxury Light Pearl Theme with Zero-Scroll Viewport Precision Architecture.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,9 +108,6 @@ fun MemberCheckInScreen(
     var showTailscaleSheet by remember { mutableStateOf(false) }
     val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    // Multi-Theme Engine: Dark Aurora (Default Luxury) vs Compact Viewport vs Aqua Glass
-    var currentTheme by remember { mutableStateOf(MemberIntelligenceTheme.DARK_AURORA) }
-
     // Active Navigation Tab
     var selectedTab by remember { mutableStateOf("Overview") }
 
@@ -127,125 +124,86 @@ fun MemberCheckInScreen(
     }
 
     Box(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .background(MemberCardTokens.LightPearlCanvasGradient)
+            .statusBarsPadding()
     ) {
-        when (currentTheme) {
-            MemberIntelligenceTheme.COMPACT_VIEWPORT -> {
-                CompactViewportMemberScreen(
-                    data = data,
-                    onToggleTheme = { currentTheme = MemberIntelligenceTheme.DARK_AURORA },
-                    onReceiptClick = { showReceiptSheet = true },
-                    onAttendanceClick = {
-                        selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                    },
-                    onAttendanceDayClick = { day -> selectedAttendanceDay = day },
-                    onAnalyticsClick = { showAnalyticsSheet = true },
-                    onMenuClick = {
-                        showTailscaleSheet = true
-                        onMenuClick()
-                    }
-                )
-            }
-            MemberIntelligenceTheme.AQUA_GLASS -> {
-                AquaGlassMemberView(
-                    data = data,
-                    onToggleTheme = { currentTheme = MemberIntelligenceTheme.DARK_AURORA },
-                    onReceiptClick = { showReceiptSheet = true },
-                    onAttendanceDayClick = { day -> selectedAttendanceDay = day },
-                    onAnalyticsClick = { showAnalyticsSheet = true },
-                    onNotificationClick = { showNotificationsSheet = true },
-                    onMenuClick = {
-                        showTailscaleSheet = true
-                        onMenuClick()
-                    }
-                )
-            }
-            MemberIntelligenceTheme.DARK_AURORA -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MemberCardTokens.AuroraCanvasGradient)
-                    .statusBarsPadding()
-            ) {
-                // Zero-Scroll Viewport Layout
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 12.dp, vertical = 2.dp)
-                        .padding(bottom = 58.dp), // padding for floating bottom bar
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    // 1. Top System & Brand Header
-                    TopBrandHeader(
-                        unreadNotifications = data.profile.unreadNotifications,
-                        onSearchClick = { showSearchSheet = true },
-                        onNotificationClick = { showNotificationsSheet = true },
-                        onToggleTheme = { currentTheme = MemberIntelligenceTheme.COMPACT_VIEWPORT }
-                    )
+        // Zero-Scroll Viewport Layout
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 2.dp)
+                .padding(bottom = 58.dp), // padding for floating bottom bar
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            // 1. Top System & Brand Header
+            TopBrandHeader(
+                unreadNotifications = data.profile.unreadNotifications,
+                onSearchClick = { showSearchSheet = true },
+                onNotificationClick = { showNotificationsSheet = true }
+            )
 
-                    // 2. Profile Hero Section with Greeting, 3 Metadata Chips & Circular Progress Gauge
-                    HeroProfileSection(
-                        profile = data.profile,
-                        onAvatarClick = {
+            // 2. Profile Hero Section with Greeting, 3 Metadata Chips & Circular Progress Gauge
+            HeroProfileSection(
+                profile = data.profile,
+                onAvatarClick = {
+                    showTailscaleSheet = true
+                    onMenuClick()
+                }
+            )
+
+            // 3. Five Quick Navigation Action Pills (Overview, Payment, Attendance, Workout, Progress)
+            QuickActionPillsRow(
+                selectedTab = selectedTab,
+                onTabSelect = { tab ->
+                    selectedTab = tab
+                    when (tab) {
+                        "Payment" -> showReceiptSheet = true
+                        "Attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                        "Workout" -> showAnalyticsSheet = true
+                        "Progress" -> showAnalyticsSheet = true
+                    }
+                }
+            )
+
+            // 4. Detailed Frosted White Cards (Payment & Plan, Attendance, Workout Trend, Body Stats)
+            MemberCheckInCard(
+                data = data,
+                onReceiptClick = { showReceiptSheet = true },
+                onAttendanceClick = {
+                    selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                },
+                onAttendanceDayClick = { day ->
+                    selectedAttendanceDay = day
+                },
+                onAnalyticsClick = { showAnalyticsSheet = true }
+            )
+        }
+
+        // 5. Floating Frosted White Glassmorphic Bottom Navigation Bar
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 14.dp, vertical = 8.dp)
+        ) {
+            FloatingBottomBar(
+                selectedTab = selectedTab,
+                onTabSelect = { tab ->
+                    selectedTab = tab
+                    when (tab) {
+                        "Payments" -> showReceiptSheet = true
+                        "Analytics" -> showAnalyticsSheet = true
+                        "Profile" -> {
                             showTailscaleSheet = true
                             onMenuClick()
                         }
-                    )
-
-                    // 3. Five Quick Navigation Action Pills (Overview, Payment, Attendance, Workout, Progress)
-                    QuickActionPillsRow(
-                        selectedTab = selectedTab,
-                        onTabSelect = { tab ->
-                            selectedTab = tab
-                            when (tab) {
-                                "Payment" -> showReceiptSheet = true
-                                "Attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                                "Workout" -> showAnalyticsSheet = true
-                                "Progress" -> showAnalyticsSheet = true
-                            }
-                        }
-                    )
-
-                    // 4. Detailed Frosted White Cards (Payment & Plan, Attendance, Workout Trend, Body Stats)
-                    MemberCheckInCard(
-                        data = data,
-                        onReceiptClick = { showReceiptSheet = true },
-                        onAttendanceClick = {
-                            selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                        },
-                        onAttendanceDayClick = { day ->
-                            selectedAttendanceDay = day
-                        },
-                        onAnalyticsClick = { showAnalyticsSheet = true }
-                    )
+                    }
                 }
-
-                // 5. Floating Dark Glassmorphic Bottom Navigation Bar
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(horizontal = 14.dp, vertical = 8.dp)
-                ) {
-                    FloatingBottomBar(
-                        selectedTab = selectedTab,
-                        onTabSelect = { tab ->
-                            selectedTab = tab
-                            when (tab) {
-                                "Payments" -> showReceiptSheet = true
-                                "Analytics" -> showAnalyticsSheet = true
-                                "Profile" -> {
-                                    showTailscaleSheet = true
-                                    onMenuClick()
-                                }
-                            }
-                        }
-                    )
-                }
-            }
+            )
         }
-    }
 
         // --- Bottom Sheets ---
         if (showReceiptSheet) {
@@ -301,7 +259,7 @@ private fun TopBrandHeader(
     unreadNotifications: Int,
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onToggleTheme: () -> Unit
+    onToggleTheme: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -315,14 +273,14 @@ private fun TopBrandHeader(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "BAD ",
-                    color = Color(0xFF00E676),
+                    color = Color(0xFF059669),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 1.sp
                 )
                 Text(
                     text = "GYM",
-                    color = Color.White,
+                    color = Color(0xFF0F172A),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 1.sp
@@ -330,69 +288,77 @@ private fun TopBrandHeader(
             }
             Text(
                 text = "MEMBER INTELLIGENCE",
-                color = Color(0xFF5EEAD4),
+                color = Color(0xFF0D9488),
                 fontSize = 9.5.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp
             )
         }
 
-        // Right Actions: Theme Toggle, Search & Notifications
+        // Right Actions: Live Status Pill, Search & Notifications
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Theme Switcher Toggle Pill
-            Box(
+            // Live Status Pill (Luminous Light Emerald)
+            Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFE0F2FE))
-                    .border(1.dp, Color(0xFF0284C7), RoundedCornerShape(14.dp))
-                    .clickable(onClick = onToggleTheme)
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                contentAlignment = Alignment.Center
+                    .background(Color(0xFFECFDF5))
+                    .border(1.dp, Color(0xFFA7F3D0), RoundedCornerShape(14.dp))
+                    .padding(horizontal = 9.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF10B981))
+                )
+                Spacer(modifier = Modifier.width(5.dp))
                 Text(
-                    text = "📱 Compact View",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0369A1)
+                    text = "LIVE",
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF047857)
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Search Button
+            // Search Button (Pure White Floating Circle)
             Box(
                 modifier = Modifier
                     .size(36.dp)
+                    .shadow(elevation = 3.dp, shape = CircleShape, spotColor = Color(0x100F172A))
                     .clip(CircleShape)
-                    .background(Color(0x33134E3F))
-                    .border(1.dp, Color(0x3334D399), CircleShape)
+                    .background(Color.White)
+                    .border(1.dp, Color(0xFFE2E8F0), CircleShape)
                     .clickable(onClick = onSearchClick),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
-                    tint = Color.White,
+                    tint = Color(0xFF1E293B),
                     modifier = Modifier.size(17.dp)
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Notifications Bell Button with Dot
+            // Notifications Bell Button with Dot (Pure White Floating Circle)
             Box(
                 modifier = Modifier
                     .size(36.dp)
+                    .shadow(elevation = 3.dp, shape = CircleShape, spotColor = Color(0x100F172A))
                     .clip(CircleShape)
-                    .background(Color(0x33134E3F))
-                    .border(1.dp, Color(0x3334D399), CircleShape)
+                    .background(Color.White)
+                    .border(1.dp, Color(0xFFE2E8F0), CircleShape)
                     .clickable(onClick = onNotificationClick),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = "Notifications",
-                    tint = Color.White,
+                    tint = Color(0xFF1E293B),
                     modifier = Modifier.size(17.dp)
                 )
 
@@ -404,7 +370,7 @@ private fun TopBrandHeader(
                             .offset(x = (-2).dp, y = 2.dp)
                             .clip(CircleShape)
                             .background(Color(0xFFEF4444))
-                            .border(1.dp, Color(0xFF06231B), CircleShape)
+                            .border(1.5.dp, Color.White, CircleShape)
                     )
                 }
             }
@@ -445,7 +411,7 @@ private fun HeroProfileSection(
                             .size(52.dp)
                             .align(Alignment.Center)
                             .clip(CircleShape)
-                            .border(2.dp, Color(0xFF00E676), CircleShape)
+                            .border(2.dp, Color(0xFF10B981), CircleShape)
                     )
 
                     // Pinned Gold Crown at Top-Left
@@ -484,7 +450,7 @@ private fun HeroProfileSection(
                             .offset(x = 1.dp, y = 1.dp)
                             .clip(CircleShape)
                             .background(Color(0xFF10B981))
-                            .border(1.5.dp, Color(0xFF041410), CircleShape),
+                            .border(1.5.dp, Color.White, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -503,14 +469,14 @@ private fun HeroProfileSection(
                     // "Good Morning 👋" greeting
                     Text(
                         text = "Good Morning 👋",
-                        color = Color(0xFF94A3B8),
+                        color = Color(0xFF64748B),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
 
                     Text(
                         text = profile.name,
-                        color = Color.White,
+                        color = Color(0xFF0F172A),
                         fontSize = 18.5.sp,
                         fontWeight = FontWeight.ExtraBold,
                         letterSpacing = (-0.3).sp
@@ -520,7 +486,7 @@ private fun HeroProfileSection(
 
                     Text(
                         text = "${profile.memberCode}  |  ${profile.age} yrs  |  ${profile.gender}",
-                        color = Color(0xFF94A3B8),
+                        color = Color(0xFF64748B),
                         fontSize = 10.5.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -533,12 +499,8 @@ private fun HeroProfileSection(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    Brush.horizontalGradient(
-                                        listOf(Color(0xFFB45309), Color(0xFFD97706))
-                                    )
-                                )
-                                .border(1.dp, Color(0xFFFDE68A).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                                .background(Color(0xFFFFFBEB))
+                                .border(1.dp, Color(0xFFFDE68A), RoundedCornerShape(12.dp))
                                 .padding(horizontal = 8.dp, vertical = 2.5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -546,7 +508,7 @@ private fun HeroProfileSection(
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
                                 text = "Prime Plan",
-                                color = Color(0xFFFFFBEB),
+                                color = Color(0xFF92400E),
                                 fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -556,21 +518,21 @@ private fun HeroProfileSection(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF059669))
-                                .border(1.dp, Color(0xFF34D399).copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                .background(Color(0xFFF0FDF4))
+                                .border(1.dp, Color(0xFFBBF7D0), RoundedCornerShape(12.dp))
                                 .padding(horizontal = 8.dp, vertical = 2.5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = Color(0xFF15803D),
                                 modifier = Modifier.size(10.dp)
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
                                 text = "Active",
-                                color = Color.White,
+                                color = Color(0xFF15803D),
                                 fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -581,7 +543,7 @@ private fun HeroProfileSection(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Right Glowing Circular Progress Gauge (75% / 25 Days Left)
+            // Right Glowing Circular Progress Gauge (75% / 25 Days Left) - Light Theme
             Box(
                 modifier = Modifier.size(62.dp),
                 contentAlignment = Alignment.Center
@@ -593,7 +555,7 @@ private fun HeroProfileSection(
 
                     // Track Ring
                     drawArc(
-                        color = Color(0xFF13382E),
+                        color = Color(0xFFDCFCE7),
                         startAngle = 0f,
                         sweepAngle = 360f,
                         useCenter = false,
@@ -605,7 +567,7 @@ private fun HeroProfileSection(
                     // Gradient Progress Arc (75% = 270 degrees)
                     drawArc(
                         brush = Brush.sweepGradient(
-                            listOf(Color(0xFF00E5FF), Color(0xFF00E676), Color(0xFF10B981))
+                            listOf(Color(0xFF10B981), Color(0xFF06B6D4), Color(0xFF3B82F6), Color(0xFF10B981))
                         ),
                         startAngle = -90f,
                         sweepAngle = 270f,
@@ -619,15 +581,15 @@ private fun HeroProfileSection(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "75%",
-                        color = Color.White,
+                        color = Color(0xFF0F172A),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
                     Text(
                         text = "25 Days Left",
-                        color = Color(0xFF94A3B8),
+                        color = Color(0xFF64748B),
                         fontSize = 7.5.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -635,12 +597,11 @@ private fun HeroProfileSection(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // 3 Metadata Chips Below Avatar Row: Joined, Goal, Branch
+        // 3 Metadata Chips Below Avatar Row: Joined, Goal, Branch (Crisp Pure White Cards)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            // Chip 1: Joined
             HeroDetailChip(
                 icon = "📅",
                 label = "Joined",
@@ -648,7 +609,6 @@ private fun HeroProfileSection(
                 modifier = Modifier.weight(1f)
             )
 
-            // Chip 2: Goal
             HeroDetailChip(
                 icon = "🎯",
                 label = "Goal",
@@ -656,7 +616,6 @@ private fun HeroProfileSection(
                 modifier = Modifier.weight(1f)
             )
 
-            // Chip 3: Branch
             HeroDetailChip(
                 icon = "📍",
                 label = "Branch",
@@ -676,9 +635,10 @@ private fun HeroDetailChip(
 ) {
     Row(
         modifier = modifier
+            .shadow(elevation = 2.dp, shape = RoundedCornerShape(10.dp), spotColor = Color(0x0C0F172A))
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0x2E103D31))
-            .border(1.dp, Color(0x3334D399), RoundedCornerShape(10.dp))
+            .background(Color.White)
+            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
             .padding(horizontal = 6.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -686,7 +646,7 @@ private fun HeroDetailChip(
         Spacer(modifier = Modifier.width(4.dp))
         Column {
             Text(text = label, color = Color(0xFF64748B), fontSize = 7.5.sp, fontWeight = FontWeight.Medium)
-            Text(text = value, color = Color(0xFFE2E8F0), fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+            Text(text = value, color = Color(0xFF0F172A), fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
         }
     }
 }
@@ -709,7 +669,7 @@ private fun QuickActionPillsRow(
         QuickNavPill(
             title = "Overview",
             iconContent = { Icon(imageVector = Icons.Default.Home, contentDescription = null, tint = it, modifier = Modifier.size(13.dp)) },
-            iconTint = if (selectedTab == "Overview") Color.White else Color(0xFF34D399),
+            iconTint = Color(0xFF10B981),
             isSelected = selectedTab == "Overview",
             onClick = { onTabSelect("Overview") }
         )
@@ -720,10 +680,10 @@ private fun QuickActionPillsRow(
             iconContent = {
                 Canvas(modifier = Modifier.size(13.dp)) {
                     drawRoundRect(color = it, topLeft = Offset(0f, size.height * 0.15f), size = Size(size.width, size.height * 0.7f), cornerRadius = CornerRadius(2.dp.toPx()))
-                    drawCircle(color = Color(0xFF0F172A), radius = 1.6.dp.toPx(), center = Offset(size.width * 0.75f, size.height * 0.5f))
+                    drawCircle(color = Color.White, radius = 1.6.dp.toPx(), center = Offset(size.width * 0.75f, size.height * 0.5f))
                 }
             },
-            iconTint = if (selectedTab == "Payment") Color.White else Color(0xFFFB7185),
+            iconTint = Color(0xFFF43F5E),
             isSelected = selectedTab == "Payment",
             onClick = { onTabSelect("Payment") }
         )
@@ -732,7 +692,7 @@ private fun QuickActionPillsRow(
         QuickNavPill(
             title = "Attendance",
             iconContent = { Icon(imageVector = Icons.Default.DateRange, contentDescription = null, tint = it, modifier = Modifier.size(13.dp)) },
-            iconTint = if (selectedTab == "Attendance") Color.White else Color(0xFF34D399),
+            iconTint = Color(0xFF10B981),
             isSelected = selectedTab == "Attendance",
             onClick = { onTabSelect("Attendance") }
         )
@@ -749,7 +709,7 @@ private fun QuickActionPillsRow(
                     drawRoundRect(color = it, topLeft = Offset(w * 0.7f, h * 0.35f), size = Size(w * 0.2f, h * 0.65f), cornerRadius = CornerRadius(1.5.dp.toPx()))
                 }
             },
-            iconTint = if (selectedTab == "Workout") Color.White else Color(0xFFA78BFA),
+            iconTint = Color(0xFF8B5CF6),
             isSelected = selectedTab == "Workout",
             onClick = { onTabSelect("Workout") }
         )
@@ -766,7 +726,7 @@ private fun QuickActionPillsRow(
                     drawLine(color = it, start = Offset(w * 0.8f, h * 0.3f), end = Offset(w * 0.8f, h * 0.7f), strokeWidth = 1.8.dp.toPx())
                 }
             },
-            iconTint = if (selectedTab == "Progress") Color.White else Color(0xFFFBBF24),
+            iconTint = Color(0xFFF59E0B),
             isSelected = selectedTab == "Progress",
             onClick = { onTabSelect("Progress") }
         )
@@ -782,11 +742,18 @@ private fun QuickNavPill(
     iconContent: @Composable (Color) -> Unit
 ) {
     val bgModifier = if (isSelected) {
-        Modifier.background(Color(0xFF00E676))
+        Modifier
+            .shadow(elevation = 3.dp, shape = RoundedCornerShape(14.dp), spotColor = Color(0x3310B981))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(Color(0xFF059669), Color(0xFF10B981))
+                )
+            )
     } else {
         Modifier
-            .background(Color(0x38102F26))
-            .border(1.dp, Color(0x3334D399), RoundedCornerShape(14.dp))
+            .shadow(elevation = 1.dp, shape = RoundedCornerShape(14.dp), spotColor = Color(0x0C0F172A))
+            .background(Color.White)
+            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
     }
 
     Row(
@@ -797,11 +764,11 @@ private fun QuickNavPill(
             .padding(horizontal = 9.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        iconContent(iconTint)
+        iconContent(if (isSelected) Color.White else iconTint)
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = title,
-            color = if (isSelected) Color(0xFF041410) else Color(0xFFE2E8F0),
+            color = if (isSelected) Color.White else Color(0xFF334155),
             fontSize = 10.5.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold
         )
@@ -809,7 +776,7 @@ private fun QuickNavPill(
 }
 
 // -----------------------------------------------------------------------------------------
-// COMPONENT 5: Floating Bottom Navigation Bar
+// COMPONENT 5: Floating Bottom Navigation Bar (Frosted Pure White Luxury Glass)
 // -----------------------------------------------------------------------------------------
 @Composable
 private fun FloatingBottomBar(
@@ -819,11 +786,11 @@ private fun FloatingBottomBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(elevation = 16.dp, shape = RoundedCornerShape(26.dp), spotColor = Color(0x33000000))
+            .shadow(elevation = 16.dp, shape = RoundedCornerShape(26.dp), spotColor = Color(0x1F0F172A))
             .clip(RoundedCornerShape(26.dp))
-            .background(Color(0xF0051613))
-            .border(1.dp, Color(0x3334D399), RoundedCornerShape(26.dp))
-            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .background(Color(0xF8FFFFFF))
+            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(26.dp))
+            .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -880,23 +847,29 @@ private fun BottomNavItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val activeColor = Color(0xFF00E676)
-    val inactiveColor = Color(0xFF94A3B8)
+    val activeColor = Color(0xFF059669)
+    val inactiveColor = Color(0xFF64748B)
     val tint = if (isSelected) activeColor else inactiveColor
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
         modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (isSelected) Color(0xFFECFDF5) else Color.Transparent)
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 4.dp)
+            .padding(horizontal = 14.dp, vertical = 5.dp),
+        contentAlignment = Alignment.Center
     ) {
-        icon(tint)
-        Spacer(modifier = Modifier.height(3.dp))
-        Text(
-            text = label,
-            color = tint,
-            fontSize = 9.5.sp,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            icon(tint)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = label,
+                color = tint,
+                fontSize = 9.5.sp,
+                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium
+            )
+        }
     }
 }

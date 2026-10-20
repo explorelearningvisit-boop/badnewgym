@@ -197,16 +197,16 @@ private fun CompactHeroHeaderCard(
             .background(
                 Brush.linearGradient(
                     listOf(
-                        Color(0xFF031A30),
-                        Color(0xFF063A63),
-                        Color(0xFF0284C7)
+                        Color(0xFFF0FDF4),
+                        Color(0xFFF8FAFC),
+                        Color(0xFFEFF6FF)
                     )
                 )
             )
             .padding(horizontal = 12.dp, vertical = 9.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Header Row: BAD GYM + MEMBER + Theme Switcher + Options Menu
+            // Header Row: BAD GYM + MEMBER + Options Menu
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -216,14 +216,14 @@ private fun CompactHeroHeaderCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "BAD",
-                            color = Color(0xFF00E676),
+                            color = Color(0xFF059669),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Black,
                             fontStyle = FontStyle.Italic
                         )
                         Text(
                             text = " GYM",
-                            color = Color.White,
+                            color = Color(0xFF0F172A),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Black,
                             fontStyle = FontStyle.Italic
@@ -231,7 +231,7 @@ private fun CompactHeroHeaderCard(
                     }
                     Text(
                         text = "M E M B E R",
-                        color = Color(0xFF67E8F9),
+                        color = Color(0xFF0D9488),
                         fontSize = 8.5.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 2.5.sp,
@@ -243,24 +243,6 @@ private fun CompactHeroHeaderCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    // Theme Switcher Toggle Pill (Dark Aurora / Compact)
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF0B253A))
-                            .border(1.dp, Color(0xFF0284C7), RoundedCornerShape(12.dp))
-                            .clickable(onClick = onToggleTheme)
-                            .padding(horizontal = 7.dp, vertical = 3.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "🌙 Dark Aurora",
-                            fontSize = 8.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF38BDF8)
-                        )
-                    }
-
                     // Options Menu Button
                     Box(
                         modifier = Modifier
@@ -272,8 +254,8 @@ private fun CompactHeroHeaderCard(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "Menu",
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
+                            tint = Color(0xFF1E293B),
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
@@ -295,7 +277,7 @@ private fun CompactHeroHeaderCard(
                         modifier = Modifier
                             .size(50.dp)
                             .align(Alignment.Center)
-                            .border(2.dp, Color(0xFF00E676), CircleShape)
+                            .border(2.dp, Color(0xFF10B981), CircleShape)
                             .padding(2.dp)
                             .clip(CircleShape)
                     ) {
@@ -325,14 +307,14 @@ private fun CompactHeroHeaderCard(
                             .size(12.dp)
                             .align(Alignment.BottomEnd)
                             .clip(CircleShape)
-                            .background(Color(0xFF031A30))
+                            .background(Color.White)
                             .padding(2.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(CircleShape)
-                                .background(Color(0xFF00E676))
+                                .background(Color(0xFF10B981))
                         )
                     }
                 }
@@ -345,14 +327,14 @@ private fun CompactHeroHeaderCard(
                         text = profile.name,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color(0xFF0F172A)
                     )
 
                     Text(
                         text = "${profile.memberCode} | ${profile.age} yrs | ${profile.gender}",
                         fontSize = 10.5.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFFBAE6FD)
+                        color = Color(0xFF64748B)
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
