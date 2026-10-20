@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,7 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -54,7 +54,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,7 +100,7 @@ fun MemberCheckInScreen(
     var showTailscaleSheet by remember { mutableStateOf(false) }
     val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    // Active Bottom Navigation Tab
+    // Active Navigation Tab
     var selectedTab by remember { mutableStateOf("Overview") }
 
     androidx.compose.runtime.LaunchedEffect(initialSheet) {
@@ -128,7 +127,7 @@ fun MemberCheckInScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 14.dp, vertical = 6.dp)
-                .padding(bottom = 80.dp) // padding for floating bottom nav
+                .padding(bottom = 76.dp) // padding for floating bottom bar
         ) {
             // 1. Top System & Brand Header
             TopBrandHeader(
@@ -137,9 +136,9 @@ fun MemberCheckInScreen(
                 onNotificationClick = { showNotificationsSheet = true }
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // 2. Profile Hero Section with Glowing Circular Progress Gauge
+            // 2. Profile Hero Section with Greeting, 3 Metadata Chips & Circular Progress Gauge
             HeroProfileSection(
                 profile = data.profile,
                 onAvatarClick = {
@@ -148,31 +147,38 @@ fun MemberCheckInScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // 3. Four Quick Navigation Action Pills (Payment, Attendance, Workout, Progress)
+            // 3. Five Quick Navigation Action Pills (Overview, Payment, Attendance, Workout, Progress)
             QuickActionPillsRow(
-                onPaymentClick = { showReceiptSheet = true },
-                onAttendanceClick = {
-                    selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                },
-                onWorkoutClick = { showAnalyticsSheet = true },
-                onProgressClick = { showAnalyticsSheet = true }
+                selectedTab = selectedTab,
+                onTabSelect = { tab ->
+                    selectedTab = tab
+                    when (tab) {
+                        "Payment" -> showReceiptSheet = true
+                        "Attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                        "Workout" -> showAnalyticsSheet = true
+                        "Progress" -> showAnalyticsSheet = true
+                    }
+                }
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // 4. Detailed Frosted White Cards (Payment & Plan, Attendance, Workout, Body Stats)
+            // 4. Detailed Frosted White Cards (Payment & Plan, Attendance, Workout Trend, Body Stats)
             MemberCheckInCard(
                 data = data,
                 onReceiptClick = { showReceiptSheet = true },
                 onAttendanceClick = {
                     selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
                 },
+                onAttendanceDayClick = { day ->
+                    selectedAttendanceDay = day
+                },
                 onAnalyticsClick = { showAnalyticsSheet = true }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
         }
 
         // 5. Floating Dark Glassmorphic Bottom Navigation Bar
@@ -181,7 +187,7 @@ fun MemberCheckInScreen(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp)
         ) {
             FloatingBottomBar(
                 selectedTab = selectedTab,
@@ -257,7 +263,7 @@ private fun TopBrandHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 4.dp),
+            .padding(top = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -344,7 +350,7 @@ private fun TopBrandHeader(
 }
 
 // -----------------------------------------------------------------------------------------
-// COMPONENT 2: Hero Profile Section & Circular Gauge
+// COMPONENT 2: Hero Profile Section & Circular Gauge (With Greeting & 3 Chips)
 // -----------------------------------------------------------------------------------------
 @Composable
 private fun HeroProfileSection(
@@ -357,7 +363,7 @@ private fun HeroProfileSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Left Profile Block: Avatar + Name + Demographics + Status Badges
+            // Left Profile Block: Avatar + Greeting + Name + Demographics + Status Badges
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
@@ -431,28 +437,36 @@ private fun HeroProfileSection(
 
                 // Name & Metadata Column
                 Column {
+                    // "Good Morning 👋" greeting
                     Text(
-                        text = profile.name,
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = (-0.3).sp
-                    )
-
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Text(
-                        text = "${profile.memberCode}  |  ${profile.age} yrs  |  ${profile.gender}",
+                        text = "Good Morning 👋",
                         color = Color(0xFF94A3B8),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = profile.name,
+                        color = Color.White,
+                        fontSize = 18.5.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = (-0.3).sp
+                    )
 
-                    // Status Pills Row: Prime & Active
+                    Spacer(modifier = Modifier.height(1.dp))
+
+                    Text(
+                        text = "${profile.memberCode}  |  ${profile.age} yrs  |  ${profile.gender}",
+                        color = Color(0xFF94A3B8),
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Status Pills Row: Prime Plan & Active
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        // Amber "Prime" Pill
+                        // Amber "Prime Plan" Pill
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
@@ -462,15 +476,15 @@ private fun HeroProfileSection(
                                     )
                                 )
                                 .border(1.dp, Color(0xFFFDE68A).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                                .padding(horizontal = 8.dp, vertical = 3.dp),
+                                .padding(horizontal = 8.dp, vertical = 2.5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(text = "⚡", fontSize = 9.sp)
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = "Prime",
+                                text = "Prime Plan",
                                 color = Color(0xFFFFFBEB),
-                                fontSize = 10.sp,
+                                fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -481,7 +495,7 @@ private fun HeroProfileSection(
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(Color(0xFF059669))
                                 .border(1.dp, Color(0xFF34D399).copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                                .padding(horizontal = 8.dp, vertical = 3.dp),
+                                .padding(horizontal = 8.dp, vertical = 2.5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -494,7 +508,7 @@ private fun HeroProfileSection(
                             Text(
                                 text = "Active",
                                 color = Color.White,
-                                fontSize = 10.sp,
+                                fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -502,7 +516,7 @@ private fun HeroProfileSection(
                 }
             }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             // Right Glowing Circular Progress Gauge (75% / 25 Days Left)
             Box(
@@ -558,122 +572,140 @@ private fun HeroProfileSection(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Date Capsule: 01 - 30 Sep 2026
+        // 3 Metadata Chips Below Avatar Row: Joined, Goal, Branch
         Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0x33103D31))
-                .border(1.dp, Color(0x3334D399), RoundedCornerShape(12.dp))
-                .padding(horizontal = 10.dp, vertical = 5.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.DateRange,
-                contentDescription = null,
-                tint = Color(0xFF34D399),
-                modifier = Modifier.size(13.dp)
+            // Chip 1: Joined
+            HeroDetailChip(
+                icon = "📅",
+                label = "Joined",
+                value = profile.joinedDate,
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = "01 – 30 Sep 2026",
-                color = Color(0xFFE2E8F0),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 0.5.sp
+
+            // Chip 2: Goal
+            HeroDetailChip(
+                icon = "🎯",
+                label = "Goal",
+                value = profile.goal,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Chip 3: Branch
+            HeroDetailChip(
+                icon = "📍",
+                label = "Branch",
+                value = profile.branch,
+                modifier = Modifier.weight(1f)
             )
         }
     }
 }
 
+@Composable
+private fun HeroDetailChip(
+    icon: String,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0x2E103D31))
+            .border(1.dp, Color(0x3334D399), RoundedCornerShape(10.dp))
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = icon, fontSize = 10.sp)
+        Spacer(modifier = Modifier.width(4.dp))
+        Column {
+            Text(text = label, color = Color(0xFF64748B), fontSize = 7.5.sp, fontWeight = FontWeight.Medium)
+            Text(text = value, color = Color(0xFFE2E8F0), fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        }
+    }
+}
+
 // -----------------------------------------------------------------------------------------
-// COMPONENT 3: Four Quick Navigation Action Pills
+// COMPONENT 3: Five Quick Navigation Action Pills (Overview, Payment, Attendance, Workout, Progress)
 // -----------------------------------------------------------------------------------------
 @Composable
 private fun QuickActionPillsRow(
-    onPaymentClick: () -> Unit,
-    onAttendanceClick: () -> Unit,
-    onWorkoutClick: () -> Unit,
-    onProgressClick: () -> Unit
+    selectedTab: String,
+    onTabSelect: (String) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        // 1. Payment Pill
+        // 1. Overview Pill (Active Green)
+        QuickNavPill(
+            title = "Overview",
+            iconContent = { Icon(imageVector = Icons.Default.Home, contentDescription = null, tint = it, modifier = Modifier.size(13.dp)) },
+            iconTint = if (selectedTab == "Overview") Color.White else Color(0xFF34D399),
+            isSelected = selectedTab == "Overview",
+            onClick = { onTabSelect("Overview") }
+        )
+
+        // 2. Payment Pill
         QuickNavPill(
             title = "Payment",
-            iconBg = Color(0x33F43F5E),
-            iconTint = Color(0xFFFB7185),
-            onClick = onPaymentClick,
-            modifier = Modifier.weight(1f),
             iconContent = {
-                Canvas(modifier = Modifier.size(15.dp)) {
-                    drawRoundRect(
-                        color = it,
-                        topLeft = Offset(0f, size.height * 0.15f),
-                        size = Size(size.width, size.height * 0.7f),
-                        cornerRadius = CornerRadius(2.dp.toPx())
-                    )
-                    drawCircle(
-                        color = Color(0xFF0F172A),
-                        radius = 1.8.dp.toPx(),
-                        center = Offset(size.width * 0.75f, size.height * 0.5f)
-                    )
+                Canvas(modifier = Modifier.size(13.dp)) {
+                    drawRoundRect(color = it, topLeft = Offset(0f, size.height * 0.15f), size = Size(size.width, size.height * 0.7f), cornerRadius = CornerRadius(2.dp.toPx()))
+                    drawCircle(color = Color(0xFF0F172A), radius = 1.6.dp.toPx(), center = Offset(size.width * 0.75f, size.height * 0.5f))
                 }
-            }
+            },
+            iconTint = if (selectedTab == "Payment") Color.White else Color(0xFFFB7185),
+            isSelected = selectedTab == "Payment",
+            onClick = { onTabSelect("Payment") }
         )
 
-        // 2. Attendance Pill
+        // 3. Attendance Pill
         QuickNavPill(
             title = "Attendance",
-            iconBg = Color(0x3310B981),
-            iconTint = Color(0xFF34D399),
-            onClick = onAttendanceClick,
-            modifier = Modifier.weight(1f),
-            iconContent = {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = null,
-                    tint = it,
-                    modifier = Modifier.size(15.dp)
-                )
-            }
+            iconContent = { Icon(imageVector = Icons.Default.DateRange, contentDescription = null, tint = it, modifier = Modifier.size(13.dp)) },
+            iconTint = if (selectedTab == "Attendance") Color.White else Color(0xFF34D399),
+            isSelected = selectedTab == "Attendance",
+            onClick = { onTabSelect("Attendance") }
         )
 
-        // 3. Workout Pill
+        // 4. Workout Pill
         QuickNavPill(
             title = "Workout",
-            iconBg = Color(0x338B5CF6),
-            iconTint = Color(0xFFA78BFA),
-            onClick = onWorkoutClick,
-            modifier = Modifier.weight(1f),
             iconContent = {
-                Canvas(modifier = Modifier.size(15.dp)) {
+                Canvas(modifier = Modifier.size(13.dp)) {
                     val w = size.width
                     val h = size.height
                     drawRoundRect(color = it, topLeft = Offset(w * 0.1f, h * 0.5f), size = Size(w * 0.2f, h * 0.5f), cornerRadius = CornerRadius(1.5.dp.toPx()))
                     drawRoundRect(color = it, topLeft = Offset(w * 0.4f, h * 0.2f), size = Size(w * 0.2f, h * 0.8f), cornerRadius = CornerRadius(1.5.dp.toPx()))
                     drawRoundRect(color = it, topLeft = Offset(w * 0.7f, h * 0.35f), size = Size(w * 0.2f, h * 0.65f), cornerRadius = CornerRadius(1.5.dp.toPx()))
                 }
-            }
+            },
+            iconTint = if (selectedTab == "Workout") Color.White else Color(0xFFA78BFA),
+            isSelected = selectedTab == "Workout",
+            onClick = { onTabSelect("Workout") }
         )
 
-        // 4. Progress Pill
+        // 5. Progress Pill
         QuickNavPill(
             title = "Progress",
-            iconBg = Color(0x33F59E0B),
-            iconTint = Color(0xFFFBBF24),
-            onClick = onProgressClick,
-            modifier = Modifier.weight(1f),
             iconContent = {
-                Canvas(modifier = Modifier.size(15.dp)) {
+                Canvas(modifier = Modifier.size(13.dp)) {
                     val w = size.width
                     val h = size.height
-                    drawLine(color = it, start = Offset(w * 0.2f, h * 0.3f), end = Offset(w * 0.2f, h * 0.7f), strokeWidth = 2.dp.toPx())
-                    drawLine(color = it, start = Offset(w * 0.2f, h * 0.5f), end = Offset(w * 0.8f, h * 0.5f), strokeWidth = 1.5.dp.toPx())
-                    drawLine(color = it, start = Offset(w * 0.8f, h * 0.3f), end = Offset(w * 0.8f, h * 0.7f), strokeWidth = 2.dp.toPx())
+                    drawLine(color = it, start = Offset(w * 0.2f, h * 0.3f), end = Offset(w * 0.2f, h * 0.7f), strokeWidth = 1.8.dp.toPx())
+                    drawLine(color = it, start = Offset(w * 0.2f, h * 0.5f), end = Offset(w * 0.8f, h * 0.5f), strokeWidth = 1.4.dp.toPx())
+                    drawLine(color = it, start = Offset(w * 0.8f, h * 0.3f), end = Offset(w * 0.8f, h * 0.7f), strokeWidth = 1.8.dp.toPx())
                 }
-            }
+            },
+            iconTint = if (selectedTab == "Progress") Color.White else Color(0xFFFBBF24),
+            isSelected = selectedTab == "Progress",
+            onClick = { onTabSelect("Progress") }
         )
     }
 }
@@ -681,41 +713,35 @@ private fun QuickActionPillsRow(
 @Composable
 private fun QuickNavPill(
     title: String,
-    iconBg: Color,
     iconTint: Color,
+    isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     iconContent: @Composable (Color) -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
+    val bgModifier = if (isSelected) {
+        Modifier.background(Color(0xFF00E676))
+    } else {
+        Modifier
             .background(Color(0x38102F26))
-            .border(1.dp, Color(0x3334D399), RoundedCornerShape(18.dp))
+            .border(1.dp, Color(0x3334D399), RoundedCornerShape(14.dp))
+    }
+
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(14.dp))
+            .then(bgModifier)
             .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
-        contentAlignment = Alignment.Center
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(iconBg),
-                contentAlignment = Alignment.Center
-            ) {
-                iconContent(iconTint)
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = title,
-                color = Color(0xFFE2E8F0),
-                fontSize = 10.5.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+        iconContent(iconTint)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = title,
+            color = if (isSelected) Color(0xFF041410) else Color(0xFFE2E8F0),
+            fontSize = 10.5.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold
+        )
     }
 }
 
