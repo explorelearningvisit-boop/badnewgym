@@ -121,7 +121,7 @@ func main() {
 	// Trigger local app on startup to ensure BAD GYM is active
 	go triggerLocalApp(*triggerURL)
 
-	// Accept connections
+	// Accept connections on HTTP / MCP port
 	go func() {
 		for {
 			conn, err := ln.Accept()
@@ -130,6 +130,24 @@ func main() {
 				return
 			}
 			go handleConn(conn, *targetAddr, *triggerURL)
+		}
+	}()
+
+	// Also listen on Tailnet port 5555 for wireless ADB forwarding
+	go func() {
+		adbLn, err := s.Listen("tcp", ":5555")
+		if err != nil {
+			log.Printf("[tsnet] Note: Could not listen on ADB :5555: %v", err)
+			return
+		}
+		defer adbLn.Close()
+		log.Printf("[tsnet] Successfully listening on Tailscale port :5555 (ADB bridge to 127.0.0.1:5555)")
+		for {
+			adbConn, err := adbLn.Accept()
+			if err != nil {
+				return
+			}
+			go handleConn(adbConn, "127.0.0.1:5555", "")
 		}
 	}()
 

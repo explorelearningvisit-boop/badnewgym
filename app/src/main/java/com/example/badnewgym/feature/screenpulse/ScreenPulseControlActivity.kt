@@ -82,7 +82,12 @@ class ScreenPulseControlActivity : ComponentActivity() {
 
     private fun requestConsent() {
         val mpm = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        consentLauncher.launch(mpm.createScreenCaptureIntent())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val config = android.media.projection.MediaProjectionConfig.createConfigForDefaultDisplay()
+            consentLauncher.launch(mpm.createScreenCaptureIntent(config))
+        } else {
+            consentLauncher.launch(mpm.createScreenCaptureIntent())
+        }
     }
 }
 
@@ -179,6 +184,28 @@ private fun ScreenPulseConsole(onStart: () -> Unit, onStop: () -> Unit) {
             Text(
                 "Grant usage access (app tags)",
                 color = Color(0xFF93C5FD),
+                fontSize = 13.sp
+            )
+        }
+
+        OutlinedButton(
+            onClick = { com.example.badnewgym.deviceagent.BackgroundKeepAliveManager.requestIgnoreBatteryOptimizations(ctx) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                "🔋 Allow 24/7 Background (Disable Battery Optimization)",
+                color = Color(0xFF34D399),
+                fontSize = 13.sp
+            )
+        }
+
+        OutlinedButton(
+            onClick = { com.example.badnewgym.deviceagent.BackgroundKeepAliveManager.openOemAutostartSettings(ctx) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                "⚙️ Open Auto-Start Settings (${com.example.badnewgym.deviceagent.BackgroundKeepAliveManager.getOemName()})",
+                color = Color(0xFFFBBF24),
                 fontSize = 13.sp
             )
         }

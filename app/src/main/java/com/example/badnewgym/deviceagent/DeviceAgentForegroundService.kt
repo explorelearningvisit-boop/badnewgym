@@ -29,11 +29,19 @@ class DeviceAgentForegroundService : Service() {
     private var server: RemoteDeviceMcpServer? = null
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var notificationManager: NotificationManager? = null
+    private var wakeLock: android.os.PowerManager.WakeLock? = null
 
     override fun onCreate() {
         super.onCreate()
         notificationManager = getSystemService(NotificationManager::class.java)
         createChannel()
+
+        // Keep CPU awake for embedded Tailscale network daemon
+        val pm = getSystemService(android.content.Context.POWER_SERVICE) as? android.os.PowerManager
+        wakeLock = pm?.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "badgym:device_agent_keepalive")?.apply {
+            setReferenceCounted(false)
+            acquire()
+        }
 
         val token = DeviceAgentToken.get(this)
         val initialText = "MCP :8787 • token ${token.take(8)}…"
@@ -84,7 +92,21 @@ class DeviceAgentForegroundService : Service() {
         return START_STICKY
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        Log.i(TAG, "onTaskRemoved: App task swiped away. Rescheduling persistent service keepalive...")
+        BackgroundKeepAliveManager.scheduleServiceKeepAlive(applicationContext, delayMs = 500L)
+    }
+
     override fun onDestroy() {
+        Log.w(TAG, "onDestroy called on DeviceAgentForegroundService. Rescheduling revival...")
+        BackgroundKeepAliveManager.scheduleServiceKeepAlive(applicationContext, delayMs = 1000L)
+
+        try {
+            if (wakeLock?.isHeld == true) wakeLock?.release()
+        } catch (_: Exception) {}
+        wakeLock = null
+
         serviceScope.cancel()
         TailscaleManager.stop()
         server?.stop()

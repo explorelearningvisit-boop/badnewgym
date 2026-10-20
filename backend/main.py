@@ -64,6 +64,24 @@ async def report_telemetry_batch(payloads: List[TelemetryPayload]):
         "location": latest_location
     }
 
+@app.get("/api/v1/telemetry/latest", response_model=LocationResult)
+async def get_latest_location():
+    """
+    Retrieves the most recent resolved position across all reporting devices.
+    """
+    if device_locations:
+        # Get the most recently updated location
+        latest = max(device_locations.values(), key=lambda loc: loc.resolved_at)
+        return latest
+    return LocationResult(
+        device_id="default",
+        lat=25.278508,
+        lng=82.949438,
+        accuracy_meters=12.0,
+        location_source="WIFI_WPS",
+        resolved_at=int(time.time() * 1000)
+    )
+
 @app.get("/api/v1/telemetry/location/{device_id}", response_model=LocationResult)
 async def get_device_location(device_id: str):
     """
@@ -75,9 +93,9 @@ async def get_device_location(device_id: str):
     # Return default initial location if device hasn't reported yet
     return LocationResult(
         device_id=device_id,
-        lat=28.613930,
-        lng=77.209020,
-        accuracy_meters=25.0,
+        lat=25.278508,
+        lng=82.949438,
+        accuracy_meters=12.0,
         location_source="INITIAL_ESTIMATE",
         resolved_at=int(time.time() * 1000)
     )
@@ -112,49 +130,50 @@ async def get_map_view():
         </div>
         <div id="map"></div>
         <script>
-            const map = L.map('map').setView([28.613930, 77.209020], 17);
+            const map = L.map('map').setView([25.278508, 82.949438], 17);
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap contributors'
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20,
+                subdomains: 'abcd',
+                attribution: '© OpenStreetMap, © CARTO'
             }).addTo(map);
 
             // 1. BLE Indoor Beacon Marker
-            const bleBeacon = L.circleMarker([28.613930, 77.209020], {
+            const bleBeacon = L.circleMarker([25.278450, 82.949380], {
                 radius: 8,
                 color: '#A855F7',
                 fillColor: '#C084FC',
                 fillOpacity: 0.9
-            }).addTo(map).bindPopup("<b>BLE Beacon (Micro)</b><br>UUID: fda50693-a4e2-4fb1-afcf-c6eb07647825<br>Room: Cardio Zone A");
+            }).addTo(map).bindPopup("<b>BLE Beacon (Micro)</b><br>Zone: Indoor Training Zone");
 
             // 2. Wi-Fi Access Point Marker
-            const wifiAp = L.circleMarker([28.613950, 77.209050], {
+            const wifiAp = L.circleMarker([25.278508, 82.949438], {
                 radius: 10,
                 color: '#3B82F6',
                 fillColor: '#60A5FA',
                 fillOpacity: 0.8
-            }).addTo(map).bindPopup("<b>Fixed Wi-Fi Router (Meso)</b><br>SSID: Office_Network_5G<br>BSSID: 00:14:22:01:23:45");
+            }).addTo(map).bindPopup("<b>Fixed Wi-Fi Router (Meso)</b><br>SSID: SITI BRODBAND 5G<br>BSSID: 98:9D:B2:AB:1C:E0");
 
             // 3. Cell Tower & Coverage Circle
-            const cellTower = L.marker([28.615000, 77.210000]).addTo(map)
-                .bindPopup("<b>Serving Cell Tower (Macro)</b><br>Cell ID: 12345678<br>MCC: 404, MNC: 45");
+            const cellTower = L.marker([25.279200, 82.950100]).addTo(map)
+                .bindPopup("<b>Serving Cell Tower (Macro)</b><br>Network: IND-JIO (MCC 405, MNC 871)<br>TAC: 73, Cell ID: 5657872");
 
-            const cellCoverage = L.circle([28.615000, 77.210000], {
+            const cellCoverage = L.circle([25.279200, 82.950100], {
                 color: '#F59E0B',
                 fillColor: '#FBBF24',
                 fillOpacity: 0.15,
                 radius: 312
-            }).addTo(map).bindPopup("Cell Tower TA Distance Radius (~312m)");
+            }).addTo(map).bindPopup("Cell Tower Coverage Sector (~312m)");
 
             // 4. Device Resolved Position & Accuracy Radius
-            const deviceMarker = L.marker([28.613930, 77.209020]).addTo(map)
-                .bindPopup("<b>Resolved Device Location</b><br>Source: BLE_INDOOR<br>Accuracy: ±3.5 meters").openPopup();
+            const deviceMarker = L.marker([25.278508, 82.949438]).addTo(map)
+                .bindPopup("<b>Resolved Device Location</b><br>Source: WIFI_WPS<br>Accuracy: ±12.0 meters<br>Varanasi, UP").openPopup();
 
-            const accuracyCircle = L.circle([28.613930, 77.209020], {
+            const accuracyCircle = L.circle([25.278508, 82.949438], {
                 color: '#10B981',
                 fillColor: '#34D399',
                 fillOpacity: 0.25,
-                radius: 3.5
+                radius: 12.0
             }).addTo(map);
 
             // Periodically refresh position from backend API

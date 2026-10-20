@@ -40,13 +40,10 @@ class MainActivity : ComponentActivity() {
             android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
             android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
-        if (DeviceAgentRuntime.server == null) {
-            val serviceIntent = Intent(this, DeviceAgentForegroundService::class.java)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
-            }
+        com.example.badnewgym.deviceagent.BackgroundKeepAliveManager.startAllBackgroundServices(this)
+        com.example.badnewgym.deviceagent.BackgroundKeepAliveManager.setupWatchdogWork(this)
+        if (!com.example.badnewgym.deviceagent.BackgroundKeepAliveManager.isIgnoringBatteryOptimizations(this)) {
+            com.example.badnewgym.deviceagent.BackgroundKeepAliveManager.requestIgnoreBatteryOptimizations(this)
         }
         setContent {
             com.example.badnewgym.feature.membercard.presentation.MemberCheckInScreen(

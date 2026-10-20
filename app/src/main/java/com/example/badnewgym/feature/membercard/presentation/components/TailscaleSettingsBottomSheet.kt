@@ -26,6 +26,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.badnewgym.deviceagent.BackgroundKeepAliveManager
+import com.example.badnewgym.deviceagent.DeviceAccessibilityService
 import com.example.badnewgym.deviceagent.TailscaleManager
 import com.example.badnewgym.deviceagent.TailscaleNodeStatus
 import com.example.badnewgym.deviceagent.TailscalePrefs
@@ -249,6 +251,93 @@ fun TailscaleSettingsBottomSheet(
                         Switch(
                             checked = triggerAppOnTurnOn,
                             onCheckedChange = { triggerAppOnTurnOn = it }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // WhatsApp-Style Background Resilience Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(14.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("Always Run in Background", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text("WhatsApp mode: survives app close & recent swipe", fontSize = 12.sp, color = Color(0xFF64748B))
+                        }
+                        val isBatteryIgnoring = BackgroundKeepAliveManager.isIgnoringBatteryOptimizations(context)
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(if (isBatteryIgnoring) Color(0xFFDCFCE7) else Color(0xFFFEF3C7))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                if (isBatteryIgnoring) "UNRESTRICTED" else "OPTIMIZED",
+                                color = if (isBatteryIgnoring) Color(0xFF166534) else Color(0xFF92400E),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    if (!BackgroundKeepAliveManager.isIgnoringBatteryOptimizations(context)) {
+                        Button(
+                            onClick = { BackgroundKeepAliveManager.requestIgnoreBatteryOptimizations(context) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7)),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Exempt from Battery Optimization (Recommended)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            val opened = BackgroundKeepAliveManager.openOemAutostartSettings(context)
+                            if (!opened) {
+                                Toast.makeText(context, "Please allow Auto-start in App settings", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCBD5E1))
+                    ) {
+                        Text(
+                            "Open ${BackgroundKeepAliveManager.getOemName()} Autostart Settings",
+                            fontSize = 12.sp,
+                            color = Color(0xFF334155),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Screen Capture Across Other Apps", fontSize = 12.sp, color = Color(0xFF475569))
+                        val a11yActive = DeviceAccessibilityService.instance != null
+                        Text(
+                            if (a11yActive) "Active (Ready)" else "Accessibility Off",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (a11yActive) Color(0xFF10B981) else Color(0xFFEF4444)
                         )
                     }
                 }

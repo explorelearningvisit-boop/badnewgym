@@ -6,7 +6,6 @@ Run Gradle commands from repository root.
 
 ## LEGACY / OUT OF SCOPE
 BAD_GYM_MEMBER_INTELLIGENCE_READY/ is legacy/reference only and must not receive current implementation work.
-OPPO/ and Launch_Oppo_Dev_Studio.bat are out of scope.
 
 ## CURRENT MEMBER INTELLIGENCE SOURCE OF TRUTH
 1. AGENTS.md

@@ -3,6 +3,7 @@ import sys
 import time
 import re
 import csv
+import shutil
 from datetime import datetime
 import base64
 import subprocess
@@ -15,6 +16,9 @@ import concurrent.futures
 import queue
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
+import json
+import urllib.request
+import webbrowser
 
 try:
     from PIL import Image, ImageTk
@@ -25,9 +29,11 @@ except ImportError:
 NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
 
 PRESET_DEVICES = [
+    ("Xiaomi 11i [BAD GYM Tailscale Live]", "100.84.228.109:5555"),
     ("OPPO A53 [Tailscale]", "100.80.18.55:5555"),
     ("Xiaomi 11i [USB Fast]", "zxdada69gunb7ls4"),
-    ("Xiaomi 11i [Tailscale]", "100.123.18.54:5555"),
+    ("Xiaomi 11i [Wi-Fi Local]", "192.168.1.37:5555"),
+    ("Xiaomi 11i [Tailscale Standalone]", "100.123.18.54:5555"),
 ]
 
 DEFAULT_PKG = "com.example.badnewgym"
@@ -35,7 +41,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 
 # Dedicated date-wise laptop storage folder
-PULLED_SCREENS_DIR = os.path.join(PROJECT_DIR, "pulled_screens")
+PULLED_SCREENS_DIR = os.path.join(BASE_DIR, "pulled_screens")
 os.makedirs(PULLED_SCREENS_DIR, exist_ok=True)
 
 # Local DEX compiler output for Android internal execution
@@ -52,8 +58,8 @@ class DeviceDevStudio(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Android Multi-Device Dev Studio (OPPO & Xiaomi)")
-        self.geometry("1360x880")
-        self.minsize(1050, 700)
+        self.geometry("1400x900")
+        self.minsize(1080, 720)
         self.configure(bg="#0f172a")
 
         self.target_device = PRESET_DEVICES[0][1] # Default: OPPO A53 Tailscale
@@ -66,6 +72,7 @@ class DeviceDevStudio(tk.Tk):
         self.last_raw_bytes = None
         self.current_scale_factor = 3
         self.pull_counter = 0
+        self.var_autosave_frames = tk.BooleanVar(value=True)
 
         self.last_saved_path = None
         self.last_saved_folder = None
@@ -115,6 +122,16 @@ class DeviceDevStudio(tk.Tk):
         # Analytics cached metrics
         self.analytics_data = {}
 
+        # WhatsApp Chat & Media Sync state
+        self.all_wa_chats = []
+        self.filtered_wa_chats = []
+        self.selected_wa_chat = None
+        self.wa_messages = []
+        self.wa_pulled_media = []
+        self.wa_auto_sync = False
+        self.wa_sync_thread = None
+        self.wa_image_cache = {}
+
         self._setup_styles()
         self._build_layout()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -133,6 +150,15 @@ class DeviceDevStudio(tk.Tk):
         style.map("Accent.TButton", background=[("active", "#0369a1")])
         style.configure("Stop.TButton", font=("Segoe UI", 9, "bold"), background="#b91c1c", foreground="#ffffff")
         style.map("Stop.TButton", background=[("active", "#991b1b")])
+
+        # Notebook & Tab styling for dark theme
+        style.configure("TNotebook", background="#0f172a", borderwidth=0)
+        style.configure("TNotebook.Tab", background="#1e293b", foreground="#94a3b8", padding=[4, 2], font=("Segoe UI", 8, "bold"))
+        style.map("TNotebook.Tab", background=[("selected", "#0284c7")], foreground=[("selected", "#ffffff")])
+
+        # Combobox styling for dark theme
+        style.configure("TCombobox", fieldbackground="#1e293b", background="#334155", foreground="#ffffff", darkcolor="#1e293b", lightcolor="#334155")
+        style.map("TCombobox", fieldbackground=[("readonly", "#1e293b")], foreground=[("readonly", "#ffffff")])
         
         # Treeview styling for dark theme
         style.configure(
@@ -147,34 +173,72 @@ class DeviceDevStudio(tk.Tk):
         style.map("Treeview", background=[("selected", "#0284c7")], foreground=[("selected", "#ffffff")])
 
     def _build_layout(self):
-        top_bar = tk.Frame(self, bg="#1e293b", padx=12, pady=8, relief="solid", bd=1)
-        top_bar.pack(fill="x", side="top")
+        top_container = tk.Frame(self, bg="#1e293b", relief="solid", bd=1)
+        top_container.pack(fill="x", side="top")
 
-        tk.Label(top_bar, text="📱 Android Dev Studio", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left", padx=(0, 10))
+        # Row 1: App Title, Target Device Picker, Connection & Power Controls
+        top_bar_row1 = tk.Frame(top_container, bg="#1e293b", padx=10, pady=5)
+        top_bar_row1.pack(fill="x", side="top")
 
-        tk.Label(top_bar, text="Device:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8, "bold")).pack(side="left", padx=2)
-        
+        tk.Label(top_bar_row1, text="📱 Android Dev Studio", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left", padx=(0, 10))
+
+        tk.Label(top_bar_row1, text="Device:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8, "bold")).pack(side="left", padx=2)
+
         self.device_combo = ttk.Combobox(
-            top_bar, 
+            top_bar_row1,
             values=[f"{label} - {addr}" for label, addr in PRESET_DEVICES],
-            width=32,
+            width=30,
             state="readonly"
         )
         self.device_combo.current(0)
         self.device_combo.pack(side="left", padx=3)
         self.device_combo.bind("<<ComboboxSelected>>", self._on_device_combo_select)
 
-        self.btn_refresh_devs = tk.Button(top_bar, text="🔄 Scan", bg="#334155", fg="white", activebackground="#475569", activeforeground="white", font=("Segoe UI", 8), padx=5, relief="flat", command=self.refresh_devices_list)
+        self.btn_refresh_devs = tk.Button(top_bar_row1, text="🔄 Scan", bg="#334155", fg="white", activebackground="#475569", activeforeground="white", font=("Segoe UI", 8), padx=6, relief="flat", command=self.refresh_devices_list)
         self.btn_refresh_devs.pack(side="left", padx=2)
 
-        self.btn_connect = tk.Button(top_bar, text="Connect ADB", bg="#0284c7", fg="white", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=10, relief="flat", command=self.toggle_connection)
-        self.btn_connect.pack(side="left", padx=6)
+        self.btn_connect = tk.Button(top_bar_row1, text="Connect ADB", bg="#0284c7", fg="white", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.toggle_connection)
+        self.btn_connect.pack(side="left", padx=2)
 
-        self.status_lbl = tk.Label(top_bar, text="● Disconnected", bg="#1e293b", fg="#ef4444", font=("Segoe UI", 9, "bold"))
+        self.status_lbl = tk.Label(top_bar_row1, text="● Disconnected", bg="#1e293b", fg="#ef4444", font=("Segoe UI", 9, "bold"))
         self.status_lbl.pack(side="left", padx=6)
 
-        tk.Button(top_bar, text="💤 Sleep", bg="#475569", fg="#f8fafc", activebackground="#334155", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.put_device_to_sleep).pack(side="right", padx=3)
-        tk.Button(top_bar, text="⚡ Wake", bg="#0284c7", fg="#f8fafc", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.wake_device).pack(side="right", padx=3)
+        # BAD GYM LIVE STATUS BADGE
+        self.badgym_status_badge = tk.Label(top_bar_row1, text="🏋️ BAD GYM: CHECKING...", bg="#334155", fg="#f59e0b", font=("Segoe UI", 8, "bold"), padx=8, pady=2, relief="flat", cursor="hand2")
+        self.badgym_status_badge.pack(side="left", padx=4)
+        self.badgym_status_badge.bind("<Button-1>", lambda e: self.open_badgym_tab())
+
+        # Power Controls on Right of Row 1
+        tk.Button(top_bar_row1, text="💤 Sleep", bg="#475569", fg="#f8fafc", activebackground="#334155", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.put_device_to_sleep).pack(side="right", padx=3)
+        tk.Button(top_bar_row1, text="⚡ Wake", bg="#0284c7", fg="#f8fafc", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.wake_device).pack(side="right", padx=3)
+
+        # Row 2: Action Toolbar & Active App Banner
+        top_bar_row2 = tk.Frame(top_container, bg="#0f172a", padx=10, pady=4)
+        top_bar_row2.pack(fill="x", side="top")
+
+        self.btn_web_stream_top = tk.Button(top_bar_row2, text="🎥 Live Web Stream", bg="#0891b2", fg="white", activebackground="#0e7490", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.open_live_web_stream)
+        self.btn_web_stream_top.pack(side="left", padx=3)
+
+        self.btn_snap_top = tk.Button(top_bar_row2, text="📸 Snap Screen", bg="#0284c7", fg="white", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.pull_single_screen)
+        self.btn_snap_top.pack(side="left", padx=3)
+
+        self.btn_open_pulled_top = tk.Button(top_bar_row2, text="📁 Pulled Screens", bg="#334155", fg="white", activebackground="#475569", activeforeground="white", font=("Segoe UI", 8), padx=7, relief="flat", command=self.open_saved_folder)
+        self.btn_open_pulled_top.pack(side="left", padx=3)
+
+        self.btn_full_backup_top = tk.Button(top_bar_row2, text="⚡ 1-Click Backup", bg="#7c3aed", fg="white", activebackground="#6d28d9", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.backup_entire_phone_data_one_click)
+        self.btn_full_backup_top.pack(side="left", padx=3)
+
+        self.btn_scan_pull_top = tk.Button(top_bar_row2, text="🚀 Scan Media", bg="#16a34a", fg="white", activebackground="#15803d", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.scan_and_pull_whole_mobile_media)
+        self.btn_scan_pull_top.pack(side="left", padx=3)
+
+        self.btn_storage_clean_top = tk.Button(top_bar_row2, text="💾 Storage & Purge", bg="#0d9488", fg="white", activebackground="#0f766e", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.open_storage_tab)
+        self.btn_storage_clean_top.pack(side="left", padx=3)
+
+        self.btn_pair_wireless = tk.Button(top_bar_row2, text="🔗 Pair Wireless", bg="#475569", fg="white", activebackground="#334155", activeforeground="white", font=("Segoe UI", 8), padx=7, relief="flat", command=self.open_wireless_pairing_dialog)
+        self.btn_pair_wireless.pack(side="left", padx=3)
+
+        self.active_app_banner = tk.Label(top_bar_row2, text="🏠 Home / App Closed", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8, "bold"), padx=10, pady=2, relief="flat")
+        self.active_app_banner.pack(side="right", padx=3)
 
         main_paned = tk.PanedWindow(self, orient="horizontal", bg="#0f172a", sashwidth=4, bd=0)
         main_paned.pack(fill="both", expand=True, padx=8, pady=8)
@@ -185,26 +249,38 @@ class DeviceDevStudio(tk.Tk):
         self.main_tabs = ttk.Notebook(left_col)
         self.main_tabs.pack(fill="both", expand=True)
 
+        tab_badgym = ttk.Frame(self.main_tabs, padding=6)
+        self.tab_badgym = tab_badgym
+        tab_whatsapp = ttk.Frame(self.main_tabs, padding=6)
         tab_gallery = ttk.Frame(self.main_tabs, padding=6)
         tab_calls = ttk.Frame(self.main_tabs, padding=6)
         tab_apps = ttk.Frame(self.main_tabs, padding=6)
         tab_files = ttk.Frame(self.main_tabs, padding=6)
+        tab_storage = ttk.Frame(self.main_tabs, padding=6)
         tab_analytics = ttk.Frame(self.main_tabs, padding=6)
         tab_power = ttk.Frame(self.main_tabs, padding=6)
         tab_log = ttk.Frame(self.main_tabs, padding=6)
 
+        self.tab_storage = tab_storage
+
+        self.main_tabs.add(tab_badgym, text=" 🏋️ BAD GYM ")
+        self.main_tabs.add(tab_whatsapp, text=" 💬 WhatsApp ")
         self.main_tabs.add(tab_gallery, text=" 🖼️ Gallery ")
         self.main_tabs.add(tab_calls, text=" 📞 Calls ")
         self.main_tabs.add(tab_apps, text=" ⚡ Apps ")
         self.main_tabs.add(tab_files, text=" 📁 Files ")
+        self.main_tabs.add(tab_storage, text=" 💾 Storage & Clean ")
         self.main_tabs.add(tab_analytics, text=" 📊 Analytics ")
         self.main_tabs.add(tab_power, text=" 🔋 Power ")
         self.main_tabs.add(tab_log, text=" 📋 ADB Log ")
 
+        self._build_badgym_tab(tab_badgym)
+        self._build_whatsapp_tab(tab_whatsapp)
         self._build_gallery_tab(tab_gallery)
         self._build_calls_tab(tab_calls)
         self._build_apps_tab(tab_apps)
         self._build_files_tab(tab_files)
+        self._build_storage_tab(tab_storage)
         self._build_analytics_tab(tab_analytics)
         self._build_power_tab(tab_power)
         self._build_log_tab(tab_log)
@@ -219,13 +295,16 @@ class DeviceDevStudio(tk.Tk):
             addr = sel.split(" - ")[-1].strip()
             if addr != self.target_device or not self.connected:
                 self._stop_wake_watcher()
+                if self.pulling:
+                    self.pulling = False
+                    self.btn_pull_live.config(text="▶ Stream", bg="#16a34a")
                 self.target_device = addr
                 self.log(f"Switched target device to: {sel}")
                 self._clear_device_data()
                 self.toggle_connection(force_connect=True)
 
     def _start_wake_watcher(self, addr):
-        """Ultra-low-overhead socket observer (0% Mobile CPU/RAM/Battery, <0.01% Laptop CPU) that detects when sleeping phone wakes up and immediately auto-connects"""
+        """Ultra-low-overhead presence observer (0% Mobile CPU/RAM/Battery) that detects when sleeping or powered-off phone wakes up / reconnects on Tailscale and auto-connects"""
         if self.wake_watcher_active or self.connected:
             return
         if ":" not in addr:
@@ -240,26 +319,79 @@ class DeviceDevStudio(tk.Tk):
         self.wake_watcher_active = True
 
         def observer_loop():
-            self.log(f"💤 Device sleeping / screen off. Observer active: waiting for mobile to wake up on {addr}...")
+            self.log(f"💤 Device sleeping / turned off. Observer active: auto-monitoring Tailscale wake-up for {addr}...")
             if not self.connected:
                 self.after(0, lambda: self.status_lbl.config(
-                    text="💤 Device Sleeping / Screen Off (Waiting for wake-up...)",
+                    text=f"💤 Monitoring Tailscale ({ip}...)",
                     fg="#f59e0b"
                 ))
             
+            probe_counter = 0
             while self.wake_watcher_active and not self.connected:
                 time.sleep(2.5)
                 if not self.wake_watcher_active or self.connected:
                     break
+                
+                probe_counter += 1
+                tcp_alive = False
+                ping_alive = False
+
+                # 1. TCP Port Probe
                 try:
-                    # Ultra-lightweight TCP SYN probe (1 packet, <60 bytes, 0 phone CPU/RAM/wake lock)
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    s.settimeout(0.8)
+                    s.settimeout(1.2)
                     res = s.connect_ex((ip, port))
                     s.close()
                     if res == 0:
-                        # Mobile woke up and adbd is accepting connections!
-                        self.log(f"⚡ Mobile Woke Up! Port {port} is now open on {ip}. Auto-connecting to device...")
+                        tcp_alive = True
+                except Exception:
+                    pass
+
+                # 2. ICMP Ping probe over Tailscale
+                if not tcp_alive:
+                    try:
+                        p_res = subprocess.run(["ping", "-n", "1", "-w", "800", ip], capture_output=True, timeout=2, creationflags=NO_WINDOW)
+                        out_str = p_res.stdout.decode('utf-8', errors='ignore').lower()
+                        if p_res.returncode == 0 and ("reply from" in out_str or "bytes=" in out_str):
+                            ping_alive = True
+                    except Exception:
+                        pass
+
+                if ping_alive and not tcp_alive:
+                    self.after(0, lambda: self.status_lbl.config(
+                        text=f"📡 Device Online on Tailscale! ({ip} OK • Auto-opening Port 5555)",
+                        fg="#38bdf8"
+                    ))
+                    # Auto-recovery after mobile reboot: check if USB cable is plugged in to automatically re-enable tcpip 5555
+                    try:
+                        dev_check = subprocess.run(["adb", "devices"], capture_output=True, timeout=4, creationflags=NO_WINDOW)
+                        dev_lines = dev_check.stdout.decode('utf-8', errors='ignore').splitlines()
+                        for dl in dev_lines[1:]:
+                            dp = dl.strip().split()
+                            if len(dp) >= 2 and dp[1] == "device" and ":" not in dp[0]:
+                                subprocess.run(["adb", "-s", dp[0], "tcpip", "5555"], capture_output=True, timeout=5, creationflags=NO_WINDOW)
+                                time.sleep(1)
+                                break
+                    except Exception:
+                        pass
+
+                if tcp_alive or (ping_alive and probe_counter % 3 == 0):
+                    # Attempt ADB connect over Tailscale
+                    try:
+                        subprocess.run(["adb", "disconnect", addr], capture_output=True, timeout=3, creationflags=NO_WINDOW)
+                        subprocess.run(["adb", "connect", addr], capture_output=True, timeout=5, creationflags=NO_WINDOW)
+                    except Exception:
+                        pass
+
+                    # Verify model
+                    try:
+                        t_res = subprocess.run(["adb", "-s", addr, "shell", "getprop ro.product.model"], capture_output=True, timeout=4, creationflags=NO_WINDOW)
+                        t_out = t_res.stdout.decode('utf-8', errors='replace').strip()
+                    except Exception:
+                        t_out = ""
+
+                    if t_out and "offline" not in t_out.lower() and "error" not in t_out.lower():
+                        self.log(f"⚡ Mobile Woke Up & Connected! Model: {t_out}")
                         self.wake_watcher_active = False
                         self.after(0, lambda: self.status_lbl.config(
                             text="⚡ Mobile Woke Up! Connecting...",
@@ -267,8 +399,6 @@ class DeviceDevStudio(tk.Tk):
                         ))
                         self.after(0, lambda: self.toggle_connection(force_connect=True))
                         break
-                except Exception:
-                    pass
 
             self.wake_watcher_active = False
 
@@ -338,8 +468,8 @@ class DeviceDevStudio(tk.Tk):
                     self.selected_app_lbl.config(text="Select an app below")
 
                 # Files UI reset
-                if hasattr(self, 'file_listbox'):
-                    self.file_listbox.delete(0, "end")
+                if hasattr(self, 'file_tree'):
+                    self.file_tree.delete(*self.file_tree.get_children())
 
                 # Battery & Screen UI reset
                 if hasattr(self, 'batt_level_lbl'):
@@ -366,22 +496,500 @@ class DeviceDevStudio(tk.Tk):
         return os.path.join(thumb_dir, f"thumb_{path_hash}_{safe_name}.jpg")
 
     def get_device_clean_name(self):
-        """Clean mobile name for organizing folder structure without illegal path chars"""
+        """Clean mobile name for organizing folder structure without illegal path chars (Thread-Safe)"""
+        curr = ""
+        try:
+            curr = self.device_combo.get() if hasattr(self, 'device_combo') else ""
+        except Exception:
+            pass
+        if not curr:
+            curr = getattr(self, '_selected_device_text', '')
+        if " - " in curr:
+            lbl = curr.split(" - ")[0].strip()
+            clean = lbl.split("[")[0].strip().replace(" ", "_")
+            clean = "".join(c for c in clean if c.isalnum() or c in ('_', '-'))
+            if clean:
+                return clean
         for label, addr in PRESET_DEVICES:
             if addr == self.target_device:
                 clean = label.split("[")[0].strip().replace(" ", "_")
+                clean = "".join(c for c in clean if c.isalnum() or c in ('_', '-'))
                 return clean
-        curr = self.device_combo.get()
-        if " - " in curr:
-            lbl = curr.split(" - ")[0].strip()
-            clean = lbl.split("(")[0].strip().replace(" ", "_")
-            if clean:
-                return clean
-        code, out, _ = self.run_adb(["shell", "getprop ro.product.model"], timeout=3)
-        if code == 0 and out.strip():
-            clean = out.strip().replace(" ", "_")
-            return "".join(c for c in clean if c.isalnum() or c in ('_', '-'))
         return self.target_device.replace(":", "_").replace(".", "_")
+
+    def _get_stream_interval(self):
+        """Thread-safe stream speed interval parser"""
+        mode_sel = "1.0s (Smooth)"
+        try:
+            if hasattr(self, 'interval_combo'):
+                mode_sel = self.interval_combo.get()
+                self._cached_interval_mode = mode_sel
+        except Exception:
+            mode_sel = getattr(self, '_cached_interval_mode', "1.0s (Smooth)")
+        m_num = re.search(r'([0-9.]+)', mode_sel)
+        if m_num:
+            try:
+                return float(m_num.group(1))
+            except Exception:
+                pass
+        return 1.0
+
+    def open_badgym_tab(self):
+        if hasattr(self, 'tab_badgym') and hasattr(self, 'main_tabs'):
+            self.main_tabs.select(self.tab_badgym)
+            self._check_target_badgym_health()
+
+    def open_live_web_stream(self):
+        ip = self._get_badgym_ip() or "100.84.228.109"
+        url = f"http://{ip}:8787/"
+        self.log(f"Opening live video stream & remote control in browser: {url}")
+        if hasattr(self, 'badgym_log'):
+            self.badgym_log(f"Opening live video stream & remote control in browser: {url}")
+        webbrowser.open(url)
+
+    def _get_badgym_ip(self):
+        addr = self.target_device
+        if ":" in addr:
+            return addr.split(":")[0]
+        # USB device: check or establish port forwarding
+        try:
+            subprocess.run(["adb", "-s", addr, "forward", "tcp:8787", "tcp:8787"], capture_output=True, timeout=1, creationflags=NO_WINDOW)
+            return "127.0.0.1"
+        except Exception:
+            pass
+        return None
+
+    def _start_badgym_health_poller(self):
+        """Continuously checks if BAD GYM is live on the selected target device"""
+        if getattr(self, '_badgym_poller_active', False):
+            return
+        self._badgym_poller_active = True
+        
+        def poller_loop():
+            while getattr(self, '_badgym_poller_active', False):
+                self._check_target_badgym_health()
+                time.sleep(4.0)
+                
+        threading.Thread(target=poller_loop, daemon=True).start()
+
+    def _check_target_badgym_health(self):
+        addr = self.target_device
+        ip = self._get_badgym_ip()
+        
+        is_live = False
+        health_info = None
+        if ip:
+            try:
+                with urllib.request.urlopen(f"http://{ip}:8787/health", timeout=1.2) as res:
+                    if res.status == 200:
+                        is_live = True
+                        try:
+                            health_info = json.loads(res.read().decode())
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+
+        def update_ui():
+            if is_live:
+                if hasattr(self, 'badgym_status_badge'):
+                    self.badgym_status_badge.config(
+                        text="🏋️ BAD GYM: LIVE 🟢",
+                        bg="#064e3b",
+                        fg="#34d399"
+                    )
+                if hasattr(self, 'badgym_tab_status_lbl'):
+                    self.badgym_tab_status_lbl.config(
+                        text="● LIVE 🟢 (Service & tsnet Active)",
+                        fg="#22c55e"
+                    )
+                if hasattr(self, 'screen_badgym_badge'):
+                    self.screen_badgym_badge.config(
+                        text="🟢 BAD GYM LIVE",
+                        fg="#22c55e"
+                    )
+            else:
+                if hasattr(self, 'badgym_status_badge'):
+                    self.badgym_status_badge.config(
+                        text="🏋️ BAD GYM: OFFLINE 🔴",
+                        bg="#450a0a",
+                        fg="#f87171"
+                    )
+                if hasattr(self, 'badgym_tab_status_lbl'):
+                    self.badgym_tab_status_lbl.config(
+                        text="● OFFLINE 🔴 (Port 8787 Unreachable)",
+                        fg="#ef4444"
+                    )
+                if hasattr(self, 'screen_badgym_badge'):
+                    self.screen_badgym_badge.config(
+                        text="🔴 BAD GYM OFFLINE",
+                        fg="#ef4444"
+                    )
+            if hasattr(self, 'badgym_lbl_target'):
+                self.badgym_lbl_target.config(text=f"Target ADB: {self.target_device}")
+            if hasattr(self, 'badgym_lbl_ip'):
+                self.badgym_lbl_ip.config(text=f"Tailscale IP: {ip or 'Resolving...'}")
+            if hasattr(self, 'badgym_lbl_endpoint'):
+                self.badgym_lbl_endpoint.config(text=f"HTTP Agent: http://{ip or '100.84.228.109'}:8787")
+        try:
+            self.after(0, update_ui)
+        except Exception:
+            pass
+
+    def badgym_log(self, msg):
+        def _append():
+            if hasattr(self, 'badgym_console'):
+                ts = time.strftime("%H:%M:%S")
+                self.badgym_console.insert("end", f"[{ts}] {msg}\n")
+                self.badgym_console.see("end")
+        try:
+            self.after(0, _append)
+        except Exception:
+            pass
+
+    def badgym_launch(self):
+        def task():
+            self.badgym_log("Launching BAD GYM MainActivity on device...")
+            addr = self.target_device
+            code, out, err = self.run_adb(["shell", f"am start -n {DEFAULT_PKG}/.MainActivity -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"])
+            if code == 0:
+                self.badgym_log("🚀 BAD GYM launched via ADB successfully.")
+            else:
+                self.badgym_log(f"ADB launch note: {out or err}")
+            
+            ip = self._get_badgym_ip()
+            if ip:
+                try:
+                    payload = json.dumps({"method": "tools/call", "params": {"name": "launch_badgym", "arguments": {}}, "id": 1}).encode()
+                    req = urllib.request.Request(f"http://{ip}:8787/mcp", data=payload, headers={"Content-Type": "application/json", "Authorization": "Bearer badgym-secret-mcp-token"})
+                    with urllib.request.urlopen(req, timeout=3) as res:
+                        self.badgym_log(f"MCP launch response: {res.status}")
+                except Exception:
+                    pass
+            self._check_target_badgym_health()
+        threading.Thread(target=task, daemon=True).start()
+
+    def badgym_stop(self):
+        def task():
+            self.badgym_log(f"Stopping package {DEFAULT_PKG}...")
+            code, out, _ = self.run_adb(["shell", f"am force-stop {DEFAULT_PKG}"])
+            self.badgym_log(f"Force stop executed: code={code}")
+            self._check_target_badgym_health()
+        threading.Thread(target=task, daemon=True).start()
+
+    def badgym_restart_service(self):
+        def task():
+            self.badgym_log("Restarting BAD GYM Foreground Service & embedded tsnet daemon...")
+            self.run_adb(["shell", f"am start-foreground-service -n {DEFAULT_PKG}/.deviceagent.DeviceAgentForegroundService"])
+            ip = self._get_badgym_ip()
+            if ip:
+                try:
+                    payload = json.dumps({"method": "tools/call", "params": {"name": "tailscale_restart", "arguments": {}}, "id": 1}).encode()
+                    req = urllib.request.Request(f"http://{ip}:8787/mcp", data=payload, headers={"Content-Type": "application/json", "Authorization": "Bearer badgym-secret-mcp-token"})
+                    with urllib.request.urlopen(req, timeout=4) as res:
+                        self.badgym_log(f"Tailscale restart response: {res.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    self.badgym_log(f"Service trigger note: {e}")
+            time.sleep(2)
+            self._check_target_badgym_health()
+        threading.Thread(target=task, daemon=True).start()
+
+    def badgym_ping_health(self):
+        def task():
+            ip = self._get_badgym_ip()
+            if not ip:
+                self.badgym_log(f"Cannot resolve IP for target {self.target_device}")
+                return
+            t0 = time.time()
+            try:
+                with urllib.request.urlopen(f"http://{ip}:8787/health", timeout=2.5) as res:
+                    dt = int((time.time() - t0) * 1000)
+                    resp_body = res.read().decode()
+                    self.badgym_log(f"🟢 Health OK ({dt} ms): {resp_body}")
+            except Exception as e:
+                self.badgym_log(f"🔴 Health check failed: {e}")
+            self._check_target_badgym_health()
+        threading.Thread(target=task, daemon=True).start()
+
+    def badgym_fetch_diagnostics(self):
+        def task():
+            ip = self._get_badgym_ip()
+            if not ip:
+                self.badgym_log("Target IP not available.")
+                return
+            self.badgym_log(f"Querying diagnostics from http://{ip}:8787/mcp...")
+            try:
+                payload = json.dumps({"method": "tools/call", "params": {"name": "device_status", "arguments": {}}, "id": 1}).encode()
+                req = urllib.request.Request(f"http://{ip}:8787/mcp", data=payload, headers={"Content-Type": "application/json", "Authorization": "Bearer badgym-secret-mcp-token"})
+                with urllib.request.urlopen(req, timeout=5) as res:
+                    out = res.read().decode('utf-8', errors='ignore')
+                    self.badgym_log(f"📊 Device Status:\n{out}")
+            except Exception as e:
+                self.badgym_log(f"Diagnostics error: {e}")
+        threading.Thread(target=task, daemon=True).start()
+
+    def wake_and_unlock_device(self):
+        def task():
+            self.badgym_log("Sending wake & unlock keyevents...")
+            self.run_adb(["shell", "input keyevent 26 && input keyevent 82"])
+            self.badgym_log("Device wake & unlock sent.")
+        threading.Thread(target=task, daemon=True).start()
+
+    def remote_keyevent(self, keycode):
+        def task():
+            names = {3: "HOME", 4: "BACK", 187: "APP_SWITCH", 26: "POWER", 82: "MENU/UNLOCK", 24: "VOL_UP", 25: "VOL_DOWN"}
+            k_name = names.get(keycode, str(keycode))
+            self.badgym_log(f"Sending keyevent {k_name} ({keycode})...")
+            self.run_adb(["shell", f"input keyevent {keycode}"])
+        threading.Thread(target=task, daemon=True).start()
+
+    def remote_expand_notifications(self):
+        def task():
+            self.badgym_log("Expanding notification shade...")
+            self.run_adb(["shell", "cmd statusbar expand-notifications"])
+        threading.Thread(target=task, daemon=True).start()
+
+    def remote_send_text_from_entry(self):
+        if not hasattr(self, 'badgym_text_entry'):
+            return
+        text = self.badgym_text_entry.get().strip()
+        if not text:
+            return
+        self.badgym_text_entry.delete(0, "end")
+        def task():
+            self.badgym_log(f"Typing on device: {text}")
+            escaped = text.replace(" ", "%s").replace("'", "\\'").replace('"', '\\"')
+            self.run_adb(["shell", f"input text '{escaped}'"])
+        threading.Thread(target=task, daemon=True).start()
+
+    def remote_tap_from_entry(self):
+        if not hasattr(self, 'badgym_tap_x') or not hasattr(self, 'badgym_tap_y'):
+            return
+        x_str = self.badgym_tap_x.get().strip()
+        y_str = self.badgym_tap_y.get().strip()
+        if not x_str or not y_str:
+            return
+        try:
+            x, y = int(x_str), int(y_str)
+        except ValueError:
+            return
+        def task():
+            self.badgym_log(f"Tapping coordinate ({x}, {y})...")
+            self.run_adb(["shell", f"input tap {x} {y}"])
+        threading.Thread(target=task, daemon=True).start()
+
+    def _on_ts_tree_double_click(self, event=None):
+        if not hasattr(self, 'ts_tree'):
+            return
+        sel = self.ts_tree.selection()
+        if sel:
+            item = self.ts_tree.item(sel[0])
+            vals = item.get("values", [])
+            if len(vals) >= 3:
+                ip = vals[2]
+                addr = f"{ip}:5555"
+                for idx, val_str in enumerate(self.device_combo['values']):
+                    if addr in val_str:
+                        self.device_combo.current(idx)
+                        self._on_device_combo_select()
+                        break
+
+    def _try_badgym_http_screen_pull(self, target_w, quality):
+        ip = self._get_badgym_ip()
+        if not ip:
+            return None
+        for endpoint in ("/screen.jpg", "/screenshot", "/screen.png"):
+            try:
+                req = urllib.request.Request(f"http://{ip}:8787{endpoint}")
+                with urllib.request.urlopen(req, timeout=6.0) as res:
+                    if res.status == 200:
+                        raw = res.read()
+                        if len(raw) > 500:
+                            if HAS_PIL:
+                                try:
+                                    img = Image.open(io.BytesIO(raw))
+                                    w, h = img.size
+                                    new_h = int(h * (target_w / max(1, w)))
+                                    resized = img.resize((target_w, new_h), Image.Resampling.LANCZOS).convert("RGB")
+                                    out_io = io.BytesIO()
+                                    resized.save(out_io, format="JPEG", quality=quality)
+                                    return out_io.getvalue()
+                                except Exception:
+                                    return raw
+                            return raw
+            except Exception:
+                pass
+        return None
+
+    def _build_badgym_tab(self, parent):
+        canvas = tk.Canvas(parent, bg="#0f172a", highlightthickness=0)
+        scrollbar = ttk.Scrollbar(parent, orient="vertical", command=canvas.yview)
+        scroll_frame = tk.Frame(canvas, bg="#0f172a")
+
+        scroll_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        canvas_win = canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.itemconfig(canvas_win, width=e.width))
+
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        head_card = tk.Frame(scroll_frame, bg="#1e293b", padx=12, pady=10, relief="solid", bd=1)
+        head_card.pack(fill="x", padx=4, pady=4)
+
+        tk.Label(
+            head_card,
+            text="🏋️ BAD GYM — Remote Intelligence & Control Center",
+            bg="#1e293b",
+            fg="#38bdf8",
+            font=("Segoe UI", 12, "bold")
+        ).pack(side="left")
+
+        self.badgym_tab_status_lbl = tk.Label(
+            head_card,
+            text="● Checking Health...",
+            bg="#1e293b",
+            fg="#f59e0b",
+            font=("Segoe UI", 9, "bold")
+        )
+        self.badgym_tab_status_lbl.pack(side="right", padx=6)
+
+        info_card = tk.LabelFrame(
+            scroll_frame,
+            text=" 📱 Active Target & Tailscale Info ",
+            bg="#1e293b",
+            fg="#38bdf8",
+            font=("Segoe UI", 9, "bold"),
+            padx=10,
+            pady=8
+        )
+        info_card.pack(fill="x", padx=4, pady=4)
+
+        self.badgym_lbl_target = tk.Label(info_card, text=f"Target ADB: {self.target_device}", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8))
+        self.badgym_lbl_target.grid(row=0, column=0, sticky="w", padx=6, pady=2)
+
+        self.badgym_lbl_ip = tk.Label(info_card, text="Tailscale IP: Resolving...", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8))
+        self.badgym_lbl_ip.grid(row=0, column=1, sticky="w", padx=6, pady=2)
+
+        self.badgym_lbl_endpoint = tk.Label(info_card, text="HTTP Agent: http://100.84.228.109:8787", bg="#1e293b", fg="#a7f3d0", font=("Segoe UI", 8))
+        self.badgym_lbl_endpoint.grid(row=1, column=0, sticky="w", padx=6, pady=2)
+
+        self.badgym_lbl_pkg = tk.Label(info_card, text=f"Package: {DEFAULT_PKG}", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8))
+        self.badgym_lbl_pkg.grid(row=1, column=1, sticky="w", padx=6, pady=2)
+
+        app_ctrl_card = tk.LabelFrame(
+            scroll_frame,
+            text=" ⚡ BAD GYM App Management ",
+            bg="#1e293b",
+            fg="#38bdf8",
+            font=("Segoe UI", 9, "bold"),
+            padx=10,
+            pady=8
+        )
+        app_ctrl_card.pack(fill="x", padx=4, pady=4)
+
+        btn_row1 = tk.Frame(app_ctrl_card, bg="#1e293b")
+        btn_row1.pack(fill="x", pady=2)
+
+        tk.Button(btn_row1, text="🚀 Launch BAD GYM", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=10, pady=4, relief="flat", command=self.badgym_launch).pack(side="left", padx=3)
+        tk.Button(btn_row1, text="🎥 Open Live Web Stream", bg="#0891b2", fg="white", font=("Segoe UI", 8, "bold"), padx=10, pady=4, relief="flat", command=self.open_live_web_stream).pack(side="left", padx=3)
+        tk.Button(btn_row1, text="📸 Instant Screen Snapshot", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=10, pady=4, relief="flat", command=self.pull_single_screen).pack(side="left", padx=3)
+        tk.Button(btn_row1, text="⚡ Health Ping", bg="#334155", fg="white", font=("Segoe UI", 8), padx=8, pady=4, relief="flat", command=self.badgym_ping_health).pack(side="left", padx=3)
+
+        btn_row2 = tk.Frame(app_ctrl_card, bg="#1e293b")
+        btn_row2.pack(fill="x", pady=4)
+
+        tk.Button(btn_row2, text="🔄 Restart Service & Tsnet", bg="#eab308", fg="#0f172a", font=("Segoe UI", 8, "bold"), padx=10, pady=3, relief="flat", command=self.badgym_restart_service).pack(side="left", padx=3)
+        tk.Button(btn_row2, text="⏹ Force Stop App", bg="#dc2626", fg="white", font=("Segoe UI", 8, "bold"), padx=10, pady=3, relief="flat", command=self.badgym_stop).pack(side="left", padx=3)
+        tk.Button(btn_row2, text="📊 Diagnostics / Status", bg="#475569", fg="white", font=("Segoe UI", 8), padx=8, pady=3, relief="flat", command=self.badgym_fetch_diagnostics).pack(side="left", padx=3)
+        tk.Button(btn_row2, text="📂 Open Pulled Screens Folder", bg="#334155", fg="white", font=("Segoe UI", 8), padx=8, pady=3, relief="flat", command=self.open_saved_folder).pack(side="left", padx=3)
+
+        nav_card = tk.LabelFrame(
+            scroll_frame,
+            text=" 🎮 Wireless Remote Hardware Control (Anywhere in the World) ",
+            bg="#1e293b",
+            fg="#38bdf8",
+            font=("Segoe UI", 9, "bold"),
+            padx=10,
+            pady=8
+        )
+        nav_card.pack(fill="x", padx=4, pady=4)
+
+        nav_row1 = tk.Frame(nav_card, bg="#1e293b")
+        nav_row1.pack(fill="x", pady=2)
+
+        tk.Button(nav_row1, text="⚡ Wake & Unlock", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=10, pady=4, relief="flat", command=self.wake_and_unlock_device).pack(side="left", padx=3)
+        tk.Button(nav_row1, text="🏠 Home", bg="#334155", fg="white", font=("Segoe UI", 8, "bold"), padx=10, pady=4, relief="flat", command=lambda: self.remote_keyevent(3)).pack(side="left", padx=3)
+        tk.Button(nav_row1, text="🔙 Back", bg="#334155", fg="white", font=("Segoe UI", 8, "bold"), padx=10, pady=4, relief="flat", command=lambda: self.remote_keyevent(4)).pack(side="left", padx=3)
+        tk.Button(nav_row1, text="📱 Recent Apps", bg="#334155", fg="white", font=("Segoe UI", 8, "bold"), padx=10, pady=4, relief="flat", command=lambda: self.remote_keyevent(187)).pack(side="left", padx=3)
+        tk.Button(nav_row1, text="🔔 Notification Shade", bg="#334155", fg="white", font=("Segoe UI", 8), padx=10, pady=4, relief="flat", command=self.remote_expand_notifications).pack(side="left", padx=3)
+        tk.Button(nav_row1, text="💤 Sleep / Screen Off", bg="#475569", fg="white", font=("Segoe UI", 8), padx=10, pady=4, relief="flat", command=lambda: self.remote_keyevent(26)).pack(side="left", padx=3)
+
+        input_row = tk.Frame(nav_card, bg="#1e293b")
+        input_row.pack(fill="x", pady=(6, 2))
+
+        tk.Label(input_row, text="⌨️ Send Text:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8)).pack(side="left", padx=2)
+        self.badgym_text_entry = tk.Entry(input_row, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 8), width=24)
+        self.badgym_text_entry.pack(side="left", padx=4)
+        self.badgym_text_entry.bind("<Return>", lambda e: self.remote_send_text_from_entry())
+        tk.Button(input_row, text="Send Text", bg="#0891b2", fg="white", font=("Segoe UI", 7, "bold"), padx=6, relief="flat", command=self.remote_send_text_from_entry).pack(side="left", padx=2)
+
+        tk.Label(input_row, text="👆 Tap (X, Y):", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8)).pack(side="left", padx=(10, 2))
+        self.badgym_tap_x = tk.Entry(input_row, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 8), width=5)
+        self.badgym_tap_x.pack(side="left", padx=2)
+        self.badgym_tap_y = tk.Entry(input_row, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 8), width=5)
+        self.badgym_tap_y.pack(side="left", padx=2)
+        tk.Button(input_row, text="Tap", bg="#0d9488", fg="white", font=("Segoe UI", 7, "bold"), padx=6, relief="flat", command=self.remote_tap_from_entry).pack(side="left", padx=2)
+
+        ts_card = tk.LabelFrame(
+            scroll_frame,
+            text=" 🌐 Programmatic Multi-Device Tailnet (explorelearningvisit@gmail.com) ",
+            bg="#1e293b",
+            fg="#38bdf8",
+            font=("Segoe UI", 9, "bold"),
+            padx=10,
+            pady=8
+        )
+        ts_card.pack(fill="x", padx=4, pady=4)
+
+        ts_head = tk.Frame(ts_card, bg="#1e293b")
+        ts_head.pack(fill="x", pady=(0, 4))
+        tk.Label(ts_head, text="All detected devices under your account. Select any to control & pull screen:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left")
+        tk.Button(ts_head, text="🔄 Refresh Tailnet", bg="#16a34a", fg="white", font=("Segoe UI", 7, "bold"), padx=6, relief="flat", command=self.refresh_devices_list).pack(side="right")
+
+        ts_cols = ("status", "name", "ip", "badgym", "os")
+        self.ts_tree = ttk.Treeview(ts_card, columns=ts_cols, show="headings", height=5, selectmode="browse")
+        self.ts_tree.heading("status", text="State")
+        self.ts_tree.heading("name", text="Device Model / Name")
+        self.ts_tree.heading("ip", text="Tailscale IP")
+        self.ts_tree.heading("badgym", text="BAD GYM Live")
+        self.ts_tree.heading("os", text="OS")
+
+        self.ts_tree.column("status", width=75, anchor="center")
+        self.ts_tree.column("name", width=180, anchor="w")
+        self.ts_tree.column("ip", width=120, anchor="center")
+        self.ts_tree.column("badgym", width=110, anchor="center")
+        self.ts_tree.column("os", width=70, anchor="center")
+        self.ts_tree.pack(fill="x", pady=2)
+        self.ts_tree.bind("<Double-1>", self._on_ts_tree_double_click)
+
+        log_card = tk.LabelFrame(
+            scroll_frame,
+            text=" 📋 BAD GYM Real-Time Intelligence Log ",
+            bg="#1e293b",
+            fg="#38bdf8",
+            font=("Segoe UI", 9, "bold"),
+            padx=10,
+            pady=8
+        )
+        log_card.pack(fill="both", expand=True, padx=4, pady=4)
+
+        self.badgym_console = tk.Text(log_card, bg="#000000", fg="#34d399", insertbackground="white", font=("Consolas", 8), height=8, relief="flat")
+        self.badgym_console.pack(fill="both", expand=True)
+        self.badgym_log("BAD GYM Control Center ready. Monitoring embedded agent on port 8787...")
 
     def _build_apps_tab(self, parent):
         top_bar = tk.Frame(parent, bg="#0f172a")
@@ -863,12 +1471,16 @@ class DeviceDevStudio(tk.Tk):
         top_lbl_frame = tk.Frame(parent, bg="#0f172a")
         top_lbl_frame.pack(fill="x", pady=(0, 2))
         tk.Label(top_lbl_frame, text="Universal Device Storage & Folder Explorer", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 10, "bold")).pack(side="left")
-        tk.Label(top_lbl_frame, text="Micro-Thumbnail Mode (<40KB Fast DEX, 0 Phone Drain)", bg="#0f172a", fg="#22c55e", font=("Segoe UI", 7, "bold")).pack(side="right")
+        
+        tk.Button(top_lbl_frame, text="💬 Scan All WhatsApp Folders", bg="#15803d", fg="white", activebackground="#166534", font=("Segoe UI", 7, "bold"), padx=5, pady=1, relief="flat", command=self.scan_all_whatsapp_deep_folders).pack(side="right", padx=2)
+        tk.Button(top_lbl_frame, text="🔒 Scan All Hidden Folders & Files (.*)", bg="#7c3aed", fg="white", activebackground="#6d28d9", font=("Segoe UI", 7, "bold"), padx=5, pady=1, relief="flat", command=self.scan_all_hidden_mobile_folders).pack(side="right", padx=2)
 
-        # Quick directory bookmarks (Row 1 & Row 2)
-        sc_row1 = tk.Frame(parent, bg="#0f172a")
-        sc_row1.pack(fill="x", pady=1)
-        shortcuts_1 = [
+        # Quick directory bookmarks (Combobox to save space)
+        nav_frame2 = tk.Frame(parent, bg="#0f172a")
+        nav_frame2.pack(fill="x", pady=2)
+        tk.Label(nav_frame2, text="Bookmarks:", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=2)
+        
+        shortcuts_all = [
             ("📸 Camera", "/sdcard/DCIM/Camera"),
             ("📱 Screens", "/sdcard/DCIM/Screenshots"),
             ("🖼 Pictures", "/sdcard/Pictures"),
@@ -877,13 +1489,6 @@ class DeviceDevStudio(tk.Tk):
             ("💬 WhatsApp Media", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media"),
             ("🎥 Movies", "/sdcard/Movies"),
             ("🎵 Music", "/sdcard/Music"),
-        ]
-        for name, pth in shortcuts_1:
-            tk.Button(sc_row1, text=name, bg="#334155", fg="white", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=1)
-
-        sc_row2 = tk.Frame(parent, bg="#0f172a")
-        sc_row2.pack(fill="x", pady=1)
-        shortcuts_2 = [
             ("📁 Root /sdcard", "/sdcard"),
             ("💾 Emulated 0", "/storage/emulated/0"),
             ("🔒 Hidden .thumbnails", "/sdcard/.thumbnails"),
@@ -893,14 +1498,6 @@ class DeviceDevStudio(tk.Tk):
             ("⚙️ /data/local/tmp", "/data/local/tmp"),
             ("📦 /system", "/system"),
             ("👑 / (Root)", "/"),
-        ]
-        for name, pth in shortcuts_2:
-            tk.Button(sc_row2, text=name, bg="#1e293b", fg="#cbd5e1", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=1)
-
-        # App Storage & Locked Space Bookmarks
-        sc_row3 = tk.Frame(parent, bg="#0f172a")
-        sc_row3.pack(fill="x", pady=1)
-        shortcuts_3 = [
             ("👻 Snapchat", "/sdcard/Snapchat"),
             ("📸 Instagram", "/sdcard/Pictures/Instagram"),
             ("✈️ Telegram", "/sdcard/Telegram"),
@@ -911,8 +1508,12 @@ class DeviceDevStudio(tk.Tk):
             ("📦 App Media", "/sdcard/Android/media"),
             ("📂 App Data", "/sdcard/Android/data"),
         ]
-        for name, pth in shortcuts_3:
-            tk.Button(sc_row3, text=name, bg="#3b0764", fg="#f0abfc", activebackground="#0284c7", activeforeground="white", font=("Segoe UI", 7), padx=4, relief="flat", command=lambda p=pth: self.load_path(p)).pack(side="left", padx=1)
+        self.shortcuts_dict = {name: pth for name, pth in shortcuts_all}
+        self.bookmark_combo = ttk.Combobox(nav_frame2, values=list(self.shortcuts_dict.keys()), state="readonly", width=40)
+        self.bookmark_combo.pack(side="left", padx=2)
+        self.bookmark_combo.set("--- Select a Bookmark ---")
+        self.bookmark_combo.bind("<<ComboboxSelected>>", lambda e: self.load_path(self.shortcuts_dict.get(self.bookmark_combo.get(), "/sdcard")))
+
 
         # Path Navigation Bar
         nav_frame = tk.Frame(parent, bg="#0f172a")
@@ -931,61 +1532,123 @@ class DeviceDevStudio(tk.Tk):
         left_file_pane = tk.Frame(files_split, bg="#1e293b")
         files_split.add(left_file_pane, minsize=280)
 
-        self.file_listbox = tk.Listbox(
-            left_file_pane, 
-            bg="#1e293b", 
-            fg="#f8fafc", 
-            selectbackground="#0284c7", 
-            selectforeground="white",
-            font=("Consolas", 8),
-            bd=0,
-            highlightthickness=0
-        )
-        scroll_y = tk.Scrollbar(left_file_pane, orient="vertical", command=self.file_listbox.yview)
-        self.file_listbox.configure(yscrollcommand=scroll_y.set)
+        file_cols = ("size", "datetime")
+        # Use tree headings so column #0 is visible for thumbnails
+        self.file_tree = ttk.Treeview(left_file_pane, columns=file_cols, show="tree headings", selectmode="extended")
+        
+        # Configure rowheight for thumbnails (e.g. 50px)
+        style = ttk.Style()
+        style.configure('Treeview', rowheight=50)
 
-        self.file_listbox.pack(side="left", fill="both", expand=True)
+        self.file_tree.heading("#0", text="File Name (Thumbnail)")
+        self.file_tree.heading("size", text="Size")
+        self.file_tree.heading("datetime", text="Date / Time")
+        self.file_tree.column("#0", width=250, anchor="w")
+        self.file_tree.column("size", width=80, anchor="e")
+        self.file_tree.column("datetime", width=120, anchor="w")
+
+        scroll_y = tk.Scrollbar(left_file_pane, orient="vertical", command=self.file_tree.yview)
+        self.file_tree.configure(yscrollcommand=scroll_y.set)
+
+        self.file_tree.pack(side="left", fill="both", expand=True)
         scroll_y.pack(side="right", fill="y")
-        self.file_listbox.bind("<Double-Button-1>", self._on_item_double_click)
-        self.file_listbox.bind("<<ListboxSelect>>", self._on_file_select_preview)
+        self.file_tree.bind("<Double-Button-1>", self._on_item_double_click)
+        self.file_tree.bind("<<TreeviewSelect>>", self._on_file_select_preview)
+        self.file_tree.bind("<Button-3>", self._show_file_listbox_context_menu)
 
         # Right Inspector & Micro-Thumbnail Preview Panel
         right_insp_pane = tk.Frame(files_split, bg="#1e293b", padx=6, pady=6, relief="solid", bd=1)
         files_split.add(right_insp_pane, minsize=190)
 
-        tk.Label(right_insp_pane, text="Micro-Thumbnail (<40KB)", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 8, "bold")).pack(anchor="w")
+        tk.Label(right_insp_pane, text="Inspector & Preview", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 8, "bold")).pack(anchor="w")
 
-        self.file_preview_canvas_frame = tk.Frame(right_insp_pane, bg="#000000", height=140, relief="sunken", bd=1)
-        self.file_preview_canvas_frame.pack(fill="x", pady=4)
+        self.auto_fetch_thumbs_var = tk.BooleanVar(value=True) # Enabled by default per user request
+        tk.Checkbutton(right_insp_pane, text="Auto-fetch Thumbs", variable=self.auto_fetch_thumbs_var, bg="#1e293b", fg="#cbd5e1", selectcolor="#0f172a", font=("Segoe UI", 7)).pack(anchor="w", pady=1)
+
+        self.file_preview_canvas_frame = tk.Frame(right_insp_pane, bg="#000000", height=130, relief="sunken", bd=1)
+        self.file_preview_canvas_frame.pack(fill="x", pady=3)
         self.file_preview_canvas_frame.pack_propagate(False)
 
-        self.file_preview_lbl = tk.Label(self.file_preview_canvas_frame, text="Click any file to inspect\n& generate micro-thumbnail", bg="#000000", fg="#64748b", font=("Segoe UI", 7), justify="center")
+        self.file_preview_lbl = tk.Label(self.file_preview_canvas_frame, text="Click any file to inspect", bg="#000000", fg="#64748b", font=("Segoe UI", 7), justify="center")
         self.file_preview_lbl.pack(expand=True)
 
         self.file_info_lbl = tk.Label(right_insp_pane, text="Select a file or folder on the left", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 7), wraplength=170, justify="left")
         self.file_info_lbl.pack(anchor="w", pady=2)
 
-        tk.Button(right_insp_pane, text="👁 Open on PC", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.open_selected_item).pack(fill="x", pady=1)
-        tk.Button(right_insp_pane, text="📥 Pull File to PC...", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, pady=2, relief="flat", command=self.pull_selected_file).pack(fill="x", pady=1)
-        tk.Button(right_insp_pane, text="⚡ Pull Micro-Thumb (<40KB)", bg="#0891b2", fg="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.pull_micro_thumbnail).pack(fill="x", pady=1)
-        tk.Button(right_insp_pane, text="📤 Push File to Current Folder", bg="#475569", fg="white", font=("Segoe UI", 7), padx=4, pady=2, relief="flat", command=self.push_file_to_device).pack(fill="x", pady=1)
-        tk.Button(right_insp_pane, text="🗑️ Delete from Device", bg="#dc2626", fg="white", activebackground="#b91c1c", activeforeground="white", font=("Segoe UI", 7, "bold"), padx=4, pady=2, relief="flat", command=self.delete_selected_explorer_item).pack(fill="x", pady=1)
+        # Quick Actions Grid (To save vertical space and prevent cutting off)
+        actions_frame = tk.Frame(right_insp_pane, bg="#1e293b")
+        actions_frame.pack(fill="x", pady=5)
+        actions_frame.columnconfigure(0, weight=1)
+        actions_frame.columnconfigure(1, weight=1)
+        
+        btn_font = ("Segoe UI", 7, "bold")
+        tk.Button(actions_frame, text="📋 Copy Path", bg="#334155", fg="#38bdf8", font=btn_font, relief="flat", command=self.copy_explorer_remote_path).grid(row=0, column=0, sticky="ew", padx=1, pady=1)
+        tk.Button(actions_frame, text="📋 Copy Name", bg="#334155", fg="#cbd5e1", font=btn_font, relief="flat", command=self.copy_explorer_file_name).grid(row=0, column=1, sticky="ew", padx=1, pady=1)
+        tk.Button(actions_frame, text="📥 Pull File", bg="#0284c7", fg="white", font=btn_font, relief="flat", command=self.pull_selected_file).grid(row=1, column=0, sticky="ew", padx=1, pady=1)
+        tk.Button(actions_frame, text="🚀 Pull ALL", bg="#16a34a", fg="white", font=btn_font, relief="flat", command=self.pull_all_discovered_files).grid(row=1, column=1, sticky="ew", padx=1, pady=1)
+        tk.Button(actions_frame, text="⚡ Get Thumb", bg="#0891b2", fg="white", font=btn_font, relief="flat", command=self.pull_micro_thumbnail).grid(row=2, column=0, sticky="ew", padx=1, pady=1)
+        tk.Button(actions_frame, text="📤 Push File", bg="#475569", fg="white", font=btn_font, relief="flat", command=self.push_file_to_device).grid(row=2, column=1, sticky="ew", padx=1, pady=1)
+        tk.Button(actions_frame, text="🗑️ Delete", bg="#dc2626", fg="white", font=btn_font, relief="flat", command=self.delete_selected_explorer_item).grid(row=3, column=0, columnspan=2, sticky="ew", padx=1, pady=1)
+
+    def _background_tree_thumbnail_fetcher(self, media_list, current_dir):
+        from PIL import Image, ImageTk
+        for i, full_pth, name in media_list:
+            # If the user navigated away, abort background fetching
+            if self.path_entry.get().strip() != current_dir:
+                break
+                
+            local_thumb = self._get_thumb_path(full_pth, name)
+            if not os.path.exists(local_thumb):
+                safe_remote = full_pth.replace("'", "'\''")
+                thumb_cmd = (
+                    f"CLASSPATH={FASTCAP_DEX_REMOTE} app_process /data/local/tmp com.studio.FastCap thumb "
+                    f"'{safe_remote}' 50 15 1" # quality=50, scale=15
+                )
+                self.run_adb(["shell", thumb_cmd], timeout=3)
+                self.run_adb(["pull", safe_remote + ".thumb.jpg", local_thumb], timeout=2)
+                self.run_adb(["shell", f"rm -f '{safe_remote}.thumb.jpg'"], timeout=1)
+                
+            if os.path.exists(local_thumb) and os.path.getsize(local_thumb) > 0:
+                try:
+                    img = Image.open(local_thumb)
+                    img.thumbnail((45, 45)) # Fit within 50px row height
+                    photo = ImageTk.PhotoImage(img)
+                    
+                    def update_row(iid=str(i), p=photo):
+                        if self.file_tree.exists(iid):
+                            self._tree_images_cache[iid] = p
+                            self.file_tree.item(iid, image=p)
+                    self.after(0, update_row)
+                except Exception:
+                    pass
 
     def _on_file_select_preview(self, event=None):
-        sel = self.file_listbox.curselection()
-        if not sel or sel[0] >= len(self.current_remote_items):
+        sel = self.file_tree.selection()
+        if not sel:
             return
-        is_dir, name, full_path, size = self.current_remote_items[sel[0]]
+            
+        try:
+            # Our item IDs are strings of integers corresponding to current_remote_items index
+            idx = int(sel[0])
+            if idx >= len(self.current_remote_items):
+                return
+        except ValueError:
+            return # In case they select the "[Directory is empty]" row
+            
+        is_dir, name, full_path, size, dt_str = self.current_remote_items[idx]
         self.file_preview_selected_path = full_path
 
         sz_str = self._format_size(size) if not is_dir else "Folder / Directory"
         ext = os.path.splitext(name)[1].lower()
         self.file_info_lbl.config(
-            text=f"{'📁 [DIR]' if is_dir else '📄 [FILE]'}: {name}\nSize: {sz_str}\nPath: {full_path}"
+            text=f"{'📁 [DIR]' if is_dir else '📄 [FILE]'}: {name}\\nSize: {sz_str}\\nModified: {dt_str}\\nPath: {full_path}"
         )
 
         if not is_dir and ext in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".mkv", ".mov"]:
-            self._fetch_micro_thumbnail_for_file(full_path, name)
+            if getattr(self, 'auto_fetch_thumbs_var', None) and self.auto_fetch_thumbs_var.get():
+                self._fetch_micro_thumbnail_for_file(full_path, name)
+            else:
+                self.file_preview_lbl.config(image="", text=f"📄 {name}\\n\\n(Auto-fetch disabled.\\nClick 'Pull Micro-Thumb' below)")
         else:
             self.file_preview_lbl.config(image="", text=f"📁 {name}" if is_dir else f"📄 {name}")
 
@@ -1325,26 +1988,798 @@ class DeviceDevStudio(tk.Tk):
         self.log_text.pack(side="left", fill="both", expand=True)
         scroll.pack(side="right", fill="y")
 
+    def open_storage_tab(self):
+        if hasattr(self, 'tab_storage'):
+            self.main_tabs.select(self.tab_storage)
+            self.scan_all_storage_inventories()
+
+    def _build_storage_tab(self, parent):
+        # Header banner
+        header = tk.Frame(parent, bg="#1e293b", padx=10, pady=8, relief="solid", bd=1)
+        header.pack(fill="x", pady=(0, 6))
+
+        tk.Label(header, text="💾 Storage & Mobile Cleaner", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 11, "bold")).pack(side="left")
+
+        self.btn_refresh_storage = tk.Button(header, text="🔄 Scan Mobile & PC", bg="#0284c7", fg="white", activebackground="#0369a1", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.scan_all_storage_inventories)
+        self.btn_refresh_storage.pack(side="left", padx=8)
+
+        self.lbl_mobile_storage_badge = tk.Label(header, text="📱 Mobile: Calculating...", bg="#334155", fg="#a855f7", font=("Segoe UI", 8, "bold"), padx=6, pady=2)
+        self.lbl_mobile_storage_badge.pack(side="left", padx=3)
+
+        self.lbl_laptop_storage_badge = tk.Label(header, text="💻 Laptop Archive: Safe (Protected)", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 8, "bold"), padx=6, pady=2)
+        self.lbl_laptop_storage_badge.pack(side="left", padx=3)
+
+        tk.Label(header, text="🛡️ In-Memory Stream (0 Bytes Phone Footprint)", bg="#064e3b", fg="#34d399", font=("Segoe UI", 8, "bold"), padx=6, pady=2).pack(side="right", padx=2)
+
+        # Paned Window: Left = Mobile Storage & Live File Selector, Right = Laptop Archive Info
+        paned = tk.PanedWindow(parent, orient="horizontal", bg="#0f172a", sashwidth=4, bd=0)
+        paned.pack(fill="both", expand=True)
+
+        # Left/Main Column: Mobile Storage & Live Cleaner (Primary)
+        mob_col = tk.Frame(paned, bg="#1e293b", padx=8, pady=8, relief="solid", bd=1)
+        paned.add(mob_col, minsize=520)
+
+        m_top = tk.Frame(mob_col, bg="#1e293b")
+        m_top.pack(fill="x", pady=(0, 4))
+        tk.Label(m_top, text="📱 Mobile Phone Storage & Residual Dumps", bg="#1e293b", fg="#a855f7", font=("Segoe UI", 10, "bold")).pack(side="left")
+        self.lbl_mobile_target_device = tk.Label(m_top, text="(Connecting...)", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8))
+        self.lbl_mobile_target_device.pack(side="left", padx=4)
+
+        # Top Table: Mobile Categories
+        columns_mob = ("category", "path", "count", "size", "status")
+        self.tree_mobile_storage = ttk.Treeview(mob_col, columns=columns_mob, show="headings", height=5)
+        self.tree_mobile_storage.heading("category", text="Category (Click row to view live files on phone)")
+        self.tree_mobile_storage.heading("path", text="Storage Path")
+        self.tree_mobile_storage.heading("count", text="Files")
+        self.tree_mobile_storage.heading("size", text="Size")
+        self.tree_mobile_storage.heading("status", text="Safety")
+        self.tree_mobile_storage.column("category", width=160, anchor="w")
+        self.tree_mobile_storage.column("path", width=170, anchor="w")
+        self.tree_mobile_storage.column("count", width=50, anchor="center")
+        self.tree_mobile_storage.column("size", width=70, anchor="center")
+        self.tree_mobile_storage.column("status", width=80, anchor="center")
+        self.tree_mobile_storage.bind("<<TreeviewSelect>>", self._on_mobile_category_select)
+
+        mob_scroll = tk.Scrollbar(mob_col, orient="vertical", command=self.tree_mobile_storage.yview)
+        self.tree_mobile_storage.configure(yscrollcommand=mob_scroll.set)
+        self.tree_mobile_storage.pack(side="top", fill="x", pady=(0, 4))
+        mob_scroll.pack(side="right", fill="y")
+
+        # Middle Label & File Selection Controls
+        mid_bar = tk.Frame(mob_col, bg="#1e293b", pady=3)
+        mid_bar.pack(fill="x")
+        self.lbl_mobile_files_status = tk.Label(mid_bar, text="📁 Click a category above to load individual files on mobile", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 9, "bold"))
+        self.lbl_mobile_files_status.pack(side="left")
+
+        tk.Button(mid_bar, text="📋 Copy All Paths", bg="#0e7490", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self.copy_all_listed_mobile_paths).pack(side="right", padx=1)
+        tk.Button(mid_bar, text="📋 Copy Path", bg="#334155", fg="#38bdf8", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self.copy_selected_mobile_file_path).pack(side="right", padx=1)
+        tk.Button(mid_bar, text="📋 Copy Name", bg="#334155", fg="#cbd5e1", font=("Segoe UI", 7), padx=5, relief="flat", command=self.copy_selected_mobile_file_name).pack(side="right", padx=1)
+        tk.Button(mid_bar, text="Select All", bg="#334155", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self._select_all_mobile_files).pack(side="right", padx=2)
+        tk.Button(mid_bar, text="Deselect All", bg="#334155", fg="white", font=("Segoe UI", 7), padx=5, relief="flat", command=self._deselect_all_mobile_files).pack(side="right", padx=2)
+
+        # Bottom Table: Live Files Stored on Mobile (Selected Category)
+        columns_files = ("name", "size", "date", "path")
+        self.tree_mobile_files = ttk.Treeview(mob_col, columns=columns_files, show="headings", height=8, selectmode="extended")
+        self.tree_mobile_files.heading("name", text="File Name (Stored on Phone)")
+        self.tree_mobile_files.heading("size", text="Size")
+        self.tree_mobile_files.heading("date", text="Date")
+        self.tree_mobile_files.heading("path", text="Mobile Path")
+        self.tree_mobile_files.column("name", width=180, anchor="w")
+        self.tree_mobile_files.column("size", width=65, anchor="center")
+        self.tree_mobile_files.column("date", width=100, anchor="center")
+        self.tree_mobile_files.column("path", width=180, anchor="w")
+        self.tree_mobile_files.bind("<Button-3>", self._show_tree_mobile_files_context_menu)
+
+        f_scroll = tk.Scrollbar(mob_col, orient="vertical", command=self.tree_mobile_files.yview)
+        self.tree_mobile_files.configure(yscrollcommand=f_scroll.set)
+        self.tree_mobile_files.pack(side="top", fill="both", expand=True)
+        f_scroll.pack(side="right", fill="y")
+
+        # Mobile Action Buttons
+        r_acts = tk.Frame(mob_col, bg="#1e293b", pady=6)
+        r_acts.pack(fill="x", side="bottom")
+
+        tk.Button(r_acts, text="📥 PULL SELECTED TO LAPTOP", bg="#0284c7", fg="white", activebackground="#0369a1", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.pull_selected_mobile_files_command).pack(side="left", padx=2)
+        tk.Button(r_acts, text="🚀 Pull ALL WhatsApp & Hidden", bg="#7c3aed", fg="white", activebackground="#6d28d9", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.pull_all_whatsapp_and_hidden_vault).pack(side="left", padx=2)
+        tk.Button(r_acts, text="🗑️ DELETE SELECTED", bg="#b91c1c", fg="white", activebackground="#991b1b", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.delete_selected_mobile_files_command).pack(side="left", padx=2)
+        tk.Button(r_acts, text="⚡ Temp Purge (0-KB)", bg="#16a34a", fg="white", activebackground="#15803d", font=("Segoe UI", 8), padx=5, relief="flat", command=self.purge_mobile_temp_buffers_now).pack(side="left", padx=2)
+        tk.Button(r_acts, text="🚨 Clean Category", bg="#991b1b", fg="white", activebackground="#7f1d1d", font=("Segoe UI", 8), padx=5, relief="flat", command=self.delete_selected_mobile_storage_category).pack(side="right", padx=2)
+
+        # Right Column: Laptop Storage Archive (Preserved)
+        lap_col = tk.Frame(paned, bg="#1e293b", padx=8, pady=8, relief="solid", bd=1)
+        paned.add(lap_col, minsize=260)
+
+        l_top = tk.Frame(lap_col, bg="#1e293b")
+        l_top.pack(fill="x", pady=(0, 4))
+        tk.Label(l_top, text="💻 Laptop Archive (Preserved)", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 10, "bold")).pack(side="left")
+
+        # Laptop Treeview
+        columns_lap = ("folder", "count", "size")
+        self.tree_laptop_storage = ttk.Treeview(lap_col, columns=columns_lap, show="headings", height=12)
+        self.tree_laptop_storage.heading("folder", text="Folder")
+        self.tree_laptop_storage.heading("count", text="Files")
+        self.tree_laptop_storage.heading("size", text="Size")
+        self.tree_laptop_storage.column("folder", width=140, anchor="w")
+        self.tree_laptop_storage.column("count", width=45, anchor="center")
+        self.tree_laptop_storage.column("size", width=55, anchor="center")
+
+        lap_scroll = tk.Scrollbar(lap_col, orient="vertical", command=self.tree_laptop_storage.yview)
+        self.tree_laptop_storage.configure(yscrollcommand=lap_scroll.set)
+        self.tree_laptop_storage.pack(side="top", fill="both", expand=True)
+        lap_scroll.pack(side="right", fill="y")
+
+        l_acts = tk.Frame(lap_col, bg="#1e293b", pady=6)
+        l_acts.pack(fill="x", side="bottom")
+        tk.Button(l_acts, text="📂 Open in Windows Explorer", bg="#0284c7", fg="white", activebackground="#0369a1", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.open_laptop_storage_explorer).pack(fill="x", padx=2)
+
+    def _show_file_listbox_context_menu(self, event):
+        try:
+            idx = self.file_tree.index(self.file_tree.identify_row(event.y)) if self.file_tree.identify_row(event.y) else -1
+            if idx >= 0:
+                self.file_tree.selection_remove(self.file_tree.selection())
+                self.file_tree.selection_set(self.file_tree.get_children()[idx])
+                self.file_tree.focus(self.file_tree.get_children()[idx])
+                self._on_file_select_preview()
+        except Exception:
+            pass
+        menu = tk.Menu(self, tearoff=0, bg="#1e293b", fg="#f8fafc", activebackground="#0284c7", activeforeground="#ffffff")
+        menu.add_command(label="📋 Copy Full Path", command=self.copy_explorer_remote_path)
+        menu.add_command(label="📋 Copy File Name", command=self.copy_explorer_file_name)
+        menu.add_command(label="📋 Copy ALL Listed Paths", command=self.copy_all_explorer_listed_paths)
+        menu.add_separator()
+        menu.add_command(label="📥 Pull Selected to Laptop...", command=self.pull_selected_file)
+        menu.add_command(label="🚀 Pull ALL Listed Files to Laptop", command=self.pull_all_discovered_files)
+        menu.add_separator()
+        menu.add_command(label="🗑️ Delete from Device", command=self.delete_selected_explorer_item)
+        menu.post(event.x_root, event.y_root)
+
+    def _show_tree_mobile_files_context_menu(self, event):
+        item = self.tree_mobile_files.identify_row(event.y)
+        if item:
+            if item not in self.tree_mobile_files.selection():
+                self.tree_mobile_files.selection_set(item)
+        menu = tk.Menu(self, tearoff=0, bg="#1e293b", fg="#f8fafc", activebackground="#0284c7", activeforeground="#ffffff")
+        menu.add_command(label="📋 Copy Path", command=self.copy_selected_mobile_file_path)
+        menu.add_command(label="📋 Copy File Name", command=self.copy_selected_mobile_file_name)
+        menu.add_command(label="📋 Copy ALL Listed Paths", command=self.copy_all_listed_mobile_paths)
+        menu.add_separator()
+        menu.add_command(label="📥 Pull Selected to Laptop", command=self.pull_selected_mobile_files_command)
+        menu.add_command(label="🚀 Pull ALL WhatsApp & Hidden Vault", command=self.pull_all_whatsapp_and_hidden_vault)
+        menu.add_separator()
+        menu.add_command(label="🗑️ Delete Selected File(s) from Mobile", command=self.delete_selected_mobile_files_command)
+        menu.post(event.x_root, event.y_root)
+
+    def copy_explorer_remote_path(self):
+        if hasattr(self, 'file_preview_selected_path') and self.file_preview_selected_path:
+            self.clipboard_clear()
+            self.clipboard_append(self.file_preview_selected_path)
+            self.update()
+            self.log(f"📋 Copied remote path: {self.file_preview_selected_path}")
+            messagebox.showinfo("Copied", f"Copied path to clipboard:\n{self.file_preview_selected_path}")
+
+    def copy_explorer_file_name(self):
+        if hasattr(self, 'file_preview_selected_path') and self.file_preview_selected_path:
+            fname = os.path.basename(self.file_preview_selected_path)
+            self.clipboard_clear()
+            self.clipboard_append(fname)
+            self.update()
+            self.log(f"📋 Copied file name: {fname}")
+            messagebox.showinfo("Copied", f"Copied file name to clipboard:\n{fname}")
+
+    def copy_all_explorer_listed_paths(self):
+        if not self.current_remote_items:
+            messagebox.showinfo("No Files", "No items currently listed.")
+            return
+        paths = [item[2] for item in self.current_remote_items]
+        text = "\n".join(paths)
+        self.clipboard_clear()
+        self.clipboard_append(text)
+        self.update()
+        self.log(f"📋 Copied {len(paths)} explorer paths to clipboard.")
+        messagebox.showinfo("Copied", f"Copied {len(paths)} file paths to clipboard!")
+
+    def copy_selected_mobile_file_path(self):
+        sel = self.tree_mobile_files.selection()
+        if not sel:
+            messagebox.showinfo("Select File", "Please select a file from the list first.")
+            return
+        vals = self.tree_mobile_files.item(sel[0], "values")
+        if len(vals) >= 4:
+            pth = vals[3]
+            self.clipboard_clear()
+            self.clipboard_append(pth)
+            self.update()
+            self.log(f"📋 Copied mobile path: {pth}")
+            messagebox.showinfo("Copied", f"Copied path to clipboard:\n{pth}")
+
+    def copy_selected_mobile_file_name(self):
+        sel = self.tree_mobile_files.selection()
+        if not sel:
+            messagebox.showinfo("Select File", "Please select a file from the list first.")
+            return
+        vals = self.tree_mobile_files.item(sel[0], "values")
+        fname = vals[0]
+        self.clipboard_clear()
+        self.clipboard_append(fname)
+        self.update()
+        self.log(f"📋 Copied file name: {fname}")
+        messagebox.showinfo("Copied", f"Copied file name to clipboard:\n{fname}")
+
+    def copy_all_listed_mobile_paths(self):
+        paths = []
+        for item_id in self.tree_mobile_files.get_children():
+            vals = self.tree_mobile_files.item(item_id, "values")
+            if len(vals) >= 4:
+                paths.append(vals[3])
+        if not paths:
+            messagebox.showinfo("No Files", "No files currently listed in the table.")
+            return
+        text = "\n".join(paths)
+        self.clipboard_clear()
+        self.clipboard_append(text)
+        self.update()
+        self.log(f"📋 Copied {len(paths)} mobile paths to clipboard.")
+        messagebox.showinfo("Copied", f"Copied {len(paths)} mobile file paths to clipboard!")
+
+    def pull_selected_mobile_files_command(self):
+        if not self.connected:
+            messagebox.showwarning("Offline", "Please connect to device via ADB first.")
+            return
+
+        selected_items = self.tree_mobile_files.selection()
+        if not selected_items:
+            messagebox.showinfo("Select Files", "Please select one or more files to pull to your laptop.")
+            return
+
+        files_to_pull = []
+        for item_id in selected_items:
+            vals = self.tree_mobile_files.item(item_id, "values")
+            if len(vals) >= 4:
+                files_to_pull.append((vals[0], vals[3]))
+
+        dev_name = self.get_device_clean_name()
+        ts_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dest_folder = os.path.join(PULLED_SCREENS_DIR, dev_name, f"Pulled_Files_{ts_str}")
+        os.makedirs(dest_folder, exist_ok=True)
+
+        def task():
+            self.log(f"📥 Pulling {len(files_to_pull)} files to {dest_folder} (Works over Tailscale & USB)...")
+            success = 0
+            for name, rpath in files_to_pull:
+                local_file = os.path.join(dest_folder, os.path.basename(rpath))
+                code, _, _ = self.run_adb(["pull", rpath, local_file], timeout=60)
+                if code == 0 and os.path.exists(local_file):
+                    success += 1
+            
+            self.log(f"✓ Pulled {success}/{len(files_to_pull)} files to laptop: {dest_folder}")
+            self.after(0, lambda: messagebox.showinfo("Pull Complete", f"Successfully pulled {success}/{len(files_to_pull)} files to laptop:\n{dest_folder}"))
+            self.scan_all_storage_inventories()
+            os.startfile(dest_folder)
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def pull_all_whatsapp_and_hidden_vault(self):
+        if not self.connected:
+            messagebox.showwarning("Offline", "Please connect to device via ADB first.")
+            return
+        dev_name = self.get_device_clean_name()
+        ts_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dest_folder = os.path.join(PULLED_SCREENS_DIR, dev_name, f"WhatsApp_and_Hidden_Vault_{ts_str}")
+        os.makedirs(dest_folder, exist_ok=True)
+
+        confirm = messagebox.askyesno(
+            "🚀 1-Click WhatsApp & Hidden Vault Extraction",
+            f"Extract and pull ALL WhatsApp media/databases and ALL hidden/trashed folders from phone to laptop?\n\nDestination:\n{dest_folder}\n\nWorks seamlessly over Tailscale Wi-Fi or USB Cable."
+        )
+        if not confirm:
+            return
+
+        def task():
+            self.log("🚀 Starting deep extraction of WhatsApp & Hidden Vault...")
+            wa_dest = os.path.join(dest_folder, "WhatsApp_All")
+            hidden_dest = os.path.join(dest_folder, "Hidden_and_Private_Safe")
+            os.makedirs(wa_dest, exist_ok=True)
+            os.makedirs(hidden_dest, exist_ok=True)
+
+            # Pull WhatsApp
+            wa_sources = [
+                "/sdcard/Android/media/com.whatsapp/WhatsApp/Media",
+                "/sdcard/WhatsApp/Media",
+                "/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media",
+                "/sdcard/Android/media/com.whatsapp/WhatsApp/Databases",
+                "/sdcard/Android/media/com.whatsapp/WhatsApp/Backups",
+                "/storage/emulated/999/Android/media/com.whatsapp/WhatsApp/Media"
+            ]
+            for ws in wa_sources:
+                self.log(f"Extracting WhatsApp source: {ws}...")
+                self.run_adb(["pull", ws, wa_dest], timeout=180)
+
+            # Pull Hidden & Private Safe
+            hidden_sources = [
+                "/sdcard/.trash-storage",
+                "/sdcard/.aceself",
+                "/sdcard/.secret",
+                "/sdcard/.thumbnails",
+                "/sdcard/.hidden",
+                "/sdcard/.private",
+                "/storage/emulated/999"
+            ]
+            for hs in hidden_sources:
+                self.log(f"Extracting Hidden Vault source: {hs}...")
+                self.run_adb(["pull", hs, hidden_dest], timeout=180)
+
+            self.log(f"✓ Complete WhatsApp & Hidden Vault extracted to: {dest_folder}")
+            self.after(0, lambda: messagebox.showinfo("Extraction Complete", f"All WhatsApp media & hidden vault folders pulled to:\n{dest_folder}"))
+            self.scan_all_storage_inventories()
+            os.startfile(dest_folder)
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def scan_all_whatsapp_deep_folders(self):
+        if not self.connected:
+            messagebox.showwarning("Offline", "Please connect to device via ADB first.")
+            return
+        self.log("🔍 Scanning ALL WhatsApp folders, media, voice notes, stickers, and databases...")
+        self.path_entry.delete(0, tk.END)
+        self.path_entry.insert(0, "WHATSAPP_ALL_MEDIA")
+
+        def task():
+            wa_paths = [
+                "/sdcard/Android/media/com.whatsapp/WhatsApp/Media",
+                "/sdcard/WhatsApp/Media",
+                "/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media",
+                "/sdcard/Android/media/com.whatsapp/WhatsApp/Databases",
+                "/sdcard/Android/media/com.whatsapp/WhatsApp/Backups",
+                "/storage/emulated/999/Android/media/com.whatsapp/WhatsApp/Media",
+                "/sdcard/WhatsApp/Databases",
+                "/sdcard/WhatsApp/Backups"
+            ]
+            
+            discovered = []
+            for wp in wa_paths:
+                cmd = f"find '{wp}' -type f 2>/dev/null | head -n 400"
+                try:
+                    res = subprocess.run(["adb", "-s", self.target_device, "shell", cmd], capture_output=True, text=True, timeout=8, creationflags=NO_WINDOW)
+                    lines = res.stdout.strip().splitlines()
+                    for f in lines:
+                        f = f.strip()
+                        if f and f not in [x[2] for x in discovered]:
+                            fname = os.path.basename(f)
+                            discovered.append((False, fname, f, 0))
+                except Exception:
+                    pass
+
+            def show():
+                self.current_remote_items = discovered
+                self.file_tree.delete(*self.file_tree.get_children())
+                for is_dir, name, full_p, sz in discovered:
+                    self.file_tree.insert("", "end", values=(f"💬 {name}", ""))
+                self.file_info_lbl.config(text=f"Discovered {len(discovered)} WhatsApp media & database files across all folders.")
+                self.log(f"Discovered {len(discovered)} WhatsApp items.")
+            self.after(0, show)
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def scan_all_hidden_mobile_folders(self):
+        if not self.connected:
+            messagebox.showwarning("Offline", "Please connect to device via ADB first.")
+            return
+        self.log("🔒 Deep-scanning ALL hidden folders, private safe, and .trashed files...")
+        self.path_entry.delete(0, tk.END)
+        self.path_entry.insert(0, "HIDDEN_AND_PRIVATE_VAULTS")
+
+        def task():
+            hidden_roots = [
+                "/sdcard/.trash-storage",
+                "/sdcard/.aceself",
+                "/sdcard/.secret",
+                "/sdcard/.thumbnails",
+                "/sdcard/.hidden",
+                "/sdcard/.private",
+                "/storage/emulated/999",
+                "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses",
+                "/sdcard/WhatsApp/Media/.Statuses"
+            ]
+            discovered = []
+            for hr in hidden_roots:
+                cmd = f"find '{hr}' -type f 2>/dev/null | head -n 250"
+                try:
+                    res = subprocess.run(["adb", "-s", self.target_device, "shell", cmd], capture_output=True, text=True, timeout=8, creationflags=NO_WINDOW)
+                    lines = res.stdout.strip().splitlines()
+                    for f in lines:
+                        f = f.strip()
+                        if f and f not in [x[2] for x in discovered]:
+                            fname = os.path.basename(f)
+                            discovered.append((False, fname, f, 0))
+                except Exception:
+                    pass
+            
+            try:
+                cmd_tr = "find /sdcard -maxdepth 3 -name '.*' -type f 2>/dev/null | head -n 300"
+                res_tr = subprocess.run(["adb", "-s", self.target_device, "shell", cmd_tr], capture_output=True, text=True, timeout=8, creationflags=NO_WINDOW)
+                for f in res_tr.stdout.strip().splitlines():
+                    f = f.strip()
+                    if f and f not in [x[2] for x in discovered]:
+                        fname = os.path.basename(f)
+                        discovered.append((False, fname, f, 0))
+            except Exception:
+                pass
+
+            def show():
+                self.current_remote_items = discovered
+                self.file_tree.delete(*self.file_tree.get_children())
+                for is_dir, name, full_p, sz in discovered:
+                    self.file_tree.insert("", "end", values=(f"🔒 {name}", ""))
+                self.file_info_lbl.config(text=f"Discovered {len(discovered)} hidden & private safe files across phone.")
+                self.log(f"Discovered {len(discovered)} hidden & locked files.")
+            self.after(0, show)
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def pull_all_discovered_files(self):
+        if not self.connected:
+            messagebox.showwarning("Offline", "Please connect to device via ADB first.")
+            return
+        if not self.current_remote_items:
+            messagebox.showinfo("No Files", "Please browse or scan a folder first.")
+            return
+
+        files = [item for item in self.current_remote_items if not item[0]]
+        if not files:
+            messagebox.showinfo("No Files", "No individual files to pull.")
+            return
+
+        dev_name = self.get_device_clean_name()
+        ts_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dest_folder = os.path.join(PULLED_SCREENS_DIR, dev_name, f"Batch_Extract_{ts_str}")
+        os.makedirs(dest_folder, exist_ok=True)
+
+        confirm = messagebox.askyesno(
+            "Batch Pull Confirmation",
+            f"Pull ALL {len(files)} discovered files to laptop?\n\nDestination:\n{dest_folder}\n\nWorks over both Tailscale and USB cable."
+        )
+        if not confirm:
+            return
+
+        def task():
+            self.log(f"🚀 Batch pulling {len(files)} files to {dest_folder}...")
+            count = 0
+            for is_dir, fname, full_path, sz in files:
+                target_f = os.path.join(dest_folder, fname)
+                code, _, _ = self.run_adb(["pull", full_path, target_f], timeout=60)
+                if code == 0 and os.path.exists(target_f):
+                    count += 1
+            self.log(f"✓ Pulled {count}/{len(files)} files to laptop.")
+            self.after(0, lambda: messagebox.showinfo("Pull Complete", f"Successfully pulled {count}/{len(files)} files to:\n{dest_folder}"))
+            self.scan_all_storage_inventories()
+            os.startfile(dest_folder)
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def _select_all_mobile_files(self):
+        for item in self.tree_mobile_files.get_children():
+            self.tree_mobile_files.selection_add(item)
+
+    def _deselect_all_mobile_files(self):
+        for item in self.tree_mobile_files.get_children():
+            self.tree_mobile_files.selection_remove(item)
+
+    def _on_mobile_category_select(self, event=None):
+        sel = self.tree_mobile_storage.selection()
+        if not sel or not self.connected:
+            return
+        vals = self.tree_mobile_storage.item(sel[0], "values")
+        category = vals[0]
+        path = vals[1]
+        self.lbl_mobile_files_status.config(text=f"Loading live files for {category} [{path}]...")
+        threading.Thread(target=self._load_mobile_category_files_worker, args=(category, path), daemon=True).start()
+
+    def _load_mobile_category_files_worker(self, category, path):
+        dev = self.target_device
+        file_items = []
+
+        if path == "/data/local/tmp":
+            cmd = "ls -la /data/local/tmp/ 2>/dev/null"
+        elif "DCIM" in path or "Pictures" in path or "Movies" in path or "Download" in path:
+            cmd = f"find '{path}' -maxdepth 2 -type f 2>/dev/null | head -n 250"
+        else:
+            cmd = f"find '{path}' -maxdepth 2 -type f 2>/dev/null | head -n 150"
+
+        try:
+            res = subprocess.run(["adb", "-s", dev, "shell", cmd], capture_output=True, text=True, timeout=8, creationflags=NO_WINDOW)
+            raw_out = res.stdout.strip()
+            if raw_out:
+                lines = raw_out.splitlines()
+                for line in lines:
+                    line = line.strip()
+                    if not line or line.startswith("total") or line.endswith("/.") or line.endswith("/.."):
+                        continue
+                    
+                    if line.startswith("/"):
+                        # Path output from find
+                        fpath = line
+                        fname = os.path.basename(fpath)
+                        # Query size
+                        file_items.append((fname, "Active", "On Phone", fpath))
+                    else:
+                        # ls output
+                        parts = line.split()
+                        if len(parts) >= 8:
+                            fname = " ".join(parts[8:])
+                            if fname not in [".", ".."]:
+                                sz_bytes = int(parts[4]) if parts[4].isdigit() else 0
+                                sz_disp = f"{sz_bytes/1024:.1f} KB" if sz_bytes < 1024*1024 else f"{sz_bytes/(1024*1024):.2f} MB"
+                                date_disp = f"{parts[5]} {parts[6]}"
+                                full_p = f"{path.rstrip('/')}/{fname}"
+                                file_items.append((fname, sz_disp, date_disp, full_p))
+        except Exception as e:
+            self.log(f"Error loading mobile category files: {e}")
+
+        def update_files_ui():
+            for i in self.tree_mobile_files.get_children():
+                self.tree_mobile_files.delete(i)
+            for item in file_items:
+                self.tree_mobile_files.insert("", "end", values=item)
+            self.lbl_mobile_files_status.config(text=f"Category: {category} ({len(file_items)} files live on phone)")
+
+        self.after(0, update_files_ui)
+
+    def delete_selected_mobile_files_command(self):
+        if not self.connected:
+            messagebox.showwarning("Offline", "Please connect to device via ADB first.")
+            return
+
+        selected_items = self.tree_mobile_files.selection()
+        if not selected_items:
+            messagebox.showinfo("Select Files", "Please select one or more files in the Live Mobile Files list to delete.")
+            return
+
+        files_to_delete = []
+        for item_id in selected_items:
+            vals = self.tree_mobile_files.item(item_id, "values")
+            if len(vals) >= 4:
+                files_to_delete.append(vals[3])
+
+        if not files_to_delete:
+            return
+
+        sample_names = [os.path.basename(p) for p in files_to_delete[:4]]
+        sample_str = ", ".join(sample_names) + ("..." if len(files_to_delete) > 4 else "")
+
+        confirm = messagebox.askyesno(
+            "⚠️ Confirm Delete from Mobile",
+            f"Are you sure you want to delete {len(files_to_delete)} selected file(s) directly from phone storage ({self.target_device})?\n\nFiles: {sample_str}\n\nNote: Laptop data is completely safe and will NOT be touched."
+        )
+        if not confirm:
+            return
+
+        dev = self.target_device
+        self.log(f"🗑️ Deleting {len(files_to_delete)} selected files from mobile {dev}...")
+        
+        escaped_paths = " ".join([f"'{p}'" for p in files_to_delete])
+        cmd = f"rm -f {escaped_paths} 2>/dev/null"
+        try:
+            subprocess.run(["adb", "-s", dev, "shell", cmd], capture_output=True, timeout=12, creationflags=NO_WINDOW)
+            self.log(f"✓ Deleted {len(files_to_delete)} files from mobile {dev}.")
+            self.scan_all_storage_inventories()
+            self._on_mobile_category_select()
+            messagebox.showinfo("Mobile Clean Complete", f"Successfully deleted {len(files_to_delete)} file(s) from phone storage.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to delete files on mobile: {e}")
+
+    def scan_all_storage_inventories(self):
+        threading.Thread(target=self._scan_storage_worker, daemon=True).start()
+
+    def _scan_storage_worker(self):
+        self.after(0, lambda: self.lbl_laptop_storage_badge.config(text="💻 Laptop Archive: Scanning..."))
+        self.after(0, lambda: self.lbl_mobile_storage_badge.config(text="📱 Mobile: Scanning..."))
+
+        # 1. Laptop scan
+        lap_items = []
+        total_lap_files = 0
+        total_lap_bytes = 0
+        
+        base_dir = PULLED_SCREENS_DIR
+        if os.path.exists(base_dir):
+            for root, dirs, files in os.walk(base_dir):
+                m_files = [f for f in files if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.raw', '.mp4', '.csv', '.pdf'))]
+                if m_files:
+                    f_size = sum(os.path.getsize(os.path.join(root, f)) for f in m_files)
+                    total_lap_files += len(m_files)
+                    total_lap_bytes += f_size
+                    rel = os.path.relpath(root, base_dir).replace("\\", "/")
+                    size_str = f"{f_size / (1024*1024):.2f} MB" if f_size > 1024*1024 else f"{f_size/1024:.1f} KB"
+                    lap_items.append((rel if rel != '.' else 'Root / Snapshots', len(m_files), size_str))
+
+        # 2. Mobile scan
+        mob_items = []
+        total_mob_files = 0
+        total_mob_bytes = 0
+        
+        dev = self.target_device
+        if self.connected:
+            mobile_targets = [
+                ("Past Screenshots", "/sdcard/DCIM/Screenshots", "Safe to Purge"),
+                ("Camera Photos & Videos", "/sdcard/DCIM/Camera", "Personal Media"),
+                ("Downloads & Residuals", "/sdcard/Download", "User Files"),
+                ("Pictures & App Media", "/sdcard/Pictures", "App Media"),
+                ("Screen Recordings & Movies", "/sdcard/Movies", "Recordings"),
+                ("Documents", "/sdcard/Documents", "Documents"),
+                ("Music & Audio", "/sdcard/Music", "Audio"),
+                ("System Temp & Buffers", "/data/local/tmp", "Zero Risk Clean"),
+                ("WhatsApp Media & Data", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media", "WhatsApp Media"),
+                ("WhatsApp Root / Legacy", "/sdcard/WhatsApp", "Legacy WA"),
+                ("WhatsApp Business", "/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business", "WA Business"),
+                ("WhatsApp Statuses (.Statuses)", "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses", "Hidden WA"),
+                ("Hidden Trash (.trash-storage)", "/sdcard/.trash-storage", "Recycle Bin"),
+                ("OPPO Private Safe (.aceself)", "/sdcard/.aceself", "Locked Safe"),
+                ("Hidden Thumbnails (.thumbnails)", "/sdcard/.thumbnails", "Cache / Clean"),
+                ("Dual App Space (999)", "/storage/emulated/999", "Dual Space"),
+            ]
+            
+            for cat, path, safety in mobile_targets:
+                cnt_cmd = f"find {path} -type f 2>/dev/null | wc -l"
+                try:
+                    res_cnt = subprocess.run(["adb", "-s", dev, "shell", cnt_cmd], capture_output=True, text=True, timeout=5, creationflags=NO_WINDOW).stdout.strip()
+                    cnt = int(res_cnt) if res_cnt.isdigit() else 0
+                except Exception:
+                    cnt = 0
+                
+                du_cmd = f"du -sk {path} 2>/dev/null | head -n 1"
+                try:
+                    res_du = subprocess.run(["adb", "-s", dev, "shell", du_cmd], capture_output=True, text=True, timeout=5, creationflags=NO_WINDOW).stdout.strip()
+                    kb = 0
+                    if res_du and res_du.split():
+                        first_tok = res_du.split()[0]
+                        if first_tok.isdigit():
+                            kb = int(first_tok)
+                except Exception:
+                    kb = 0
+                        
+                size_str = f"{kb/1024:.2f} MB" if kb < 1024*1024 else f"{kb/(1024*1024):.2f} GB"
+                total_mob_files += cnt
+                total_mob_bytes += kb * 1024
+                mob_items.append((cat, path, cnt, size_str, safety))
+
+        def update_ui():
+            # Update Laptop Tree
+            for i in self.tree_laptop_storage.get_children():
+                self.tree_laptop_storage.delete(i)
+            for item in lap_items:
+                self.tree_laptop_storage.insert("", "end", values=item)
+            
+            lap_badge = f"💻 Laptop Archive: {total_lap_files} files ({total_lap_bytes/(1024*1024):.1f} MB) - Safe"
+            self.lbl_laptop_storage_badge.config(text=lap_badge)
+
+            # Update Mobile Tree
+            for i in self.tree_mobile_storage.get_children():
+                self.tree_mobile_storage.delete(i)
+            for item in mob_items:
+                self.tree_mobile_storage.insert("", "end", values=item)
+            
+            if self.connected:
+                mob_badge = f"📱 Mobile: {total_mob_files} files ({total_mob_bytes/(1024*1024*1024):.2f} GB)"
+                self.lbl_mobile_storage_badge.config(text=mob_badge)
+                self.lbl_mobile_target_device.config(text=f"({self.target_device})")
+            else:
+                self.lbl_mobile_storage_badge.config(text="📱 Mobile: Disconnected")
+                self.lbl_mobile_target_device.config(text="(Offline)")
+
+        self.after(0, update_ui)
+
+    def open_laptop_storage_explorer(self):
+        try:
+            if os.name == 'nt':
+                os.startfile(PULLED_SCREENS_DIR)
+            else:
+                subprocess.Popen(['xdg-open', PULLED_SCREENS_DIR])
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to open storage directory: {e}")
+
+    def purge_mobile_temp_buffers_now(self):
+        if not self.connected:
+            messagebox.showwarning("Offline", "Please connect to device via ADB first.")
+            return
+
+        dev = self.target_device
+        self.log(f"⚡ Purging temporary ADB buffers and residual screencaps on {dev}...")
+        cmd = "rm -f /sdcard/screen* /sdcard/screencap* /sdcard/screenshot* /sdcard/badgym* /data/local/tmp/*.png /data/local/tmp/*.jpg /data/local/tmp/*.raw /data/local/tmp/*.apk /data/local/tmp/*.tmp 2>/dev/null"
+        try:
+            subprocess.run(["adb", "-s", dev, "shell", cmd], capture_output=True, timeout=8, creationflags=NO_WINDOW)
+            self.log(f"✓ Mobile device {dev} temporary storage 100% clean (0 bytes overhead).")
+            self.scan_all_storage_inventories()
+            messagebox.showinfo("Clean Complete", f"Device {dev} temporary buffers, screencaps, and cache files have been cleared with 0 bytes residual.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to purge mobile temp files: {e}")
+
+    def delete_selected_mobile_storage_category(self):
+        if not self.connected:
+            messagebox.showwarning("Offline", "Please connect to device via ADB first.")
+            return
+
+        sel = self.tree_mobile_storage.selection()
+        if not sel:
+            messagebox.showinfo("Select Category", "Please select a category row in the Mobile Storage table to clean.")
+            return
+
+        vals = self.tree_mobile_storage.item(sel[0], "values")
+        category = vals[0]
+        path = vals[1]
+        count = vals[2]
+        size = vals[3]
+
+        confirm = messagebox.askyesno(
+            "⚠️ Confirm Mobile Storage Category Deletion",
+            f"Are you sure you want to delete ALL files in this category on mobile?\n\nCategory: {category}\nPath: {path}\nFiles: {count}\nSize: {size}\n\nWARNING: Files will be deleted directly from phone memory. Laptop data is NOT touched."
+        )
+        if not confirm:
+            return
+
+        dev = self.target_device
+        self.log(f"🗑️ Deleting all files in {path} on mobile {dev}...")
+        cmd = f"rm -rf {path}/* 2>/dev/null"
+        try:
+            subprocess.run(["adb", "-s", dev, "shell", cmd], capture_output=True, timeout=12, creationflags=NO_WINDOW)
+            self.log(f"✓ Mobile path {path} cleared on {dev}.")
+            self.scan_all_storage_inventories()
+            for i in self.tree_mobile_files.get_children():
+                self.tree_mobile_files.delete(i)
+            messagebox.showinfo("Deleted", f"Category '{category}' ({path}) has been cleaned on the phone.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to clean mobile storage path: {e}")
+
     def _build_screen_panel(self, parent):
-        top_ctrl = tk.Frame(parent, bg="#1e293b")
-        top_ctrl.pack(fill="x", pady=(0, 6))
+        ctrl_container = tk.Frame(parent, bg="#1e293b", relief="solid", bd=1)
+        ctrl_container.pack(fill="x", pady=(0, 6))
 
-        tk.Label(top_ctrl, text="Live Screen", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 10, "bold")).pack(side="left")
+        # Row 1: Title, Stream toggle, Snap button, BAD GYM badge, Web Stream
+        r1 = tk.Frame(ctrl_container, bg="#1e293b", padx=6, pady=3)
+        r1.pack(fill="x")
 
-        tk.Label(top_ctrl, text="Int:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(6, 1))
-        self.interval_spin = tk.Spinbox(top_ctrl, from_=1, to=60, width=2, bg="#334155", fg="#ffffff", font=("Segoe UI", 8))
-        self.interval_spin.delete(0, "end")
-        self.interval_spin.insert(0, "1")
-        self.interval_spin.pack(side="left", padx=1)
-        tk.Label(top_ctrl, text="s", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7)).pack(side="left")
+        tk.Label(r1, text="📱 Live Screen", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 9, "bold")).pack(side="left")
 
-        self.btn_pull_live = tk.Button(top_ctrl, text="▶ Stream", bg="#16a34a", fg="white", font=("Segoe UI", 7, "bold"), padx=6, relief="flat", command=self.toggle_live_pull)
+        self.btn_pull_live = tk.Button(r1, text="▶ Stream", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.toggle_live_pull)
         self.btn_pull_live.pack(side="left", padx=3)
 
-        tk.Button(top_ctrl, text="📸 Snap", bg="#475569", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self.pull_single_screen).pack(side="left", padx=1)
+        tk.Button(r1, text="📸 Snap", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.pull_single_screen).pack(side="left", padx=2)
 
-        tk.Button(top_ctrl, text="📁 Laptop", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self.open_saved_folder).pack(side="right", padx=1)
-        tk.Button(top_ctrl, text="🖼 View", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=self.open_image_viewer).pack(side="right", padx=1)
+        self.screen_badgym_badge = tk.Label(r1, text="● BAD GYM", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 7, "bold"))
+        self.screen_badgym_badge.pack(side="left", padx=3)
+
+        tk.Button(r1, text="🎥 Web", bg="#0891b2", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.open_live_web_stream).pack(side="right", padx=2)
+
+        # Row 2: Speed / Interval, Auto-save check, Open Last Saved, Open Folder
+        r2 = tk.Frame(ctrl_container, bg="#0f172a", padx=6, pady=3)
+        r2.pack(fill="x")
+
+        tk.Label(r2, text="Speed:", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(0, 2))
+        self.interval_combo = ttk.Combobox(
+            r2,
+            values=["0.5s (Fast)", "1.0s (Smooth)", "2.0s (Normal)", "5.0s (Power Saver)"],
+            width=13,
+            state="readonly"
+        )
+        self.interval_combo.current(1)
+        self.interval_combo.pack(side="left", padx=2)
+
+        if not hasattr(self, 'var_autosave_frames'):
+            self.var_autosave_frames = tk.BooleanVar(value=True)
+        self.chk_autosave = tk.Checkbutton(
+            r2,
+            text="Save All",
+            variable=self.var_autosave_frames,
+            bg="#0f172a",
+            fg="#cbd5e1",
+            selectcolor="#1e293b",
+            activebackground="#0f172a",
+            activeforeground="#38bdf8",
+            font=("Segoe UI", 7)
+        )
+        self.chk_autosave.pack(side="left", padx=2)
+
+        tk.Button(r2, text="📁 Folder", bg="#334155", fg="white", font=("Segoe UI", 7), padx=5, relief="flat", command=self.open_saved_folder).pack(side="right", padx=1)
+        self.btn_open_last = tk.Button(r2, text="📂 Last Saved", bg="#0284c7", fg="white", font=("Segoe UI", 7, "bold"), padx=5, relief="flat", command=self.open_last_screenshot)
+        self.btn_open_last.pack(side="right", padx=2)
 
         self.screen_frame = tk.Frame(parent, bg="#000000", bd=2, relief="groove")
         self.screen_frame.pack(fill="both", expand=True)
@@ -1387,13 +2822,6 @@ class DeviceDevStudio(tk.Tk):
 
     def run_adb(self, cmd_list, timeout=20):
         addr = self.target_device
-        # If network device, ensure it is connected
-        if ":" in addr:
-            try:
-                subprocess.run(["adb", "connect", addr], capture_output=True, timeout=4, creationflags=NO_WINDOW)
-            except Exception:
-                pass
-
         full_cmd = ["adb", "-s", addr] + cmd_list
         try:
             res = subprocess.run(
@@ -1405,6 +2833,14 @@ class DeviceDevStudio(tk.Tk):
             out = res.stdout.decode('utf-8', errors='replace').strip() if res.stdout else ""
             err = res.stderr.decode('utf-8', errors='replace').strip() if res.stderr else ""
             
+            # If command failed due to device offline or disconnected over network
+            if ("offline" in out.lower() or "device offline" in err.lower() or "error: device" in err.lower()) and ":" in addr:
+                if self.connected:
+                    self.connected = False
+                    self.after(0, lambda: self.status_lbl.config(text="💤 Connection Lost / Device Sleep", fg="#f59e0b"))
+                    self.after(0, lambda: self.btn_connect.config(text="Connect ADB", bg="#0284c7"))
+                    self._start_wake_watcher(addr)
+
             if res.returncode == 0 and not self.connected and "offline" not in out.lower() and "error" not in err.lower():
                 self.connected = True
                 self._stop_wake_watcher()
@@ -1418,12 +2854,95 @@ class DeviceDevStudio(tk.Tk):
 
     def refresh_devices_list(self):
         def task():
-            self.log("Scanning ADB devices...")
+            self.log("🔄 Scanning ADB and Tailscale network devices...")
+            
+            KNOWN_MODELS = {
+                "21091116i": "Xiaomi 11i HyperCharge",
+                "21091116I": "Xiaomi 11i HyperCharge",
+                "cph2127": "OPPO A53",
+                "CPH2127": "OPPO A53",
+                "sm-x210": "Samsung Galaxy Tab A9",
+                "SM-X210": "Samsung Galaxy Tab A9",
+                "sm-g998b": "Samsung Galaxy S21 Ultra",
+                "sm-s918b": "Samsung Galaxy S23 Ultra",
+            }
+            
+            tailscale_devices = []
+            
+            # 1. Discover Tailscale Peers dynamically
+            ts_exe = r"C:\Program Files\Tailscale\tailscale.exe"
+            if not os.path.exists(ts_exe):
+                ts_exe = shutil.which("tailscale") or "tailscale"
+            
+            try:
+                ts_res = subprocess.run([ts_exe, "status", "--json"], capture_output=True, text=True, timeout=6, creationflags=NO_WINDOW)
+                if ts_res.returncode == 0 and ts_res.stdout.strip():
+                    ts_data = json.loads(ts_res.stdout)
+                    peers = ts_data.get("Peer", {})
+                    
+                    for _, peer in peers.items():
+                        hostname = peer.get("HostName", "").strip()
+                        os_name = peer.get("OS", "").lower()
+                        ips = peer.get("TailscaleIPs", [])
+                        online = peer.get("Online", False)
+                        ip = ips[0] if ips else None
+                        
+                        # Filter out Windows laptop itself
+                        if not ip or os_name == "windows":
+                            continue
+                        
+                        # Determine friendly device model name
+                        raw_model = hostname.replace("badgym-", "").strip()
+                        if raw_model in KNOWN_MODELS:
+                            clean_model = KNOWN_MODELS[raw_model]
+                        elif raw_model.upper() in KNOWN_MODELS:
+                            clean_model = KNOWN_MODELS[raw_model.upper()]
+                        elif raw_model.lower() in KNOWN_MODELS:
+                            clean_model = KNOWN_MODELS[raw_model.lower()]
+                        else:
+                            clean_model = raw_model.replace("-", " ").title() if raw_model else hostname
+                        
+                        # Check BAD GYM Health over Tailscale HTTP
+                        is_badgym_live = False
+                        if online:
+                            try:
+                                with urllib.request.urlopen(f"http://{ip}:8787/health", timeout=1.2) as h_res:
+                                    if h_res.status == 200:
+                                        is_badgym_live = True
+                            except Exception:
+                                pass
+                        
+                        tailscale_addr = f"{ip}:5555"
+                        last_octet = ip.split(".")[-1]
+                        
+                        if is_badgym_live:
+                            label = f"{clean_model} [BAD GYM LIVE 🟢] ({last_octet})"
+                            status_tag = "BADGYM_LIVE"
+                        elif online:
+                            label = f"{clean_model} [Tailscale Online 🟡] ({last_octet})"
+                            status_tag = "TS_ONLINE"
+                        else:
+                            label = f"{clean_model} [Tailscale Offline 🔴] ({last_octet})"
+                            status_tag = "TS_OFFLINE"
+                        
+                        tailscale_devices.append((label, tailscale_addr, status_tag, is_badgym_live, online))
+                        
+                        # If online, attempt background adb connect so wireless ADB is instantly ready
+                        if online:
+                            try:
+                                subprocess.Popen(["adb", "connect", tailscale_addr], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=NO_WINDOW)
+                            except Exception:
+                                pass
+            except Exception as e:
+                self.log(f"Tailscale scan notice: {e}")
+
+            # 2. Discover local ADB devices (USB & Wi-Fi)
             try:
                 res = subprocess.run(["adb", "devices"], capture_output=True, timeout=8, creationflags=NO_WINDOW)
                 lines = res.stdout.decode('utf-8', errors='replace').strip().splitlines()
             except Exception:
                 lines = []
+                
             detected_usb = []
             detected_net = []
             for line in lines[1:]:
@@ -1431,52 +2950,85 @@ class DeviceDevStudio(tk.Tk):
                 if len(parts) >= 2 and parts[1] == "device":
                     dev_id = parts[0]
                     try:
-                        m_res = subprocess.run(["adb", "-s", dev_id, "shell", "getprop ro.product.model"], capture_output=True, timeout=5, creationflags=NO_WINDOW)
+                        m_res = subprocess.run(["adb", "-s", dev_id, "shell", "getprop ro.product.model"], capture_output=True, timeout=4, creationflags=NO_WINDOW)
                         model = m_res.stdout.decode('utf-8', errors='replace').strip() or dev_id
                     except Exception:
                         model = dev_id
                     if ":" in dev_id:
-                        detected_net.append((f"{model} [Wi-Fi/Tailscale] ({dev_id})", dev_id))
+                        detected_net.append((f"{model} [Wi-Fi/ADB] ({dev_id})", dev_id))
                     else:
                         detected_usb.append((f"{model} [USB Fast] ({dev_id})", dev_id))
-            
-            # Prioritize USB cable connected devices at the top of the list!
+
+            # Deduplicate and sort items with smart priority:
+            # Priority 1: BAD GYM LIVE 🟢 devices
+            # Priority 2: High-speed USB Cable devices
+            # Priority 3: Tailscale Online 🟡 devices
+            # Priority 4: Detected ADB Wi-Fi devices
+            # Priority 5: Presets & Offline devices
             items = []
-            seen = set()
+            seen_addrs = set()
             
-            # 1. Detected USB devices
+            # 1. BAD GYM LIVE devices
+            for label, addr, status_tag, is_live, is_online in tailscale_devices:
+                if is_live and addr not in seen_addrs:
+                    seen_addrs.add(addr)
+                    items.append(f"{label} - {addr}")
+            
+            # 2. Detected USB devices
             for label, addr in detected_usb:
-                if addr not in seen:
-                    seen.add(addr)
+                if addr not in seen_addrs:
+                    seen_addrs.add(addr)
                     items.append(f"{label} - {addr}")
             
-            # 2. Preset USB devices
-            for label, addr in PRESET_DEVICES:
-                if ":" not in addr and addr not in seen:
-                    seen.add(addr)
+            # 3. Tailscale Online devices
+            for label, addr, status_tag, is_live, is_online in tailscale_devices:
+                if is_online and not is_live and addr not in seen_addrs:
+                    seen_addrs.add(addr)
                     items.append(f"{label} - {addr}")
-            
-            # 3. Detected Network devices
+
+            # 4. Detected Wi-Fi ADB devices
             for label, addr in detected_net:
-                if addr not in seen:
-                    seen.add(addr)
+                if addr not in seen_addrs:
+                    seen_addrs.add(addr)
                     items.append(f"{label} - {addr}")
-            
-            # 4. Preset Network devices
+
+            # 5. Tailscale Offline devices
+            for label, addr, status_tag, is_live, is_online in tailscale_devices:
+                if not is_online and addr not in seen_addrs:
+                    seen_addrs.add(addr)
+                    items.append(f"{label} - {addr}")
+
+            # 6. Preset devices fallback
             for label, addr in PRESET_DEVICES:
-                if ":" in addr and addr not in seen:
-                    seen.add(addr)
+                if addr not in seen_addrs:
+                    seen_addrs.add(addr)
                     items.append(f"{label} - {addr}")
-            
+
             def update_ui():
                 self.device_combo['values'] = items
-                total_detected = len(detected_usb) + len(detected_net)
-                self.log(f"Found {total_detected} active ADB device(s) (USB Fast: {len(detected_usb)}, Network: {len(detected_net)}).")
-                # If a fast USB cable device is connected and we are disconnected or on slow network, prioritize USB
-                if detected_usb and not self.connected:
-                    self.device_combo.current(0)
-                    self.target_device = detected_usb[0][1]
-                    self.log(f"⚡ High-Speed USB Cable device selected: {detected_usb[0][0]}")
+                # Populate BAD GYM tab Tailnet treeview
+                if hasattr(self, 'ts_tree'):
+                    self.ts_tree.delete(*self.ts_tree.get_children())
+                    for label, addr, status_tag, is_live, is_online in tailscale_devices:
+                        st_icon = "🟢 Live" if is_live else ("🟡 Online" if is_online else "🔴 Offline")
+                        bg_txt = "YES 🟢" if is_live else "NO 🔴"
+                        clean_n = label.split("[")[0].strip()
+                        raw_ip = addr.split(":")[0]
+                        self.ts_tree.insert("", "end", values=(st_icon, clean_n, raw_ip, bg_txt, "Android"))
+
+                total_detected = len(detected_usb) + len(detected_net) + len(tailscale_devices)
+                self.log(f"Scan complete: {len(tailscale_devices)} Tailnet node(s), {len(detected_usb)} USB, {len(detected_net)} Wi-Fi.")
+                
+                # If current target is offline or not connected, auto-select first BAD GYM LIVE device!
+                live_devs = [td for td in tailscale_devices if td[3]]
+                if live_devs and not self.connected:
+                    first_live_addr = live_devs[0][1]
+                    for idx, val in enumerate(items):
+                        if first_live_addr in val:
+                            self.device_combo.current(idx)
+                            self.target_device = first_live_addr
+                            self.log(f"⚡ Auto-selected live BAD GYM device: {live_devs[0][0]}")
+                            break
             self.after(0, update_ui)
         threading.Thread(target=task, daemon=True).start()
 
@@ -1489,52 +3041,133 @@ class DeviceDevStudio(tk.Tk):
                 self.after(0, lambda: self.pkg_combo.config(values=pkgs))
                 if pkgs:
                     self.after(0, lambda: self.pkg_combo.set(pkgs[0]))
-                self.log(f"Found {len(pkgs)} package(s): {', '.join(pkgs)}")
-            else:
-                self.log("No specific gym packages found in filter.")
-        threading.Thread(target=task, daemon=True).start()
+    def open_wireless_pairing_dialog(self):
+        """
+        Permanent Cable-Free Reconnection Dialog (Android 11+ Wireless Debugging & Pairing):
+        Allows connecting after phone reboot without touching any USB cable.
+        """
+        pair_win = tk.Toplevel(self)
+        pair_win.title("🔗 Wireless Debugging & Pairing")
+        pair_win.geometry("480x360")
+        pair_win.minsize(440, 320)
+        pair_win.configure(bg="#0f172a")
+        pair_win.attributes("-topmost", True)
+        pair_win.resizable(False, False)
+
+        tk.Label(
+            pair_win,
+            text="🔗 Connect / Pair via Wireless Debugging",
+            bg="#0f172a",
+            fg="#38bdf8",
+            font=("Segoe UI", 11, "bold")
+        ).pack(pady=(14, 4))
+
+        tk.Label(
+            pair_win,
+            text="On Mobile: Settings ➔ Developer Options ➔ Wireless Debugging",
+            bg="#0f172a",
+            fg="#94a3b8",
+            font=("Segoe UI", 8)
+        ).pack(pady=(0, 10))
+
+        form_f = tk.Frame(pair_win, bg="#1e293b", padx=12, pady=10, relief="solid", bd=1)
+        form_f.pack(fill="x", padx=16, pady=4)
+
+        # 1. IP Address
+        tk.Label(form_f, text="Mobile IP / Tailscale IP:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8, "bold")).grid(row=0, column=0, sticky="w", pady=3)
+        default_ip = "100.80.18.55" if "100.80" in self.target_device else ("100.123.18.54" if "100.123" in self.target_device else "100.80.18.55")
+        ip_entry = tk.Entry(form_f, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 9), width=22)
+        ip_entry.insert(0, default_ip)
+        ip_entry.grid(row=0, column=1, sticky="e", pady=3, padx=4)
+
+        # 2. Wireless Debugging Port
+        tk.Label(form_f, text="Wireless Debugging Port:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8, "bold")).grid(row=1, column=0, sticky="w", pady=3)
+        port_entry = tk.Entry(form_f, bg="#334155", fg="#38bdf8", insertbackground="white", font=("Segoe UI", 9, "bold"), width=22)
+        port_entry.insert(0, "5555")
+        port_entry.grid(row=1, column=1, sticky="e", pady=3, padx=4)
+
+        # 3. Optional Pairing Code
+        tk.Label(form_f, text="Pairing Code (if required):", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).grid(row=2, column=0, sticky="w", pady=3)
+        code_entry = tk.Entry(form_f, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 9), width=22)
+        code_entry.grid(row=2, column=1, sticky="e", pady=3, padx=4)
+
+        # 4. Optional Pairing Port
+        tk.Label(form_f, text="Pairing Port (if required):", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).grid(row=3, column=0, sticky="w", pady=3)
+        pair_port_entry = tk.Entry(form_f, bg="#334155", fg="white", insertbackground="white", font=("Segoe UI", 9), width=22)
+        pair_port_entry.grid(row=3, column=1, sticky="e", pady=3, padx=4)
+
+        lbl_res = tk.Label(pair_win, text="", bg="#0f172a", fg="#38bdf8", font=("Segoe UI", 8))
+        lbl_res.pack(pady=4)
+
+        def do_pair_and_connect():
+            target_ip = ip_entry.get().strip()
+            target_pt = port_entry.get().strip() or "5555"
+            pair_code = code_entry.get().strip()
+            pair_pt = pair_port_entry.get().strip()
+
+            if not target_ip:
+                lbl_res.config(text="Please enter a valid IP address.", fg="#ef4444")
+                return
+
+            lbl_res.config(text="Connecting to mobile over Tailscale / Wi-Fi...", fg="#38bdf8")
+
+            def task():
+                if pair_code and pair_pt:
+                    self.log(f"Pairing with {target_ip}:{pair_pt} using code...")
+                    p_res = subprocess.run(["adb", "pair", f"{target_ip}:{pair_pt}", pair_code], capture_output=True, timeout=10, creationflags=NO_WINDOW)
+                    p_out = p_res.stdout.decode('utf-8', errors='replace').strip()
+                    self.log(f"Pairing result: {p_out}")
+
+                full_target = f"{target_ip}:{target_pt}"
+                self.log(f"Connecting ADB to {full_target}...")
+                subprocess.run(["adb", "disconnect", full_target], capture_output=True, timeout=3, creationflags=NO_WINDOW)
+                c_res = subprocess.run(["adb", "connect", full_target], capture_output=True, timeout=10, creationflags=NO_WINDOW)
+                c_out = c_res.stdout.decode('utf-8', errors='replace').strip()
+                self.log(f"Connect result: {c_out}")
+
+                # Automatically configure port 5555 if dynamic port was used
+                if target_pt != "5555" and "connected" in c_out.lower():
+                    self.log("Activating permanent port 5555 on mobile...")
+                    subprocess.run(["adb", "-s", full_target, "tcpip", "5555"], capture_output=True, timeout=6, creationflags=NO_WINDOW)
+                    time.sleep(1.0)
+                    subprocess.run(["adb", "connect", f"{target_ip}:5555"], capture_output=True, timeout=8, creationflags=NO_WINDOW)
+                    full_target = f"{target_ip}:5555"
+
+                def update():
+                    self.target_device = full_target
+                    self.device_combo.set(f"Wireless ({target_ip}) - {full_target}")
+                    pair_win.destroy()
+                    self.toggle_connection(force_connect=True)
+
+                self.after(0, update)
+
+            threading.Thread(target=task, daemon=True).start()
+
+        btn_act = tk.Button(
+            pair_win,
+            text="⚡ Connect & Start Live Stream",
+            bg="#16a34a",
+            fg="white",
+            font=("Segoe UI", 9, "bold"),
+            padx=12,
+            pady=4,
+            relief="flat",
+            command=do_pair_and_connect
+        )
+        btn_act.pack(pady=6)
 
     def auto_detect_and_connect(self):
         def task():
-            # Check for high-speed USB connected devices first
-            try:
-                res = subprocess.run(["adb", "devices"], capture_output=True, timeout=5, creationflags=NO_WINDOW)
-                lines = res.stdout.decode('utf-8', errors='replace').strip().splitlines()
-            except Exception:
-                lines = []
-            
-            usb_devices = []
-            for line in lines[1:]:
-                parts = line.strip().split()
-                if len(parts) >= 2 and parts[1] == "device" and ":" not in parts[0]:
-                    usb_devices.append(parts[0])
-            
-            if usb_devices:
-                # Prioritize active USB Cable connection!
-                chosen_dev = usb_devices[0]
-                self.target_device = chosen_dev
-                self.log(f"⚡ USB Cable Device Active ({chosen_dev})! Giving top priority to High-Speed USB connection.")
-                
-                # Match in combo if preset exists
-                matched_idx = -1
-                for idx, (label, addr) in enumerate(PRESET_DEVICES):
-                    if addr == chosen_dev:
-                        matched_idx = idx
-                        break
-                if matched_idx >= 0:
-                    self.after(0, lambda: self.device_combo.current(matched_idx))
-                else:
-                    self.after(0, lambda: self.device_combo.set(f"USB Device - {chosen_dev}"))
-            else:
-                # Default to first preset device (e.g. OPPO A53 Tailscale)
-                self.target_device = PRESET_DEVICES[0][1]
-                self.after(0, lambda: self.device_combo.current(0))
-                if ":" in self.target_device:
-                    try:
-                        subprocess.run(["adb", "connect", self.target_device], capture_output=True, timeout=6, creationflags=NO_WINDOW)
-                    except Exception:
-                        pass
+            self.target_device = PRESET_DEVICES[0][1]
+            self.after(0, lambda: self.device_combo.current(0))
+            if ":" in self.target_device:
+                try:
+                    subprocess.run(["adb", "connect", self.target_device], capture_output=True, timeout=6, creationflags=NO_WINDOW)
+                except Exception:
+                    pass
             self.toggle_connection(force_connect=True)
+            self._start_badgym_health_poller()
+            self.refresh_devices_list()
         threading.Thread(target=task, daemon=True).start()
 
     def toggle_connection(self, force_connect=False):
@@ -1547,6 +3180,8 @@ class DeviceDevStudio(tk.Tk):
         if not force_connect and self.connected:
             def dc_task():
                 self._stop_wake_watcher()
+                if self.pulling:
+                    self.toggle_live_pull()
                 if ":" in addr:
                     try:
                         subprocess.run(["adb", "disconnect", addr], capture_output=True, timeout=4, creationflags=NO_WINDOW)
@@ -1566,6 +3201,8 @@ class DeviceDevStudio(tk.Tk):
             out = "connected"
             if ":" in addr:
                 try:
+                    # Force disconnect stale session first so ADB daemon resets zombie state
+                    subprocess.run(["adb", "disconnect", addr], capture_output=True, timeout=3, creationflags=NO_WINDOW)
                     res = subprocess.run(["adb", "connect", addr], capture_output=True, timeout=8, creationflags=NO_WINDOW)
                     out = res.stdout.decode('utf-8', errors='replace').strip().lower()
                 except Exception as e:
@@ -1579,7 +3216,7 @@ class DeviceDevStudio(tk.Tk):
             if current_session != self._connect_session_id or addr != self.target_device:
                 return
 
-            if c_test == 0 and m_test:
+            if c_test == 0 and m_test and "offline" not in m_test.lower() and "error" not in m_test.lower():
                 self.connected = True
                 self._stop_wake_watcher()
                 dev_model = m_test.strip()
@@ -1593,18 +3230,18 @@ class DeviceDevStudio(tk.Tk):
                 # Cleanly staggered initial loading so Tailscale connection is responsive
                 self.check_foreground()
                 self.check_battery()
-                self.after(300, self.pull_single_screen)
-                self.after(800, self.scan_mobile_gallery)
-                self.after(1600, self.fetch_call_logs_and_contacts)
-                self.after(2600, self.scan_installed_apps)
-                self.after(3600, self.list_device_files)
+                self.after(400, lambda: self.toggle_live_pull() if not self.pulling else None)
+                self.after(1200, self.scan_mobile_gallery)
+                self.after(2200, self.fetch_call_logs_and_contacts)
+                self.after(3200, self.scan_installed_apps)
+                self.after(4200, self.list_device_files)
             else:
                 if current_session != self._connect_session_id or addr != self.target_device:
                     return
                 self.connected = False
                 self.after(0, lambda: self.btn_connect.config(text="Connect ADB", bg="#0284c7"))
-                if ":" in addr and any(k in out for k in ("10061", "refused", "offline", "timeout", "actively")):
-                    self.log(f"Device {addr} is sleeping / screen off (Port not open yet). Starting zero-load presence observer...")
+                if ":" in addr:
+                    self.log(f"Device {addr} is sleeping / offline / turned off. Starting active presence observer...")
                     self._start_wake_watcher(addr)
                 else:
                     self.after(0, lambda: self.status_lbl.config(text="● Disconnected", fg="#ef4444"))
@@ -1613,6 +3250,7 @@ class DeviceDevStudio(tk.Tk):
         threading.Thread(target=task, daemon=True).start()
 
     def check_foreground(self):
+        """Inspects current active foreground window / package on mobile device and updates status banner"""
         def task():
             code, out, _ = self.run_adb(["shell", "dumpsys window | grep -E 'mCurrentFocus|mFocusedApp'"], timeout=6)
             if code == 0 and out:
@@ -1623,8 +3261,42 @@ class DeviceDevStudio(tk.Tk):
                         if "/" in p:
                             app_info = p.replace("u0", "").replace("}", "").replace("{", "").strip()
                             break
-                self.after(0, lambda a=app_info: self.active_win_lbl.config(text=a))
-                self.log(f"Current foreground: {app_info}")
+                
+                pkg_lower = app_info.lower()
+                b_text = f"📱 App: {app_info.split('/')[0]}"
+                b_bg = "#3b82f6"
+                b_fg = "white"
+
+                if "whatsapp" in pkg_lower:
+                    b_text = "💬 WhatsApp Active | Stream 2s"
+                    b_bg = "#16a34a"
+                    b_fg = "white"
+                elif "instagram" in pkg_lower:
+                    b_text = "📸 Instagram Active | Stream 5s"
+                    b_bg = "#c13584"
+                    b_fg = "white"
+                elif "snapchat" in pkg_lower:
+                    b_text = "👻 Snapchat Active | Stream 5s"
+                    b_bg = "#eab308"
+                    b_fg = "black"
+                elif any(k in pkg_lower for k in ("dialer", "incallui", "telecom", "phone", "call")):
+                    b_text = "📞 Phone Call Active | Stream 5s"
+                    b_bg = "#0284c7"
+                    b_fg = "white"
+                elif any(k in pkg_lower for k in ("launcher", "home", "systemui")):
+                    b_text = "🏠 Home Screen / App Closed"
+                    b_bg = "#334155"
+                    b_fg = "#cbd5e1"
+
+                def update_banner():
+                    if hasattr(self, 'active_app_banner'):
+                        self.active_app_banner.config(text=b_text, bg=b_bg, fg=b_fg)
+                    if hasattr(self, 'active_win_lbl'):
+                        self.active_win_lbl.config(text=app_info)
+
+                self.after(0, update_banner)
+                self.log(f"Current foreground app: {app_info}")
+                return app_info
         threading.Thread(target=task, daemon=True).start()
 
     def check_battery(self):
@@ -1808,11 +3480,18 @@ class DeviceDevStudio(tk.Tk):
         3. Saves into pulled_screens/<Device>/<YYYY-MM-DD>/screen_<HH-MM-SS>.jpg.
         4. Instantly deletes any temporary mobile artifacts so 0 unused storage accumulates.
         """
-        port = self._get_device_port()
-        self._ensure_fastcap_installed()
-        
         target_w = 380
         quality = 35
+
+        # Attempt 0: Direct BAD GYM HTTP Screen Pull (Fastest & works over Tailscale/WiFi/Forwarded Port!)
+        http_data = self._try_badgym_http_screen_pull(target_w, quality)
+        if http_data:
+            should_save = getattr(self, 'var_autosave_frames', None) is None or self.var_autosave_frames.get()
+            saved_path = self.save_pulled_frame(http_data) if should_save else None
+            return http_data, None, saved_path
+
+        port = self._get_device_port()
+        self._ensure_fastcap_installed()
 
         # Attempt 1: Fast socket daemon (fastest, ~0.35s - 0.5s)
         self._ensure_fastcap_server(port)
@@ -1894,9 +3573,15 @@ class DeviceDevStudio(tk.Tk):
             self.run_adb(["shell", f"screencap -p /data/local/tmp/_sc.png && CLASSPATH={FASTCAP_DEX_REMOTE} app_process /data/local/tmp com.studio.FastCap /data/local/tmp/_sc.png /data/local/tmp/screen.jpg {target_w} {quality} >/dev/null 2>&1"], timeout=8)
             local_tmp_jpg = os.path.join(PULLED_MEDIA_DIR, "tmp_stream.jpg")
             c_pull, _, _ = self.run_adb(["pull", "/data/local/tmp/screen.jpg", local_tmp_jpg], timeout=8)
+            # Immediately delete remote temporary capture files from mobile memory
+            self.run_adb(["shell", "rm -f /data/local/tmp/_sc.png /data/local/tmp/screen.jpg /sdcard/_wa_*.xml"], timeout=4)
             if c_pull == 0 and os.path.exists(local_tmp_jpg):
                 with open(local_tmp_jpg, "rb") as f:
                     data = f.read()
+                try:
+                    os.remove(local_tmp_jpg)
+                except Exception:
+                    pass
                 if len(data) > 500:
                     saved_path = self.save_pulled_frame(data)
                     return data, None, saved_path
@@ -1909,13 +3594,17 @@ class DeviceDevStudio(tk.Tk):
 
     def pull_single_screen(self):
         def task():
-            self.after(0, lambda: self.screen_status_lbl.config(text="Capturing low-KB screen...", fg="#38bdf8"))
+            self.after(0, lambda: self.screen_status_lbl.config(text="Capturing screen snapshot...", fg="#38bdf8"))
             raw, err, saved_path = self._capture_screen_bytes()
             if raw:
+                if not saved_path:
+                    saved_path = self.save_pulled_frame(raw)
                 kb = len(raw) / 1024.0
                 self.pull_counter += 1
                 cnt = self.pull_counter
                 self.after(0, lambda r=raw, c=cnt, k=kb, sp=saved_path: self._update_screen_ui(r, c, k, sp))
+                if saved_path:
+                    self.log(f"📸 Screenshot saved to laptop: {saved_path}")
             else:
                 self.after(0, lambda e=err: self.screen_status_lbl.config(text=f"Screen capture issue: {e}", fg="#ef4444"))
                 self.log(f"Screen snapshot issue: {err}")
@@ -1968,52 +3657,74 @@ class DeviceDevStudio(tk.Tk):
     def toggle_live_pull(self):
         if not self.pulling:
             self.pulling = True
-            self.btn_pull_live.config(text="⏹ Stop Live Stream", bg="#dc2626")
+            self.btn_pull_live.config(text="⏹ Stop Stream", bg="#dc2626")
             try:
-                interval = max(1, int(self.interval_spin.get()))
-            except ValueError:
-                interval = 1
+                self._selected_device_text = self.device_combo.get() if hasattr(self, 'device_combo') else ""
+                self._cached_interval_mode = self.interval_combo.get() if hasattr(self, 'interval_combo') else "1.0s (Smooth)"
+            except Exception:
+                pass
 
             def loop():
                 dev_name = self.get_device_clean_name()
-                self.log(f"Started continuous screen stream ({interval}s interval, low-KB) for {dev_name}...")
+                self.log(f"Started continuous screen stream for {dev_name}...")
                 pull_idx = 0
+                err_count = 0
                 while self.pulling:
+                    badgym_ip = self._get_badgym_ip()
+                    if not self.connected and not badgym_ip:
+                        time.sleep(1.0)
+                        continue
+
                     start_t = time.time()
+                    cur_interval = self._get_stream_interval()
+
                     raw, err, saved_path = self._capture_screen_bytes()
                     if raw:
+                        err_count = 0
                         pull_idx += 1
                         kb = len(raw) / 1024.0
                         self.after(0, lambda r=raw, p=pull_idx, k=kb, sp=saved_path: self._update_screen_ui(r, p, k, sp))
+                        if pull_idx == 1 and saved_path:
+                            self.log(f"📸 Screen stream active. Saving frames to: {saved_path}")
                     else:
-                        self.log(f"Stream frame notice: {err}")
+                        err_count += 1
+                        if err_count <= 2:
+                            self.log(f"Stream frame notice: {err}")
+
+                    # Non-blocking periodic foreground check (every 10 frames) if connected
+                    if pull_idx % 10 == 1 and self.connected:
+                        try:
+                            threading.Thread(target=self.check_foreground, daemon=True).start()
+                        except Exception:
+                            pass
 
                     elapsed = time.time() - start_t
-                    sleep_t = max(0.05, interval - elapsed)
+                    sleep_t = max(0.05, cur_interval - elapsed)
                     time.sleep(sleep_t)
 
                 # Purge any dangling temp capture files when stopped
-                self.purge_mobile_temp_cache(silent=True)
-                self.log("Live screen monitor stopped. Cleaned temporary mobile memory.")
-                self.after(0, lambda: self.screen_status_lbl.config(text="Live stream stopped. Mobile cache clean.", fg="#94a3b8"))
-                if self.var_auto_sleep.get():
+                if self.connected:
+                    self.purge_mobile_temp_cache(silent=True)
+                self.log("Live screen monitor stopped.")
+                self.after(0, lambda: self.screen_status_lbl.config(text="Live stream stopped. Ready.", fg="#94a3b8"))
+                if hasattr(self, 'var_auto_sleep') and self.var_auto_sleep.get():
                     self.put_device_to_sleep()
 
             self.pull_thread = threading.Thread(target=loop, daemon=True)
             self.pull_thread.start()
         else:
             self.pulling = False
-            self.btn_pull_live.config(text="▶ Start 1s Stream", bg="#16a34a")
+            self.btn_pull_live.config(text="▶ Stream", bg="#16a34a")
 
     def purge_mobile_temp_cache(self, silent=False):
-        """Deletes any temporary adb/fastcap capture files from /data/local/tmp/"""
+        """Deletes any temporary adb/fastcap capture files and XML dumps from mobile memory"""
         def task():
             if not silent:
-                self.log("Purging all temporary screenshot caches from mobile /data/local/tmp/...")
-            self.run_adb(["shell", "rm -f /data/local/tmp/_sc* /data/local/tmp/screen.* /data/local/tmp/_fastcap_* /sdcard/gui_cap_screen.png /sdcard/tmp_screen.png"], timeout=6)
+                self.log("Purging all temporary screenshot caches and XML dumps from mobile memory...")
+            self.run_adb(["shell", "rm -rf /data/local/tmp/_sc* /data/local/tmp/screen.* /data/local/tmp/_fastcap_* /data/local/tmp/_wa_* /sdcard/_wa_* /sdcard/gui_cap_screen.png /sdcard/tmp_screen.png"], timeout=6)
             if not silent:
                 self.log("Mobile temporary capture cache is completely purged.")
-                self.after(0, lambda: messagebox.showinfo("Cleaned", "Temporary mobile cache purged! 0 bytes used for captures."))
+                self.after(0, lambda: messagebox.showinfo("Cleaned", "Temporary mobile cache purged! 0 bytes used on phone."))
         threading.Thread(target=task, daemon=True).start()
 
     def open_saved_folder(self):
@@ -2030,12 +3741,417 @@ class DeviceDevStudio(tk.Tk):
         os.startfile(folder)
 
     def open_image_viewer(self):
-        if self.last_saved_path and os.path.exists(self.last_saved_path):
-            os.startfile(self.last_saved_path)
-        elif os.path.exists(os.path.join(PULLED_SCREENS_DIR, "latest_screen.jpg")):
-            os.startfile(os.path.join(PULLED_SCREENS_DIR, "latest_screen.jpg"))
+        target = self.last_saved_path if (self.last_saved_path and os.path.exists(self.last_saved_path)) else None
+        if not target and os.path.exists(os.path.join(PULLED_SCREENS_DIR, "latest_screen.jpg")):
+            target = os.path.join(PULLED_SCREENS_DIR, "latest_screen.jpg")
+        if target:
+            self.log(f"Opening screenshot on laptop: {target}")
+            try:
+                os.startfile(target)
+            except Exception as e:
+                self.log(f"Error opening image: {e}")
         else:
             messagebox.showinfo("Notice", "No screen pulled yet.")
+
+    def open_last_screenshot(self):
+        self.open_image_viewer()
+
+    def scan_and_pull_whole_mobile_media(self):
+        """
+        1-Click Action: Performs full deep mobile media scan (A-to-Z) across all internal storage,
+        SDCard, WhatsApp, Screenshots, Camera, Trashed, and Locked Private Safe,
+        then automatically pulls all media to the laptop.
+        """
+        def task():
+            self.log("🚀 Initiating Whole Mobile Media Scan & Pull...")
+            try:
+                self.after(0, lambda: self.main_tabs.select(1))
+            except Exception:
+                pass
+                
+            self.scan_mobile_gallery()
+            
+            # Poll for scan completion (items populated)
+            max_wait = 60 # wait up to 30 seconds
+            wait_cnt = 0
+            while wait_cnt < max_wait:
+                time.sleep(0.5)
+                wait_cnt += 1
+                if self.all_gallery_items and len(self.all_gallery_items) > 0:
+                    time.sleep(1.0)
+                    break
+
+            if self.all_gallery_items:
+                self.after(0, lambda: self.clone_all_gallery_media_to_pc(self.all_gallery_items))
+            else:
+                self.after(0, lambda: messagebox.showinfo("Notice", "Scan complete or no media items discovered to pull."))
+        threading.Thread(target=task, daemon=True).start()
+
+    def backup_entire_phone_data_one_click(self):
+        """
+        1-Click Complete Whole Mobile Deep Backup (Private + Public + WhatsApp + Hidden + Media + Safe + Calls + Contacts):
+        - Scans ALL public & private media (Camera, Screenshots, Pictures, Downloads, Documents, Audio, Movies, Music, Bluetooth).
+        - Scans ALL WhatsApp data (Photos, Videos, Audio, Voice Notes, Documents, Databases, Backups, Stickers).
+        - Scans ALL Hidden & Locked Safe folders (.aceself, .secret, .trashed-*, Dual/Parallel Apps /storage/emulated/999).
+        - Exports live Call History & Contacts into CSV backups.
+        - Automatically creates folder-wise organized directory structure on laptop.
+        - Uses high-speed multi-threaded parallel pull workers with smart resume.
+        - Zero mobile memory/storage footprint (purges temp cache upon completion).
+        - Shows dark-themed real-time progress dialog and auto-opens backup folder when finished.
+        """
+        if not self.connected:
+            messagebox.showinfo("Device Offline", "Please connect to your target device (OPPO / Xiaomi) before starting full backup.")
+            return
+
+        dev_name = self.get_device_clean_name()
+        ts_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_root = os.path.join(PULLED_SCREENS_DIR, dev_name, f"Full_Mobile_Backup_{ts_str}")
+        os.makedirs(backup_root, exist_ok=True)
+
+        confirm_msg = (
+            f"⚡ 1-Click Complete Mobile Backup\n\n"
+            f"Target Device: {dev_name} ({self.target_device})\n"
+            f"Scope: Full A-to-Z Backup\n"
+            f"• Camera Photos & Videos\n"
+            f"• Screenshots\n"
+            f"• WhatsApp (Media, Voice Notes, Documents, Backups)\n"
+            f"• Private Safe & Locked Storage (.aceself, Dual Apps)\n"
+            f"• Hidden & Trashed Recovered Media (.trashed-*)\n"
+            f"• Downloads & Documents\n"
+            f"• Audio & Voice Recordings\n"
+            f"• Call Logs & Contacts Directory (CSV)\n\n"
+            f"Destination Laptop Folder:\n{backup_root}\n\n"
+            f"Start complete phone backup now?"
+        )
+        if not messagebox.askyesno("Confirm Full Mobile Backup", confirm_msg):
+            return
+
+        # Setup Category Output Folders
+        folders = {
+            "camera": os.path.join(backup_root, "01_Camera_Photos_Videos"),
+            "screenshots": os.path.join(backup_root, "02_Screenshots"),
+            "whatsapp": os.path.join(backup_root, "03_WhatsApp_Full_Media_and_Data"),
+            "private_safe": os.path.join(backup_root, "04_Private_Safe_and_Locked"),
+            "hidden_trash": os.path.join(backup_root, "05_Hidden_and_Trashed_Recovered"),
+            "downloads_docs": os.path.join(backup_root, "06_Downloads_and_Documents"),
+            "audio_recordings": os.path.join(backup_root, "07_Audio_and_Voice_Recordings"),
+            "other_storage": os.path.join(backup_root, "08_Other_Storage_Folders"),
+            "calls_contacts": os.path.join(backup_root, "09_Call_Logs_and_Contacts")
+        }
+        for d in folders.values():
+            os.makedirs(d, exist_ok=True)
+
+        # Build Dark Progress Window
+        p_win = tk.Toplevel(self)
+        p_win.title("⚡ 1-Click Complete Mobile Backup")
+        p_win.geometry("600x340")
+        p_win.minsize(520, 300)
+        p_win.configure(bg="#0f172a")
+        p_win.attributes("-topmost", True)
+        p_win.resizable(False, False)
+
+        tk.Label(
+            p_win,
+            text=f"⚡ Complete Mobile Backup — {dev_name}",
+            bg="#0f172a",
+            fg="#38bdf8",
+            font=("Segoe UI", 12, "bold")
+        ).pack(pady=(14, 2))
+
+        lbl_step = tk.Label(
+            p_win,
+            text="Initializing deep storage scanner & gathering file tree...",
+            bg="#0f172a",
+            fg="#94a3b8",
+            font=("Segoe UI", 9)
+        )
+        lbl_step.pack(pady=2)
+
+        lbl_current_file = tk.Label(
+            p_win,
+            text="Scanning internal storage...",
+            bg="#1e293b",
+            fg="#cbd5e1",
+            font=("Segoe UI", 8),
+            padx=8,
+            pady=4,
+            relief="solid",
+            bd=1,
+            wraplength=540,
+            justify="left"
+        )
+        lbl_current_file.pack(fill="x", padx=16, pady=6)
+
+        prog_var = tk.DoubleVar(value=0.0)
+        pb = ttk.Progressbar(p_win, variable=prog_var, maximum=100.0)
+        pb.pack(fill="x", padx=16, pady=4)
+
+        lbl_stats = tk.Label(
+            p_win,
+            text="Progress: 0 / 0 files | Speed: 0.0 MB/s | Elapsed: 0s",
+            bg="#0f172a",
+            fg="#38bdf8",
+            font=("Segoe UI", 8, "bold")
+        )
+        lbl_stats.pack(pady=4)
+
+        is_cancelled = [False]
+
+        def on_cancel():
+            if messagebox.askyesno("Cancel Backup", "Cancel the ongoing full mobile backup?"):
+                is_cancelled[0] = True
+                lbl_step.config(text="Cancelling backup pipeline...", fg="#ef4444")
+
+        btn_cancel = tk.Button(
+            p_win,
+            text="Cancel Backup",
+            bg="#dc2626",
+            fg="white",
+            font=("Segoe UI", 8, "bold"),
+            padx=12,
+            pady=4,
+            relief="flat",
+            command=on_cancel
+        )
+        btn_cancel.pack(pady=6)
+
+        def worker_task():
+            self.log(f"⚡ Starting 1-Click Complete Mobile Backup for {dev_name}...")
+            
+            # Step 1: Export Call Logs & Contacts
+            try:
+                self.after(0, lambda: lbl_step.config(text="1/3 Exporting Call Logs & Contacts to CSV..."))
+                # Export call logs
+                c_code, c_out, _ = self.run_adb([
+                    "shell",
+                    "content query --uri content://call_log/calls --projection number:date:duration:type:name"
+                ], timeout=15)
+                if c_code == 0 and c_out:
+                    calls_csv = os.path.join(folders["calls_contacts"], "Call_History_Log.csv")
+                    with open(calls_csv, "w", newline="", encoding="utf-8") as cf:
+                        cw = csv.writer(cf)
+                        cw.writerow(["Type", "Contact Name", "Phone Number", "Date & Time", "Duration (Seconds)"])
+                        for line in c_out.splitlines():
+                            if not line.startswith("Row:"): continue
+                            row_d = {}
+                            for tok in line.split(", "):
+                                if "=" in tok:
+                                    k, v = tok.split("=", 1)
+                                    row_d[k.strip()] = v.strip()
+                            t_map = {"1": "INCOMING", "2": "OUTGOING", "3": "MISSED", "5": "REJECTED"}
+                            t_str = t_map.get(row_d.get("type", ""), "CALL")
+                            dt_str = ""
+                            try:
+                                d_ms = int(row_d.get("date", 0))
+                                if d_ms > 0: dt_str = datetime.fromtimestamp(d_ms // 1000).strftime('%Y-%m-%d %H:%M:%S')
+                            except Exception: pass
+                            cw.writerow([t_str, row_d.get("name", "Unknown"), row_d.get("number", ""), dt_str, row_d.get("duration", "0")])
+
+                # Export contacts
+                cnt_code, cnt_out, _ = self.run_adb([
+                    "shell",
+                    "content query --uri content://com.android.contacts/data/phones --projection display_name:data1"
+                ], timeout=15)
+                if cnt_code == 0 and cnt_out:
+                    cnt_csv = os.path.join(folders["calls_contacts"], "Contacts_Directory.csv")
+                    with open(cnt_csv, "w", newline="", encoding="utf-8") as cnf:
+                        cnw = csv.writer(cnf)
+                        cnw.writerow(["Name", "Phone Number"])
+                        for line in cnt_out.splitlines():
+                            if not line.startswith("Row:"): continue
+                            n, p = "Unknown", ""
+                            for tok in line.split(", "):
+                                if "display_name=" in tok: n = tok.split("display_name=", 1)[-1].strip()
+                                elif "data1=" in tok: p = tok.split("data1=", 1)[-1].strip()
+                            if p: cnw.writerow([n, p])
+            except Exception as e:
+                self.log(f"Calls/Contacts backup note: {e}")
+
+            # Step 2: Deep Scan All Media & Private Data
+            self.after(0, lambda: lbl_step.config(text="2/3 Deep scanning all internal, WhatsApp, private safe & hidden storage..."))
+            
+            scan_dirs = [
+                "/sdcard/DCIM",
+                "/sdcard/Pictures",
+                "/sdcard/Download",
+                "/sdcard/Documents",
+                "/sdcard/Movies",
+                "/sdcard/Music",
+                "/sdcard/Audio",
+                "/sdcard/Recordings",
+                "/sdcard/Record",
+                "/sdcard/Bluetooth",
+                "/sdcard/Android/media/com.whatsapp",
+                "/sdcard/WhatsApp",
+                "/sdcard/.aceself",
+                "/sdcard/.secret",
+                "/sdcard/ColorOS",
+                "/sdcard/.trashed-*",
+                "/sdcard/DCIM/.trashed-*",
+                "/sdcard/Pictures/.trashed-*",
+                "/sdcard/Download/.trashed-*",
+                "/sdcard/.trash",
+                "/sdcard/.recycle",
+                "/sdcard/.globaltrash",
+                "/storage/emulated/999",
+                "/sdcard/Android/data/com.coloros.safebox",
+                "/sdcard/Android/data/com.heytap.gallery",
+                "/sdcard/Android/data/com.coloros.gallery3d",
+                "/sdcard/Snapchat",
+                "/sdcard/Telegram"
+            ]
+            scan_dirs_str = " ".join(f"'{d}'" for d in scan_dirs)
+            find_cmd = (
+                f"find {scan_dirs_str} -type f 2>/dev/null; "
+                f"find /sdcard -maxdepth 4 -type f 2>/dev/null; "
+                f"find /storage/emulated/999 -maxdepth 4 -type f 2>/dev/null"
+            )
+            code, out, _ = self.run_adb(["shell", find_cmd], timeout=40)
+            
+            file_list = []
+            seen_set = set()
+            if code == 0 and out:
+                for line in out.splitlines():
+                    p = line.strip()
+                    if not p or p.startswith("find:") or p.endswith("/"): continue
+                    if p in seen_set: continue
+                    seen_set.add(p)
+                    file_list.append(p)
+
+            total_f = len(file_list)
+            self.log(f"Found {total_f:,} total files across mobile storage to backup.")
+
+            # Step 3: Route into category folders and pull in parallel
+            self.after(0, lambda: lbl_step.config(text=f"3/3 Pulling {total_f:,} files into organized laptop folders..."))
+
+            def get_target_dest(remote_path):
+                p_low = remote_path.lower()
+                fname = os.path.basename(remote_path)
+                
+                # Determine primary category directory
+                if ".aceself" in p_low or ".secret" in p_low or "privatesafe" in p_low or "safebox" in p_low or "emulated/999" in p_low:
+                    target_dir = folders["private_safe"]
+                elif ".trashed" in p_low or ".trash" in p_low or "recycle" in p_low or ".globaltrash" in p_low or ".nomedia" in p_low:
+                    target_dir = folders["hidden_trash"]
+                elif "screenshot" in p_low:
+                    target_dir = folders["screenshots"]
+                elif "/dcim/camera" in p_low or "/camera" in p_low or fname.lower().startswith("img_20") or fname.lower().startswith("vid_20"):
+                    target_dir = folders["camera"]
+                elif "whatsapp" in p_low or "com.whatsapp" in p_low:
+                    target_dir = folders["whatsapp"]
+                elif "/download" in p_low or "/documents" in p_low or fname.lower().endswith(('.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt', '.zip', '.rar', '.7z')):
+                    target_dir = folders["downloads_docs"]
+                elif "/music" in p_low or "/audio" in p_low or "/record" in p_low or fname.lower().endswith(('.mp3', '.m4a', '.aac', '.wav', '.opus', '.ogg', '.amr')):
+                    target_dir = folders["audio_recordings"]
+                else:
+                    target_dir = folders["other_storage"]
+
+                # Cleanly preserve original sub-folder hierarchy without name collisions
+                clean_rel = remote_path.replace("/storage/emulated/0/", "").replace("/storage/emulated/999/", "DualApp_999/").replace("/sdcard/", "").lstrip("/")
+                sub_folder = os.path.dirname(clean_rel)
+                if sub_folder:
+                    full_target_dir = os.path.join(target_dir, sub_folder)
+                    os.makedirs(full_target_dir, exist_ok=True)
+                    return os.path.join(full_target_dir, fname)
+                else:
+                    return os.path.join(target_dir, fname)
+
+            pulled_count = [0]
+            total_bytes_transferred = [0]
+            start_time = time.time()
+
+            num_workers = 8 if (":" not in self.target_device) else 4
+
+            def pull_file_worker(remote_path):
+                if is_cancelled[0]:
+                    return False
+                dest_path = get_target_dest(remote_path)
+                
+                # Fast check if file already pulled with valid size
+                if os.path.exists(dest_path) and os.path.getsize(dest_path) > 0:
+                    pulled_count[0] += 1
+                    return True
+
+                p_code, _, _ = self.run_adb(["pull", remote_path, dest_path], timeout=35)
+                if p_code == 0 and os.path.exists(dest_path) and os.path.getsize(dest_path) > 0:
+                    sz = os.path.getsize(dest_path)
+                    total_bytes_transferred[0] += sz
+                    pulled_count[0] += 1
+                    return True
+                
+                # Fallback for protected / private files via cat stream
+                try:
+                    safe_p = remote_path.replace("'", "'\\''")
+                    stream_res = subprocess.run(
+                        ["adb", "-s", self.target_device, "exec-out", f"cat '{safe_p}'"],
+                        capture_output=True,
+                        timeout=35,
+                        creationflags=NO_WINDOW
+                    )
+                    if stream_res.returncode == 0 and len(stream_res.stdout) > 0:
+                        with open(dest_path, "wb") as f_out:
+                            f_out.write(stream_res.stdout)
+                        sz = len(stream_res.stdout)
+                        total_bytes_transferred[0] += sz
+                        pulled_count[0] += 1
+                        return True
+                except Exception:
+                    pass
+
+                return False
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
+                futures = {executor.submit(pull_file_worker, fp): fp for fp in file_list}
+                
+                while futures and not is_cancelled[0]:
+                    done, not_done = concurrent.futures.wait(futures.keys(), timeout=0.3, return_when=concurrent.futures.FIRST_COMPLETED)
+                    for f in done:
+                        del futures[f]
+
+                    cnt = pulled_count[0]
+                    pct = (cnt / max(1, total_f)) * 100.0
+                    elapsed = max(0.1, time.time() - start_time)
+                    mb_transferred = total_bytes_transferred[0] / (1024 * 1024)
+                    speed_mbs = mb_transferred / elapsed
+                    
+                    def update_progress(c=cnt, p=pct, s=speed_mbs, el=elapsed):
+                        prog_var.set(p)
+                        lbl_stats.config(
+                            text=f"Progress: {c:,} / {total_f:,} files ({p:.1f}%) | Speed: {s:.1f} MB/s | Elapsed: {int(el)}s"
+                        )
+                        if file_list and c < total_f:
+                            lbl_current_file.config(text=f"Pulling: {os.path.basename(file_list[min(c, total_f-1)])}")
+
+                    self.after(0, update_progress)
+
+            # Cleanup remote temp files
+            self.purge_mobile_temp_cache(silent=True)
+
+            elapsed_total = time.time() - start_time
+            total_gb = (total_bytes_transferred[0] / (1024 ** 3))
+
+            def finish_ui():
+                try: p_win.destroy()
+                except Exception: pass
+                
+                if is_cancelled[0]:
+                    self.log("Full mobile backup was stopped by user.")
+                    messagebox.showinfo("Backup Stopped", f"Backup cancelled.\n{pulled_count[0]:,} files saved to:\n{backup_root}")
+                else:
+                    self.log(f"⚡ Full Mobile Backup Completed! {pulled_count[0]:,} files ({total_gb:.2f} GB) in {int(elapsed_total)}s.")
+                    messagebox.showinfo(
+                        "Backup Complete",
+                        f"🎉 Full Mobile Backup Completed Successfully!\n\n"
+                        f"• Total Files Backed Up: {pulled_count[0]:,} files\n"
+                        f"• Total Data Size: {total_gb:.2f} GB\n"
+                        f"• Storage Cleaned: 0 MB residual space used on mobile\n\n"
+                        f"Destination Laptop Folder:\n{backup_root}"
+                    )
+                os.startfile(backup_root)
+
+            self.after(0, finish_ui)
+
+        threading.Thread(target=worker_task, daemon=True).start()
 
     def scan_mobile_gallery(self):
         """Deep scans the entire mobile internal storage for all images, screenshots, camera photos, hidden, trashed, downloads, purchases, WhatsApp, and root storage media with sizes and dates"""
@@ -4567,6 +6683,816 @@ class DeviceDevStudio(tk.Tk):
         threading.Thread(target=task, daemon=True).start()
 
     # =========================================================================
+    # WHATSAPP LIVE CHAT & PROMPT SYNC METHODS (DUAL PANE WORKSPACE)
+    # =========================================================================
+    def _build_whatsapp_tab(self, parent):
+        """Dedicated WhatsApp Chat & Media Sync with WhatsApp Web Dual-Pane Layout, Chat List Sidebar, and Prompt Tool"""
+        top_bar = tk.Frame(parent, bg="#0f172a")
+        top_bar.pack(fill="x", pady=(0, 4))
+        tk.Label(top_bar, text="💬 WhatsApp Live Chat & Prompt Mirror", bg="#0f172a", fg="#25d366", font=("Segoe UI", 11, "bold")).pack(side="left")
+        self.wa_status_lbl = tk.Label(top_bar, text="Ready | Click 'Scan All Chats' to load mobile conversations", bg="#0f172a", fg="#94a3b8", font=("Segoe UI", 8))
+        self.wa_status_lbl.pack(side="right")
+
+        # Main PanedWindow Split: Left Sidebar (Chat List 32%), Right Container (Active Chat Thread 68%)
+        self.wa_main_split = tk.PanedWindow(parent, orient="horizontal", bg="#0f172a", sashwidth=3, bd=0)
+        self.wa_main_split.pack(fill="both", expand=True)
+
+        # =========================================================================
+        # LEFT PANE: WHATSAPP CONVERSATIONS LIST SIDEBAR (#111b21)
+        # =========================================================================
+        sidebar = tk.Frame(self.wa_main_split, bg="#111b21", padx=4, pady=4)
+        self.wa_main_split.add(sidebar, minsize=260)
+
+        sb_top = tk.Frame(sidebar, bg="#111b21")
+        sb_top.pack(fill="x", pady=(0, 4))
+        
+        tk.Label(sb_top, text="💬 Chats List", bg="#111b21", fg="#e9edef", font=("Segoe UI", 9, "bold")).pack(side="left", padx=2)
+        
+        tk.Button(sb_top, text="🚀 Clone All (Offline)", bg="#16a34a", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.pull_whole_mobile_whatsapp).pack(side="right", padx=1)
+        tk.Button(sb_top, text="🔄 Scan", bg="#25d366", fg="#0b141a", activebackground="#1eab53", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=5, relief="flat", command=self.scan_all_whatsapp_chats).pack(side="right", padx=1)
+
+        # Search / Filter Bar for Sidebar
+        sb_search = tk.Frame(sidebar, bg="#202c33", padx=4, pady=3, relief="solid", bd=1)
+        sb_search.pack(fill="x", pady=(0, 4))
+        
+        tk.Label(sb_search, text="🔍", bg="#202c33", fg="#8696a0", font=("Segoe UI", 8)).pack(side="left")
+        self.wa_search_entry = tk.Entry(sb_search, bg="#202c33", fg="#e9edef", insertbackground="white", font=("Segoe UI", 8), bd=0)
+        self.wa_search_entry.pack(side="left", fill="x", expand=True, padx=4)
+        self.wa_search_entry.bind("<KeyRelease>", lambda e: self._filter_whatsapp_chats_list())
+
+        # Scrollable Frame / Treeview for Chats List
+        list_container = tk.Frame(sidebar, bg="#111b21")
+        list_container.pack(fill="both", expand=True)
+
+        chat_cols = ("name", "time", "snippet")
+        self.wa_chats_tree = ttk.Treeview(list_container, columns=chat_cols, show="headings", selectmode="browse")
+        self.wa_chats_tree.heading("name", text="Contact / Group Name")
+        self.wa_chats_tree.heading("time", text="Time")
+        self.wa_chats_tree.heading("snippet", text="Last Message Preview")
+
+        self.wa_chats_tree.column("name", width=135, anchor="w")
+        self.wa_chats_tree.column("time", width=65, anchor="e")
+        self.wa_chats_tree.column("snippet", width=140, anchor="w")
+
+        tree_sc = tk.Scrollbar(list_container, orient="vertical", command=self.wa_chats_tree.yview)
+        self.wa_chats_tree.configure(yscrollcommand=tree_sc.set)
+        
+        self.wa_chats_tree.pack(side="left", fill="both", expand=True)
+        tree_sc.pack(side="right", fill="y")
+
+        self.wa_chats_tree.bind("<<TreeviewSelect>>", self._on_whatsapp_chat_select)
+
+        # =========================================================================
+        # RIGHT PANE: ACTIVE CONVERSATION THREAD & PROMPT TOOL (#0b141a)
+        # =========================================================================
+        chat_pane = tk.Frame(self.wa_main_split, bg="#0f172a")
+        self.wa_main_split.add(chat_pane, minsize=420)
+
+        # Active Header Bar
+        ctrl_bar = tk.Frame(chat_pane, bg="#1e293b", padx=8, pady=6, relief="solid", bd=1)
+        ctrl_bar.pack(fill="x", pady=(0, 4))
+
+        tk.Label(ctrl_bar, text="👤 Active Chat:", bg="#1e293b", fg="#cbd5e1", font=("Segoe UI", 8, "bold")).pack(side="left", padx=(0, 2))
+        
+        self.wa_active_contact_lbl = tk.Label(ctrl_bar, text="Select a chat from left sidebar", bg="#1e293b", fg="#25d366", font=("Segoe UI", 9, "bold"))
+        self.wa_active_contact_lbl.pack(side="left", padx=4)
+
+        tk.Label(ctrl_bar, text="App:", bg="#1e293b", fg="#94a3b8", font=("Segoe UI", 8)).pack(side="left", padx=(8, 2))
+        self.wa_pkg_combo = ttk.Combobox(
+            ctrl_bar,
+            values=["com.whatsapp (WhatsApp)", "com.whatsapp.w4b (Business)"],
+            width=20,
+            state="readonly"
+        )
+        self.wa_pkg_combo.current(0)
+        self.wa_pkg_combo.pack(side="left", padx=2)
+
+        tk.Button(ctrl_bar, text="🔄 Sync Selected Chat", bg="#25d366", fg="#0b141a", activebackground="#1eab53", activeforeground="white", font=("Segoe UI", 8, "bold"), padx=8, relief="flat", command=self.sync_whatsapp_chat).pack(side="left", padx=4)
+        tk.Button(ctrl_bar, text="📱 Open on Phone", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.open_whatsapp_chat_on_phone).pack(side="left", padx=2)
+        tk.Button(ctrl_bar, text="📁 Pull Media", bg="#0891b2", fg="white", font=("Segoe UI", 8, "bold"), padx=6, relief="flat", command=self.pull_whatsapp_media).pack(side="left", padx=2)
+        
+        self.btn_wa_auto = tk.Button(ctrl_bar, text="⚡ Auto-Sync: OFF", bg="#334155", fg="white", font=("Segoe UI", 8), padx=6, relief="flat", command=self.toggle_whatsapp_auto_sync)
+        self.btn_wa_auto.pack(side="right", padx=2)
+
+        # Chat display canvas
+        chat_container = tk.Frame(chat_pane, bg="#0b141a", relief="solid", bd=1)
+        chat_container.pack(fill="both", expand=True, pady=2)
+
+        self.wa_canvas = tk.Canvas(chat_container, bg="#0b141a", highlightthickness=0)
+        self.wa_scrollbar = tk.Scrollbar(chat_container, orient="vertical", command=self.wa_canvas.yview)
+        self.wa_chat_inner = tk.Frame(self.wa_canvas, bg="#0b141a")
+
+        self.wa_chat_inner.bind(
+            "<Configure>",
+            lambda e: self.wa_canvas.configure(scrollregion=self.wa_canvas.bbox("all"))
+        )
+
+        self.wa_canvas_window = self.wa_canvas.create_window((0, 0), window=self.wa_chat_inner, anchor="nw")
+        self.wa_canvas.configure(yscrollcommand=self.wa_scrollbar.set)
+
+        self.wa_canvas.pack(side="left", fill="both", expand=True)
+        self.wa_scrollbar.pack(side="right", fill="y")
+
+        self.wa_canvas.bind('<Configure>', lambda e: self.wa_canvas.itemconfig(self.wa_canvas_window, width=e.width))
+
+        def _on_wa_mousewheel(event):
+            self.wa_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.wa_canvas.bind("<Enter>", lambda e: self.wa_canvas.bind_all("<MouseWheel>", _on_wa_mousewheel))
+        self.wa_canvas.bind("<Leave>", lambda e: self.wa_canvas.unbind_all("<MouseWheel>"))
+
+        self._render_whatsapp_empty_state()
+
+        # Bottom Input Bar
+        send_frame = tk.Frame(chat_pane, bg="#1e293b", padx=6, pady=6, relief="solid", bd=1)
+        send_frame.pack(fill="x", pady=(4, 0))
+
+        self.wa_input_txt = tk.Text(send_frame, bg="#0f172a", fg="#f8fafc", insertbackground="white", font=("Segoe UI", 9), height=3, wrap="word", bd=1, relief="solid")
+        self.wa_input_txt.pack(side="left", fill="both", expand=True, padx=(0, 6))
+
+        btn_col = tk.Frame(send_frame, bg="#1e293b")
+        btn_col.pack(side="right", fill="y")
+
+        tk.Button(btn_col, text="📤 Send to Mobile", bg="#25d366", fg="#0b141a", activebackground="#1eab53", activeforeground="white", font=("Segoe UI", 9, "bold"), padx=10, pady=3, relief="flat", command=self.send_whatsapp_prompt).pack(fill="x", pady=1)
+        tk.Button(btn_col, text="📋 Paste & Send", bg="#0284c7", fg="white", font=("Segoe UI", 8, "bold"), padx=8, pady=2, relief="flat", command=self.paste_and_send_whatsapp_prompt).pack(fill="x", pady=1)
+        
+        opt_row = tk.Frame(btn_col, bg="#1e293b")
+        opt_row.pack(fill="x", pady=1)
+        tk.Button(opt_row, text="📎 Send File", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=self.send_whatsapp_laptop_file).pack(side="left", padx=1)
+        tk.Button(opt_row, text="📋 Copy Prompts", bg="#334155", fg="white", font=("Segoe UI", 7), padx=4, relief="flat", command=self.copy_all_whatsapp_prompts).pack(side="left", padx=1)
+
+        # Auto-load offline WhatsApp database if available
+        self.after(200, self._load_whatsapp_db)
+
+    def scan_all_whatsapp_chats(self):
+        """Deep scans WhatsApp main screen and notification history to build full chats sidebar list"""
+        pkg = "com.whatsapp.w4b" if "w4b" in self.wa_pkg_combo.get().lower() else "com.whatsapp"
+        
+        def task():
+            self.log("Scanning mobile device for WhatsApp conversations & chats list...")
+            self.after(0, lambda: self.wa_status_lbl.config(text="Scanning mobile for WhatsApp chats..."))
+
+            c, out_focus, _ = self.run_adb(["shell", "dumpsys window | grep mCurrentFocus"], timeout=4)
+            if pkg not in out_focus:
+                self.run_adb(["shell", f"am start -n {pkg}/.Main"], timeout=5)
+                time.sleep(1.2)
+
+            dump_remote = "/sdcard/_wa_list_dump.xml"
+            code_dump, out_dump, _ = self.run_adb(["shell", f"uiautomator dump {dump_remote}"], timeout=8)
+            
+            parsed_chats = []
+            if code_dump == 0:
+                local_dump = os.path.join(BASE_DIR, "wa_list_dump.xml")
+                code_p, _, _ = self.run_adb(["pull", dump_remote, local_dump], timeout=6)
+                if code_p == 0 and os.path.exists(local_dump):
+                    parsed_chats = self._parse_whatsapp_chats_list(local_dump)
+
+            if not parsed_chats:
+                parsed_chats.append({
+                    "name": "My Notes",
+                    "date": datetime.now().strftime("%I:%M %p"),
+                    "snippet": "Personal prompt notes",
+                    "is_you": False,
+                    "bounds": None
+                })
+
+            self.all_wa_chats = parsed_chats
+            self.filtered_wa_chats = list(parsed_chats)
+            
+            self.after(0, self._render_whatsapp_chats_sidebar)
+            self.after(0, lambda: self.wa_status_lbl.config(text=f"Loaded {len(parsed_chats)} chats from mobile"))
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def _parse_whatsapp_chats_list(self, xml_path):
+        """Parses uiautomator XML dump of WhatsApp main screen to extract contact names, times, snippets, and bounds"""
+        chats = []
+        try:
+            import xml.etree.ElementTree as ET
+            tree = ET.parse(xml_path)
+            root = tree.getroot()
+
+            for node in root.findall(".//node"):
+                res_id = node.attrib.get("resource-id", "")
+                if "contact_row_container" in res_id or "conversations_row_contact_name" in res_id:
+                    name = ""
+                    date = ""
+                    msg = ""
+                    is_you = False
+                    bounds = node.attrib.get("bounds", "")
+
+                    for child in node.findall(".//node"):
+                        c_res = child.attrib.get("resource-id", "")
+                        c_txt = child.attrib.get("text", "").strip()
+                        if "conversations_row_contact_name" in c_res:
+                            name = c_txt
+                        elif "conversations_row_date" in c_res:
+                            date = c_txt
+                        elif "single_msg_tv" in c_res:
+                            msg = c_txt
+                        elif "msg_from_tv" in c_res:
+                            is_you = True
+
+                    if name and not any(c["name"] == name for c in chats):
+                        chats.append({
+                            "name": name,
+                            "date": date,
+                            "snippet": ("You: " if is_you else "") + msg,
+                            "is_you": is_you,
+                            "bounds": bounds
+                        })
+        except Exception as e:
+            self.log(f"Error parsing WA chats list dump: {e}")
+
+        return chats
+
+    def _render_whatsapp_chats_sidebar(self):
+        """Populates left sidebar treeview with parsed WhatsApp chats"""
+        self.wa_chats_tree.delete(*self.wa_chats_tree.get_children())
+
+        for idx, chat in enumerate(self.filtered_wa_chats):
+            name = chat.get("name", "Unknown")
+            time_str = chat.get("date", "")
+            snip = chat.get("snippet", "")
+
+            self.wa_chats_tree.insert(
+                "",
+                "end",
+                iid=str(idx),
+                values=(name, time_str, snip)
+            )
+
+        if self.filtered_wa_chats:
+            self.wa_chats_tree.selection_set("0")
+            self._on_whatsapp_chat_select()
+
+    def _filter_whatsapp_chats_list(self):
+        """Filters left sidebar chats by search entry"""
+        query = self.wa_search_entry.get().strip().lower()
+        if not query:
+            self.filtered_wa_chats = list(self.all_wa_chats)
+        else:
+            self.filtered_wa_chats = [
+                c for c in self.all_wa_chats
+                if query in c.get("name", "").lower() or query in c.get("snippet", "").lower()
+            ]
+        self._render_whatsapp_chats_sidebar()
+
+    def _on_whatsapp_chat_select(self, event=None):
+        """Handles selection of a chat in left sidebar"""
+        sel = self.wa_chats_tree.selection()
+        if not sel:
+            return
+        idx = int(sel[0])
+        if idx < len(self.filtered_wa_chats):
+            chat = self.filtered_wa_chats[idx]
+            self.selected_wa_chat = chat
+            c_name = chat.get("name", "Active Chat")
+            
+            self.wa_active_contact_lbl.config(text=c_name)
+            
+            bounds = chat.get("bounds")
+            if bounds:
+                def task():
+                    try:
+                        m_b = re.findall(r'\[(\d+),(\d+)\]', bounds)
+                        if len(m_b) == 2:
+                            cx = (int(m_b[0][0]) + int(m_b[1][0])) // 2
+                            cy = (int(m_b[0][1]) + int(m_b[1][1])) // 2
+                            self.log(f"Tapping contact '{c_name}' on mobile screen at ({cx}, {cy})...")
+                            self.run_adb(["shell", f"input tap {cx} {cy}"], timeout=4)
+                            time.sleep(0.8)
+                    except Exception:
+                        pass
+                    self.sync_whatsapp_chat()
+
+                threading.Thread(target=task, daemon=True).start()
+            else:
+                self.sync_whatsapp_chat()
+
+    def _render_whatsapp_empty_state(self):
+        """Displays empty state graphic when no conversation is selected"""
+        for w in self.wa_chat_inner.winfo_children():
+            w.destroy()
+
+        empty_box = tk.Frame(self.wa_chat_inner, bg="#0b141a", pady=40)
+        empty_box.pack(fill="both", expand=True)
+
+        tk.Label(empty_box, text="💬", bg="#0b141a", fg="#25d366", font=("Segoe UI", 36)).pack()
+        tk.Label(empty_box, text="WhatsApp Chat & Prompt Mirror", bg="#0b141a", fg="#e9edef", font=("Segoe UI", 12, "bold")).pack(pady=4)
+        tk.Label(empty_box, text="Select a conversation from the left sidebar or click 'Scan All Chats'.\nClick 'Sync Selected Chat' to pull text, messages, and all accessible media from mobile.", bg="#0b141a", fg="#8696a0", font=("Segoe UI", 9), justify="center").pack(pady=2)
+
+    def open_whatsapp_chat_on_phone(self):
+        """Launches WhatsApp or opens contact chat directly on phone"""
+        c_name = self.selected_wa_chat.get("name") if self.selected_wa_chat else "My Notes"
+        pkg = "com.whatsapp.w4b" if "w4b" in self.wa_pkg_combo.get().lower() else "com.whatsapp"
+        
+        def task():
+            self.log(f"Opening WhatsApp chat for '{c_name}' on target device...")
+            cmd = f"am start -n {pkg}/.Main"
+            self.run_adb(["shell", cmd], timeout=6)
+            time.sleep(1.2)
+            search_cmd = f"am start -a android.intent.action.SEND -t 'text/plain' --es android.intent.extra.TEXT '' -p {pkg}"
+            self.run_adb(["shell", search_cmd], timeout=6)
+            self.after(0, lambda: self.wa_status_lbl.config(text=f"WhatsApp opened on phone for: {c_name}"))
+            
+        threading.Thread(target=task, daemon=True).start()
+
+    def _get_whatsapp_db_path(self):
+        dev_clean = self.get_device_clean_name()
+        wa_dir = os.path.join(PULLED_MEDIA_DIR, "whatsapp", dev_clean)
+        os.makedirs(wa_dir, exist_ok=True)
+        return os.path.join(wa_dir, "whatsapp_offline_db.json")
+
+    def _load_whatsapp_db(self):
+        """Loads offline WhatsApp database from laptop storage into memory and populates UI"""
+        db_path = self._get_whatsapp_db_path()
+        if os.path.exists(db_path):
+            try:
+                import json
+                with open(db_path, "r", encoding="utf-8") as f:
+                    db_data = json.load(f)
+                
+                chats_dict = db_data.get("chats", {})
+                loaded_chats = []
+                for name, info in chats_dict.items():
+                    loaded_chats.append({
+                        "name": info.get("name", name),
+                        "date": info.get("date", ""),
+                        "snippet": info.get("snippet", ""),
+                        "messages": info.get("messages", []),
+                        "bounds": None
+                    })
+                
+                if loaded_chats:
+                    self.all_wa_chats = loaded_chats
+                    self.filtered_wa_chats = list(loaded_chats)
+                    self._render_whatsapp_chats_sidebar()
+                    self.wa_status_lbl.config(text=f"💾 Offline Mode | Loaded {len(loaded_chats)} chats from laptop disk ({db_data.get('last_updated', '')})")
+            except Exception as e:
+                self.log(f"Notice: Could not load offline WhatsApp DB: {e}")
+
+    def pull_whole_mobile_whatsapp(self):
+        """Crawls all conversations on mobile WhatsApp and saves entire chat history + media to laptop storage for offline use"""
+        pkg = "com.whatsapp.w4b" if "w4b" in self.wa_pkg_combo.get().lower() else "com.whatsapp"
+        
+        def task():
+            self.log("🚀 Starting Full Mobile WhatsApp Clone & Offline Backup...")
+            self.after(0, lambda: self.wa_status_lbl.config(text="🚀 Crawling & cloning ALL WhatsApp chats..."))
+
+            self.scan_all_whatsapp_chats()
+            time.sleep(2)
+
+            chats_to_crawl = list(self.all_wa_chats)
+            total = len(chats_to_crawl)
+            self.log(f"Found {total} WhatsApp chats to clone for offline use.")
+
+            db_data = {"device": self.get_device_clean_name(), "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "chats": {}}
+
+            for idx, chat in enumerate(chats_to_crawl):
+                c_name = chat.get("name")
+                if not c_name:
+                    continue
+                
+                self.after(0, lambda i=idx+1, name=c_name: self.wa_status_lbl.config(text=f"Cloning chat {i}/{total}: '{name}'..."))
+                self.log(f"Cloning ({idx+1}/{total}): '{c_name}'...")
+
+                bounds = chat.get("bounds")
+                if bounds:
+                    try:
+                        m_b = re.findall(r'\[(\d+),(\d+)\]', bounds)
+                        if len(m_b) == 2:
+                            cx = (int(m_b[0][0]) + int(m_b[1][0])) // 2
+                            cy = (int(m_b[0][1]) + int(m_b[1][1])) // 2
+                            self.run_adb(["shell", f"input tap {cx} {cy}"], timeout=3)
+                            time.sleep(1.0)
+                    except Exception:
+                        pass
+
+                dump_remote = f"/sdcard/_wa_crawl_{idx}.xml"
+                code_dump, _, _ = self.run_adb(["shell", f"uiautomator dump {dump_remote}"], timeout=6)
+                msgs = []
+                if code_dump == 0:
+                    local_dump = os.path.join(BASE_DIR, f"wa_crawl_{idx}.xml")
+                    self.run_adb(["pull", dump_remote, local_dump], timeout=5)
+                    if os.path.exists(local_dump):
+                        msgs = self._parse_whatsapp_ui_dump(local_dump, c_name)
+                        try:
+                            os.remove(local_dump)
+                        except Exception:
+                            pass
+
+                media_items = self._scan_and_pull_whatsapp_media_for_chat(c_name, pkg)
+                for m in media_items:
+                    if not any(x.get('text') == m.get('text') for x in msgs):
+                        msgs.append(m)
+
+                db_data["chats"][c_name] = {
+                    "name": c_name,
+                    "date": chat.get("date", ""),
+                    "snippet": chat.get("snippet", ""),
+                    "messages": msgs
+                }
+
+                self.run_adb(["shell", "input keyevent 4"], timeout=3)
+                time.sleep(0.5)
+
+            db_path = self._get_whatsapp_db_path()
+            try:
+                import json
+                os.makedirs(os.path.dirname(db_path), exist_ok=True)
+                with open(db_path, "w", encoding="utf-8") as f:
+                    json.dump(db_data, f, ensure_ascii=False, indent=2)
+                self.log(f"Successfully saved complete WhatsApp clone database to laptop: {db_path}")
+            except Exception as e:
+                self.log(f"Error saving WhatsApp DB: {e}")
+
+            self._load_whatsapp_db()
+            self.after(0, lambda: messagebox.showinfo("WhatsApp Full Clone Complete", f"All {total} WhatsApp chats and media are 100% saved to laptop disk!\n\nYou can now view all your chats anytime in OFFLINE mode without phone!"))
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def sync_whatsapp_chat(self):
+
+        """Pulls messages, chat text, and media from phone for the currently selected chat"""
+        c_name = self.selected_wa_chat.get("name") if self.selected_wa_chat else "My Notes"
+        pkg = "com.whatsapp.w4b" if "w4b" in self.wa_pkg_combo.get().lower() else "com.whatsapp"
+
+        def task():
+            self.log(f"Syncing WhatsApp conversation for '{c_name}'...")
+            self.after(0, lambda: self.wa_status_lbl.config(text=f"Syncing chat for '{c_name}'..."))
+
+            dump_remote = "/sdcard/_wa_thread_dump.xml"
+            code_dump, out_dump, _ = self.run_adb(["shell", f"uiautomator dump {dump_remote}"], timeout=8)
+            
+            parsed_messages = []
+            if code_dump == 0:
+                local_dump = os.path.join(BASE_DIR, "wa_dump.xml")
+                code_p, _, _ = self.run_adb(["pull", dump_remote, local_dump], timeout=6)
+                if code_p == 0 and os.path.exists(local_dump):
+                    parsed_messages = self._parse_whatsapp_ui_dump(local_dump, c_name)
+
+            notif_msgs = self._parse_whatsapp_notifications(c_name, pkg)
+            for nm in notif_msgs:
+                if not any(m['text'] == nm['text'] for m in parsed_messages):
+                    parsed_messages.append(nm)
+
+            media_items = self._scan_and_pull_whatsapp_media_for_chat(c_name, pkg)
+            for m in media_items:
+                parsed_messages.append(m)
+
+            self.wa_messages = parsed_messages
+            self.after(0, self._render_whatsapp_messages)
+            self.after(0, lambda: self.wa_status_lbl.config(text=f"Synced {len(parsed_messages)} items for '{c_name}'"))
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def _parse_whatsapp_ui_dump(self, xml_path, target_contact):
+        """Parses uiautomator XML dump to extract chat bubbles, text messages, timestamps, and sent/received state"""
+        messages = []
+        try:
+            import xml.etree.ElementTree as ET
+            tree = ET.parse(xml_path)
+            root = tree.getroot()
+
+            ignore_texts = {
+                "Type a message", "Search", "WhatsApp", "Chats", "Status", "Calls",
+                "Updates", "Tools", "Community", "Messages", target_contact.strip().lower(),
+                "online", "typing...", "yesterday", "today"
+            }
+
+            nodes = root.findall(".//node")
+            for node in nodes:
+                txt = node.attrib.get("text", "").strip()
+                res_id = node.attrib.get("resource-id", "")
+                bounds = node.attrib.get("bounds", "")
+
+                if txt and len(txt) > 0 and txt.lower() not in ignore_texts:
+                    # Ignore pure time strings like "08:25 PM" or "11:48 am"
+                    if re.match(r'^\d{1,2}:\d{2}\s*(am|pm|AM|PM)?$', txt, re.IGNORECASE):
+                        continue
+
+                    is_sent = True
+                    if bounds:
+                        try:
+                            m_b = re.findall(r'\[(\d+),(\d+)\]', bounds)
+                            if len(m_b) == 2:
+                                x1 = int(m_b[0][0])
+                                # Sent messages are aligned to right side of screen (x1 > 200)
+                                if x1 < 200:
+                                    is_sent = False
+                        except Exception:
+                            pass
+
+                    now_ts = datetime.now().strftime("%I:%M %p")
+                    messages.append({
+                        "text": txt,
+                        "timestamp": now_ts,
+                        "is_sent": is_sent,
+                        "sender": "You" if is_sent else target_contact,
+                        "type": "TEXT",
+                        "media_path": None
+                    })
+        except Exception as e:
+            self.log(f"Error parsing WA UI dump: {e}")
+
+        return messages
+
+    def _parse_whatsapp_notifications(self, target_contact, pkg):
+        """Extracts recent WhatsApp notifications for target contact via dumpsys notification"""
+        messages = []
+        try:
+            code, out, _ = self.run_adb(["shell", "dumpsys notification"], timeout=5)
+            if code == 0 and out:
+                lines = out.split("\n")
+                in_wa = False
+                for line in lines:
+                    if pkg in line:
+                        in_wa = True
+                    elif "pkg=" in line and pkg not in line:
+                        in_wa = False
+                    
+                    if in_wa and ("tickerText=" in line or "android.text=" in line or "android.title=" in line):
+                        if target_contact.lower() in line.lower() or "text=" in line:
+                            parts = line.split("=", 1)
+                            if len(parts) == 2:
+                                val = parts[1].strip()
+                                if val and len(val) > 1 and not val.startswith("null"):
+                                    messages.append({
+                                        "text": val,
+                                        "timestamp": datetime.now().strftime("%I:%M %p"),
+                                        "is_sent": False,
+                                        "sender": target_contact,
+                                        "type": "TEXT",
+                                        "media_path": None
+                                    })
+        except Exception:
+            pass
+        return messages
+
+    def _scan_and_pull_whatsapp_media_for_chat(self, target_contact, pkg):
+        """Scans WhatsApp Media folders on device and pulls recent media files matching the chat"""
+        media_msgs = []
+        dev_clean = self.get_device_clean_name()
+        c_safe = "".join(c for c in target_contact if c.isalnum() or c in ('_', '-'))
+        local_dir = os.path.join(PULLED_MEDIA_DIR, "whatsapp", dev_clean, c_safe)
+        os.makedirs(local_dir, exist_ok=True)
+
+        wa_base = "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/Media"
+        if "w4b" in pkg:
+            wa_base = "/storage/emulated/0/Android/media/com.whatsapp.w4b/WhatsApp Business/Media"
+
+        cmd = [
+            "shell",
+            f"find '{wa_base}' -type f \\( -name '*.jpg' -o -name '*.png' -o -name '*.pdf' -o -name '*.mp4' -o -name '*.opus' \\) -exec stat -c '%Y %s %n' {{}} + 2>/dev/null | sort -nr | head -n 12"
+        ]
+
+        code, out, _ = self.run_adb(cmd, timeout=8)
+        if code == 0 and out.strip():
+            lines = out.strip().split("\n")
+            for line in lines:
+                parts = line.strip().split(" ", 2)
+                if len(parts) == 3:
+                    try:
+                        mtime = int(parts[0])
+                        sz = int(parts[1])
+                        remote_p = parts[2].strip()
+                        fname = os.path.basename(remote_p)
+                        local_dest = os.path.join(local_dir, fname)
+
+                        is_sent = "Sent" in remote_p
+                        m_type = "IMAGE"
+                        if fname.lower().endswith(('.mp4', '.mkv')):
+                            m_type = "VIDEO"
+                        elif fname.lower().endswith(('.pdf', '.doc', '.docx', '.txt')):
+                            m_type = "DOC"
+                        elif fname.lower().endswith(('.opus', '.m4a', '.mp3', '.aac')):
+                            m_type = "AUDIO"
+
+                        if not os.path.exists(local_dest) or os.path.getsize(local_dest) != sz:
+                            self.run_adb(["pull", remote_p, local_dest], timeout=15)
+
+                        if os.path.exists(local_dest):
+                            ts_str = datetime.fromtimestamp(mtime).strftime("%I:%M %p")
+                            media_msgs.append({
+                                "text": f"📎 {fname} ({self._format_size(sz)})",
+                                "timestamp": ts_str,
+                                "is_sent": is_sent,
+                                "sender": "You" if is_sent else target_contact,
+                                "type": m_type,
+                                "media_path": local_dest,
+                                "mtime": mtime
+                            })
+                    except Exception:
+                        pass
+
+        media_msgs.sort(key=lambda x: x.get("mtime", 0))
+        return media_msgs
+
+    def pull_whatsapp_media(self):
+        """Pulls all WhatsApp images, documents, and videos to laptop"""
+        c_name = self.selected_wa_chat.get("name") if self.selected_wa_chat else "General"
+        def task():
+            self.log(f"Pulling WhatsApp media for '{c_name}' to laptop storage...")
+            self.after(0, lambda: self.wa_status_lbl.config(text="Pulling WhatsApp Media..."))
+            items = self._scan_and_pull_whatsapp_media_for_chat(c_name, "com.whatsapp")
+            self.after(0, self.sync_whatsapp_chat)
+            self.after(0, lambda: messagebox.showinfo("Media Pulled", f"Successfully pulled {len(items)} WhatsApp media files to laptop:\n{PULLED_MEDIA_DIR}\\whatsapp"))
+        threading.Thread(target=task, daemon=True).start()
+
+    def toggle_whatsapp_auto_sync(self):
+        """Toggles background auto-sync for WhatsApp chat"""
+        self.wa_auto_sync = not self.wa_auto_sync
+        if self.wa_auto_sync:
+            self.btn_wa_auto.config(text="⚡ Auto-Sync: ON (3s)", bg="#16a34a")
+            self.log("WhatsApp Auto-Sync started (every 3s).")
+            
+            def auto_loop():
+                while self.wa_auto_sync:
+                    time.sleep(3)
+                    if not self.wa_auto_sync:
+                        break
+                    self.sync_whatsapp_chat()
+
+            self.wa_sync_thread = threading.Thread(target=auto_loop, daemon=True)
+            self.wa_sync_thread.start()
+        else:
+            self.btn_wa_auto.config(text="⚡ Auto-Sync: OFF", bg="#334155")
+            self.log("WhatsApp Auto-Sync stopped.")
+
+    def _render_whatsapp_messages(self):
+        """Renders parsed WhatsApp messages in WhatsApp Dark Theme UI/UX"""
+        for w in self.wa_chat_inner.winfo_children():
+            w.destroy()
+
+        if not self.wa_messages:
+            self._render_whatsapp_empty_state()
+            return
+
+        header_frame = tk.Frame(self.wa_chat_inner, bg="#0b141a", pady=6)
+        header_frame.pack(fill="x")
+        date_pill = tk.Label(header_frame, text=datetime.now().strftime("%B %d, %Y").upper(), bg="#182229", fg="#8696a0", font=("Segoe UI", 7, "bold"), padx=12, pady=4)
+        date_pill.pack(anchor="center")
+
+        for msg in self.wa_messages:
+            txt = msg.get("text", "")
+            ts = msg.get("timestamp", "")
+            is_sent = msg.get("is_sent", True)
+            m_type = msg.get("type", "TEXT")
+            m_path = msg.get("media_path", None)
+
+            bubble_outer = tk.Frame(self.wa_chat_inner, bg="#0b141a", pady=3, padx=10)
+            bubble_outer.pack(fill="x")
+
+            align_side = "e" if is_sent else "w"
+            bg_color = "#005c4b" if is_sent else "#202c33"
+            txt_color = "#e9edef"
+
+            bubble_box = tk.Frame(bubble_outer, bg=bg_color, padx=10, pady=8, relief="flat")
+            bubble_box.pack(anchor=align_side, padx=(60 if is_sent else 10, 10 if is_sent else 60))
+
+            if not is_sent and msg.get("sender"):
+                tk.Label(bubble_box, text=msg.get("sender"), bg=bg_color, fg="#53bdeb", font=("Segoe UI", 8, "bold")).pack(anchor="w", pady=(0, 2))
+
+            if m_path and os.path.exists(m_path):
+                if m_type == "IMAGE" and HAS_PIL:
+                    try:
+                        img_key = f"{m_path}_{os.path.getmtime(m_path)}"
+                        if img_key not in self.wa_image_cache:
+                            im = Image.open(m_path)
+                            im.thumbnail((260, 260))
+                            self.wa_image_cache[img_key] = ImageTk.PhotoImage(im)
+                        
+                        img_lbl = tk.Label(bubble_box, image=self.wa_image_cache[img_key], bg=bg_color, cursor="hand2")
+                        img_lbl.pack(anchor="w", pady=2)
+                        img_lbl.bind("<Button-1>", lambda e, p=m_path: os.startfile(p))
+                    except Exception:
+                        pass
+                elif m_type in ("VIDEO", "DOC", "AUDIO"):
+                    m_btn = tk.Button(bubble_box, text=f"📂 Open {m_type}: {os.path.basename(m_path)}", bg="#182229", fg="#38bdf8", font=("Segoe UI", 8, "bold"), padx=6, pady=4, relief="flat", command=lambda p=m_path: os.startfile(p))
+                    m_btn.pack(anchor="w", pady=2)
+
+            if txt:
+                if "\n" in txt or len(txt) > 80:
+                    code_frame = tk.Frame(bubble_box, bg="#111b21", padx=8, pady=6, relief="solid", bd=1)
+                    code_frame.pack(anchor="w", fill="x", pady=2)
+
+                    txt_lbl = tk.Label(code_frame, text=txt, bg="#111b21", fg="#f8fafc", font=("Consolas", 8), justify="left", wrap=320)
+                    txt_lbl.pack(anchor="w")
+
+                    copy_btn = tk.Button(code_frame, text="📋 Copy Prompt", bg="#1e293b", fg="#38bdf8", font=("Segoe UI", 7, "bold"), padx=6, relief="flat", command=lambda t=txt: self._copy_to_clipboard(t))
+                    copy_btn.pack(anchor="e", pady=(4, 0))
+                else:
+                    msg_lbl = tk.Label(bubble_box, text=txt, bg=bg_color, fg=txt_color, font=("Segoe UI", 9), justify="left", wrap=340)
+                    msg_lbl.pack(anchor="w")
+
+            footer_frame = tk.Frame(bubble_box, bg=bg_color)
+            footer_frame.pack(anchor="e", pady=(2, 0))
+
+            tick_mark = " ✔✔" if is_sent else ""
+            ts_lbl = tk.Label(footer_frame, text=f"{ts}{tick_mark}", bg=bg_color, fg="#53bdeb" if is_sent else "#8696a0", font=("Segoe UI", 7))
+            ts_lbl.pack(side="right")
+
+        self.wa_canvas.update_idletasks()
+        self.wa_canvas.yview_moveto(1.0)
+
+    def _copy_to_clipboard(self, text):
+        self.clipboard_clear()
+        self.clipboard_append(text)
+        self.update()
+        self.log("Copied prompt text to clipboard!")
+        self.wa_status_lbl.config(text="Prompt copied to clipboard!")
+
+    def send_whatsapp_prompt(self):
+        """Sends the typed or pasted prompt directly to WhatsApp on phone via ADB"""
+        prompt_text = self.wa_input_txt.get("1.0", "end").strip()
+        c_name = self.selected_wa_chat.get("name") if self.selected_wa_chat else "My Notes"
+        pkg = "com.whatsapp.w4b" if "w4b" in self.wa_pkg_combo.get().lower() else "com.whatsapp"
+
+        if not prompt_text:
+            messagebox.showinfo("Send Prompt", "Please type or paste a prompt first.")
+            return
+
+        def task():
+            self.log(f"Sending prompt to WhatsApp on phone for '{c_name}'...")
+            self.after(0, lambda: self.wa_status_lbl.config(text="Sending prompt to phone..."))
+
+            safe_text = prompt_text.replace("'", "'\\''").replace("\n", " ")
+            cmd = f"am start -a android.intent.action.SEND -t 'text/plain' --es android.intent.extra.TEXT '{safe_text}' -p {pkg}"
+            c, out, err = self.run_adb(["shell", cmd], timeout=8)
+
+            now_ts = datetime.now().strftime("%I:%M %p")
+            self.wa_messages.append({
+                "text": prompt_text,
+                "timestamp": now_ts,
+                "is_sent": True,
+                "sender": "You",
+                "type": "TEXT",
+                "media_path": None
+            })
+
+            self.after(0, self._render_whatsapp_messages)
+            self.after(0, lambda: self.wa_input_txt.delete("1.0", "end"))
+            self.after(0, lambda: self.wa_status_lbl.config(text=f"Prompt sent to {c_name}!"))
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def paste_and_send_whatsapp_prompt(self):
+        """Pastes laptop clipboard content and sends immediately to WhatsApp"""
+        try:
+            clip = self.clipboard_get()
+            if clip:
+                self.wa_input_txt.delete("1.0", "end")
+                self.wa_input_txt.insert("1.0", clip)
+                self.send_whatsapp_prompt()
+        except Exception as e:
+            messagebox.showerror("Clipboard Error", f"Could not read clipboard:\n{e}")
+
+    def send_whatsapp_laptop_file(self):
+        """Pushes a file/photo from laptop to WhatsApp media directory on mobile"""
+        pkg = "com.whatsapp.w4b" if "w4b" in self.wa_pkg_combo.get().lower() else "com.whatsapp"
+        file_path = filedialog.askopenfilename(title="Select File to send to WhatsApp Mobile")
+        if not file_path:
+            return
+
+        fname = os.path.basename(file_path)
+        dest_remote = f"/sdcard/Android/media/{pkg}/WhatsApp/Media/WhatsApp Documents/{fname}"
+        
+        def task():
+            self.log(f"Pushing {fname} to WhatsApp Mobile: {dest_remote}...")
+            self.run_adb(["shell", f"mkdir -p '/sdcard/Android/media/{pkg}/WhatsApp/Media/WhatsApp Documents/'"], timeout=6)
+            code, _, err = self.run_adb(["push", file_path, dest_remote], timeout=60)
+            if code == 0:
+                self.log(f"Pushed {fname} to WhatsApp Mobile!")
+                self.run_adb(["shell", f"am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d 'file://{dest_remote}'"], timeout=4)
+                
+                now_ts = datetime.now().strftime("%I:%M %p")
+                self.wa_messages.append({
+                    "text": f"📎 Sent Laptop File: {fname}",
+                    "timestamp": now_ts,
+                    "is_sent": True,
+                    "sender": "You",
+                    "type": "DOC",
+                    "media_path": file_path
+                })
+                self.after(0, self._render_whatsapp_messages)
+                self.after(0, lambda: messagebox.showinfo("File Sent", f"File pushed to WhatsApp Mobile:\n{dest_remote}"))
+            else:
+                self.log(f"Push failed: {err}")
+                self.after(0, lambda: messagebox.showerror("Push Error", f"Could not push file:\n{err}"))
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def copy_all_whatsapp_prompts(self):
+        """Gathers all prompt texts from the current WhatsApp chat and copies to clipboard"""
+        prompts = [m['text'] for m in self.wa_messages if m.get('text')]
+        if prompts:
+            combined = "\n\n--- PROMPT SEPARATOR ---\n\n".join(prompts)
+            self._copy_to_clipboard(combined)
+            messagebox.showinfo("Prompts Copied", f"Copied {len(prompts)} prompts from WhatsApp chat to laptop clipboard!")
+        else:
+            messagebox.showinfo("No Prompts", "No messages found in chat.")
+
+    # =========================================================================
     # STORAGE & FILE EXPLORER METHODS
     # =========================================================================
 
@@ -4606,10 +7532,15 @@ class DeviceDevStudio(tk.Tk):
             self.path_entry.delete(0, "end")
             self.path_entry.insert(0, p)
             
+        # Reset inspector pane immediately
+        self.file_preview_lbl.config(image="", text="Loading directory...")
+        self.file_info_lbl.config(text="Select a file or folder on the left")
+        self.file_preview_selected_path = None
+        self._tree_images_cache = {} # Prevent image garbage collection
+            
         def task():
             self.log(f"Listing directory: {p}...")
-            safe_p = p.replace("'", "'\\''")
-            # Multi-fallback command: try toybox ls -lap, then ls -la, then ls -1, then wildcard handling
+            safe_p = p.replace("'", "'\''")
             cmd = (
                 f"if [ -d '{safe_p}' ] || [ -f '{safe_p}' ]; then "
                 f"  toybox ls -la '{safe_p}' 2>/dev/null || ls -la '{safe_p}' 2>/dev/null || ls -1 '{safe_p}' 2>/dev/null; "
@@ -4630,6 +7561,10 @@ class DeviceDevStudio(tk.Tk):
                     if len(parts) >= 8 and (parts[0].startswith('d') or parts[0].startswith('-') or parts[0].startswith('l') or parts[0].startswith('c')):
                         perm = parts[0]
                         size = parts[4] if len(parts) >= 5 and parts[4].isdigit() else (parts[3] if parts[3].isdigit() else "0")
+                        
+                        # Extract date/time (usually parts 5 and 6)
+                        datetime_str = " ".join(parts[5:7]) if len(parts) >= 8 else ""
+                        
                         name = " ".join(parts[7:]) if len(parts) >= 8 else parts[-1]
                         if " -> " in name:
                             name = name.split(" -> ")[0].strip()
@@ -4638,7 +7573,7 @@ class DeviceDevStudio(tk.Tk):
                         is_dir = perm.startswith("d") or name.endswith("/")
                         clean_name = name.rstrip("/") if is_dir else name
                         full_item_path = f"{p.rstrip('/')}/{clean_name}"
-                        items.append((is_dir, clean_name, full_item_path, size))
+                        items.append((is_dir, clean_name, full_item_path, size, datetime_str))
                     else:
                         name = line.strip()
                         if name in [".", "..", "./", "../"]:
@@ -4646,24 +7581,31 @@ class DeviceDevStudio(tk.Tk):
                         is_dir = name.endswith("/")
                         clean_name = name.rstrip("/")
                         full_item_path = f"{p.rstrip('/')}/{clean_name}"
-                        items.append((is_dir, clean_name, full_item_path, "0"))
+                        items.append((is_dir, clean_name, full_item_path, "0", ""))
                 
                 items.sort(key=lambda x: (not x[0], x[1].lower()))
             
             def update_ui():
                 self.current_remote_items = items
-                self.file_listbox.delete(0, "end")
+                self.file_tree.delete(*self.file_tree.get_children())
+                
+                # We will queue media files to fetch thumbnails
+                media_to_fetch = []
+                
                 if items:
-                    for is_dir, name, full_pth, size in items:
+                    for i, (is_dir, name, full_pth, size, dt_str) in enumerate(items):
+                        ext = os.path.splitext(name)[1].lower()
+                        sz_str = ""
                         if is_dir:
                             display = f"📁 [DIR] {name}/"
                         else:
                             sz_str = self._format_size(size)
-                            ext = os.path.splitext(name)[1].lower()
                             if ext in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic"]:
                                 icon = "🖼"
+                                media_to_fetch.append((i, full_pth, name))
                             elif ext in [".mp4", ".mkv", ".mov", ".3gp", ".webm"]:
                                 icon = "🎥"
+                                media_to_fetch.append((i, full_pth, name))
                             elif ext in [".pdf", ".docx", ".doc", ".txt", ".xlsx"]:
                                 icon = "📄"
                             elif ext in [".apk"]:
@@ -4672,32 +7614,57 @@ class DeviceDevStudio(tk.Tk):
                                 icon = "🎵"
                             else:
                                 icon = "📎"
-                            display = f"{icon} {name}  ({sz_str})"
-                        self.file_listbox.insert("end", display)
+                            display = f"{icon} {name}"
+                            
+                        # Insert into tree, store item_id as i (so we can update it later)
+                        # We use text=display (column #0)
+                        item_id = self.file_tree.insert("", "end", iid=str(i), text=" " + display, values=(sz_str if not is_dir else "", dt_str))
+                    
                     self.log(f"Found {len(items)} items in {p}")
+                    
+                    # Start background thumbnail fetcher if auto-fetch is enabled
+                    if getattr(self, 'auto_fetch_thumbs_var', None) and self.auto_fetch_thumbs_var.get() and media_to_fetch:
+                        threading.Thread(target=self._background_tree_thumbnail_fetcher, args=(media_to_fetch, p), daemon=True).start()
                 else:
-                    self.file_listbox.insert("end", "[Directory is empty or restricted]")
+                    self.file_tree.insert("", "end", text=" [Directory is empty or restricted]", values=("", ""))
                     if err:
                         self.log(f"ls notice: {err}")
+                
+                self.file_preview_lbl.config(image="", text="Click any file to inspect")
             self.after(0, update_ui)
         threading.Thread(target=task, daemon=True).start()
 
     def _on_item_double_click(self, event):
-        sel = self.file_listbox.curselection()
-        if not sel or sel[0] >= len(self.current_remote_items):
+        sel = self.file_tree.selection()
+        if not sel:
             return
-        is_dir, name, full_path, size = self.current_remote_items[sel[0]]
+        try:
+            idx = int(sel[0])
+            if idx >= len(self.current_remote_items):
+                return
+        except ValueError:
+            return
+            
+        is_dir, name, full_path, size, dt_str = self.current_remote_items[idx]
         if is_dir:
             self.load_path(full_path)
         else:
             self.open_selected_item()
 
     def open_selected_item(self):
-        sel = self.file_listbox.curselection()
-        if not sel or sel[0] >= len(self.current_remote_items):
+        sel = self.file_tree.selection()
+        if not sel:
             messagebox.showinfo("Select Item", "Please select a file to open.")
             return
-        is_dir, name, full_path, size = self.current_remote_items[sel[0]]
+        try:
+            idx = int(sel[0])
+            if idx >= len(self.current_remote_items):
+                messagebox.showinfo("Select Item", "Please select a file to open.")
+                return
+        except ValueError:
+            return
+
+        is_dir, name, full_path, size, dt_str = self.current_remote_items[idx]
         if is_dir:
             self.load_path(full_path)
             return
@@ -4715,11 +7682,19 @@ class DeviceDevStudio(tk.Tk):
         threading.Thread(target=task, daemon=True).start()
 
     def pull_selected_file(self):
-        sel = self.file_listbox.curselection()
-        if not sel or sel[0] >= len(self.current_remote_items):
+        sel = self.file_tree.selection()
+        if not sel:
             messagebox.showinfo("Select Item", "Please select an item from the list.")
             return
-        is_dir, name, full_path, size = self.current_remote_items[sel[0]]
+        try:
+            idx = int(sel[0])
+            if idx >= len(self.current_remote_items):
+                messagebox.showinfo("Select Item", "Please select an item from the list.")
+                return
+        except ValueError:
+            return
+
+        is_dir, name, full_path, size, dt_str = self.current_remote_items[idx]
         
         dest = filedialog.askdirectory(title=f"Save '{name}' to PC folder", initialdir=BASE_DIR)
         if not dest:

@@ -7,31 +7,34 @@ from models import TelemetryPayload, LocationResult, CellTowerInfo, WifiAccessPo
 REGISTERED_BLE_BEACONS = {
     ("fda50693-a4e2-4fb1-afcf-c6eb07647825", 1, 102): {
         "name": "Gym Training Zone A (Floor 2)",
-        "lat": 28.613930,
-        "lng": 77.209020,
+        "lat": 25.278450,
+        "lng": 82.949380,
         "room": "Zone A - Cardio Area"
     },
     ("fda50693-a4e2-4fb1-afcf-c6eb07647825", 1, 103): {
         "name": "Gym Weight Room (Floor 2)",
-        "lat": 28.613980,
-        "lng": 77.209070,
+        "lat": 25.278480,
+        "lng": 82.949420,
         "room": "Zone B - Free Weights"
     }
 }
 
 # Registered Wi-Fi BSSID Geolocation Database (Fixed Routers)
 KNOWN_WIFI_BSSIDS = {
-    "98:9D:B2:AB:1C:E0": {"lat": 28.632700, "lng": 77.219800, "ssid": "SITI BRODBAND 5G"},
-    "00:14:22:01:23:45": {"lat": 28.632700, "lng": 77.219800, "ssid": "Office_Network_5G"},
-    "18:E8:29:4F:11:90": {"lat": 28.632850, "lng": 77.219900, "ssid": "Gym_Member_Wi-Fi"},
-    "C8:D7:19:A4:5E:12": {"lat": 28.632600, "lng": 77.219700, "ssid": "Reception_Router"}
+    "98:9D:B2:AB:1C:E0": {"lat": 25.278508, "lng": 82.949438, "ssid": "SITI BRODBAND 5G"},
+    "98:9D:B2:AB:1C:E4": {"lat": 25.278508, "lng": 82.949438, "ssid": "SITI BRODBAND 2.4G"},
+    "4C:AE:1C:B5:20:95": {"lat": 25.278530, "lng": 82.949460, "ssid": "SULTAN -5G"},
+    "34:24:3E:5C:42:3C": {"lat": 25.278560, "lng": 82.949490, "ssid": "Airtel_Lado"}
 }
 
 # Registered OpenCelliD / Carrier Cell Towers (Cell ID -> Lat/Lng)
 KNOWN_CELL_TOWERS = {
-    12345678: {"lat": 28.633500, "lng": 77.220500, "mcc": 405, "mnc": 871},
-    12345679: {"lat": 28.635000, "lng": 77.215000, "mcc": 405, "mnc": 871},
-    12345680: {"lat": 28.631000, "lng": 77.225000, "mcc": 404, "mnc": 55}
+    5657872: {"lat": 25.279200, "lng": 82.950100, "mcc": 405, "mnc": 871},
+    64853: {"lat": 25.278000, "lng": 82.948800, "mcc": 404, "mnc": 55},
+    64851: {"lat": 25.277800, "lng": 82.948500, "mcc": 404, "mnc": 55},
+    12345678: {"lat": 25.279200, "lng": 82.950100, "mcc": 405, "mnc": 871},
+    12345679: {"lat": 25.279500, "lng": 82.950500, "mcc": 405, "mnc": 871},
+    12345680: {"lat": 25.277500, "lng": 82.948000, "mcc": 404, "mnc": 55}
 }
 
 class LocationResolver:
@@ -80,8 +83,8 @@ class LocationResolver:
         # Default fallback location if no signals match
         return LocationResult(
             device_id=payload.device_id,
-            lat=28.6139,
-            lng=77.2090,
+            lat=25.278508,
+            lng=82.949438,
             accuracy_meters=100.0,
             location_source="DEFAULT_FALLBACK",
             resolved_at=now_ts
@@ -111,8 +114,10 @@ class LocationResolver:
     def _resolve_wifi(self, aps: List[WifiAccessPointInfo]) -> Optional[Tuple[float, float, float]]:
         """Calculates RSSI weighted centroid across non-hotspot fixed Wi-Fi access points."""
         fixed_aps = [ap for ap in aps if not ap.is_hotspot]
-        matched = []
+        if not fixed_aps:
+            return None
 
+        matched = []
         for ap in fixed_aps:
             bssid_upper = ap.bssid.upper()
             if bssid_upper in KNOWN_WIFI_BSSIDS:
@@ -122,16 +127,7 @@ class LocationResolver:
                 matched.append((pos["lat"], pos["lng"], weight))
 
         if not matched:
-            # If no known DB match, construct perimeter center from dynamic network IP geolocation
-            try:
-                import urllib.request, json
-                with urllib.request.urlopen("http://ip-api.com/json/", timeout=2) as resp:
-                    geo = json.loads(resp.read().decode())
-                    if geo.get("status") == "success":
-                        return float(geo["lat"]), float(geo["lon"]), 20.0
-            except Exception:
-                pass
-            return 28.632700, 77.219800, 20.0
+            return None
 
         total_weight = sum(m[2] for m in matched)
         lat = sum(m[0] * m[2] for m in matched) / total_weight
@@ -173,7 +169,7 @@ class LocationResolver:
             pos = KNOWN_CELL_TOWERS[serving.cell_id]
             return pos["lat"], pos["lng"], max(ta_distance, 200.0), "CELLULAR_SINGLE"
 
-        return 28.615000, 77.210000, max(ta_distance, 300.0), "CELLULAR_ESTIMATED"
+        return 25.279200, 82.950100, max(ta_distance, 300.0), "CELLULAR_ESTIMATED"
 
     def _trilaterate(self, towers: List[Tuple[float, float, float, int]]) -> Tuple[float, float]:
         """Weighted centroid approximation for multi-tower trilateration."""

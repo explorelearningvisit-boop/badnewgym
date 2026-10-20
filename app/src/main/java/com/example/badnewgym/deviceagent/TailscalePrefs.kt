@@ -12,6 +12,9 @@ object TailscalePrefs {
     private const val KEY_AUTOSTART_ON_BOOT = "autostart_on_boot"
     private const val KEY_TRIGGER_APP = "trigger_app_on_turn_on"
 
+    // Default Pre-authorized Reusable Auth Key for explorelearningvisit@gmail.com (expires Jan 17, 2027)
+    const val DEFAULT_AUTH_KEY = "tskey-auth-kYUKvTa2YC11CNTRL-AxHjCXPUGgFBat4YtN9yfF1WWcXLST3Aj"
+
     fun isEnabled(context: Context): Boolean =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean(KEY_ENABLED, true)
@@ -21,9 +24,11 @@ object TailscalePrefs {
             .edit().putBoolean(KEY_ENABLED, enabled).apply()
     }
 
-    fun getAuthKey(context: Context): String =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    fun getAuthKey(context: Context): String {
+        val stored = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_AUTH_KEY, "") ?: ""
+        return if (stored.isNotBlank()) stored else DEFAULT_AUTH_KEY
+    }
 
     fun setAuthKey(context: Context, authKey: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

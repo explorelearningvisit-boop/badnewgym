@@ -170,11 +170,17 @@
         <div class="sidebar">
             <div class="card" style="border-left: 4px solid #10B981;">
                 <div class="card-title">Resolved Position</div>
-                <div class="coords" id="coordsText">28.632700, 77.219800</div>
+                <div class="coords" id="coordsText">25.278508, 82.949438</div>
                 <div id="sourcePill" class="source-pill pill-meso">MESO TIER: WIFI_WPS</div>
                 <div style="margin-top: 10px; font-size: 13px; color: #10B981; font-weight: 600;">
                     Accuracy Perimeter: <span id="accuracyText">±12.0 meters</span>
                 </div>
+                <div style="margin-top: 12px; padding: 10px; background: rgba(255,255,255,0.06); border-radius: 8px; font-size: 13px; line-height: 1.4; color: #E2E8F0;">
+                    📍 <b>Address:</b> Banaras Ghats, Bhullanpur, Kadipur, Sadar, Varanasi, Uttar Pradesh 221108, India
+                </div>
+                <a href="https://www.google.com/maps?q=25.278508,82.949438" target="_blank" style="display: block; margin-top: 10px; padding: 10px; background: #2563EB; color: #fff; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px;">
+                    🗺️ Open in Google Maps
+                </a>
             </div>
 
             <div class="card">
@@ -220,55 +226,120 @@
                     <span class="signal-label">Network Type:</span>
                     <span class="signal-val">Wi-Fi (Unmetered)</span>
                 </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Nearby Places & Landmarks (Varanasi)</div>
                 <div class="signal-row">
-                    <span class="signal-label">Location Status:</span>
-                    <span class="signal-val" style="color:#10B981;">Real RF Match Active</span>
+                    <span class="signal-label">🚆 Bhulanpur Station:</span>
+                    <span class="signal-val">~800m (BHLP)</span>
                 </div>
+                <div class="signal-row">
+                    <span class="signal-label">🏢 36th Bn PAC Campus:</span>
+                    <span class="signal-val">~500m West</span>
+                </div>
+                <div class="signal-row">
+                    <span class="signal-label">🚂 DLW / Banaras Station:</span>
+                    <span class="signal-val">~1.8km East (BSBS)</span>
+                </div>
+                <div class="signal-row">
+                    <span class="signal-label">🏫 BHU University Area:</span>
+                    <span class="signal-val">~4km South-East</span>
+                </div>
+                <a href="https://www.google.com/maps/search/nearby/@25.278508,82.949438,16z" target="_blank" style="display: block; margin-top: 10px; padding: 8px; background: #0D9488; color: #fff; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 12px;">
+                    🔍 Explore Nearby Places on Google Maps
+                </a>
             </div>
         </div>
     </div>
 
     <script>
-        const map = L.map('map').setView([28.632700, 77.219800], 17);
+        const defaultLat = 25.278508;
+        const defaultLng = 82.949438;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        const map = L.map('map').setView([defaultLat, defaultLng], 17);
+
+        // 1. Google Maps Road Map (Complete streets, shops, Hindi/English labels, house landmarks)
+        const googleStreets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 21,
+            attribution: '© Google Maps'
+        });
+
+        // 2. Google Maps Hybrid (High-Res Real Satellite + Road & Shop Overlays)
+        const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            maxZoom: 21,
+            attribution: '© Google Maps Satellite'
+        });
+
+        // 3. Google Maps Terrain
+        const googleTerrain = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            attribution: '© Google Maps Terrain'
+        });
+
+        // Set Google Streets as default for complete street & shop visibility
+        googleStreets.addTo(map);
+
+        L.control.layers({
+            "🗺️ Google Maps (Streets & Shops)": googleStreets,
+            "🛰️ Google Satellite + Streets": googleHybrid,
+            "⛰️ Google Terrain": googleTerrain
+        }, null, { position: 'topright' }).addTo(map);
+
+        setTimeout(() => { map.invalidateSize(); }, 300);
+
+        // Add Local Varanasi Landmarks to Map
+        const landmarkIcon = (emoji, color) => L.divIcon({
+            html: `<div style="background:${color};color:#fff;border-radius:12px;padding:3px 8px;font-size:11px;font-weight:bold;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.4);border:1px solid #fff;">${emoji}</div>`,
+            className: '',
+            iconAnchor: [15, 12]
+        });
+
+        // Bhulanpur Railway Station
+        L.marker([25.281800, 82.946000], { icon: landmarkIcon("🚆 Bhulanpur Stn (BHLP)", "#DC2626") })
+            .addTo(map).bindPopup("<b>Bhulanpur Railway Station (BHLP)</b><br>North Eastern Railway<br>~800m from your phone");
+
+        // 36th Battalion PAC Campus
+        L.marker([25.277000, 82.945000], { icon: landmarkIcon("🏢 36th Bn PAC", "#7C3AED") })
+            .addTo(map).bindPopup("<b>36th Battalion PAC Campus</b><br>Bhullanpur, Varanasi<br>~500m West");
+
+        // PAC Chauraha / Market
+        L.marker([25.279000, 82.947500], { icon: landmarkIcon("🏬 PAC Chauraha / Market", "#059669") })
+            .addTo(map).bindPopup("<b>PAC Chauraha & Local Market</b><br>Shops, Medical, Groceries");
 
         // 1. Serving Cell Tower (Macro)
-        const cellTower = L.marker([28.633500, 77.220500]).addTo(map)
-            .bindPopup("<b>Serving Cell Tower (Macro)</b><br>Network: IND-JIO (MCC 405, MNC 871)<br>Timing Advance: 4");
+        const cellTower = L.marker([25.279200, 82.950100]).addTo(map)
+            .bindPopup("<b>Serving Cell Tower (Macro)</b><br>Network: IND-JIO (MCC 405, MNC 871)<br>TAC: 73, Cell ID: 5657872<br>RSRP: -91 dBm");
 
-        const cellCoverage = L.circle([28.633500, 77.220500], {
+        const cellCoverage = L.circle([25.279200, 82.950100], {
             color: '#D97706',
             fillColor: '#F59E0B',
             fillOpacity: 0.12,
             radius: 312.5
-        }).addTo(map).bindPopup("Cellular TA Distance Radius (~312.5m)");
+        }).addTo(map).bindPopup("Cellular Coverage Sector (~312.5m)");
 
         // 2. Real Connected Wi-Fi Router (Meso)
-        const wifiAp1 = L.circleMarker([28.632700, 77.219800], {
+        const wifiAp1 = L.circleMarker([defaultLat, defaultLng], {
             radius: 9,
             color: '#2563EB',
             fillColor: '#60A5FA',
             fillOpacity: 0.9
-        }).addTo(map).bindPopup("<b>Connected Wi-Fi Router (Meso)</b><br>SSID: SITI BRODBAND 5G<br>BSSID: 98:9D:B2:AB:1C:E0<br>RSSI: -44 dBm");
+        }).addTo(map).bindPopup("<b>Connected Wi-Fi Router (Meso)</b><br>SSID: SITI BRODBAND 5G<br>BSSID: 98:9D:B2:AB:1C:E0<br>RSSI: -40 dBm (5180 MHz)");
 
-        const wifiAp2 = L.circleMarker([28.614010, 77.209100], {
+        const wifiAp2 = L.circleMarker([25.278000, 82.948800], {
             radius: 8,
             color: '#2563EB',
             fillColor: '#60A5FA',
             fillOpacity: 0.8
-        }).addTo(map).bindPopup("<b>Fixed Wi-Fi Router (Meso)</b><br>SSID: Gym_Member_Wi-Fi<br>BSSID: 18:E8:29:4F:11:90<br>RSSI: -71 dBm");
+        }).addTo(map).bindPopup("<b>Fixed Wi-Fi / Neighbor Cell</b><br>BSNL LAC 2023, CID 64853<br>RSSI: -61 dBm");
 
         // 3. BLE Indoor Beacon (Micro)
-        const bleBeacon = L.circleMarker([28.613930, 77.209020], {
+        const bleBeacon = L.circleMarker([25.278450, 82.949380], {
             radius: 9,
             color: '#9333EA',
             fillColor: '#C084FC',
             fillOpacity: 0.95
-        }).addTo(map).bindPopup("<b>Indoor BLE Beacon (Micro)</b><br>Zone: Cardio Zone A (Floor 2)<br>Major: 1, Minor: 102<br>RSSI: -55 dBm");
+        }).addTo(map).bindPopup("<b>Indoor BLE Beacon (Micro)</b><br>Zone: Indoor Training Zone<br>Major: 1, Minor: 102<br>RSSI: -55 dBm");
 
         // 4. Resolved Device Position & Accuracy Circle
         const deviceIcon = L.divIcon({
@@ -277,24 +348,21 @@
             iconAnchor: [9, 9]
         });
 
-        const deviceMarker = L.marker([28.613930, 77.209020], { icon: deviceIcon }).addTo(map)
-            .bindPopup("<b>Resolved Device Location</b><br>Source: BLE_INDOOR<br>Accuracy: ±3.5 meters<br>Floor: 2 (Cardio Zone A)").openPopup();
+        const deviceMarker = L.marker([defaultLat, defaultLng], { icon: deviceIcon }).addTo(map)
+            .bindPopup("<b>Resolved Device Location</b><br>Source: WIFI_WPS (Siti Broadband 5G)<br>Accuracy: ±12.0 meters<br>Varanasi, UP").openPopup();
 
-        const accuracyCircle = L.circle([28.613930, 77.209020], {
+        const accuracyCircle = L.circle([defaultLat, defaultLng], {
             color: '#10B981',
             fillColor: '#34D399',
             fillOpacity: 0.3,
-            radius: 3.5
+            radius: 12.0
         }).addTo(map);
 
         // Tier switching simulation logic
         const tiers = {
             ble: {
-                lat: 28.613930,
-                lng: 77.209020,
-            ble: {
-                lat: 28.632700,
-                lng: 77.219800,
+                lat: 25.278450,
+                lng: 82.949380,
                 accuracy: 3.5,
                 source: "MICRO TIER: BLE_INDOOR",
                 pillClass: "pill-micro",
@@ -303,24 +371,24 @@
                 popup: "<b>Resolved Location (BLE Indoor)</b><br>Accuracy: ±3.5m<br>Zone: Indoor Zone"
             },
             wifi: {
-                lat: 28.632700,
-                lng: 77.219800,
+                lat: defaultLat,
+                lng: defaultLng,
                 accuracy: 12.0,
                 source: "MESO TIER: WIFI_WPS",
                 pillClass: "pill-meso",
                 color: "#3B82F6",
                 fillColor: "#60A5FA",
-                popup: "<b>Resolved Location (Connected Wi-Fi WPS)</b><br>SSID: SITI BRODBAND 5G<br>Accuracy: ±12.0m"
+                popup: "<b>Resolved Location (Connected Wi-Fi WPS)</b><br>SSID: SITI BRODBAND 5G<br>BSSID: 98:9D:B2:AB:1C:E0<br>Accuracy: ±12.0m"
             },
             cell: {
-                lat: 28.633500,
-                lng: 77.220500,
+                lat: 25.279200,
+                lng: 82.950100,
                 accuracy: 150.0,
                 source: "MACRO TIER: CELLULAR_TRILATERATION",
                 pillClass: "pill-macro",
                 color: "#F59E0B",
                 fillColor: "#FBBF24",
-                popup: "<b>Resolved Location (Cellular Sector)</b><br>Carrier: IND-JIO (MCC 405, MNC 871)<br>Accuracy: ±150.0m"
+                popup: "<b>Resolved Location (Cellular Sector)</b><br>Carrier: IND-JIO (MCC 405, MNC 871, TAC 73, Cell ID 5657872)<br>Accuracy: ±150.0m"
             }
         };
 
@@ -342,6 +410,35 @@
             pill.className = `source-pill ${t.pillClass}`;
             pill.innerText = t.source;
         }
+
+        // Live polling from backend (Every 5 seconds)
+        let lastUpdatedTime = Date.now();
+        async function pollLatestLocation() {
+            try {
+                const res = await fetch('http://localhost:8000/api/v1/telemetry/latest');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.lat && data.lng) {
+                        const newPos = [data.lat, data.lng];
+                        deviceMarker.setLatLng(newPos);
+                        accuracyCircle.setLatLng(newPos);
+                        accuracyCircle.setRadius(data.accuracy_meters || 12.0);
+                        map.panTo(newPos);
+
+                        const nowStr = new Date().toLocaleTimeString();
+                        document.getElementById('coordsText').innerText = `${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}`;
+                        document.getElementById('accuracyText').innerText = `±${(data.accuracy_meters || 12).toFixed(1)} meters (Live at ${nowStr})`;
+                        const pill = document.getElementById('sourcePill');
+                        pill.innerText = `${data.location_source}`;
+
+                        deviceMarker.setPopupContent(`<b>Resolved Device Location</b><br>Source: ${data.location_source}<br>Accuracy: ±${(data.accuracy_meters || 12).toFixed(1)}m<br>Updated: ${nowStr}`);
+                    }
+                }
+            } catch (e) {
+                // Silently fallback
+            }
+        }
+        setInterval(pollLatestLocation, 5000);
     </script>
 </body>
 </html>

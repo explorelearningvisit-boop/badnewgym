@@ -1,58 +1,71 @@
-# BAD GYM — Visit Based Member Card System
+# Multi-Project Workspace Guide
 
-BAD GYM is an Android Jetpack Compose gym-management application centered on a **Visit Based Member Card**.
+This workspace hosts **3 completely independent projects**. Each project has its own dedicated codebase, purpose, and execution commands.
 
-## Current implementation contract
+---
 
-The production workflow is now reference-image driven:
-
-**reference image → atomic decomposition → component implementation → build → device screenshot → visual comparison → correction → verification → next component → full integration → logic/state verification → regression**
-
-The complete Google Antigravity execution contract is:
-
-`docs/reference/ANTIGRAVITY_END_TO_END_CONTRACT.md`
-
-Google Antigravity must not implement a supplied reference image as one approximate pass.
-
-## Current member-card renderer
-
-The old eight-theme card presentation and old 360dp/3:4/four-column documentation are retired/stale.
-
-The current renderer uses:
-
-- full available mobile viewport
-- approximately 420dp maximum content width
-- light premium Material surface
-- emerald/blue/red/amber/purple semantic accents
-- compact header
-- vertical rail navigation
-- Home command-center content
-- compact visit/payment/attendance information
-- event/visit-driven widget resolution
-- server-authoritative commercial entitlements
-
-Primary implementation:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/components/PixelPerfectMemberCard.kt`
-
-Domain:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/VisitWidgetSystem.kt`
-
-Server access contract:
-
-`app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/model/GymWidgetAccess.kt`
-
-Tests:
-
-`app/src/test/java/com/example/badnewgym/feature/memberintelligence/domain/engine/VisitWidgetConditionResolverTest.kt`
-
-## Build
-
-```bash
-./gradlew clean testDebugUnitTest assembleDebug
+```text
+📁 WORKSPACE ROOT (badnewgym/)
+│
+├── 🥊 [PROJECT 1] BAD GYM APP
+│   └── app/src/main/.../feature/memberintelligence/   # Gym Member Intelligence V4/V2 UI & Cards
+│
+├── 📡 [PROJECT 2] PHONE TRACKING ENGINE
+│   ├── app/src/main/.../hybridtracking/               # Low-GPS Wi-Fi / Cell / BLE Scanner Service
+│   └── backend/                                       # FastAPI Server, Resolver & Live Map
+│
+└── 📱 [PROJECT 3] OPPO DEV STUDIO & HARDWARE TOOLS
+    ├── tools/oppo_dev_studio.py                       # Desktop GUI Phone Controller & Streamer
+    ├── OPPO/                                          # OPPO A53 Scan Dumps & Telemetry Reports
+    └── Launch_Oppo_Dev_Studio.bat                     # Desktop Launcher
 ```
 
-## Scope
+---
 
-BAD GYM changes must remain inside BAD GYM application/test/documentation paths. Do not modify unrelated OPPO/mobile-control tooling or Banaras Tour Gold / Manchester-company work.
+## 🥊 Project 1: BAD GYM (Member Intelligence Android App)
+
+* **Purpose:** Gym membership management, Member Intelligence V4/V2 attendance cards, unit grid layouts, flow sheets, and payment receipts.
+* **Key Files:**
+  * UI Screens & ViewModels: [`app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/v4/`](app/src/main/java/com/example/badnewgym/feature/memberintelligence/presentation/v4/)
+  * Layout Engine & Packing: [`app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/`](app/src/main/java/com/example/badnewgym/feature/memberintelligence/domain/)
+  * Specifications: [`docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_V2_CONTRACT.md`](docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_V2_CONTRACT.md)
+* **Build & Run:**
+  ```powershell
+  .\gradlew assembleDebug
+  .\gradlew testDebugUnitTest --tests "*Member*"
+  ```
+
+---
+
+## 📡 Project 2: PHONE TRACKING (Low-GPS Location & Backend)
+
+* **Purpose:** Low-power hybrid tracking combining Wi-Fi BSSID, Cell Tower CID/LAC, BLE, and GPS with real-time FastAPI resolver and Leaflet live map.
+* **Key Files:**
+  * Android Scanner: [`app/src/main/java/com/example/badnewgym/hybridtracking/`](app/src/main/java/com/example/badnewgym/hybridtracking/)
+  * Backend Server: [`backend/main.py`](backend/main.py)
+  * Location Resolver: [`backend/resolver.py`](backend/resolver.py)
+  * Interactive Live Map: [`backend/live_map.html`](backend/live_map.html)
+  * Backend Launcher: [`backend/run_server.bat`](backend/run_server.bat)
+  * Documentation: [`docs/LOW_GPS_HYBRID_TRACKING_ENGINE.md`](docs/LOW_GPS_HYBRID_TRACKING_ENGINE.md)
+* **Build & Run:**
+  ```powershell
+  # Start Backend & Live Map:
+  .\backend\run_server.bat
+  # (Access map at http://localhost:8000/live-map)
+
+  # Run Android Tracking Unit Tests:
+  .\gradlew testDebugUnitTest --tests "*HybridTracking*"
+  ```
+
+---
+
+## 📱 Project 3: OPPO (Dev Studio & Hardware Testing)
+
+* **Purpose:** Desktop GUI tool to mirror screens, control test phones (OPPO A53 / Xiaomi 11i) over ADB/Tailscale, and inspect device storage/packages.
+* **Key Files:**
+  * Desktop Studio GUI: [`tools/oppo_dev_studio.py`](tools/oppo_dev_studio.py)
+  * 1-Click Launcher: [`Launch_Oppo_Dev_Studio.bat`](Launch_Oppo_Dev_Studio.bat)
+  * OPPO Phone Scans: [`OPPO/OPPO_FULL_MOBILE_SCAN.json`](OPPO/OPPO_FULL_MOBILE_SCAN.json)
+  * OPPO Device Report: [`OPPO/OPPO_FULL_MOBILE_SCAN_REPORT.md`](OPPO/OPPO_FULL_MOBILE_SCAN_REPORT.md)
+* **Run:**
+  * Double-click [`Launch_Oppo_Dev_Studio.bat`](Launch_Oppo_Dev_Studio.bat) or run `python tools\oppo_dev_studio.py`.
