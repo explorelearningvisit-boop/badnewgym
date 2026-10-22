@@ -69,11 +69,14 @@ fun MemberCheckInScreen(
     var showTailscaleSheet by remember { mutableStateOf(false) }
     val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    // Active Member Data (defaults to Aman Tripathi 6-Month Gold Tier from user mockup)
+    var currentMemberData by remember { mutableStateOf(MemberCardData.sampleAmanTripathi()) }
+
     LaunchedEffect(initialSheet) {
         when (initialSheet?.lowercase()) {
             "receipt" -> showReceiptSheet = true
             "analytics" -> showAnalyticsSheet = true
-            "attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+            "attendance" -> selectedAttendanceDay = currentMemberData.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
             "notifications" -> showNotificationsSheet = true
             "search" -> showSearchSheet = true
             "tailscale" -> showTailscaleSheet = true
@@ -81,30 +84,43 @@ fun MemberCheckInScreen(
         }
     }
 
-    val mintPearlescentGradient = Brush.verticalGradient(
-        listOf(
-            Color(0xFFE6F7F0), // Luminous soft emerald mint top
-            Color(0xFFF3FBF8), // Clean airy mint-pearl surface
-            Color(0xFFEDF8F4)  // Refreshing pale mint finish
+    val isDark = currentMemberData.profile.tier == com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH ||
+            currentMemberData.profile.tier == com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND
+
+    val screenBg = if (isDark) {
+        Brush.verticalGradient(
+            listOf(
+                Color(0xFF060E18),
+                Color(0xFF0A1828),
+                Color(0xFF07101C)
+            )
         )
-    )
+    } else {
+        Brush.verticalGradient(
+            listOf(
+                Color(0xFFE6F7F0),
+                Color(0xFFF3FBF8),
+                Color(0xFFEDF8F4)
+            )
+        )
+    }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(mintPearlescentGradient)
+            .background(screenBg)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 10.dp, vertical = 6.dp)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
                 .navigationBarsPadding()
         ) {
-            // Main Member Intelligence 5-Section View (Ultra-Compact)
+            // Main Member Intelligence Compact Card Architecture
             MemberCheckInCard(
-                data = data,
+                data = currentMemberData,
                 onAvatarClick = {
                     showTailscaleSheet = true
                     onMenuClick()
@@ -112,21 +128,46 @@ fun MemberCheckInScreen(
                 onNotificationsClick = { showNotificationsSheet = true },
                 onReceiptClick = { showReceiptSheet = true },
                 onAttendanceClick = {
-                    selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                    selectedAttendanceDay = currentMemberData.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
                 },
                 onAttendanceDayClick = { day ->
                     selectedAttendanceDay = day
                 },
-                onAnalyticsClick = { showAnalyticsSheet = true }
+                onAnalyticsClick = { showAnalyticsSheet = true },
+                onTierSwitch = { newTier ->
+                    currentMemberData = when (newTier) {
+                        com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH ->
+                            MemberCardData.sampleAmanTripathi().copy(
+                                profile = MemberCardData.sampleAmanTripathi().profile.copy(
+                                    tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH,
+                                    tierName = "Gold Plan (6 Months)"
+                                )
+                            )
+                        com.example.badnewgym.feature.membercard.domain.model.MemberTier.BASIC_MEMBER ->
+                            MemberCardData.sampleAmanTripathi().copy(
+                                profile = MemberCardData.sampleAmanTripathi().profile.copy(
+                                    tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.BASIC_MEMBER,
+                                    tierName = "Basic Member"
+                                )
+                            )
+                        com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND ->
+                            MemberCardData.sampleAshwiniSingh().copy(
+                                profile = MemberCardData.sampleAshwiniSingh().profile.copy(
+                                    tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND,
+                                    tierName = "Spark Member"
+                                )
+                            )
+                    }
+                }
             )
 
             // Slot for custom widgets in the remaining vertical space
             if (customWidgetsContent != null) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 customWidgetsContent()
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
 
         // --- Bottom Sheet Dialogs ---

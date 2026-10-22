@@ -58,7 +58,16 @@ Completion requires the new UI, widget editor architecture, admin command center
 
 ## VERIFIED MILESTONE — CANONICAL V2 DEPLOYED ON XIAOMI 11i
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
-- **Commit**: `07988c92569114c1c1b7e877c0f4d7d2f55cb74b`
 - **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
-- **Screenshot Evidence**: [docs/reference/images/xiaomi_canonical_v2_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/xiaomi_canonical_v2_verified.png)
-- **Visual Match**: Pixel-perfect match to canonical mockup `media_1792676590380.jpg` with Light Luxury Mint canvas, Top Bar, Hero profile (Ashwini Singh), Quick Action pills, Body Stats (with canvas sparklines), Attendance 12-day strip with gauge, Workout Trend 30-day bars with peak/lowest callouts, and Payment & Plan 12-month calendar pill strip.
+- **Screenshot Evidence**: 
+  - [docs/reference/images/device_screen_compact_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_compact_verified.png) (Gold 6-Month Plan)
+  - [docs/reference/images/device_screen_basic_plan_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_basic_plan_verified.png) (Basic Member Green Tint on Hero Profile only)
+  - [docs/reference/images/device_screen_spark_plan_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_spark_plan_verified.png) (Spark Member Diamond/Cyan Tint on Hero Profile only)
+  - [docs/reference/images/device_screen_receipt_sheet_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_receipt_sheet_verified.png) (Interactive Official Receipt sheet)
+- **Visual Match & Constraints Fulfilled**:
+  1. **Zero-Scroll Viewport**: Entire dashboard (Hero profile, Body Stats, Attendance, 30d Workout Trend, Payment Plan & 12M History) fits cleanly in a single screen without scrolling.
+  2. **Top App Bar Removed**: Eliminated top header bar & standalone pills to save vertical space.
+  3. **Embedded Notification Bell**: Compact bell icon with unread badge embedded directly in the Hero profile card.
+  4. **Single-Widget Tier Tinting**: Only the Hero Member Profile widget receives the member's tier styling (Emerald Green for Basic, Gold/Sapphire for 6M Gold, Electric Cyan for Spark). All other cards maintain their natural luxury dark obsidian palette.
+  5. **Numbered Attendance Dots**: Explicit day numbers `1` through `31` rendered inside every attendance day circle.
+  6. **Side-by-Side Split**: Attendance (left) and Workout Trend (right) positioned in a 2-column layout to eliminate wasted horizontal space.

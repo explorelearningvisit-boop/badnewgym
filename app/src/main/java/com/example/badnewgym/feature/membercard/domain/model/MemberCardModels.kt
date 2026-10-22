@@ -2,6 +2,18 @@ package com.example.badnewgym.feature.membercard.domain.model
 
 import androidx.compose.ui.graphics.Color
 
+enum class MemberTier(
+    val title: String,
+    val durationText: String,
+    val primaryColor: Color,
+    val accentColor: Color,
+    val badgeType: String // "crown", "diamond", "basic"
+) {
+    GOLD_6_MONTH("Gold Plan (6 Months)", "6 Months", Color(0xFF0070F3), Color(0xFFFFB800), "crown"),
+    SPARK_DIAMOND("Spark Member", "1 Month", Color(0xFF00C48C), Color(0xFF00E5FF), "diamond"),
+    BASIC_MEMBER("Basic Member", "1 Month", Color(0xFF10B981), Color(0xFF34D399), "basic")
+}
+
 data class MemberProfile(
     val greeting: String = "Good Morning 👋",
     val name: String,
@@ -9,6 +21,7 @@ data class MemberProfile(
     val age: Int,
     val gender: String,
     val tierName: String = "Spark Member",
+    val tier: MemberTier = MemberTier.GOLD_6_MONTH,
     val isPrime: Boolean = true,
     val isActive: Boolean = true,
     val attendancePercent: Int = 75,
@@ -61,7 +74,24 @@ data class PaymentPlanState(
     val isPrime: Boolean = true,
     val lastPaymentAmount: String = "₹800",
     val lastPaymentDate: String = "01 Oct 2026",
-    val monthlyHistory: List<MonthPaymentItem> = emptyList()
+    val monthlyHistory: List<MonthPaymentItem> = emptyList(),
+    // New Canonical Rich Fields from user reference
+    val dueAlertAmount: String = "₹2,800",
+    val dueAlertText: String = "Due in 3 days ⚠️",
+    val dueAlertDate: String = "16 Oct 2026",
+    val planName: String = "Gold Plan (6 Months)",
+    val planPeriodFormatted: String = "01 May 2026 – 31 Oct 2026",
+    val planDaysUsed: Int = 135,
+    val planTotalDays: Int = 180,
+    val planDaysRemaining: Int = 45,
+    val lastPaidAmount: String = "₹2,800",
+    val lastPaidDate: String = "01 Sep 2026",
+    val currentDueAmount: String = "₹2,800",
+    val currentDueDate: String = "16 Oct 2026",
+    val nextDueAmount: String = "₹2,800",
+    val nextDueDateFormatted: String = "16 Nov 2026",
+    val promoTitle: String = "Stay Fit Stay Active",
+    val promoSubtitle: String = "Renew Now & Get 1 Month Free 🎁"
 )
 
 enum class DayAttendanceStatus {
@@ -106,7 +136,13 @@ data class WorkoutTrendData(
     val lowestDate: String = "16 Oct",
     val trendVsLastMonth: String = "↗ +12% vs Sep",
     val daysWithWorkout: Int = 22,
-    val daysNoWorkout: Int = 8
+    val daysNoWorkout: Int = 8,
+    // Canonical KPI fields
+    val avgMinutes: Int = 28,
+    val avgTrendText: String = "↑ 12% vs prev 30 days",
+    val peakDateText: String = "Peak (5 Oct)",
+    val lowestDateText: String = "Lowest (9 Oct)",
+    val highlightDayIndexes: Map<Int, String> = mapOf(8 to "52m", 26 to "48m")
 )
 
 data class MemberCardData(
@@ -198,6 +234,21 @@ data class MemberCardData(
                 WorkoutTrendBar(31, 38, emeraldBar)
             )
 
+            val monthlyHistory = listOf(
+                MonthPaymentItem("Jan", "--"),
+                MonthPaymentItem("Feb", "--"),
+                MonthPaymentItem("Mar", "--"),
+                MonthPaymentItem("Apr", "₹1.2K", "Gold"),
+                MonthPaymentItem("May", "₹1.2K", "Gold"),
+                MonthPaymentItem("Jun", "₹1.05K", "-₹150", isDiscount = true),
+                MonthPaymentItem("Jul", "Off", isOff = true),
+                MonthPaymentItem("Aug", "Off", isOff = true),
+                MonthPaymentItem("Sep", "₹800", "Silver"),
+                MonthPaymentItem("Oct", "₹600", "Spark", isCurrent = true),
+                MonthPaymentItem("Nov", "--"),
+                MonthPaymentItem("Dec", "--")
+            )
+
             return MemberCardData(
                 profile = MemberProfile(
                     greeting = "Good Morning 👋",
@@ -205,6 +256,8 @@ data class MemberCardData(
                     memberCode = "BG305",
                     age = 23,
                     gender = "Male",
+                    tierName = "Gold Plan (6 Months)",
+                    tier = MemberTier.GOLD_6_MONTH,
                     isPrime = true,
                     isActive = true,
                     attendancePercent = 75,
@@ -222,7 +275,8 @@ data class MemberCardData(
                         label = "Weight (kg)",
                         sparklinePoints = listOf(0.6f, 0.55f, 0.45f, 0.5f, 0.35f, 0.4f, 0.25f, 0.2f),
                         lineColor = Color(0xFF10B981),
-                        isFavorable = true
+                        isFavorable = true,
+                        goalText = "Goal: 65 kg"
                     ),
                     BodyStatItem(
                         type = BodyStatType.MUSCLE,
@@ -231,7 +285,8 @@ data class MemberCardData(
                         label = "Muscle (kg)",
                         sparklinePoints = listOf(0.2f, 0.3f, 0.25f, 0.4f, 0.5f, 0.45f, 0.6f, 0.75f),
                         lineColor = Color(0xFF8B5CF6),
-                        isFavorable = true
+                        isFavorable = true,
+                        goalText = "Goal: 60 kg"
                     ),
                     BodyStatItem(
                         type = BodyStatType.BODY_FAT,
@@ -240,7 +295,8 @@ data class MemberCardData(
                         label = "Body Fat (%)",
                         sparklinePoints = listOf(0.7f, 0.65f, 0.55f, 0.6f, 0.45f, 0.4f, 0.35f, 0.25f),
                         lineColor = Color(0xFFEF4444),
-                        isFavorable = true
+                        isFavorable = true,
+                        goalText = "Goal: 15%"
                     ),
                     BodyStatItem(
                         type = BodyStatType.BMI,
@@ -249,7 +305,8 @@ data class MemberCardData(
                         label = "BMI",
                         sparklinePoints = listOf(0.3f, 0.35f, 0.4f, 0.35f, 0.45f, 0.5f, 0.6f, 0.7f),
                         lineColor = Color(0xFF2563EB),
-                        isFavorable = true
+                        isFavorable = true,
+                        goalText = "18.5 – 24.9"
                     )
                 ),
                 paymentPlan = PaymentPlanState(
@@ -260,7 +317,26 @@ data class MemberCardData(
                     paidOnDate = "Paid on 01 Sep 2026",
                     nextDueDate = "30 Sep 2026",
                     daysLeft = 25,
-                    isPrime = true
+                    isPrime = true,
+                    lastPaymentAmount = "₹2,800",
+                    lastPaymentDate = "01 Sep 2026",
+                    monthlyHistory = monthlyHistory,
+                    dueAlertAmount = "₹2,800",
+                    dueAlertText = "Due in 3 days ⚠️",
+                    dueAlertDate = "16 Oct 2026",
+                    planName = "Gold Plan (6 Months)",
+                    planPeriodFormatted = "01 May 2026 – 31 Oct 2026",
+                    planDaysUsed = 135,
+                    planTotalDays = 180,
+                    planDaysRemaining = 45,
+                    lastPaidAmount = "₹2,800",
+                    lastPaidDate = "01 Sep 2026",
+                    currentDueAmount = "₹2,800",
+                    currentDueDate = "16 Oct 2026",
+                    nextDueAmount = "₹2,800",
+                    nextDueDateFormatted = "16 Nov 2026",
+                    promoTitle = "Stay Fit Stay Active",
+                    promoSubtitle = "Renew Now & Get 1 Month Free 🎁"
                 ),
                 attendance = AttendanceSectionData(
                     monthLabel = "October 2026",
@@ -280,49 +356,80 @@ data class MemberCardData(
                     peakMinutes = 52,
                     peakDate = "10 Oct",
                     lowestMinutes = 12,
-                    lowestDate = "16 Oct"
+                    lowestDate = "16 Oct",
+                    avgMinutes = 28,
+                    avgTrendText = "↑ 12% vs prev 30 days",
+                    peakDateText = "Peak (5 Oct)",
+                    lowestDateText = "Lowest (9 Oct)",
+                    highlightDayIndexes = mapOf(8 to "52m", 26 to "48m")
                 )
             )
         }
 
         fun sampleAshwiniSingh(): MemberCardData {
+            // Full 31 days calendar mapped to Sunday(0) .. Saturday(6)
+            // Oct 1 2026 was Thursday (index 4)
             val calendar = listOf(
-                CalendarDay(15, 3, DayAttendanceStatus.PRESENT, "W"),
-                CalendarDay(16, 4, DayAttendanceStatus.PRESENT, "T"),
-                CalendarDay(17, 5, DayAttendanceStatus.ABSENT, "F"),
-                CalendarDay(18, 6, DayAttendanceStatus.HOLIDAY, "S"),
-                CalendarDay(19, 0, DayAttendanceStatus.PRESENT, "S"),
-                CalendarDay(20, 1, DayAttendanceStatus.PRESENT, "M"),
-                CalendarDay(21, 2, DayAttendanceStatus.PRESENT, "T"),
-                CalendarDay(22, 3, DayAttendanceStatus.LATE, "W"),
-                CalendarDay(23, 4, DayAttendanceStatus.PRESENT, "T"),
-                CalendarDay(24, 5, DayAttendanceStatus.ABSENT, "F"),
-                CalendarDay(25, 6, DayAttendanceStatus.HOLIDAY, "S"),
-                CalendarDay(0, 0, DayAttendanceStatus.HOLIDAY, "S")
+                // Week 1 (Days 1 - 3)
+                CalendarDay(1, 4, DayAttendanceStatus.PRESENT, "T"),
+                CalendarDay(2, 5, DayAttendanceStatus.PRESENT, "F"),
+                CalendarDay(3, 6, DayAttendanceStatus.PRESENT, "S"),
+                // Week 2 (Days 4 - 10)
+                CalendarDay(4, 0, DayAttendanceStatus.HOLIDAY, "S"),
+                CalendarDay(5, 1, DayAttendanceStatus.PRESENT, "M"),
+                CalendarDay(6, 2, DayAttendanceStatus.PRESENT, "T"),
+                CalendarDay(7, 3, DayAttendanceStatus.PRESENT, "W"),
+                CalendarDay(8, 4, DayAttendanceStatus.PRESENT, "T"),
+                CalendarDay(9, 5, DayAttendanceStatus.PRESENT, "F"),
+                CalendarDay(10, 6, DayAttendanceStatus.PRESENT, "S"),
+                // Week 3 (Days 11 - 17)
+                CalendarDay(11, 0, DayAttendanceStatus.HOLIDAY, "S"),
+                CalendarDay(12, 1, DayAttendanceStatus.PRESENT, "M"),
+                CalendarDay(13, 2, DayAttendanceStatus.PRESENT, "T"),
+                CalendarDay(14, 3, DayAttendanceStatus.PRESENT, "W"),
+                CalendarDay(15, 4, DayAttendanceStatus.PRESENT, "T"),
+                CalendarDay(16, 5, DayAttendanceStatus.PRESENT, "F"),
+                CalendarDay(17, 6, DayAttendanceStatus.ABSENT, "S"),
+                // Week 4 (Days 18 - 24)
+                CalendarDay(18, 0, DayAttendanceStatus.HOLIDAY, "S"),
+                CalendarDay(19, 1, DayAttendanceStatus.PRESENT, "M"),
+                CalendarDay(20, 2, DayAttendanceStatus.PRESENT, "T"),
+                CalendarDay(21, 3, DayAttendanceStatus.PRESENT, "W"),
+                CalendarDay(22, 4, DayAttendanceStatus.LATE, "T"),
+                CalendarDay(23, 5, DayAttendanceStatus.PRESENT, "F"),
+                CalendarDay(24, 6, DayAttendanceStatus.ABSENT, "S"),
+                // Week 5 (Days 25 - 31)
+                CalendarDay(25, 0, DayAttendanceStatus.HOLIDAY, "S"),
+                CalendarDay(26, 1, DayAttendanceStatus.PRESENT, "M"),
+                CalendarDay(27, 2, DayAttendanceStatus.PRESENT, "T"),
+                CalendarDay(28, 3, DayAttendanceStatus.LATE, "W"),
+                CalendarDay(29, 4, DayAttendanceStatus.PRESENT, "T"),
+                CalendarDay(30, 5, DayAttendanceStatus.ABSENT, "F"),
+                CalendarDay(31, 6, DayAttendanceStatus.PRESENT, "S")
             )
 
-            val cyanBar = Color(0xFF06B6D4)
-            val emeraldBar = Color(0xFF10B981)
-            val amberBar = Color(0xFFF59E0B)
-            val redBar = Color(0xFFEF4444)
-            val blueBar = Color(0xFF3B82F6)
+            val cyanBar = Color(0xFF0070F3)
+            val emeraldBar = Color(0xFF00C48C)
+            val amberBar = Color(0xFFFFB800)
+            val redBar = Color(0xFFFF4D4F)
+            val blueBar = Color(0xFF38BDF8)
 
-            val workoutBars = listOf(
-                WorkoutTrendBar(1, 22, cyanBar),
-                WorkoutTrendBar(2, 32, cyanBar),
-                WorkoutTrendBar(3, 46, emeraldBar),
-                WorkoutTrendBar(4, 52, amberBar), // 10 Oct Peak
-                WorkoutTrendBar(5, 38, cyanBar),
-                WorkoutTrendBar(6, 42, emeraldBar),
-                WorkoutTrendBar(7, 28, cyanBar),
-                WorkoutTrendBar(8, 12, redBar), // 16 Oct Lowest
-                WorkoutTrendBar(9, 36, emeraldBar),
-                WorkoutTrendBar(10, 48, emeraldBar),
-                WorkoutTrendBar(11, 44, emeraldBar),
-                WorkoutTrendBar(12, 38, cyanBar),
-                WorkoutTrendBar(13, 30, amberBar),
-                WorkoutTrendBar(14, 34, blueBar)
-            )
+            val workoutBars = (1..30).map { day ->
+                val mins = when (day) {
+                    8 -> 52 // Peak
+                    15 -> 42 // Highlight orange
+                    26 -> 48 // Secondary Peak
+                    16 -> 12 // Lowest
+                    else -> (22 + (day * 7) % 24)
+                }
+                val color = when (day) {
+                    8 -> redBar
+                    15 -> amberBar
+                    26 -> cyanBar
+                    else -> if (mins >= 35) emeraldBar else blueBar
+                }
+                WorkoutTrendBar(day, mins, color)
+            }
 
             val monthlyHistory = listOf(
                 MonthPaymentItem("Jan", "--"),
@@ -341,12 +448,13 @@ data class MemberCardData(
 
             return MemberCardData(
                 profile = MemberProfile(
-                    greeting = "Tue\n22 Oct 2026",
+                    greeting = "Good Morning 👋",
                     name = "Ashwini Singh",
                     memberCode = "BG4187",
                     age = 25,
                     gender = "Male",
                     tierName = "Spark Member",
+                    tier = MemberTier.SPARK_DIAMOND,
                     isPrime = false,
                     isActive = true,
                     attendancePercent = 77,
@@ -391,7 +499,7 @@ data class MemberCardData(
                         sparklinePoints = listOf(0.7f, 0.65f, 0.55f, 0.6f, 0.45f, 0.4f, 0.35f, 0.25f),
                         lineColor = Color(0xFFEF4444),
                         isFavorable = true,
-                        goalText = "🏆 Goal: 15%"
+                        goalText = "Goal: 15%"
                     ),
                     BodyStatItem(
                         type = BodyStatType.BMI,
@@ -406,17 +514,33 @@ data class MemberCardData(
                     )
                 ),
                 paymentPlan = PaymentPlanState(
-                    planDuration = "Spark Member (1 Month)",
-                    planPeriod = "01 Oct – 31 Oct 2026",
-                    amountPaid = "₹800",
+                    planDuration = "Gold Plan (6 Months)",
+                    planPeriod = "01 May – 31 Oct 2026",
+                    amountPaid = "₹2,800",
                     paymentStatus = "PAID • ON TIME",
-                    paidOnDate = "01 Oct 2026",
+                    paidOnDate = "Paid on 01 Sep 2026",
                     nextDueDate = "31 Oct 2026",
                     daysLeft = 9,
                     isPrime = false,
                     lastPaymentAmount = "₹800",
                     lastPaymentDate = "01 Oct 2026",
-                    monthlyHistory = monthlyHistory
+                    monthlyHistory = monthlyHistory,
+                    dueAlertAmount = "₹2,800",
+                    dueAlertText = "Due in 3 days ⚠️",
+                    dueAlertDate = "16 Oct 2026",
+                    planName = "Gold Plan (6 Months)",
+                    planPeriodFormatted = "01 May 2026 – 31 Oct 2026",
+                    planDaysUsed = 135,
+                    planTotalDays = 180,
+                    planDaysRemaining = 45,
+                    lastPaidAmount = "₹2,800",
+                    lastPaidDate = "01 Sep 2026",
+                    currentDueAmount = "₹2,800",
+                    currentDueDate = "16 Oct 2026",
+                    nextDueAmount = "₹2,800",
+                    nextDueDateFormatted = "16 Nov 2026",
+                    promoTitle = "Stay Fit Stay Active",
+                    promoSubtitle = "Renew Now & Get 1 Month Free 🎁"
                 ),
                 attendance = AttendanceSectionData(
                     monthLabel = "Oct 2026",
@@ -439,7 +563,12 @@ data class MemberCardData(
                     lowestDate = "16 Oct",
                     trendVsLastMonth = "↗ +12% vs Sep",
                     daysWithWorkout = 22,
-                    daysNoWorkout = 8
+                    daysNoWorkout = 8,
+                    avgMinutes = 28,
+                    avgTrendText = "↑ 12% vs prev 30 days",
+                    peakDateText = "Peak (5 Oct)",
+                    lowestDateText = "Lowest (9 Oct)",
+                    highlightDayIndexes = mapOf(8 to "52m", 26 to "48m")
                 )
             )
         }
