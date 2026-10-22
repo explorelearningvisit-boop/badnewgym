@@ -81,7 +81,7 @@ class MemberCardModelsTest {
         assertEquals(3, attendance.absentCount)
         assertEquals(2, attendance.lateCount)
         assertEquals(1, attendance.holidayCount)
-        assertEquals(28, attendance.calendarDays.size)
+        assertEquals(31, attendance.calendarDays.size)
     }
 
     @Test
@@ -89,11 +89,46 @@ class MemberCardModelsTest {
         val workout = MemberCardData.sampleAmanTripathi().workoutTrend
 
         assertEquals("October 2026", workout.monthLabel)
-        assertEquals(30, workout.bars.size)
+        assertEquals(31, workout.bars.size)
         assertEquals(48, workout.avgPerDayMinutes)
         assertEquals(52, workout.peakMinutes)
         assertEquals("10 Oct", workout.peakDate)
         assertEquals(12, workout.lowestMinutes)
         assertEquals("16 Oct", workout.lowestDate)
+    }
+
+    @Test
+    fun sampleAshwiniSingh_matchesCanonicalMockup() {
+        val sample = MemberCardData.sampleAshwiniSingh()
+
+        assertEquals("Ashwini Singh", sample.profile.name)
+        assertEquals("BG4187", sample.profile.memberCode)
+        assertEquals(25, sample.profile.age)
+        assertEquals("Male", sample.profile.gender)
+        assertEquals("Spark Member", sample.profile.tierName)
+        assertTrue(sample.profile.isActive)
+        assertEquals(18, sample.profile.daysLeft)
+        assertEquals(30, sample.profile.totalDays)
+        assertEquals("Muscle Gain", sample.profile.goal)
+        assertEquals("Main Branch", sample.profile.branch)
+        assertEquals("14 Apr 2026", sample.profile.joinedDate)
+
+        assertEquals(4, sample.bodyStats.size)
+        assertEquals("69.5", sample.bodyStats[0].value)
+        assertEquals("57.2", sample.bodyStats[1].value)
+        assertEquals("17.6%", sample.bodyStats[2].value)
+        assertEquals("22.8", sample.bodyStats[3].value)
+
+        assertEquals("Oct 2026", sample.attendance.monthLabel)
+        assertEquals(77, sample.attendance.percent)
+
+        assertEquals("Oct 2026", sample.workoutTrend.monthLabel)
+        assertEquals(48, sample.workoutTrend.avgPerDayMinutes)
+        assertEquals(52, sample.workoutTrend.peakMinutes)
+        assertEquals(12, sample.workoutTrend.lowestMinutes)
+
+        assertEquals("₹800", sample.paymentPlan.lastPaymentAmount)
+        assertEquals("31 Oct 2026", sample.paymentPlan.nextDueDate)
+        assertEquals(9, sample.paymentPlan.daysLeft)
     }
 }

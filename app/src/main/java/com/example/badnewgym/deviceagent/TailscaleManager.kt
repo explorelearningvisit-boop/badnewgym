@@ -2,6 +2,7 @@ package com.example.badnewgym.deviceagent
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.PowerManager
 import android.util.Log
 import com.example.badnewgym.MainActivity
@@ -139,7 +140,12 @@ object TailscaleManager {
     }
 
     private fun runProcessLoop(context: Context, binaryFile: File) {
-        val stateDir = File(context.filesDir, "tailscale_state").apply { mkdirs() }.absolutePath
+        val safeDirContext = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !context.isDeviceProtectedStorage) {
+            try { context.createDeviceProtectedStorageContext() } catch (_: Exception) { context }
+        } else {
+            context
+        }
+        val stateDir = File(safeDirContext.filesDir, "tailscale_state").apply { mkdirs() }.absolutePath
         val hostname = TailscalePrefs.getHostname(context)
         val authKey = TailscalePrefs.getAuthKey(context)
         val port = TailscalePrefs.getPort(context)
@@ -255,19 +261,46 @@ object TailscaleManager {
     }
 
     private fun findBinary(context: Context): File? {
-        // Primary location: nativeLibraryDir extracted by Android PackageManager
+        // 1. Primary location: nativeLibraryDir extracted by Android PackageManager
         val nativeDir = File(context.applicationInfo.nativeLibraryDir)
         val fileInNativeDir = File(nativeDir, BINARY_NAME)
-        if (fileInNativeDir.exists()) {
+        if (fileInNativeDir.exists() && fileInNativeDir.canExecute()) {
             return fileInNativeDir
         }
 
-        // Secondary fallback: filesDir
+        // 2. Secondary fallback: filesDir
         val fileInFilesDir = File(context.filesDir, BINARY_NAME)
         if (fileInFilesDir.exists()) {
+            try { fileInFilesDir.setExecutable(true, false) } catch (_: Exception) {}
             return fileInFilesDir
         }
 
-        return fileInNativeDir
+        // 3. Auto-extract from APK if not yet extracted by Android
+        try {
+            val apk = java.util.zip.ZipFile(context.applicationInfo.sourceDir)
+            val abis = android.os.Build.SUPPORTED_ABIS
+            var entry: java.util.zip.ZipEntry? = null
+            for (abi in abis) {
+                entry = apk.getEntry("lib/$abi/$BINARY_NAME")
+                if (entry != null) break
+            }
+            if (entry == null) {
+                entry = apk.getEntry("lib/arm64-v8a/$BINARY_NAME")
+            }
+            if (entry != null) {
+                apk.getInputStream(entry).use { input ->
+                    fileInFilesDir.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                fileInFilesDir.setExecutable(true, false)
+                Log.i(TAG, "Auto-extracted $BINARY_NAME from APK (${fileInFilesDir.length()} bytes)")
+                return fileInFilesDir
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to auto-extract binary from APK: ${e.message}")
+        }
+
+        return if (fileInNativeDir.exists()) fileInNativeDir else fileInFilesDir
     }
 }

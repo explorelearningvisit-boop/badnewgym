@@ -340,6 +340,28 @@ fun TailscaleSettingsBottomSheet(
                             color = if (a11yActive) Color(0xFF10B981) else Color(0xFFEF4444)
                         )
                     }
+
+                    if (DeviceAccessibilityService.instance == null) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        OutlinedButton(
+                            onClick = {
+                                try {
+                                    val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {
+                                    Toast.makeText(context, "Open Settings -> Accessibility to enable", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF6366F1)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC7D2FE))
+                        ) {
+                            Text("Enable BAD GYM in Accessibility Settings", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
             }
 

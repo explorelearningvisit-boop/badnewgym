@@ -1,6 +1,7 @@
 package com.example.badnewgym.deviceagent
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 
 object TailscalePrefs {
@@ -15,62 +16,69 @@ object TailscalePrefs {
     // Default Pre-authorized Reusable Auth Key for explorelearningvisit@gmail.com (expires Jan 17, 2027)
     const val DEFAULT_AUTH_KEY = "tskey-auth-kYUKvTa2YC11CNTRL-AxHjCXPUGgFBat4YtN9yfF1WWcXLST3Aj"
 
+    private fun getPrefs(context: Context): SharedPreferences {
+        val safeContext = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !context.isDeviceProtectedStorage) {
+            try {
+                context.createDeviceProtectedStorageContext()
+            } catch (_: Exception) {
+                context
+            }
+        } else {
+            context
+        }
+        return safeContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
     fun isEnabled(context: Context): Boolean =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean(KEY_ENABLED, true)
+        getPrefs(context).getBoolean(KEY_ENABLED, true)
 
     fun setEnabled(context: Context, enabled: Boolean) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putBoolean(KEY_ENABLED, enabled).apply()
+        getPrefs(context).edit().putBoolean(KEY_ENABLED, enabled).apply()
     }
 
     fun getAuthKey(context: Context): String {
-        val stored = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_AUTH_KEY, "") ?: ""
+        val stored = getPrefs(context).getString(KEY_AUTH_KEY, "") ?: ""
         return if (stored.isNotBlank()) stored else DEFAULT_AUTH_KEY
     }
 
     fun setAuthKey(context: Context, authKey: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putString(KEY_AUTH_KEY, authKey.trim()).apply()
+        getPrefs(context).edit().putString(KEY_AUTH_KEY, authKey.trim()).apply()
     }
 
     fun getHostname(context: Context): String {
+        val brand = Build.MANUFACTURER.lowercase()
         val modelClean = Build.MODEL.replace("[^a-zA-Z0-9-]".toRegex(), "-").lowercase()
-        val defaultName = "badgym-$modelClean"
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_HOSTNAME, defaultName) ?: defaultName
+        val defaultName = if (brand.contains("oppo") || brand.contains("realme") || modelClean.contains("cph")) {
+            "badgym-oppo"
+        } else {
+            "badgym-$modelClean"
+        }
+        return getPrefs(context).getString(KEY_HOSTNAME, defaultName) ?: defaultName
     }
 
     fun setHostname(context: Context, hostname: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putString(KEY_HOSTNAME, hostname.trim()).apply()
+        getPrefs(context).edit().putString(KEY_HOSTNAME, hostname.trim()).apply()
     }
 
     fun getPort(context: Context): Int =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getInt(KEY_PORT, 8787)
+        getPrefs(context).getInt(KEY_PORT, 8787)
 
     fun setPort(context: Context, port: Int) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putInt(KEY_PORT, port).apply()
+        getPrefs(context).edit().putInt(KEY_PORT, port).apply()
     }
 
     fun isAutostartOnBoot(context: Context): Boolean =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean(KEY_AUTOSTART_ON_BOOT, true)
+        getPrefs(context).getBoolean(KEY_AUTOSTART_ON_BOOT, true)
 
     fun setAutostartOnBoot(context: Context, autostart: Boolean) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putBoolean(KEY_AUTOSTART_ON_BOOT, autostart).apply()
+        getPrefs(context).edit().putBoolean(KEY_AUTOSTART_ON_BOOT, autostart).apply()
     }
 
     fun isTriggerAppOnTurnOn(context: Context): Boolean =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean(KEY_TRIGGER_APP, true)
+        getPrefs(context).getBoolean(KEY_TRIGGER_APP, true)
 
     fun setTriggerAppOnTurnOn(context: Context, trigger: Boolean) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putBoolean(KEY_TRIGGER_APP, trigger).apply()
+        getPrefs(context).edit().putBoolean(KEY_TRIGGER_APP, trigger).apply()
     }
 }
+

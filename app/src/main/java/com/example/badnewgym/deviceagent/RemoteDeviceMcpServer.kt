@@ -243,6 +243,20 @@ class RemoteDeviceMcpServer(
                 }
                 return
             }
+            if (cleanPath == "/accessibility") {
+                try {
+                    DeviceAgentRuntime.onMain {
+                        val intent = android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(intent)
+                    }
+                    respond(s, 200, "application/json", """{"ok":true,"active":${DeviceAccessibilityService.instance != null}}""")
+                } catch (e: Exception) {
+                    respond(s, 500, "application/json", """{"error":"${e.message}"}""")
+                }
+                return
+            }
             if (cleanPath == "/tap" || cleanPath == "/click") {
                 try {
                     val qMap = query.split('&').mapNotNull {

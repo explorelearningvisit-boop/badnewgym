@@ -25,7 +25,9 @@ class BootCompletedReceiver : BroadcastReceiver() {
 
         val isKeepAliveAction = action == "com.example.badnewgym.KEEPALIVE_PING" ||
             action == Intent.ACTION_USER_PRESENT ||
-            action == Intent.ACTION_POWER_CONNECTED
+            action == Intent.ACTION_POWER_CONNECTED ||
+            action == Intent.ACTION_LOCKED_BOOT_COMPLETED ||
+            action == Intent.ACTION_BOOT_COMPLETED
 
         val autostart = TailscalePrefs.isAutostartOnBoot(context)
         if (!autostart && !isKeepAliveAction) {
