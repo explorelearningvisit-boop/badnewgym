@@ -61,13 +61,18 @@ Completion requires the new UI, widget editor architecture, admin command center
 - **Commit**: `ee1281f179693f0304f12997e08139bcf2add30a`
 - **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
 - **Screenshot Evidence**: 
-  - [docs/reference/images/device_screen_option1_top_verified.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_option1_top_verified.png) (Hero profile, Body stats with sparklines, Attendance 10-col matrix, Workout 30-day bars)
-  - [docs/reference/images/device_screen_option1_bottom_verified.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_option1_bottom_verified.png) (Workout KPI cards, Payment 12-month timeline, Due alert, Current Plan & Collect Money button)
-- **Visual Match & Constraints Fulfilled**:
-  1. **Canonical Option 1 Design (Emerald Premium)**: Faithful, pixel-perfect match to user-uploaded canonical mockups (`media_1792684643498.img`).
-  2. **Luminous Hero Header**: Radiant emerald-to-mint gradient card with Ashwini Singh (`ID: BG4187 | 25 yrs | Male`), `Spark Member` & `Active` pills, avatar crown badge, and circular "18 Days Left of 30" progress ring gauge.
-  3. **4 Glass Info Chips**: Joined On (14 Apr 2026, 6 Months), Workout Avg. (48 min, ↑ +12%), Goal (Muscle Gain), and Attendance (77%, 24/31 Days).
-  4. **Body Stats Card**: Purple header (`💪 Body Stats • Last 6 Months (5 Records) >`) with 4 distinct stat cards (Weight 69.5kg with green curve, Muscle 57.2kg with purple histogram, Body Fat 17.6% with red curve, BMI 22.8 with "Normal" badge & blue curve).
-  5. **Attendance Matrix**: 10 columns (`Mon` .. `Wed`), 3 rows (`1`..`31`), 3D glossy radial status circles with bold white date numbers, plus a vertical legend on the right (`● Present 24`, `● Absent 4`, `● Holiday 1`, `● Closed 2`).
-  6. **Workout Trend**: 30 vertical cyan-to-blue gradient bars with Peak `👑 52m 10 Oct` and Lowest `↓ 12m 16 Oct` callout badges, dashed 60m/30m guidelines, and 4 KPI summary cards below.
-  7. **Payment & Plan**: Red wallet header, 12-month pill strip (Jan–Dec with plan badges & discounts), Due Alert (`₹2,800 Due in 3 days ⚠️`), Last Paid (`₹800`), Current Plan (`Spark Plan`), and glowing Emerald Green `₹ Collect Money >` button.
+  - [docs/reference/images/device_screen_option1_top_verified.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_option1_top_verified.png)
+  - [docs/reference/images/device_screen_option1_bottom_verified.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_option1_bottom_verified.png)
+
+## VERIFIED MILESTONE — HIGH-DENSITY SINGLE-VIEWPORT SMART REDESIGN (ALL 5 WIDGETS AT A GLANCE)
+- **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
+- **Screenshot Evidence**: 
+  - [docs/reference/images/smart_single_viewport_verified.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/smart_single_viewport_verified.png)
+- **Design & Technical Achievements**:
+  1. **Single-Viewport Zero-Scroll Architecture**: All 5 widgets (Hero Profile, Body Stats Bento, Attendance Matrix, Workout Trend Chart, Payment & Plan) fit cleanly inside the ~740dp mobile viewport at once without scrolling, leaving comfortable safety margins for system insets.
+  2. **Widget 1 (Hero Profile, ~112dp)**: 56dp avatar with gold crown & glowing emerald online dot; `Good Morning 👋` + `Ashwini Singh` (`ID: BG4187 | 25 yrs | Male`); `👑 Spark Member` + `✓ Active` pills; 62dp circular progress gauge (`18 Days Left of 30`); 4 two-column glass info chips (`Joined On: 14 Apr 24 6M`, `Workout Avg: 48 min ↑12%`, `Goal: Muscle Gain`, `Attendance: 77% 24/31`) with dedicated colored icon square badges.
+  3. **Widget 2 (Body Stats Bento, ~90dp)**: Header `💪 Body Stats • Last 6 Months (5 Records) >`; 4 bento cards (Weight 69.5kg with emerald spline sparkline, Muscle 57.2kg with 9-bar purple audio/muscle frequency equalizer, Body Fat 17.6% with red wavy sparkline, BMI 22.8 with `Normal` pill badge and 3-segment range line with position indicator dot).
+  4. **Widget 3 (Attendance Matrix, ~120dp)**: Header `📅 Attendance • Oct 2026 | 24/31 Days | 77% >`; 10-column header (`Mon`..`Wed`); 3 rows of 10 glossy circular buttons (1..10, 11..20, 21..31) in a perfect 10×3 grid; vertical legend on right (`Present 24`, `Absent 4`, `Holiday 1`, `Closed 2`).
+  5. **Widget 4 (Workout Trend, ~128dp)**: Header `🏋️ Workout Trend • Oct 2026 | 30 Days >`; 65dp 30-day cyan/emerald bar chart with floating Peak badge (`👑 52m 10 Oct`) and Lowest badge (`↓ 12m 16 Oct`); 4 KPI summary cards below (`48m Avg/Day ↑+12%`, `52m Peak 10 Oct`, `12m Lowest 16 Oct`, `22 Days With Workout 8 Days Rest`).
+  6. **Widget 5 (Payment & Plan, ~128dp)**: Header `👛 Payment & Plan • Last 12 Months | View All >`; 12-month horizontal scroll strip (Jan–Dec with colored badges & pending state); bottom action row featuring Due Alert (`₹2,800 Due in 3d ⚠️ 16 Oct`), Last Paid (`₹800 01 Oct`), Current Plan (`Spark Plan Nov 30`), and full primary action button `₹ Collect Money >`.
