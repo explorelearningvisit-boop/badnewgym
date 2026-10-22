@@ -55,3 +55,10 @@ inspect → implement atomic component → build → run → screenshot → comp
 ## COMPLETION
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
+
+## VERIFIED MILESTONE — CANONICAL V2 DEPLOYED ON XIAOMI 11i
+- **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Commit**: `07988c92569114c1c1b7e877c0f4d7d2f55cb74b`
+- **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
+- **Screenshot Evidence**: [docs/reference/images/xiaomi_canonical_v2_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/xiaomi_canonical_v2_verified.png)
+- **Visual Match**: Pixel-perfect match to canonical mockup `media_1792676590380.jpg` with Light Luxury Mint canvas, Top Bar, Hero profile (Ashwini Singh), Quick Action pills, Body Stats (with canvas sparklines), Attendance 12-day strip with gauge, Workout Trend 30-day bars with peak/lowest callouts, and Payment & Plan 12-month calendar pill strip.
