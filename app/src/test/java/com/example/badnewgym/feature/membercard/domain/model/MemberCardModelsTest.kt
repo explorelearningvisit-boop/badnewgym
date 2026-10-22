@@ -101,7 +101,7 @@ class MemberCardModelsTest {
     fun sampleAshwiniSingh_matchesCanonicalMockup() {
         val sample = MemberCardData.sampleAshwiniSingh()
 
-        assertEquals("Ashwini Singh", sample.profile.name)
+        assertEquals("Ashwini Kumar Sharma", sample.profile.name)
         assertEquals("BG4187", sample.profile.memberCode)
         assertEquals(25, sample.profile.age)
         assertEquals("Male", sample.profile.gender)
@@ -112,6 +112,7 @@ class MemberCardModelsTest {
         assertEquals("Muscle Gain", sample.profile.goal)
         assertEquals("Main Branch", sample.profile.branch)
         assertEquals("14 Apr 2026", sample.profile.joinedDate)
+        assertEquals(12, sample.profile.streakDays)
 
         assertEquals(4, sample.bodyStats.size)
         assertEquals("69.5", sample.bodyStats[0].value)

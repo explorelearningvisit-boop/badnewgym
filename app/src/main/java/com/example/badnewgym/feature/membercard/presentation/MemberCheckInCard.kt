@@ -221,21 +221,22 @@ fun HeroCompactSmartCard(
                 // Identity Column
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Good Morning 👋",
+                        text = profile.greeting,
                         color = Color(0xFF334155),
-                        fontSize = 11.5.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
                         text = profile.name,
                         color = Color(0xFF0F172A),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Black
+                        fontSize = 16.5.sp,
+                        fontWeight = FontWeight.Black,
+                        maxLines = 1
                     )
                     Text(
-                        text = "ID: ${profile.memberCode} | ${profile.age} yrs | ${profile.gender}",
+                        text = "ID: ${profile.memberCode}  |  ${profile.age} yrs  |  ${profile.gender}",
                         color = Color(0xFF64748B),
-                        fontSize = 10.5.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Medium
                     )
 
@@ -249,7 +250,7 @@ fun HeroCompactSmartCard(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(7.dp))
-                                .background(Color(0xFF00875A))
+                                .background(Color(0xFF006C4C))
                                 .clickable(onClick = onPlanClick)
                                 .padding(horizontal = 6.dp, vertical = 2.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -348,29 +349,37 @@ fun HeroCompactSmartCard(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Bottom 4 Inline Glass Chips (Compact Single Row)
+            // Bottom 5 Inline Glass Chips (Compact Single Row)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 CompactHeroChip(
                     iconText = "📅",
                     iconBg = Color(0xFFE8FAF0),
                     iconBorder = Color(0xFFA7F3D0),
-                    label = "Joined On",
-                    value = "14 Apr 24",
-                    badge = "6M",
+                    label = "Joined",
+                    value = "14 Apr 2026",
+                    badge = "6 Months",
                     badgeColor = Color(0xFF059669),
                     modifier = Modifier.weight(1f)
                 )
                 CompactHeroChip(
                     iconText = "🏋️",
-                    iconBg = Color(0xFFEFF6FF),
-                    iconBorder = Color(0xFFBFDBFE),
-                    label = "Workout Avg",
+                    iconBg = Color(0xFFF3E8FF),
+                    iconBorder = Color(0xFFDDD6FE),
+                    label = "Avg. Workout",
                     value = "48 min",
-                    badge = "↑12%",
+                    badge = "↑ +12%",
                     badgeColor = Color(0xFF10B981),
+                    modifier = Modifier.weight(1f)
+                )
+                CompactHeroChip(
+                    iconText = "🔥",
+                    iconBg = Color(0xFFFFF7ED),
+                    iconBorder = Color(0xFFFED7AA),
+                    label = "Streak",
+                    value = "${profile.streakDays} Days",
                     modifier = Modifier.weight(1f)
                 )
                 CompactHeroChip(
@@ -387,7 +396,7 @@ fun HeroCompactSmartCard(
                     iconBorder = Color(0xFFBAE6FD),
                     label = "Attendance",
                     value = "77%",
-                    badge = "24/31",
+                    badge = "24/31 Days",
                     badgeColor = Color(0xFF0284C7),
                     modifier = Modifier.weight(1f)
                 )
@@ -411,49 +420,46 @@ private fun CompactHeroChip(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
             .background(Color(0xEEFFFFFF))
-            .border(1.dp, Color(0x66A7F3D0), RoundedCornerShape(8.dp))
-            .padding(horizontal = 4.dp, vertical = 3.dp)
+            .border(0.8.dp, Color(0x66A7F3D0), RoundedCornerShape(8.dp))
+            .padding(horizontal = 2.5.dp, vertical = 3.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(19.dp)
-                    .clip(RoundedCornerShape(4.dp))
+                    .size(16.dp)
+                    .clip(RoundedCornerShape(3.5.dp))
                     .background(iconBg)
-                    .border(0.5.dp, iconBorder, RoundedCornerShape(4.dp)),
+                    .border(0.5.dp, iconBorder, RoundedCornerShape(3.5.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = iconText, fontSize = 8.5.sp)
+                Text(text = iconText, fontSize = 7.5.sp)
             }
-            Spacer(modifier = Modifier.width(3.dp))
+            Spacer(modifier = Modifier.width(2.5.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = label,
                     color = Color(0xFF64748B),
-                    fontSize = 6.5.sp,
+                    fontSize = 5.8.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 1
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = value,
+                    color = Color(0xFF0F172A),
+                    fontSize = 7.2.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                if (badge != null) {
                     Text(
-                        text = value,
-                        color = Color(0xFF0F172A),
-                        fontSize = 8.sp,
-                        fontWeight = FontWeight.Bold,
+                        text = badge,
+                        color = badgeColor,
+                        fontSize = 5.5.sp,
+                        fontWeight = FontWeight.SemiBold,
                         maxLines = 1
                     )
-                    if (badge != null) {
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Text(
-                            text = badge,
-                            color = badgeColor,
-                            fontSize = 6.5.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1
-                        )
-                    }
                 }
             }
         }
@@ -855,9 +861,9 @@ fun AttendanceCompactSmartCard(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
-                    val dayHeaders = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed")
+                    val dayHeaders = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
-                    // Header Row: Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed
+                    // Header Row: Mon Tue Wed Thu Fri Sat Sun
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -865,24 +871,27 @@ fun AttendanceCompactSmartCard(
                         dayHeaders.forEach { header ->
                             Text(
                                 text = header,
-                                color = Color(0xFF94A3B8),
+                                color = Color(0xFF64748B),
                                 fontSize = 8.sp,
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight.SemiBold,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.width(20.dp)
+                                modifier = Modifier.width(18.dp)
                             )
                         }
                     }
 
-                    // 3 Rows of Days (1..10, 11..20, 21..31 in 10 columns)
-                    val days = (1..31).toList()
-                    val row1 = days.subList(0, 10)
-                    val row2 = days.subList(10, 20)
-                    val row3 = listOf(21, 22, 23, 24, 25, 26, 28, 29, 30, 31)
+                    // 5 Rows of Days (Standard 7-day Mon-Sun layout)
+                    val row1 = listOf(1, 2, 3, 4, 5, 6, 7)
+                    val row2 = listOf(8, 9, 10, 11, 12, 13, 14)
+                    val row3 = listOf(15, 16, 17, 18, 19, 20, 21)
+                    val row4 = listOf(22, 23, 24, 25, 26, 27, 28)
+                    val row5 = listOf(29, 30, 31, -1, -1, -1, -1) // -1 denotes placeholder dot
 
                     CompactAttendanceRow(row1, attendance.calendarDays, onDayClick)
                     CompactAttendanceRow(row2, attendance.calendarDays, onDayClick)
                     CompactAttendanceRow(row3, attendance.calendarDays, onDayClick)
+                    CompactAttendanceRow(row4, attendance.calendarDays, onDayClick)
+                    CompactAttendanceRow(row5, attendance.calendarDays, onDayClick)
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -891,7 +900,7 @@ fun AttendanceCompactSmartCard(
                 Box(
                     modifier = Modifier
                         .width(1.dp)
-                        .height(72.dp)
+                        .height(98.dp)
                         .background(Color(0xFFE2E8F0))
                 )
 
@@ -900,7 +909,7 @@ fun AttendanceCompactSmartCard(
                 // Legend Column
                 Column(
                     modifier = Modifier.width(72.dp),
-                    verticalArrangement = Arrangement.spacedBy(3.5.dp)
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     CompactLegendRow(dotColor = Color(0xFF10B981), label = "Present", count = attendance.presentCount)
                     CompactLegendRow(dotColor = Color(0xFFEF4444), label = "Absent", count = attendance.absentCount)
@@ -923,39 +932,57 @@ private fun CompactAttendanceRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         days.forEach { dayNumber ->
-            val calendarDay = calendarDays.find { it.dayOfMonth == dayNumber }
-                ?: CalendarDay(dayNumber, 0, DayAttendanceStatus.PRESENT)
+            if (dayNumber > 0) {
+                val calendarDay = calendarDays.find { it.dayOfMonth == dayNumber }
+                    ?: CalendarDay(dayNumber, 0, DayAttendanceStatus.PRESENT)
 
-            val statusBrush = when (dayNumber) {
-                3, 13, 17, 24, 30 -> Brush.radialGradient(
-                    listOf(Color(0xFFF87171), Color(0xFFEF4444), Color(0xFFDC2626))
-                ) // Absent
-                22 -> Brush.radialGradient(
-                    listOf(Color(0xFFFDE047), Color(0xFFF59E0B), Color(0xFFD97706))
-                ) // Holiday
-                4, 18, 25 -> Brush.radialGradient(
-                    listOf(Color(0xFFCBD5E1), Color(0xFF94A3B8), Color(0xFF64748B))
-                ) // Closed
-                else -> Brush.radialGradient(
-                    listOf(Color(0xFF34D399), Color(0xFF10B981), Color(0xFF059669))
-                ) // Present
-            }
+                val statusBrush = when (dayNumber) {
+                    3, 13, 17, 24, 30 -> Brush.radialGradient(
+                        listOf(Color(0xFFF87171), Color(0xFFEF4444), Color(0xFFDC2626))
+                    ) // Absent
+                    22 -> Brush.radialGradient(
+                        listOf(Color(0xFFFDE047), Color(0xFFF59E0B), Color(0xFFD97706))
+                    ) // Holiday
+                    4, 18, 25 -> Brush.radialGradient(
+                        listOf(Color(0xFFCBD5E1), Color(0xFF94A3B8), Color(0xFF64748B))
+                    ) // Closed
+                    else -> Brush.radialGradient(
+                        listOf(Color(0xFF34D399), Color(0xFF10B981), Color(0xFF059669))
+                    ) // Present
+                }
 
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .background(statusBrush)
-                    .clickable { onDayClick(calendarDay) },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "$dayNumber",
-                    color = Color.White,
-                    fontSize = 8.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
+                Box(
+                    modifier = Modifier
+                        .size(17.dp)
+                        .clip(CircleShape)
+                        .background(statusBrush)
+                        .clickable { onDayClick(calendarDay) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "$dayNumber",
+                        color = Color.White,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                // Inactive Placeholder Dot
+                Box(
+                    modifier = Modifier
+                        .size(17.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFF1F5F9)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "•",
+                        color = Color(0xFF94A3B8),
+                        fontSize = 9.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
@@ -1417,7 +1444,7 @@ fun PaymentPlanCompactSmartCard(
             .padding(horizontal = 8.dp, vertical = 6.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Header Row: 👛 Payment & Plan • Last 12 Months | View All >
+            // Header Row: 👛 Payment & Plan | View Details >
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -1428,7 +1455,7 @@ fun PaymentPlanCompactSmartCard(
                         modifier = Modifier
                             .size(20.dp)
                             .clip(RoundedCornerShape(5.dp))
-                            .background(Color(0xFFEF4444)),
+                            .background(Color(0xFFF59E0B)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("👛", fontSize = 10.sp)
@@ -1440,17 +1467,10 @@ fun PaymentPlanCompactSmartCard(
                         fontSize = 13.5.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Text(
-                        text = "•  Last 12 Months",
-                        color = Color(0xFFEA580C),
-                        fontSize = 10.5.sp,
-                        fontWeight = FontWeight.Medium
-                    )
                 }
 
                 Text(
-                    text = "View All >",
+                    text = "View Details >",
                     color = Color(0xFFEA580C),
                     fontSize = 10.5.sp,
                     fontWeight = FontWeight.Bold,
@@ -1460,39 +1480,16 @@ fun PaymentPlanCompactSmartCard(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // 12-Month Pill Strip (Compact height ~36dp)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                CompactMonthPill("Jan", "--", "No Plan", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
-                CompactMonthPill("Feb", "--", "No Plan", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
-                CompactMonthPill("Mar", "--", "No Plan", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
-                CompactMonthPill("Apr", "₹1.2K", "Gold", true, Color(0xFFFEF08A), Color(0xFF78350F))
-                CompactMonthPill("May", "₹1.2K", "Gold", true, Color(0xFFFEF08A), Color(0xFF78350F))
-                CompactMonthPill("Jun", "₹1.05K", "-₹150\nGold", true, Color(0xFFA7F3D0), Color(0xFF065F46))
-                CompactMonthPill("Jul", "Inactive", "", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
-                CompactMonthPill("Aug", "Inactive", "", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
-                CompactMonthPill("Sep", "₹800", "Silver", true, Color(0xFFE2E8F0), Color(0xFF1E293B))
-                CompactMonthPill("Oct", "₹800", "Silver", true, Color(0xFFE2E8F0), Color(0xFF1E293B))
-                CompactMonthPill("Nov", "₹600", "Spark", true, Color(0xFFBBF7D0), Color(0xFF065F46))
-                CompactMonthPill("Dec", "Pending", "", false, Color(0xFFF8FAFC), Color(0xFF94A3B8), isDashed = true)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Bottom Action Row: Due Soon | Last Paid | Current Plan | Collect Money Button
+            // Top Action Row: Due Alert | Current Plan | Last Paid | Vertical Collect Money Button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 1. Due Alert Pill
+                // 1. Due Alert Card
                 Box(
                     modifier = Modifier
-                        .weight(0.95f)
+                        .weight(1.05f)
                         .clip(RoundedCornerShape(9.dp))
                         .background(Color(0xFFFEF2F2))
                         .border(1.dp, Color(0xFFFECACA), RoundedCornerShape(9.dp))
@@ -1501,12 +1498,12 @@ fun PaymentPlanCompactSmartCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(20.dp)
+                                .size(22.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF10B981)),
+                                .background(Color(0xFFEF4444)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("₹", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("₹", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.width(3.dp))
                         Column {
@@ -1517,65 +1514,26 @@ fun PaymentPlanCompactSmartCard(
                                 fontWeight = FontWeight.Black
                             )
                             Text(
-                                text = "Due in 3d ⚠️",
+                                text = "Due in 3 days ⚠️",
                                 color = Color(0xFFD97706),
-                                fontSize = 7.5.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 7.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
                             )
                             Text(
-                                text = "16 Oct",
+                                text = "16 Oct 2026",
                                 color = Color(0xFF64748B),
-                                fontSize = 6.5.sp
+                                fontSize = 6.5.sp,
+                                maxLines = 1
                             )
                         }
                     }
                 }
 
-                // 2. Last Paid Pill
+                // 2. Current Plan Card
                 Box(
                     modifier = Modifier
-                        .weight(0.85f)
-                        .clip(RoundedCornerShape(9.dp))
-                        .background(Color(0xFFEFF6FF))
-                        .border(1.dp, Color(0xFFBFDBFE), RoundedCornerShape(9.dp))
-                        .padding(horizontal = 4.dp, vertical = 4.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clip(RoundedCornerShape(5.dp))
-                                .background(Color(0xFF2563EB)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("📅", fontSize = 9.sp)
-                        }
-                        Spacer(modifier = Modifier.width(3.dp))
-                        Column {
-                            Text(
-                                text = "Last Paid",
-                                color = Color(0xFF64748B),
-                                fontSize = 7.5.sp
-                            )
-                            Text(
-                                text = "₹800",
-                                color = Color(0xFF0F172A),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "01 Oct",
-                                color = Color(0xFF64748B),
-                                fontSize = 6.5.sp
-                            )
-                        }
-                    }
-                }
-
-                // 3. Current Plan Pill
-                Box(
-                    modifier = Modifier
-                        .weight(0.95f)
+                        .weight(1.15f)
                         .clip(RoundedCornerShape(9.dp))
                         .background(Color(0xFFFFFBEB))
                         .border(1.dp, Color(0xFFFDE68A), RoundedCornerShape(9.dp))
@@ -1584,69 +1542,146 @@ fun PaymentPlanCompactSmartCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(20.dp)
+                                .size(22.dp)
                                 .clip(RoundedCornerShape(5.dp))
                                 .background(Color(0xFFF59E0B)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("👑", fontSize = 9.sp)
+                            Text("👑", fontSize = 10.sp)
                         }
                         Spacer(modifier = Modifier.width(3.dp))
                         Column {
                             Text(
                                 text = "Current Plan",
                                 color = Color(0xFF64748B),
-                                fontSize = 7.5.sp
+                                fontSize = 7.sp,
+                                maxLines = 1
                             )
                             Text(
                                 text = "Spark Plan",
-                                color = Color(0xFF059669),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
+                                color = Color(0xFF0F172A),
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
                             )
                             Text(
-                                text = "Nov 30",
+                                text = "01 Nov – 30 Nov 2026",
                                 color = Color(0xFF64748B),
-                                fontSize = 6.5.sp
+                                fontSize = 6.2.sp,
+                                maxLines = 1
                             )
                         }
                     }
                 }
 
-                // 4. Collect Money Action Button
+                // 3. Last Paid Card
                 Box(
                     modifier = Modifier
-                        .weight(1.25f)
+                        .weight(1f)
+                        .clip(RoundedCornerShape(9.dp))
+                        .background(Color(0xFFEFF6FF))
+                        .border(1.dp, Color(0xFFBFDBFE), RoundedCornerShape(9.dp))
+                        .padding(horizontal = 4.dp, vertical = 4.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(RoundedCornerShape(5.dp))
+                                .background(Color(0xFF2563EB)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("📅", fontSize = 9.5.sp)
+                        }
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Column {
+                            Text(
+                                text = "Last Paid",
+                                color = Color(0xFF64748B),
+                                fontSize = 7.sp,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = "₹800",
+                                color = Color(0xFF0F172A),
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = "01 Oct 2026",
+                                color = Color(0xFF64748B),
+                                fontSize = 6.5.sp,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+
+                // 4. Vertical Collect Money Button
+                Box(
+                    modifier = Modifier
+                        .weight(0.85f)
                         .clip(RoundedCornerShape(9.dp))
                         .background(
-                            Brush.horizontalGradient(
-                                listOf(Color(0xFF059669), Color(0xFF10B981))
+                            Brush.verticalGradient(
+                                listOf(Color(0xFF00C48C), Color(0xFF059669))
                             )
                         )
                         .clickable(onClick = onCollectMoneyClick)
-                        .padding(horizontal = 4.dp, vertical = 8.dp),
+                        .padding(horizontal = 3.dp, vertical = 5.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = "₹",
                             color = Color.White,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "Collect Money >",
+                            text = "Collect",
                             color = Color.White,
-                            fontSize = 9.5.sp,
+                            fontSize = 8.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = "Money >",
+                            color = Color.White,
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1
                         )
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Bottom 12-Month Timeline Strip
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                CompactMonthPill("Jan", "--", "", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
+                CompactMonthPill("Feb", "--", "", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
+                CompactMonthPill("Mar", "--", "", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
+                CompactMonthPill("Apr", "₹1.2K", "", true, Color(0xFFFEF3C7), Color(0xFF78350F))
+                CompactMonthPill("May", "₹1.2K", "", true, Color(0xFFFEF3C7), Color(0xFF78350F))
+                CompactMonthPill("Jun", "₹1.05K", "-₹150", true, Color(0xFFDCFCE7), Color(0xFF065F46))
+                CompactMonthPill("Jul", "--", "", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
+                CompactMonthPill("Aug", "--", "", false, Color(0xFFF1F5F9), Color(0xFF94A3B8))
+                CompactMonthPill("Aug", "👁️", "", false, Color(0xFFE2E8F0), Color(0xFF475569))
+                CompactMonthPill("Sep", "₹800", "", true, Color(0xFFE2E8F0), Color(0xFF1E293B))
+                CompactMonthPill("Oct", "₹800", "", true, Color(0xFFE2E8F0), Color(0xFF1E293B))
+                CompactMonthPill("Nov", "₹600", "", true, Color(0xFFDCFCE7), Color(0xFF065F46))
+                CompactMonthPill("Dec", "Pending", "", false, Color(0xFFF8FAFC), Color(0xFF94A3B8), isDashed = true)
             }
         }
     }
@@ -1662,50 +1697,53 @@ private fun CompactMonthPill(
     textColor: Color,
     isDashed: Boolean = false
 ) {
-    val shape = RoundedCornerShape(8.dp)
-    Box(
-        modifier = Modifier
-            .width(38.dp)
-            .height(44.dp)
-            .clip(shape)
-            .background(bgColor)
-            .border(
-                1.dp,
-                if (isDashed) Color(0xFFCBD5E1) else Color(0x33000000),
-                shape
-            )
-            .padding(vertical = 2.dp, horizontal = 1.dp),
-        contentAlignment = Alignment.Center
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier.width(36.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = month,
-                color = Color(0xFF0F172A),
-                fontSize = 8.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = line1,
-                color = textColor,
-                fontSize = 7.5.sp,
-                fontWeight = if (isPaid) FontWeight.Bold else FontWeight.Medium,
-                textAlign = TextAlign.Center
-            )
-            if (line2.isNotBlank()) {
-                Text(
-                    text = line2,
-                    color = textColor,
-                    fontSize = 6.5.sp,
-                    fontWeight = FontWeight.Normal,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 7.sp
+        Text(
+            text = month,
+            color = Color(0xFF64748B),
+            fontSize = 7.5.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(26.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(bgColor)
+                .border(
+                    0.8.dp,
+                    if (isDashed) Color(0xFFCBD5E1) else Color(0x22000000),
+                    RoundedCornerShape(6.dp)
                 )
-            } else {
-                Spacer(modifier = Modifier.height(1.dp))
+                .padding(horizontal = 1.dp, vertical = 2.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = line1,
+                    color = textColor,
+                    fontSize = 7.2.sp,
+                    fontWeight = if (isPaid) FontWeight.Bold else FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
+                )
+                if (line2.isNotBlank()) {
+                    Text(
+                        text = line2,
+                        color = Color(0xFF059669),
+                        fontSize = 6.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1
+                    )
+                }
             }
         }
     }

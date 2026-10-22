@@ -15,7 +15,7 @@ enum class MemberTier(
 }
 
 data class MemberProfile(
-    val greeting: String = "Good Morning 👋",
+    val greeting: String = "Good Morning ☀️",
     val name: String,
     val memberCode: String,
     val age: Int,
@@ -29,6 +29,7 @@ data class MemberProfile(
     val attendedDays: Int = 25,
     val totalDays: Int = 31,
     val joinedDate: String = "01 Sep 2026",
+    val streakDays: Int = 12,
     val goal: String = "Muscle Gain",
     val branch: String = "Varanasi",
     val unreadNotifications: Int = 3,
@@ -448,8 +449,8 @@ data class MemberCardData(
 
             return MemberCardData(
                 profile = MemberProfile(
-                    greeting = "Good Morning 👋",
-                    name = "Ashwini Singh",
+                    greeting = "Good Morning ☀️",
+                    name = "Ashwini Kumar Sharma",
                     memberCode = "BG4187",
                     age = 25,
                     gender = "Male",
@@ -462,6 +463,7 @@ data class MemberCardData(
                     attendedDays = 24,
                     totalDays = 30,
                     joinedDate = "14 Apr 2026",
+                    streakDays = 12,
                     goal = "Muscle Gain",
                     branch = "Main Branch",
                     unreadNotifications = 3,
