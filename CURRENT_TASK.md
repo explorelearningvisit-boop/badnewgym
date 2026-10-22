@@ -72,6 +72,7 @@ Completion requires the new UI, widget editor architecture, admin command center
 
 ## VERIFIED MILESTONE — 5-STAGE EXACT REFERENCE IMAGE ALIGNMENT (ZERO-SCROLL VIEWPORT)
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Commit**: `260a5101fa6259609ac861a73e9c3e3e4cfa46a2`
 - **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
 - **Screenshot Evidence**: 
   - [docs/reference/images/stage_verified_single_viewport.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/stage_verified_single_viewport.png)
