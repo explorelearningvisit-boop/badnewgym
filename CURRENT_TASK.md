@@ -56,19 +56,17 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
-## VERIFIED MILESTONE — CANONICAL V2 DEPLOYED ON XIAOMI 11i
+## VERIFIED MILESTONE — CANONICAL OPTION 1 (EMERALD PREMIUM) DEPLOYED ON XIAOMI 11i
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
-- **Commit**: `9a35fd1f79da72d577e8037c8b019cfd7b251d54`
 - **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
 - **Screenshot Evidence**: 
-  - [docs/reference/images/device_screen_compact_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_compact_verified.png) (Gold 6-Month Plan)
-  - [docs/reference/images/device_screen_basic_plan_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_basic_plan_verified.png) (Basic Member Green Tint on Hero Profile only)
-  - [docs/reference/images/device_screen_spark_plan_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_spark_plan_verified.png) (Spark Member Diamond/Cyan Tint on Hero Profile only)
-  - [docs/reference/images/device_screen_receipt_sheet_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_receipt_sheet_verified.png) (Interactive Official Receipt sheet)
+  - [docs/reference/images/device_screen_option1_top_verified.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_option1_top_verified.png) (Hero profile, Body stats with sparklines, Attendance 10-col matrix, Workout 30-day bars)
+  - [docs/reference/images/device_screen_option1_bottom_verified.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_option1_bottom_verified.png) (Workout KPI cards, Payment 12-month timeline, Due alert, Current Plan & Collect Money button)
 - **Visual Match & Constraints Fulfilled**:
-  1. **Zero-Scroll Viewport**: Entire dashboard (Hero profile, Body Stats, Attendance, 30d Workout Trend, Payment Plan & 12M History) fits cleanly in a single screen without scrolling.
-  2. **Top App Bar Removed**: Eliminated top header bar & standalone pills to save vertical space.
-  3. **Embedded Notification Bell**: Compact bell icon with unread badge embedded directly in the Hero profile card.
-  4. **Single-Widget Tier Tinting**: Only the Hero Member Profile widget receives the member's tier styling (Emerald Green for Basic, Gold/Sapphire for 6M Gold, Electric Cyan for Spark). All other cards maintain their natural luxury dark obsidian palette.
-  5. **Numbered Attendance Dots**: Explicit day numbers `1` through `31` rendered inside every attendance day circle.
-  6. **Side-by-Side Split**: Attendance (left) and Workout Trend (right) positioned in a 2-column layout to eliminate wasted horizontal space.
+  1. **Canonical Option 1 Design (Emerald Premium)**: Faithful, pixel-perfect match to user-uploaded canonical mockups (`media_1792684643498.img`).
+  2. **Luminous Hero Header**: Radiant emerald-to-mint gradient card with Ashwini Singh (`ID: BG4187 | 25 yrs | Male`), `Spark Member` & `Active` pills, avatar crown badge, and circular "18 Days Left of 30" progress ring gauge.
+  3. **4 Glass Info Chips**: Joined On (14 Apr 2026, 6 Months), Workout Avg. (48 min, ↑ +12%), Goal (Muscle Gain), and Attendance (77%, 24/31 Days).
+  4. **Body Stats Card**: Purple header (`💪 Body Stats • Last 6 Months (5 Records) >`) with 4 distinct stat cards (Weight 69.5kg with green curve, Muscle 57.2kg with purple histogram, Body Fat 17.6% with red curve, BMI 22.8 with "Normal" badge & blue curve).
+  5. **Attendance Matrix**: 10 columns (`Mon` .. `Wed`), 3 rows (`1`..`31`), 3D glossy radial status circles with bold white date numbers, plus a vertical legend on the right (`● Present 24`, `● Absent 4`, `● Holiday 1`, `● Closed 2`).
+  6. **Workout Trend**: 30 vertical cyan-to-blue gradient bars with Peak `👑 52m 10 Oct` and Lowest `↓ 12m 16 Oct` callout badges, dashed 60m/30m guidelines, and 4 KPI summary cards below.
+  7. **Payment & Plan**: Red wallet header, 12-month pill strip (Jan–Dec with plan badges & discounts), Due Alert (`₹2,800 Due in 3 days ⚠️`), Last Paid (`₹800`), Current Plan (`Spark Plan`), and glowing Emerald Green `₹ Collect Money >` button.

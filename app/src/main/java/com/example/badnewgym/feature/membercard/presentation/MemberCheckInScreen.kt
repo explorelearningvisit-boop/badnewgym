@@ -69,8 +69,8 @@ fun MemberCheckInScreen(
     var showTailscaleSheet by remember { mutableStateOf(false) }
     val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    // Active Member Data (defaults to Aman Tripathi 6-Month Gold Tier from user mockup)
-    var currentMemberData by remember { mutableStateOf(MemberCardData.sampleAmanTripathi()) }
+    // Active Member Data (defaults to Ashwini Singh from canonical design mockup)
+    var currentMemberData by remember { mutableStateOf(MemberCardData.sampleAshwiniSingh()) }
 
     LaunchedEffect(initialSheet) {
         when (initialSheet?.lowercase()) {
@@ -84,26 +84,14 @@ fun MemberCheckInScreen(
         }
     }
 
-    val isDark = currentMemberData.profile.tier == com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH ||
-            currentMemberData.profile.tier == com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND
-
-    val screenBg = if (isDark) {
-        Brush.verticalGradient(
-            listOf(
-                Color(0xFF060E18),
-                Color(0xFF0A1828),
-                Color(0xFF07101C)
-            )
+    val screenBg = Brush.verticalGradient(
+        listOf(
+            Color(0xFFE8FAF0),
+            Color(0xFFF3FBF7),
+            Color(0xFFF8FCFA),
+            Color(0xFFFFFFFF)
         )
-    } else {
-        Brush.verticalGradient(
-            listOf(
-                Color(0xFFE6F7F0),
-                Color(0xFFF3FBF8),
-                Color(0xFFEDF8F4)
-            )
-        )
-    }
+    )
 
     Box(
         modifier = modifier

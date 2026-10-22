@@ -548,7 +548,7 @@ data class MemberCardData(
                     attendedDays = 24,
                     totalDays = 31,
                     presentCount = 24,
-                    absentCount = 3,
+                    absentCount = 4,
                     lateCount = 2,
                     holidayCount = 1,
                     calendarDays = calendar
