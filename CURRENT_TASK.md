@@ -58,6 +58,7 @@ Completion requires the new UI, widget editor architecture, admin command center
 
 ## VERIFIED MILESTONE — CANONICAL OPTION 1 (EMERALD PREMIUM) DEPLOYED ON XIAOMI 11i
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Commit**: `ee1281f179693f0304f12997e08139bcf2add30a`
 - **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
 - **Screenshot Evidence**: 
   - [docs/reference/images/device_screen_option1_top_verified.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_option1_top_verified.png) (Hero profile, Body stats with sparklines, Attendance 10-col matrix, Workout 30-day bars)
