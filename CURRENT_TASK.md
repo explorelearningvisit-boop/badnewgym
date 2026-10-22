@@ -58,6 +58,7 @@ Completion requires the new UI, widget editor architecture, admin command center
 
 ## VERIFIED MILESTONE — CANONICAL V2 DEPLOYED ON XIAOMI 11i
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Commit**: `9a35fd1f79da72d577e8037c8b019cfd7b251d54`
 - **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
 - **Screenshot Evidence**: 
   - [docs/reference/images/device_screen_compact_verified.png](file:///C:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_compact_verified.png) (Gold 6-Month Plan)
