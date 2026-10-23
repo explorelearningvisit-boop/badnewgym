@@ -101,3 +101,50 @@ Completion requires the new UI, widget editor architecture, admin command center
   6. **Stage 6 (Single-Viewport Zero-Scroll Physical Device Verification)**:
      - Full screen fits completely within the single mobile viewport on Xiaomi 11i with zero scrolling needed and ~40dp bottom breathing space above system navigation bar.
      - All 78 unit tests pass (`./gradlew testDebugUnitTest assembleDebug`).
+## VERIFIED MILESTONE — TARGET MOCKUP IMPLEMENTATION (ASHWINI SINGH 5-STAGE WIDGET ARCHITECTURE)
+- **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Device**: Xiaomi 11i / 21091116I (zxdada69gunb7ls4) via USB cable ADB
+- **Screenshot Evidence**: 
+  - [docs/reference/images/device_screen_v2_refined.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_v2_refined.png)
+  - [docs/reference/images/device_screen_v2_scrolled_refined.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_v2_scrolled_refined.png)
+- **Implementation Breakdown**:
+  1. **Top Branding Bar**:
+     - Hamburger menu icon.
+     - BAD GYM title in emerald green (#047857) + Member Intelligence subtitle in slate grey.
+     - Date selector pill: Oct 2026 ? with blue calendar icon and down chevron.
+     - 3-dots circular menu button with soft subtle border.
+  2. **Stage 1 (Hero Profile Card)**:
+     - Circular avatar inside glowing sweep gradient ring with gold crown badge at top-left and neon green active dot at bottom-right.
+     - Identity: Ashwini Singh (18sp black bold), BG305 | 23 yrs | Male.
+     - Status pills: ? Prime Plan (golden yellow) + ? Active (emerald green).
+     - Open horseshoe speedometer: 270° circular sweep arc, 75% bold green, 25 / 100, Days Left.
+     - 3 Quick-Stat tiles: Joined 01 Sep 2026 (1 Month 10 Days), Goal Muscle Gain, Branch Varanasi.
+  3. **Stage 2 (Body Stats Bento)**:
+     - Header: Dumbbell icon + Body Stats • Latest vs Previous, View Details > (blue text).
+     - 4 Bento tiles:
+       - Weight: 69.5 kg, Weight, ? 2.5 kg, smooth green Bezier curve, VectorSync + Good Progress.
+       - Muscle: 57.2 kg, Muscle, ? 1.4 kg, smooth purple Bezier curve with peak dot, VectorTrendUp + Improving.
+       - Body Fat: 17.6%, Body Fat, ? 1.2%, smooth red Bezier curve, VectorTrendDown + Leaner.
+       - BMI: 22.8, BMI, Normal green badge, smooth blue Bezier curve, VectorShield + Healthy.
+  4. **Stage 3 (Workout Trend & Attendance)**:
+     - Header: Bar chart icon + Workout Trend & Attendance, Oct 2026 ?, Details >.
+     - 4 Colored threshold background bands: High 45m+ (green), Good 30-45m (cyan), Normal 15-30m (amber), Low <15m (red).
+     - Horizontal dashed reference line at 28m with dark blue Avg 28m pill.
+     - Floating Peak callout (+ Peak / 52m (10 Oct)) with thin vertical line dropping down to Day 10 bar.
+     - Floating Lowest callout (? Lowest / 12m (16 Oct)) with thin vertical line dropping down to Day 16 bar.
+     - 31 Attendance circular day chips (1..31) in Green (Present), Red (Absent), and Grey (Holiday).
+     - Bottom legend row with custom vector icons: Present 24 Days (77%), Absent 3 Days (10%), Holiday 2 Days (6%), Avg 28 min, Peak 52 min, Lowest 12 min.
+  5. **Stage 4 (Payment & Plan)**:
+     - Header: Red wallet icon + Payment & Plan, amber pill ? Prime Plan (1 Month) >.
+     - Item 1: ?2,800 (single line!), Paid • On Time,  1 Sep 2026.
+     - Item 2: Next Due, 30 Sep 2026 (single line!), 25 Days Left.
+     - Item 3: View\nReceipt with blue receipt icon.
+     - Item 4: Collect\nMoney emerald button with white Rupee circle.
+  6. **Stage 5 (Today's Activity)**:
+     - Header: Purple lightning bolt + Today's Activity, Details >.
+     - Check-in:  6:10 AM with soft green radial ambient bloom and clock icon.
+     - Workout: 62 min with soft purple radial ambient bloom and dumbbell icon.
+     - Check-out:  7:42 AM with soft red radial ambient bloom and clock icon.
+  7. **Device & Verification Integrity**:
+     - Built and tested with ./gradlew testDebugUnitTest assembleDebug (ALL unit tests pass).
+     - Deployed and verified on physical Xiaomi 11i device (zxdada69gunb7ls4).

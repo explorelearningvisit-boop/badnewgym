@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.badnewgym.feature.membercard.domain.model.CalendarDay
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
+import com.example.badnewgym.feature.membercard.presentation.components.AquaGlassMemberView
 import com.example.badnewgym.feature.membercard.presentation.components.AttendanceDayBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.DetailedAnalyticsBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.NotificationsBottomSheet
@@ -69,8 +70,8 @@ fun MemberCheckInScreen(
     var showTailscaleSheet by remember { mutableStateOf(false) }
     val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    // Active Member Data (defaults to Ashwini Singh from canonical design mockup)
-    var currentMemberData by remember { mutableStateOf(MemberCardData.sampleAshwiniSingh()) }
+    var isAquaGlassView by remember { mutableStateOf(false) }
+    var currentMemberData by remember { mutableStateOf(MemberCardData.sampleAshwiniSinghTarget()) }
 
     LaunchedEffect(initialSheet) {
         when (initialSheet?.lowercase()) {
@@ -84,79 +85,98 @@ fun MemberCheckInScreen(
         }
     }
 
-    val screenBg = Brush.verticalGradient(
-        listOf(
-            Color(0xFFE8FAF0),
-            Color(0xFFF3FBF7),
-            Color(0xFFF8FCFA),
-            Color(0xFFFFFFFF)
+    if (isAquaGlassView) {
+        AquaGlassMemberView(
+            data = currentMemberData,
+            onToggleTheme = { isAquaGlassView = false },
+            onReceiptClick = { showReceiptSheet = true },
+            onAttendanceDayClick = { day -> selectedAttendanceDay = day },
+            onAnalyticsClick = { showAnalyticsSheet = true },
+            onNotificationClick = { showNotificationsSheet = true },
+            onMenuClick = {
+                showTailscaleSheet = true
+                onMenuClick()
+            },
+            modifier = modifier
         )
-    )
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(screenBg)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-                .navigationBarsPadding()
-        ) {
-            // Main Member Intelligence Compact Card Architecture
-            MemberCheckInCard(
-                data = currentMemberData,
-                onAvatarClick = {
-                    showTailscaleSheet = true
-                    onMenuClick()
-                },
-                onNotificationsClick = { showNotificationsSheet = true },
-                onReceiptClick = { showReceiptSheet = true },
-                onAttendanceClick = {
-                    selectedAttendanceDay = currentMemberData.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                },
-                onAttendanceDayClick = { day ->
-                    selectedAttendanceDay = day
-                },
-                onAnalyticsClick = { showAnalyticsSheet = true },
-                onTierSwitch = { newTier ->
-                    currentMemberData = when (newTier) {
-                        com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH ->
-                            MemberCardData.sampleAmanTripathi().copy(
-                                profile = MemberCardData.sampleAmanTripathi().profile.copy(
-                                    tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH,
-                                    tierName = "Gold Plan (6 Months)"
-                                )
-                            )
-                        com.example.badnewgym.feature.membercard.domain.model.MemberTier.BASIC_MEMBER ->
-                            MemberCardData.sampleAmanTripathi().copy(
-                                profile = MemberCardData.sampleAmanTripathi().profile.copy(
-                                    tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.BASIC_MEMBER,
-                                    tierName = "Basic Member"
-                                )
-                            )
-                        com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND ->
-                            MemberCardData.sampleAshwiniSingh().copy(
-                                profile = MemberCardData.sampleAshwiniSingh().profile.copy(
-                                    tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND,
-                                    tierName = "Spark Member"
-                                )
-                            )
-                    }
-                }
+    } else {
+        val screenBg = Brush.verticalGradient(
+            listOf(
+                Color(0xFFE0F7EF),
+                Color(0xFFE8F4FD),
+                Color(0xFFF3EDFD),
+                Color(0xFFF0FDF4),
+                Color(0xFFF8FAFC)
             )
+        )
 
-            // Slot for custom widgets in the remaining vertical space
-            if (customWidgetsContent != null) {
-                Spacer(modifier = Modifier.height(6.dp))
-                customWidgetsContent()
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(screenBg)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .navigationBarsPadding()
+            ) {
+                // Main Member Intelligence Dashboard Architecture
+                MemberCheckInCard(
+                    data = currentMemberData,
+                    onAvatarClick = {
+                        showTailscaleSheet = true
+                        onMenuClick()
+                    },
+                    onSearchClick = { showSearchSheet = true },
+                    onNotificationsClick = { showNotificationsSheet = true },
+                    onReceiptClick = { showReceiptSheet = true },
+                    onAttendanceClick = {
+                        selectedAttendanceDay = currentMemberData.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                    },
+                    onAttendanceDayClick = { day ->
+                        selectedAttendanceDay = day
+                    },
+                    onAnalyticsClick = { showAnalyticsSheet = true },
+                    onTierSwitch = { newTier ->
+                        currentMemberData = when (newTier) {
+                            com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH ->
+                                MemberCardData.sampleAmanTripathi().copy(
+                                    profile = MemberCardData.sampleAmanTripathi().profile.copy(
+                                        tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH,
+                                        tierName = "Gold Plan (6 Months)"
+                                    )
+                                )
+                            com.example.badnewgym.feature.membercard.domain.model.MemberTier.BASIC_MEMBER ->
+                                MemberCardData.sampleAmanTripathi().copy(
+                                    profile = MemberCardData.sampleAmanTripathi().profile.copy(
+                                        tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.BASIC_MEMBER,
+                                        tierName = "Basic Member"
+                                    )
+                                )
+                            com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND ->
+                                MemberCardData.sampleAshwiniSingh().copy(
+                                    profile = MemberCardData.sampleAshwiniSingh().profile.copy(
+                                        tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND,
+                                        tierName = "Spark Member"
+                                    )
+                                )
+                        }
+                    }
+                )
+
+                // Slot for custom widgets in the remaining vertical space
+                if (customWidgetsContent != null) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    customWidgetsContent()
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
         }
+    }
 
         // --- Bottom Sheet Dialogs ---
         if (showReceiptSheet) {
@@ -202,4 +222,3 @@ fun MemberCheckInScreen(
             )
         }
     }
-}

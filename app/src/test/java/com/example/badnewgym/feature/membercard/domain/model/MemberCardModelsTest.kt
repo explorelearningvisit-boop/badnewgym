@@ -132,4 +132,56 @@ class MemberCardModelsTest {
         assertEquals("31 Oct 2026", sample.paymentPlan.nextDueDate)
         assertEquals(9, sample.paymentPlan.daysLeft)
     }
+
+    @Test
+    fun sampleAshwiniSinghTarget_matchesTargetImageMockup() {
+        val sample = MemberCardData.sampleAshwiniSinghTarget()
+
+        assertEquals("Ashwini Singh", sample.profile.name)
+        assertEquals("BG305", sample.profile.memberCode)
+        assertEquals(23, sample.profile.age)
+        assertEquals("Male", sample.profile.gender)
+        assertEquals("Prime Plan", sample.profile.planBadgeText)
+        assertTrue(sample.profile.isActive)
+        assertEquals(75, sample.profile.attendancePercent)
+        assertEquals(25, sample.profile.daysLeft)
+        assertEquals(100, sample.profile.totalPlanDays)
+        assertEquals("01 Sep 2026", sample.profile.joinedDate)
+        assertEquals("1 Month 10 Days", sample.profile.joinedDuration)
+        assertEquals("Muscle Gain", sample.profile.goal)
+        assertEquals("Varanasi", sample.profile.branch)
+
+        assertEquals(4, sample.bodyStats.size)
+        assertEquals("69.5 kg", sample.bodyStats[0].value)
+        assertEquals("Good Progress", sample.bodyStats[0].footerText)
+        assertEquals("57.2 kg", sample.bodyStats[1].value)
+        assertEquals("Improving", sample.bodyStats[1].footerText)
+        assertEquals("17.6%", sample.bodyStats[2].value)
+        assertEquals("Leaner", sample.bodyStats[2].footerText)
+        assertEquals("22.8", sample.bodyStats[3].value)
+        assertEquals("Normal", sample.bodyStats[3].badgeText)
+        assertEquals("Healthy", sample.bodyStats[3].footerText)
+
+        assertEquals("Oct 2026", sample.attendance.monthLabel)
+        assertEquals(77, sample.attendance.percent)
+        assertEquals(24, sample.attendance.presentCount)
+        assertEquals(3, sample.attendance.absentCount)
+        assertEquals(2, sample.attendance.holidayCount)
+
+        assertEquals(31, sample.workoutTrend.bars.size)
+        assertEquals(52, sample.workoutTrend.peakMinutes)
+        assertEquals("10 Oct", sample.workoutTrend.peakDate)
+        assertEquals(12, sample.workoutTrend.lowestMinutes)
+        assertEquals("16 Oct", sample.workoutTrend.lowestDate)
+        assertEquals(28, sample.workoutTrend.avgMinutes)
+
+        assertEquals("₹2,800", sample.paymentPlan.amountPaid)
+        assertEquals("Paid • On Time", sample.paymentPlan.paymentStatus)
+        assertEquals("30 Sep 2026", sample.paymentPlan.nextDueDate)
+        assertEquals(25, sample.paymentPlan.daysLeft)
+
+        assertEquals("06:10 AM", sample.todayActivity.checkInTime)
+        assertEquals("62 min", sample.todayActivity.workoutDuration)
+        assertEquals("07:42 AM", sample.todayActivity.checkOutTime)
+    }
 }

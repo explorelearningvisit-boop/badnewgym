@@ -28,12 +28,15 @@ data class MemberProfile(
     val daysLeft: Int = 25,
     val attendedDays: Int = 25,
     val totalDays: Int = 31,
+    val totalPlanDays: Int = 100,
     val joinedDate: String = "01 Sep 2026",
+    val joinedDuration: String = "1 Month 10 Days",
     val streakDays: Int = 12,
     val goal: String = "Muscle Gain",
     val branch: String = "Varanasi",
     val unreadNotifications: Int = 3,
-    val dateDisplay: String = "Tue\n22 Oct 2026"
+    val dateDisplay: String = "Tue\n22 Oct 2026",
+    val planBadgeText: String = "Prime Plan"
 )
 
 enum class BodyStatType {
@@ -52,7 +55,9 @@ data class BodyStatItem(
     val lineColor: Color,
     val isFavorable: Boolean = true,
     val unit: String = "",
-    val goalText: String = ""
+    val goalText: String = "",
+    val footerText: String = "",
+    val badgeText: String = ""
 )
 
 data class MonthPaymentItem(
@@ -146,12 +151,19 @@ data class WorkoutTrendData(
     val highlightDayIndexes: Map<Int, String> = mapOf(8 to "52m", 26 to "48m")
 )
 
+data class TodayActivityState(
+    val checkInTime: String = "06:10 AM",
+    val workoutDuration: String = "62 min",
+    val checkOutTime: String = "07:42 AM"
+)
+
 data class MemberCardData(
     val profile: MemberProfile,
     val bodyStats: List<BodyStatItem>,
     val paymentPlan: PaymentPlanState,
     val attendance: AttendanceSectionData,
-    val workoutTrend: WorkoutTrendData
+    val workoutTrend: WorkoutTrendData,
+    val todayActivity: TodayActivityState = TodayActivityState()
 ) {
     companion object {
         fun sampleAmanTripathi(): MemberCardData {
@@ -571,6 +583,199 @@ data class MemberCardData(
                     peakDateText = "Peak (5 Oct)",
                     lowestDateText = "Lowest (9 Oct)",
                     highlightDayIndexes = mapOf(8 to "52m", 26 to "48m")
+                )
+            )
+        }
+
+        fun sampleAshwiniSinghTarget(): MemberCardData {
+            val calendar = listOf(
+                CalendarDay(1, 4, DayAttendanceStatus.PRESENT),
+                CalendarDay(2, 5, DayAttendanceStatus.PRESENT),
+                CalendarDay(3, 6, DayAttendanceStatus.ABSENT),
+                CalendarDay(4, 0, DayAttendanceStatus.PRESENT),
+                CalendarDay(5, 1, DayAttendanceStatus.HOLIDAY),
+                CalendarDay(6, 2, DayAttendanceStatus.PRESENT),
+                CalendarDay(7, 3, DayAttendanceStatus.PRESENT),
+                CalendarDay(8, 4, DayAttendanceStatus.ABSENT),
+                CalendarDay(9, 5, DayAttendanceStatus.PRESENT),
+                CalendarDay(10, 6, DayAttendanceStatus.PRESENT),
+                CalendarDay(11, 0, DayAttendanceStatus.ABSENT),
+                CalendarDay(12, 1, DayAttendanceStatus.PRESENT),
+                CalendarDay(13, 2, DayAttendanceStatus.PRESENT),
+                CalendarDay(14, 3, DayAttendanceStatus.PRESENT),
+                CalendarDay(15, 4, DayAttendanceStatus.HOLIDAY),
+                CalendarDay(16, 5, DayAttendanceStatus.ABSENT),
+                CalendarDay(17, 6, DayAttendanceStatus.PRESENT),
+                CalendarDay(18, 0, DayAttendanceStatus.PRESENT),
+                CalendarDay(19, 1, DayAttendanceStatus.PRESENT),
+                CalendarDay(20, 2, DayAttendanceStatus.PRESENT),
+                CalendarDay(21, 3, DayAttendanceStatus.ABSENT),
+                CalendarDay(22, 4, DayAttendanceStatus.PRESENT),
+                CalendarDay(23, 5, DayAttendanceStatus.PRESENT),
+                CalendarDay(24, 6, DayAttendanceStatus.PRESENT),
+                CalendarDay(25, 0, DayAttendanceStatus.PRESENT),
+                CalendarDay(26, 1, DayAttendanceStatus.ABSENT),
+                CalendarDay(27, 2, DayAttendanceStatus.HOLIDAY),
+                CalendarDay(28, 3, DayAttendanceStatus.PRESENT),
+                CalendarDay(29, 4, DayAttendanceStatus.PRESENT),
+                CalendarDay(30, 5, DayAttendanceStatus.PRESENT),
+                CalendarDay(31, 6, DayAttendanceStatus.PRESENT)
+            )
+
+            val cyanBar = Color(0xFF00C48C)
+            val redBar = Color(0xFFF87171)
+
+            val workoutBars = (1..31).map { day ->
+                val mins = when (day) {
+                    10 -> 52 // Peak
+                    16 -> 12 // Lowest
+                    1 -> 24
+                    2 -> 32
+                    3 -> 0
+                    4 -> 28
+                    5 -> 0
+                    6 -> 40
+                    7 -> 36
+                    8 -> 14
+                    9 -> 30
+                    11 -> 0
+                    12 -> 35
+                    13 -> 30
+                    14 -> 38
+                    15 -> 18
+                    17 -> 28
+                    18 -> 32
+                    19 -> 34
+                    20 -> 42
+                    21 -> 16
+                    22 -> 33
+                    23 -> 31
+                    24 -> 44
+                    25 -> 29
+                    26 -> 15
+                    27 -> 0
+                    28 -> 38
+                    29 -> 32
+                    30 -> 45
+                    31 -> 35
+                    else -> 28
+                }
+                val color = if (mins < 20 && mins > 0) redBar else cyanBar
+                WorkoutTrendBar(day, mins, color)
+            }
+
+            return MemberCardData(
+                profile = MemberProfile(
+                    greeting = "Good Morning ☀️",
+                    name = "Ashwini Singh",
+                    memberCode = "BG305",
+                    age = 23,
+                    gender = "Male",
+                    tierName = "Prime Plan",
+                    tier = MemberTier.SPARK_DIAMOND,
+                    isPrime = true,
+                    isActive = true,
+                    attendancePercent = 75,
+                    daysLeft = 25,
+                    attendedDays = 24,
+                    totalDays = 31,
+                    totalPlanDays = 100,
+                    joinedDate = "01 Sep 2026",
+                    joinedDuration = "1 Month 10 Days",
+                    streakDays = 12,
+                    goal = "Muscle Gain",
+                    branch = "Varanasi",
+                    unreadNotifications = 3,
+                    dateDisplay = "Tue\n22 Oct 2026",
+                    planBadgeText = "Prime Plan"
+                ),
+                bodyStats = listOf(
+                    BodyStatItem(
+                        type = BodyStatType.WEIGHT,
+                        value = "69.5 kg",
+                        delta = "↓ 2.5 kg",
+                        label = "Weight",
+                        sparklinePoints = listOf(0.6f, 0.55f, 0.45f, 0.5f, 0.35f, 0.4f, 0.25f, 0.2f),
+                        lineColor = Color(0xFF10B981),
+                        isFavorable = true,
+                        goalText = "Goal: 65 kg",
+                        footerText = "Good Progress"
+                    ),
+                    BodyStatItem(
+                        type = BodyStatType.MUSCLE,
+                        value = "57.2 kg",
+                        delta = "↑ 1.4 kg",
+                        label = "Muscle",
+                        sparklinePoints = listOf(0.2f, 0.3f, 0.25f, 0.4f, 0.5f, 0.45f, 0.6f, 0.75f),
+                        lineColor = Color(0xFF8B5CF6),
+                        isFavorable = true,
+                        goalText = "Goal: 60 kg",
+                        footerText = "Improving"
+                    ),
+                    BodyStatItem(
+                        type = BodyStatType.BODY_FAT,
+                        value = "17.6%",
+                        delta = "↓ 1.2%",
+                        label = "Body Fat",
+                        sparklinePoints = listOf(0.7f, 0.65f, 0.55f, 0.6f, 0.45f, 0.4f, 0.35f, 0.25f),
+                        lineColor = Color(0xFFEF4444),
+                        isFavorable = true,
+                        goalText = "Goal: 15%",
+                        footerText = "Leaner"
+                    ),
+                    BodyStatItem(
+                        type = BodyStatType.BMI,
+                        value = "22.8",
+                        delta = "Normal",
+                        label = "BMI",
+                        sparklinePoints = listOf(0.3f, 0.35f, 0.4f, 0.35f, 0.45f, 0.5f, 0.6f, 0.7f),
+                        lineColor = Color(0xFF2563EB),
+                        isFavorable = true,
+                        goalText = "18.5 – 24.9",
+                        badgeText = "Normal",
+                        footerText = "Healthy"
+                    )
+                ),
+                paymentPlan = PaymentPlanState(
+                    planDuration = "Prime Plan (1 Month)",
+                    planPeriod = "01 Sep – 30 Sep 2026",
+                    amountPaid = "₹2,800",
+                    paymentStatus = "Paid • On Time",
+                    paidOnDate = "01 Sep 2026",
+                    nextDueDate = "30 Sep 2026",
+                    daysLeft = 25,
+                    isPrime = true,
+                    lastPaymentAmount = "₹2,800",
+                    lastPaymentDate = "01 Sep 2026"
+                ),
+                attendance = AttendanceSectionData(
+                    monthLabel = "Oct 2026",
+                    percent = 77,
+                    attendedDays = 24,
+                    totalDays = 31,
+                    presentCount = 24,
+                    absentCount = 3,
+                    lateCount = 0,
+                    holidayCount = 2,
+                    calendarDays = calendar
+                ),
+                workoutTrend = WorkoutTrendData(
+                    monthLabel = "Oct 2026",
+                    bars = workoutBars,
+                    avgPerDayMinutes = 28,
+                    peakMinutes = 52,
+                    peakDate = "10 Oct",
+                    lowestMinutes = 12,
+                    lowestDate = "16 Oct",
+                    avgMinutes = 28,
+                    avgTrendText = "Avg 28m",
+                    daysWithWorkout = 24,
+                    daysNoWorkout = 7
+                ),
+                todayActivity = TodayActivityState(
+                    checkInTime = "06:10 AM",
+                    workoutDuration = "62 min",
+                    checkOutTime = "07:42 AM"
                 )
             )
         }
