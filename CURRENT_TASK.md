@@ -1,14 +1,21 @@
 # BAD GYM — Current Task
 
-**Task:** Implement the approved **compact Member Intelligence card** (200dp x 300dp) against the attached final reference image.
+**Task:** Implement the approved **mobile Member Intelligence dashboard** from the latest light-theme reference image — a scrollable full-phone-viewport screen.
 **Branch:** `member-intelligence-reference-dashboard` (rebased onto `main` @ `66226c6`, which merged PR #11 deleting the previous presentation).
-**Status:** In progress. New `CompactMemberIntelligenceCard.kt` (200x300dp, light mint/white), new closure-aware domain layer (`GymSchedule.kt`, `AttendanceWorkoutAnalytics.kt`) plus 13 new data-rule tests. Build/test/device evidence pending this pass.
+**Status:** Implemented and device-verified. `clean testDebugUnitTest assembleDebug` green; screenshots at 392dp, 360dp, 320dp widths and at 130% font scale on `21091116I` (1080×2400, 440 dpi).
 
-## Architecture decision (supersedes the full-screen dashboard direction)
+## Current scope (supersedes the compact-card-only scope)
 
-The user supplied a compact **200dp x 300dp single-card** reference and ruled out the earlier output explicitly: "Do not introduce a full-screen dashboard when the requested output is a compact card" and "Dark navy ... never as a black/dark background theme". The repository rules agree ("Light, premium, mint/white/emerald-led ... user dislikes dark/black backgrounds").
+The user supplied a light, full-viewport member dashboard (1024×1536) and asked to "implement nd design this ui ux in mobile viewport". The compact 200×320dp card is therefore no longer the product surface: `MemberIntelligenceScreen` now hosts `MemberDashboard.kt`, a native Compose screen rendered at real mobile text sizes (no density trickery):
 
-Therefore the previous full-screen navy dashboard was removed (PR #11, tag `pre-mi-reset` @ `e8b75ce`) and replaced by a single self-contained card. The canonical compact visit/member card remains the V4 runtime surface; this card is the Member Intelligence summary surface hosted by `MemberIntelligenceScreen`, which preserves loading/error/locked states and routes section headers to real flows.
+1. **BAD GYM header** — menu, month selector, overflow.
+2. **Member hero** — avatar with tier + presence badges, name, code/age/gender, plan and status pills, elapsed ring (`25 / 100` days left), joined / goal / branch chips.
+3. **Body Stats** — weight, muscle, body fat and BMI tiles with goal-aware deltas, sparklines built from real measurements, and a WHO BMI band scale.
+4. **Workout Trend & Attendance** — 31-day bar chart coloured by duration band, dashed average line, peak/avg/lowest callouts, every day labelled, closure-aware attendance tiles.
+5. **Payment & Plan** — paid vs outstanding branching, last payment, real due date vs plan renewal, receipt + collect actions.
+6. **Today's Activity** — attendance status and recorded workout minutes, today only.
+
+The compact card (`CompactMemberIntelligenceCard.kt`) and its component gallery remain in the tree as the debug surface and keep their geometry tests; they are no longer rendered by the production screen.
 
 ## Data rules enforced for this card
 
@@ -26,23 +33,22 @@ Use the latest user-supplied image from the conversation plus:
 - `docs/reference/BAD_GYM_MEMBER_INTELLIGENCE_HYPERDETAILED_IMPLEMENTATION_BLUEPRINT.md`
 - `docs/PIXEL_PERFECT_ACCEPTANCE.md`
 
-The current reference is the user-attached **dark-theme** full-screen dashboard (not committed to the repo): navy shell, "Good Morning 👋" member card with green progress ring, pill nav rail (Overview active in green), then **Body Stats → Payment & Plan → Attendance → Workout Trend** order, month navigation arrows on Attendance/Workout, workout stat tiles (Avg/Peak/Lowest) under a full-width chart, and a "View Detailed Analytics" action at the bottom. It is a long mobile dashboard; implement it as a scrollable responsive screen rather than compressing the entire image into a tiny card.
+The current reference is the user-attached **light-theme** full-screen dashboard: a pastel mint/blue/lilac page background, white rounded section cards, and this order — **member hero → Body Stats → Workout Trend & Attendance → Payment & Plan → Today's Activity**. Accents: emerald for active/attendance, gold for the Prime plan, blue for workout/actions, purple for body stats, coral for negatives.
 
-The exact reference screenshot is 921×1536 pixels, portrait ratio 0.600, and is committed at `docs/reference/assets/member-intelligence-full-screen-reference.jpg` (with `docs/reference/assets/manifest.md`) for repeatable comparison. This new full-screen screenshot supersedes the older V4 reference canvas of 691×1536 for this expanded-dashboard task only. Measure runtime dp dimensions separately; pixel dimensions are not dp.
+The exact reference screenshot is 1024×1536 pixels, portrait ratio 0.667. Its Stitch render and markup are committed at `docs/reference/stitch/` (`badgym_member_profile.stitch.png`, `badgym_member_profile.stitch.html`). Measure runtime dp dimensions separately; pixel dimensions are not dp.
 
 ## Architecture integration decision
 Existing V4 documentation defines a compact event-first canonical visit/member card. The active UI now follows the user-approved full dashboard reference with a compact Aman-style member header. At the user's explicit request, the former `PixelPerfectMemberCard` presentation component was removed and its preview hosts now render `MemberSummaryCard`; domain engines, event priority, repository/ViewModel flows, privacy and entitlement rules remain intact.
 
-The latest user reference supersedes older visual assumptions for this expanded dashboard only. **Decision (current reference):** the user explicitly supplied a dark-theme reference (deep navy shell, white data cards, green/blue/purple/red accents) and asked to implement it — the dashboard shell (page, header, member card, nav rail) is now dark navy with white section cards; the old "light/mint only, no dark background" rule is retired for this screen. Section accents stay: green attendance/active, red payment, blue workout, purple body stats, gold plan.
+The latest user reference supersedes older visual assumptions for this screen. **Decision (current reference):** the dashboard is a light surface — pastel gradient page, white cards, emerald/gold/blue/purple/coral accents. No dark shell and no bottom navigation bar: the screen is one scrollable member view, and every visible control either changes state or opens a real flow.
 
 ## Required regions
-1. Compact BAD GYM application header.
-2. Member identity with real member photo/name/ID/plan/status and membership remaining/elapsed progress.
-3. Horizontally scrollable navigation.
-4. Payment & Plan: correct paid/due/overdue branching, last/next due context, real monthly transaction chart and truthful timing/upgrade markers.
-5. Attendance: actual month dates/statuses, present/absent/late/holiday/closed/unknown, percentage and available streak summaries.
-6. Workout: real daily duration data, average/peak/lowest and comparison only when computable.
-7. Body Progress: only recorded and authorized metrics, sparklines only when at least two real measurements exist, goal-aware interpretation.
+1. Compact BAD GYM application header with month context and overflow.
+2. Member identity with real photo/name/ID/plan/status, elapsed ring and joined/goal/branch context.
+3. Body Stats: weight, muscle, body fat and BMI; deltas only when two measurements exist; sparklines only from real points.
+4. Workout Trend & Attendance: actual month days, present/absent/late/holiday/closed/unknown, duration bands, average/peak/lowest and closure-aware attendance rate.
+5. Payment & Plan: correct paid/due/overdue branching, last payment, real due date vs plan renewal, receipt/collect actions.
+6. Today's Activity: today's attendance status and recorded workout only.
 
 ## Non-negotiable data logic
 - Paid balance zero must not show a false Due/Collect Payment state.

@@ -33,11 +33,12 @@ import androidx.core.content.ContextCompat
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugBridge
 import com.example.badnewgym.feature.memberintelligence.debug.VariantDebugReceiver
 import com.example.badnewgym.feature.memberintelligence.presentation.components.CardPalette
-import com.example.badnewgym.feature.memberintelligence.presentation.components.CompactMemberIntelligenceCard
+import com.example.badnewgym.feature.memberintelligence.presentation.components.MemberDashboard
 import kotlinx.coroutines.launch
 
 /**
- * Hosts the approved compact Member Intelligence card (200dp x 300dp).
+ * Hosts the approved Member Intelligence card (authored at 200dp x 320dp and scaled to
+ * the available width).
  *
  * The card is the source of truth surface for member identity, payment state and the
  * combined attendance/workout view. Loading, error and locked states are preserved,
@@ -87,24 +88,20 @@ fun MemberIntelligenceScreen(viewModel: MemberIntelligenceViewModel) {
     ) {
         when (val current = state) {
             is MemberIntelligenceUiState.Success -> {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .statusBarsPadding()
-                        .navigationBarsPadding()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CompactMemberIntelligenceCard(
-                        snapshot = current.snapshot,
-                        onOpenBodyStats = { detailNotice = "Body measurements" },
-                        onOpenPayment = { detailNotice = "Payment history" },
-                        onOpenActivity = { detailNotice = "Attendance & workout detail" },
-                        onOpenOverflow = { detailNotice = "Member actions" }
-                    )
-                }
+                // One clock sample for the whole screen so the data cannot move on recomposition.
+                val dashboardNow = remember(current.snapshot.id) { System.currentTimeMillis() }
+                MemberDashboard(
+                    snapshot = current.snapshot,
+                    now = dashboardNow,
+                    onMenu = { detailNotice = "Navigation" },
+                    onMonth = { detailNotice = "Month selector" },
+                    onBodyStats = { detailNotice = "Body measurements" },
+                    onActivity = { detailNotice = "Attendance & workout detail" },
+                    onPayment = { detailNotice = "Payment history" },
+                    onReceipt = { detailNotice = "Receipts" },
+                    onCollect = { detailNotice = "Collect payment" },
+                    onOverflow = { detailNotice = "Member actions" }
+                )
                 SnackbarHost(
                     hostState = snackbarHostState,
                     modifier = Modifier

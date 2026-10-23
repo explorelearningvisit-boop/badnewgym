@@ -23,38 +23,48 @@ repository. That is the basis for treating this Stitch screen as the design sour
 ### Status of this markup
 
 `badgym_member_profile.stitch.html` is **design reference only, never shipped**. It is
-HTML/Tailwind output describing a *full phone screen*; the product requirement is a
-single self-contained **200 dp x 300 dp** card, so the markup is not a drop-in asset.
-It is committed to make the translation auditable, not to be rendered by the app.
+HTML/Tailwind output describing a *full phone screen*.
+
+**Update (2026-10-23):** the product surface is now that full screen. The user asked to
+"implement nd design this ui ux in mobile viewport", so
+`presentation/components/MemberDashboard.kt` implements this reference at real mobile
+type sizes. The earlier 200 dp x 300 dp card (`CompactMemberIntelligenceCard.kt`) is kept
+only as a debug component gallery surface and is no longer rendered by the production
+screen.
 
 Do not treat the numbers inside it as data. They are the mockup's design content
 (`75%`, `25 / 31 Days`, `48m` average, `65m` peak, `24 / 77%` present, ...). The app
 derives every value from real state and will legitimately differ.
 
-## Fidelity map: Stitch design -> Compose card
+## Fidelity map: Stitch design -> Compose
 
-| Stitch block | Compose implementation |
+| Stitch block | Compose implementation (`MemberDashboard.kt`) |
 | --- | --- |
-| `TopBar` — "BAD / GYM" + "MEMBER" caps + 3-dot menu | `CardBrandStrip` |
-| `MemberProfileCard` — gradient avatar ring, crown, active dot, name, `BG305 \| 23 yrs \| Male`, Prime + Active badges | `MemberIdentityBlock` |
-| Radial 75% meter with `25 / 31` + `Days` | `MembershipRing` (percentage is elapsed plan share; caption is `daysLeft / planTotalDays`) |
-| `BodyStatsSection` — 4 tiles (weight / muscle / fat % / BMI band) | `BodyStatsRow` + `MetricTile` |
-| `PaymentPlanSection` — amount, `Paid • On Time`, `Next Due`, days left, Prime chip | `PaymentPlanRow` |
-| `AttendanceWorkoutSection` — legend, 31-day bar chart, `60m/30m/0m` axis, avg/peak/lowest, 4 counters | `ActivityBlock` -> `ActivityLegend`, `CombinedActivityChart`, `SummaryPill`, `AttendanceSummaryRow` |
-| Colours `#00E676 / #00B0FF / #0B1C33` | `CardPalette.Mint / Cobalt / Ink` (light-theme equivalents) |
+| `TopBar` — "BAD / GYM" + "Member Intelligence" + month chip + 3-dot menu | `DashboardTopBar` |
+| `MemberProfileCard` — gradient avatar ring, crown, active dot, name, `BG305 \| 23 yrs \| Male`, Prime + Active badges | `HeroCard`, `AvatarBlock`, `PlanPill`, `StatusPill` |
+| Radial 75% meter with `25 / 100` + `Days Left` | `MembershipRing` (elapsed plan share; caption is `daysLeft / planTotalDays`) |
+| Joined / Goal / Branch chips | `MetaChip` (Goal and Branch disappear when the data is absent) |
+| `BodyStatsSection` — 4 tiles (weight / muscle / fat % / BMI band) | `BodyStatsCard` + `BodyTile` + `Sparkline` + `BmiScale` |
+| `AttendanceWorkoutSection` — band legend, 31-day bar chart, `60m/45m/30m/15m/0m` axis, avg/peak/lowest, counters | `ActivityCard` -> `WorkoutChart`, `BandLegend`, `Callout`, `ActivityStats` |
+| `PaymentPlanSection` — amount, `Paid · On Time`, next due, days left, Prime chip | `PaymentCard` |
+| `Today's Activity` — check-in / workout / check-out | `TodayCard` (attendance status + recorded minutes; the model stores no clock times) |
+| Colours `#00E676 / #00B0FF / #0B1C33` | `DashPalette.Mint / Cobalt / Ink` (light-theme equivalents) |
 
 ### Deliberate divergences (intentional, not defects)
 
-1. **Geometry.** Stitch draws a full 430 px-wide phone screen. The card is locked to
-   200 dp x 300 dp and is the only surface.
-2. **No invented data.** Stitch hardcodes mock figures. The card derives all values
-   from `MemberSnapshot`; missing data renders `—`, never `0`.
-3. **Attendance denominators.** Stitch divides the counters by 31 (month length) and
-   shows `77%` under "Present" while counting `Late` separately, which is internally
-   inconsistent. The card takes every counter share against the month, and surfaces
-   the visit rate separately as a labelled `Overall n%`.
-4. **Closures.** Stitch paints off-days with a striped pattern. The card marks
-   schedule closures in slate on the chart strip and excludes them from both the
-   attendance rate and the workout averages.
-5. **Money spacing.** Stitch shows `₹2,800`; the app-wide `MoneyFormat.inr` renders
-   `₹ 2,800` (pre-existing formatter, unchanged here).
+1. **Data honesty beats mockup copy.** Stitch hardcodes figures and shows a check-in
+   clock time the domain does not store. The screen derives every value from
+   `MemberSnapshot`; missing data renders `—`, never `0`, and Today's Activity shows only
+   what the model can prove.
+2. **Attendance denominators.** Stitch divides counters by 31 and shows `77%` under
+   "Present" while counting `Late` separately, which is internally inconsistent. Here
+   `Present` includes late visits and its share uses the same closure-excluded base as
+   the attendance rate shown above it, so the two numbers can never disagree. `Gym Off`
+   carries no percentage because closures are excluded from that base by definition.
+3. **Closures.** Stitch paints off-days with a striped pattern. The chart marks schedule
+   closures in slate and excludes them from both the attendance rate and the workout
+   averages.
+4. **Chart encoding.** Bars are coloured by the declared duration bands
+   (High / Good / Normal / Low) rather than one flat accent, so the legend explains the
+   colours instead of being decorative.
+5. **Money.** `MoneyFormat.inr` renders `₹2,800` with no space.
