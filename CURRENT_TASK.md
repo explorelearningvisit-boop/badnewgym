@@ -9,7 +9,7 @@
 The user supplied a light, full-viewport member dashboard (1024×1536) and asked to "implement nd design this ui ux in mobile viewport". The compact 200×320dp card is therefore no longer the product surface: `MemberIntelligenceScreen` now hosts `MemberDashboard.kt`, a native Compose screen rendered at real mobile text sizes (no density trickery):
 
 1. **BAD GYM header** — menu, month selector, overflow.
-2. **Member hero** — avatar with tier + presence badges, name, code/age/gender, plan and status pills, elapsed ring (`25 / 100` days left), joined / goal / branch chips.
+2. **Member hero** — the green/gold card: member ID, name, age/gender, plan and status pills, "Since" date, a gold days-left shield, Joined / Valid Till / Avg. Workout / Streak tiles, and an Admission → Mid Term → Renewal Due rail.
 3. **Body Stats** — weight, muscle, body fat and BMI tiles with goal-aware deltas, sparklines built from real measurements, and a WHO BMI band scale.
 4. **Workout Trend & Attendance** — 31-day bar chart coloured by duration band, dashed average line, peak/avg/lowest callouts, every day labelled, closure-aware attendance tiles.
 5. **Payment & Plan** — paid vs outstanding branching, last payment, real due date vs plan renewal, receipt + collect actions.
