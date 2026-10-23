@@ -41,7 +41,7 @@ import com.example.badnewgym.feature.memberintelligence.domain.model.MemberSnaps
  */
 object CardGallery {
     val titles = listOf(
-        "FULL CARD · 200dp x 300dp",
+        "FULL CARD · 200x320 DESIGN AT 1.8x",
         "1 · BRAND STRIP",
         "2 · MEMBER IDENTITY + MEMBERSHIP RING",
         "3 · BODY STATS",
@@ -87,19 +87,19 @@ fun CompactCardComponentGallery(
         )
         Spacer(Modifier.height(14.dp))
 
-        // The card lays its sections out inside a 200dp-wide, 6dp-padded container.
-        // Reproducing that container keeps every isolated component pixel-identical.
+        // The card lays its sections out inside a 200dp-wide, 6dp-padded design
+        // container that is then scaled to the screen. Reproducing both the container
+        // and the scale keeps every isolated component identical to the live card.
         when (index) {
-            // The full card supplies its own padding and must stay exactly 200dp wide.
+            // The full card supplies its own padding and scaling.
             0 -> CompactMemberIntelligenceCard(snapshot = snapshot, now = now)
-            else -> Box(
-                // The card lays its sections out inside a 200dp-wide, 6dp-padded
-                // container. Reproducing that keeps each isolated component identical.
-                Modifier
-                    .width(CARD_WIDTH)
-                    .background(CardPalette.Card)
-                    .padding(horizontal = 6.dp, vertical = 5.dp)
-            ) {
+            else -> CardScaleHost {
+                Box(
+                    Modifier
+                        .width(DESIGN_WIDTH)
+                        .background(CardPalette.Card)
+                        .padding(horizontal = 6.dp, vertical = 5.dp)
+                ) {
                 when (index) {
                     1 -> CardBrandStrip(onOverflow = {})
                     2 -> MemberIdentityBlock(snapshot, now)
@@ -134,6 +134,7 @@ fun CompactCardComponentGallery(
                         )
                         ActivityBlock(snapshot, monthKey)
                     }
+                }
                 }
             }
         }

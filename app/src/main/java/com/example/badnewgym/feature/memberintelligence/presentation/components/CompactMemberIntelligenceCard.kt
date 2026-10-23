@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,11 +53,13 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -143,10 +147,13 @@ private val numberLocale = Locale("en", "IN")
 /**
  * The approved BAD GYM Member Intelligence card.
  *
- * A single self-contained card constrained to **200dp x 300dp**. Every value is
+ * The layout is authored in a compact **200dp x 320dp design space** and then enlarged
+ * to fill the width it is given (up to [CARD_MAX_SCALE]). Authored at 200dp the labels
+ * land at 3.5sp — invisible on a real phone — so the design space is rendered at a
+ * device-appropriate scale instead of being pinned to a thumbnail. Every value is
  * derived from [snapshot]; nothing is hardcoded. Tapping a section header asks the
- * host to open the existing detail flow — the card itself never fabricates data and
- * never renders a dead control.
+ * host to open the existing detail flow — the card never fabricates data and never
+ * renders a dead control.
  */
 @Composable
 fun CompactMemberIntelligenceCard(
@@ -165,60 +172,113 @@ fun CompactMemberIntelligenceCard(
     val clock = now ?: remember { System.currentTimeMillis() }
     val monthKey = remember(clock) { DashboardMath.monthKey(clock) }
 
-    Box(
-        modifier
-            .width(CARD_WIDTH)
-            .height(CARD_HEIGHT)
-            .clip(CardShape)
-            .background(CardPalette.Card)
-            .border(1.dp, CardPalette.Mint.copy(alpha = 0.35f), CardShape)
-    ) {
-        Column(
+    CardScaleHost(modifier) {
+        Box(
             Modifier
-                .fillMaxSize()
-                .padding(horizontal = 6.dp, vertical = 5.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp)
+                .width(DESIGN_WIDTH)
+                .height(DESIGN_HEIGHT)
+                .clip(CardShape)
+                .background(CardPalette.Card)
+                .border(1.dp, CardPalette.Mint.copy(alpha = 0.35f), CardShape)
         ) {
-            CardBrandStrip(onOpenOverflow)
-            MemberIdentityBlock(snapshot, clock)
-            CardSectionBox {
-                CardSectionHeader(
-                    icon = Icons.Rounded.Person,
-                    iconTint = CardPalette.Mint,
-                    iconPale = CardPalette.MintPale,
-                    title = "Body Stats",
-                    onClick = onOpenBodyStats
-                )
-                BodyStatsRow(snapshot)
-            }
-            CardSectionBox {
-                CardSectionHeader(
-                    icon = Icons.Rounded.AccountBalanceWallet,
-                    iconTint = CardPalette.Coral,
-                    iconPale = CardPalette.CoralPale,
-                    title = "Payment & Plan",
-                    onClick = onOpenPayment
-                )
-                PaymentPlanRow(snapshot, clock)
-            }
-            CardSectionBox(Modifier.weight(1f)) {
-                CardSectionHeader(
-                    icon = Icons.Rounded.FitnessCenter,
-                    iconTint = CardPalette.Cobalt,
-                    iconPale = CardPalette.CobaltPale,
-                    title = "Attendance & Workout",
-                    trailing = DashboardMath.monthLabelForKey(monthKey),
-                    onClick = onOpenActivity
-                )
-                ActivityBlock(snapshot, monthKey)
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 6.dp, vertical = 5.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                CardBrandStrip(onOpenOverflow)
+                MemberIdentityBlock(snapshot, clock)
+                CardSectionBox {
+                    CardSectionHeader(
+                        icon = Icons.Rounded.Person,
+                        iconTint = CardPalette.Mint,
+                        iconPale = CardPalette.MintPale,
+                        title = "Body Stats",
+                        onClick = onOpenBodyStats
+                    )
+                    BodyStatsRow(snapshot)
+                }
+                CardSectionBox {
+                    CardSectionHeader(
+                        icon = Icons.Rounded.AccountBalanceWallet,
+                        iconTint = CardPalette.Coral,
+                        iconPale = CardPalette.CoralPale,
+                        title = "Payment & Plan",
+                        onClick = onOpenPayment
+                    )
+                    PaymentPlanRow(snapshot, clock)
+                }
+                CardSectionBox(Modifier.weight(1f)) {
+                    CardSectionHeader(
+                        icon = Icons.Rounded.FitnessCenter,
+                        iconTint = CardPalette.Cobalt,
+                        iconPale = CardPalette.CobaltPale,
+                        title = "Attendance & Workout",
+                        trailing = DashboardMath.monthLabelForKey(monthKey),
+                        onClick = onOpenActivity
+                    )
+                    ActivityBlock(snapshot, monthKey)
+                }
             }
         }
     }
 }
 
-/** Locked card geometry. Measured in dp; physical pixels depend on device density. */
-val CARD_WIDTH = 200.dp
-val CARD_HEIGHT = 300.dp
+/**
+ * Design-space geometry.
+ *
+ * The card is authored at 200dp x 320dp (the approved compact ratio) and displayed at
+ * [CARD_SCALE]x that size. Keeping the two separate means every internal dimension,
+ * radius and type size stays in one consistent, readable proportion.
+ */
+val DESIGN_WIDTH = 200.dp
+val DESIGN_HEIGHT = 320.dp
+
+/** Nominal display scale used for the constants below and for the debug gallery. */
+const val CARD_SCALE = 1.8f
+
+/** Never enlarge past this, so the card stays a card on tablets. */
+private const val CARD_MAX_SCALE = 2.2f
+
+/**
+ * Extra type growth on top of [CARD_SCALE].
+ *
+ * The source design used 3.5sp captions to fit 200dp. Scaling geometry alone would
+ * keep them unreadable, so type grows slightly faster than the boxes around it.
+ */
+private const val TEXT_BOOST = 1.1f
+
+/** Nominal displayed size at [CARD_SCALE]. */
+val CARD_WIDTH = DESIGN_WIDTH * CARD_SCALE
+val CARD_HEIGHT = DESIGN_HEIGHT * CARD_SCALE
+
+/**
+ * Fills the width it is given (capped) and provides a matching [Density] to its content,
+ * so a composition authored in design dp renders at the right physical size.
+ *
+ * `sp` also grows by [TEXT_BOOST] on top of the geometry scale, while the user's
+ * accessibility font scale is preserved (it multiplies, never replaces).
+ */
+@Composable
+internal fun CardScaleHost(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    BoxWithConstraints(modifier) {
+        val available = maxWidth.value
+        val scale = if (available.isFinite() && available > 0f) {
+            (available / DESIGN_WIDTH.value).coerceIn(0.8f, CARD_MAX_SCALE)
+        } else {
+            CARD_SCALE
+        }
+        val base = LocalDensity.current
+        CompositionLocalProvider(
+            LocalDensity provides Density(
+                density = base.density * scale,
+                fontScale = base.fontScale * TEXT_BOOST
+            ),
+            content = content
+        )
+    }
+}
 
 // ------------------------------------------------------------------ brand strip
 
@@ -541,7 +601,7 @@ private fun MembershipRing(elapsedPercent: Int, daysLeft: Int, totalDays: Int) {
         Text(
             "Days",
             color = CardPalette.Muted,
-            fontSize = 4.sp,
+            fontSize = 5.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1
         )
@@ -682,7 +742,7 @@ private fun MetricTile(
                 Text(
                     unit,
                     color = CardPalette.Muted,
-                    fontSize = 4.sp,
+                    fontSize = 5.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(start = 0.5.dp, bottom = 0.5.dp)
                 )
@@ -717,7 +777,7 @@ private fun MetricTile(
         Text(
             label,
             color = CardPalette.Muted,
-            fontSize = 4.sp,
+            fontSize = 5.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -926,7 +986,7 @@ internal fun ActivityLegend(rate: Int?) {
         Text(
             rate?.let { "Overall $it%" } ?: "Overall —",
             color = CardPalette.Mint,
-            fontSize = 4.sp,
+            fontSize = 5.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             modifier = Modifier.semantics {
@@ -941,7 +1001,7 @@ internal fun ActivityLegend(rate: Int?) {
 private fun LegendDot(label: String, color: Color) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
         Box(Modifier.size(3.5.dp).clip(CircleShape).background(color))
-        Text(label, color = CardPalette.Muted, fontSize = 4.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        Text(label, color = CardPalette.Muted, fontSize = 5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
     }
 }
 
@@ -974,7 +1034,7 @@ internal fun CombinedActivityChart(
                 horizontalAlignment = Alignment.Start
             ) {
                 listOf("${ceilingMinutes}m", "${ceilingMinutes / 2}m", "0m").forEach {
-                    Text(it, color = CardPalette.Muted, fontSize = 3.5.sp, maxLines = 1)
+                    Text(it, color = CardPalette.Muted, fontSize = 4.5.sp, maxLines = 1)
                 }
             }
             Canvas(
@@ -1083,7 +1143,7 @@ internal fun CombinedActivityChart(
                     Text(
                         label,
                         color = CardPalette.Muted,
-                        fontSize = 3.5.sp,
+                        fontSize = 4.5.sp,
                         maxLines = 1
                     )
                 }
@@ -1145,7 +1205,7 @@ private fun SummaryPill(
                 Text(
                     label,
                     color = CardPalette.Muted,
-                    fontSize = 3.5.sp,
+                    fontSize = 4.5.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1193,12 +1253,12 @@ private fun SummaryCell(icon: ImageVector, tint: Color, value: String, label: St
         }
         Column {
             Text(value, color = CardPalette.Ink, fontSize = 6.sp, fontWeight = FontWeight.Black, maxLines = 1)
-            Text(label, color = CardPalette.Muted, fontSize = 3.5.sp, maxLines = 1)
+            Text(label, color = CardPalette.Muted, fontSize = 4.5.sp, maxLines = 1)
             percent?.let {
                 Text(
                     "$it%",
                     color = tint,
-                    fontSize = 3.5.sp,
+                    fontSize = 4.5.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
