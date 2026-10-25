@@ -81,6 +81,10 @@ The layout model must support ordered widget IDs, per-widget size override, enab
 Admin editing should provide drag/reorder where supported, accessible move controls as fallback, resize controls, enable/disable, reset and preview.
 Normal member view must not expose editor affordances.
 
+## HARD NO-BLACK DESIGN RULE — USER REQUIREMENT
+
+Black/dark visual combinations are prohibited across BAD GYM UI/UX. Do not use black or near-black as a screen background, header, navigation rail, card surface, large decorative region, or brand palette. Do not use dark mode or Android dynamic colours to override the light theme. Use a light pearl/white/mint canvas, emerald and green brand surfaces, and readable deep-green/blue-grey text instead. Dark text may be used only for legibility; it must not create a black-themed composition. Before release, search UI source for Color.Black, black/dark hex values, darkColorScheme, dynamicDarkColorScheme and isSystemInDarkTheme, then inspect actual screenshots. Any exception must be explicitly approved by the user.
+
 ## COLOR SYSTEM
 Primary: emerald/green brand and mint supporting surfaces.
 Blue = information/attendance/analytics.

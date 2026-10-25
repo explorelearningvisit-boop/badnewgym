@@ -98,7 +98,7 @@ fun ReceiptBottomSheet(
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = "Paid",
-                            tint = Color.Black,
+                            tint = MemberCardTokens.DarkNavy,
                             modifier = Modifier.size(16.dp)
                         )
                     }
