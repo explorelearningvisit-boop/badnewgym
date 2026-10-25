@@ -779,5 +779,49 @@ data class MemberCardData(
                 )
             )
         }
+
+        fun sampleRohitMehta(): MemberCardData {
+            val base = sampleAshwiniSinghTarget()
+            return base.copy(
+                profile = base.profile.copy(
+                    greeting = "Good Morning \uD83D\uDC4B",
+                    name = "Rohit Mehta",
+                    memberCode = "BG315",
+                    age = 29,
+                    gender = "Male",
+                    tierName = "Premium Plan",
+                    tier = MemberTier.GOLD_6_MONTH,
+                    isPrime = true,
+                    isActive = true,
+                    attendancePercent = 88,
+                    daysLeft = 55,
+                    attendedDays = 26,
+                    totalDays = 31,
+                    totalPlanDays = 90,
+                    joinedDate = "15 Jun 2026",
+                    joinedDuration = "4 Months",
+                    streakDays = 18,
+                    goal = "Muscle Gain",
+                    branch = "Varanasi",
+                    unreadNotifications = 2,
+                    dateDisplay = "Tue\n22 Oct 2026",
+                    planBadgeText = "Premium Plan"
+                ),
+                paymentPlan = base.paymentPlan.copy(
+                    planDuration = "Premium Plan",
+                    planPeriod = "Valid till 12 Dec 2026",
+                    amountPaid = "₹1,800 / month",
+                    paymentStatus = "Paid • On Time",
+                    paidOnDate = "12 Sep 2026",
+                    nextDueDate = "12 Dec 2026",
+                    daysLeft = 55,
+                    isPrime = true,
+                    lastPaymentAmount = "₹1,800 / month",
+                    lastPaymentDate = "12 Sep 2026",
+                    planName = "Premium Plan",
+                    planPeriodFormatted = "Valid till 12 Dec 2026"
+                )
+            )
+        }
     }
 }

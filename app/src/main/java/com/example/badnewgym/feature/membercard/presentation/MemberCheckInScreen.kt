@@ -35,12 +35,13 @@ import com.example.badnewgym.feature.membercard.presentation.components.SearchBo
 import com.example.badnewgym.feature.membercard.presentation.components.TailscaleSettingsBottomSheet
 
 /**
- * BAD GYM — COMPACT MEMBER INTELLIGENCE SCREEN
- * Faithful implementation of the approved reference UI/UX:
- * - Packed vertically to consume minimal viewport height (~500-550dp)
- * - Leaves remaining space for additional custom widgets
- * - High readability with bold numbers & metrics
- * - Light mint and white canvas
+ * BAD GYM — MEMBER INTELLIGENCE SCREEN
+ * Canonical implementation matching the reference liquid glass dashboard:
+ * - Fluid mint-aurora canvas
+ * - Centered member hero with neon cyan/mint halo ring and 3D crown badge
+ * - 2x2 Bento Intelligence cards (Attendance, Payment, Workout, Body Progress)
+ * - Detailed Overview Card with dual bar/spline chart, 4 metric pills & 3 fitness targets
+ * - Floating glass bottom navigation dock
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,55 +52,36 @@ fun MemberCheckInScreen(
     customWidgetsContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    // Bottom Sheet States
-    var showReceiptSheet by remember { mutableStateOf(false) }
-    val receiptSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isV2Dashboard by remember { mutableStateOf(true) }
+    var currentMemberData by remember { mutableStateOf(data) }
 
-    var selectedAttendanceDay by remember { mutableStateOf<CalendarDay?>(null) }
-    val attendanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    var showAnalyticsSheet by remember { mutableStateOf(false) }
-    val analyticsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    var showNotificationsSheet by remember { mutableStateOf(false) }
-    val notificationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    var showSearchSheet by remember { mutableStateOf(false) }
-    val searchSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    var showTailscaleSheet by remember { mutableStateOf(false) }
-    val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    var isAquaGlassView by remember { mutableStateOf(false) }
-    var currentMemberData by remember { mutableStateOf(MemberCardData.sampleAshwiniSinghTarget()) }
-
-    LaunchedEffect(initialSheet) {
-        when (initialSheet?.lowercase()) {
-            "receipt" -> showReceiptSheet = true
-            "analytics" -> showAnalyticsSheet = true
-            "attendance" -> selectedAttendanceDay = currentMemberData.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-            "notifications" -> showNotificationsSheet = true
-            "search" -> showSearchSheet = true
-            "tailscale" -> showTailscaleSheet = true
-            else -> {}
-        }
-    }
-
-    if (isAquaGlassView) {
-        AquaGlassMemberView(
+    if (isV2Dashboard) {
+        MemberDashboardV2Screen(
             data = currentMemberData,
-            onToggleTheme = { isAquaGlassView = false },
-            onReceiptClick = { showReceiptSheet = true },
-            onAttendanceDayClick = { day -> selectedAttendanceDay = day },
-            onAnalyticsClick = { showAnalyticsSheet = true },
-            onNotificationClick = { showNotificationsSheet = true },
-            onMenuClick = {
-                showTailscaleSheet = true
-                onMenuClick()
-            },
+            initialSheet = initialSheet,
+            onMenuClick = onMenuClick,
             modifier = modifier
         )
     } else {
+        // Fallback Compact Card View
+        var showReceiptSheet by remember { mutableStateOf(false) }
+        val receiptSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+        var selectedAttendanceDay by remember { mutableStateOf<CalendarDay?>(null) }
+        val attendanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+        var showAnalyticsSheet by remember { mutableStateOf(false) }
+        val analyticsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+        var showNotificationsSheet by remember { mutableStateOf(false) }
+        val notificationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+        var showSearchSheet by remember { mutableStateOf(false) }
+        val searchSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+        var showTailscaleSheet by remember { mutableStateOf(false) }
+        val tailscaleSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
         val screenBg = Brush.verticalGradient(
             listOf(
                 Color(0xFFE0F7EF),
@@ -123,7 +105,6 @@ fun MemberCheckInScreen(
                     .padding(horizontal = 12.dp, vertical = 8.dp)
                     .navigationBarsPadding()
             ) {
-                // Main Member Intelligence Dashboard Architecture
                 MemberCheckInCard(
                     data = currentMemberData,
                     onAvatarClick = {
@@ -140,85 +121,57 @@ fun MemberCheckInScreen(
                         selectedAttendanceDay = day
                     },
                     onAnalyticsClick = { showAnalyticsSheet = true },
-                    onTierSwitch = { newTier ->
-                        currentMemberData = when (newTier) {
-                            com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH ->
-                                MemberCardData.sampleAmanTripathi().copy(
-                                    profile = MemberCardData.sampleAmanTripathi().profile.copy(
-                                        tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.GOLD_6_MONTH,
-                                        tierName = "Gold Plan (6 Months)"
-                                    )
-                                )
-                            com.example.badnewgym.feature.membercard.domain.model.MemberTier.BASIC_MEMBER ->
-                                MemberCardData.sampleAmanTripathi().copy(
-                                    profile = MemberCardData.sampleAmanTripathi().profile.copy(
-                                        tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.BASIC_MEMBER,
-                                        tierName = "Basic Member"
-                                    )
-                                )
-                            com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND ->
-                                MemberCardData.sampleAshwiniSingh().copy(
-                                    profile = MemberCardData.sampleAshwiniSingh().profile.copy(
-                                        tier = com.example.badnewgym.feature.membercard.domain.model.MemberTier.SPARK_DIAMOND,
-                                        tierName = "Spark Member"
-                                    )
-                                )
-                        }
-                    }
+                    onTierSwitch = {}
                 )
 
-                // Slot for custom widgets in the remaining vertical space
                 if (customWidgetsContent != null) {
                     Spacer(modifier = Modifier.height(6.dp))
                     customWidgetsContent()
                 }
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            if (showReceiptSheet) {
+                ReceiptBottomSheet(
+                    sheetState = receiptSheetState,
+                    onDismissRequest = { showReceiptSheet = false }
+                )
+            }
+
+            selectedAttendanceDay?.let { day ->
+                AttendanceDayBottomSheet(
+                    day = day,
+                    sheetState = attendanceSheetState,
+                    onDismissRequest = { selectedAttendanceDay = null }
+                )
+            }
+
+            if (showAnalyticsSheet) {
+                DetailedAnalyticsBottomSheet(
+                    sheetState = analyticsSheetState,
+                    onDismissRequest = { showAnalyticsSheet = false }
+                )
+            }
+
+            if (showNotificationsSheet) {
+                NotificationsBottomSheet(
+                    sheetState = notificationsSheetState,
+                    onDismissRequest = { showNotificationsSheet = false }
+                )
+            }
+
+            if (showSearchSheet) {
+                SearchBottomSheet(
+                    sheetState = searchSheetState,
+                    onDismissRequest = { showSearchSheet = false }
+                )
+            }
+
+            if (showTailscaleSheet) {
+                TailscaleSettingsBottomSheet(
+                    sheetState = tailscaleSheetState,
+                    onDismissRequest = { showTailscaleSheet = false }
+                )
             }
         }
     }
-
-        // --- Bottom Sheet Dialogs ---
-        if (showReceiptSheet) {
-            ReceiptBottomSheet(
-                sheetState = receiptSheetState,
-                onDismissRequest = { showReceiptSheet = false }
-            )
-        }
-
-        if (selectedAttendanceDay != null) {
-            AttendanceDayBottomSheet(
-                day = selectedAttendanceDay,
-                sheetState = attendanceSheetState,
-                onDismissRequest = { selectedAttendanceDay = null }
-            )
-        }
-
-        if (showAnalyticsSheet) {
-            DetailedAnalyticsBottomSheet(
-                sheetState = analyticsSheetState,
-                onDismissRequest = { showAnalyticsSheet = false }
-            )
-        }
-
-        if (showNotificationsSheet) {
-            NotificationsBottomSheet(
-                sheetState = notificationsSheetState,
-                onDismissRequest = { showNotificationsSheet = false }
-            )
-        }
-
-        if (showSearchSheet) {
-            SearchBottomSheet(
-                sheetState = searchSheetState,
-                onDismissRequest = { showSearchSheet = false }
-            )
-        }
-
-        if (showTailscaleSheet) {
-            TailscaleSettingsBottomSheet(
-                sheetState = tailscaleSheetState,
-                onDismissRequest = { showTailscaleSheet = false }
-            )
-        }
-    }
+}
