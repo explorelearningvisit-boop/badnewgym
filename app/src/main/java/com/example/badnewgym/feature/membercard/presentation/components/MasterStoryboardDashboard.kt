@@ -116,6 +116,8 @@ fun MasterStoryboardDashboard(
         MasterFooterBanner(
             onKeepGoingClick = onWorkoutClick
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
@@ -717,10 +719,10 @@ fun MasterAttendanceCard(
                             }
                         }
 
-                        TimeframeDropdownPill(text = "30 Days")
+                        TimeframeDropdownPill(text = "Oct 2026")
                     }
 
-                    // Key Metric: 85% + 18 of 21 days + Pill on left, 3 Legend Columns on right
+                    // Key Metric: 90% + 27 / 30 Present Days + Pill on left, 4 Breakdown Columns on right
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -732,14 +734,14 @@ fun MasterAttendanceCard(
                         ) {
                             Column {
                                 Text(
-                                    text = "85%",
+                                    text = "90%",
                                     fontSize = 26.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF047857)
                                 )
                                 Text(
-                                    text = "18 of 21 days",
-                                    fontSize = 10.sp,
+                                    text = "27 / 30 Present Days",
+                                    fontSize = 9.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF1E293B)
                                 )
@@ -754,51 +756,60 @@ fun MasterAttendanceCard(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "↑ 12%",
+                                        text = "↑ 5%",
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF047857)
                                     )
                                 }
                                 Text(
-                                    text = "vs previous 30 days",
+                                    text = "vs Sep",
                                     fontSize = 7.5.sp,
                                     color = Color(0xFF64748B)
                                 )
                             }
                         }
 
-                        // 3 Legend Columns
+                        // Breakdown Columns: Present 27, Late 1, Absent 1, Holiday 1
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
-                                    Spacer(Modifier.width(2.5.dp))
-                                    Text("Present", fontSize = 7.5.sp, color = Color(0xFF64748B))
+                                    Spacer(Modifier.width(2.dp))
+                                    Text("Present", fontSize = 7.sp, color = Color(0xFF64748B))
                                 }
-                                Text("18", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                                Text("86%", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                                Text("27", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text("90%", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFF59E0B)))
+                                    Spacer(Modifier.width(2.dp))
+                                    Text("Late", fontSize = 7.sp, color = Color(0xFF64748B))
+                                }
+                                Text("1", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text("3%", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF59E0B))
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFEF4444)))
-                                    Spacer(Modifier.width(2.5.dp))
-                                    Text("Absent", fontSize = 7.5.sp, color = Color(0xFF64748B))
+                                    Spacer(Modifier.width(2.dp))
+                                    Text("Absent", fontSize = 7.sp, color = Color(0xFF64748B))
                                 }
-                                Text("3", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                                Text("14%", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444))
+                                Text("1", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text("3%", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444))
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF94A3B8)))
-                                    Spacer(Modifier.width(2.5.dp))
-                                    Text("Gym Off", fontSize = 7.5.sp, color = Color(0xFF64748B))
+                                    Box(Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF8B5CF6)))
+                                    Spacer(Modifier.width(2.dp))
+                                    Text("Holiday", fontSize = 7.sp, color = Color(0xFF64748B))
                                 }
-                                Text("2", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                                Text("-", fontSize = 7.5.sp, color = Color(0xFF94A3B8))
+                                Text("1", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text("3%", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8B5CF6))
                             }
                         }
                     }
@@ -827,11 +838,11 @@ fun MasterAttendanceCard(
                             .weight(1f)
                             .height(52.dp)
                     ) {
-                        // 1 = Present (green), 0 = Absent (red), 2 = Gym Off (grey)
+                        // 1 = Present (green), 2 = Late (amber), 0 = Absent (red), 3 = Holiday (purple)
                         val attendanceDays = listOf(
-                            1, 2, 0, 2, 1, 0, 1, 1, 0, 1,
-                            2, 1, 1, 2, 1, 0, 1, 2, 1, 2,
-                            1, 1, 2, 1, 1, 1, 1, 1, 1, 1
+                            1, 1, 1, 0, 1, 2, 1, 1, 1, 1,
+                            3, 1, 1, 1, 0, 1, 1, 1, 1, 1,
+                            1, 1, 1, 3, 1, 1, 1, 1, 1, 1
                         )
                         val count = attendanceDays.size
                         val barWidth = 3.5.dp.toPx()
@@ -842,14 +853,16 @@ fun MasterAttendanceCard(
                             val x = i * step + (step - barWidth) / 2f
                             val h = when (status) {
                                 1 -> size.height * 0.92f
+                                2 -> size.height * 0.70f
                                 0 -> size.height * 0.45f
-                                else -> size.height * 0.45f
+                                else -> size.height * 0.55f
                             }
                             val y = size.height - h
                             val color = when (status) {
                                 1 -> Color(0xFF10B981)
+                                2 -> Color(0xFFF59E0B)
                                 0 -> Color(0xFFEF4444)
-                                else -> Color(0xFFCBD5E1)
+                                else -> Color(0xFF8B5CF6)
                             }
                             drawRoundRect(
                                 color = color,
@@ -894,13 +907,13 @@ fun MasterAttendanceCard(
                 MiniStatCard(
                     icon = "🟢",
                     title = "Attendance Rate",
-                    value = "85%",
+                    value = "90%",
                     modifier = Modifier.weight(1f)
                 )
                 MiniStatCard(
                     icon = "📅",
                     title = "Total Visits",
-                    value = "24 Days",
+                    value = "27 Days",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -990,10 +1003,10 @@ fun MasterWorkoutTrendCard(
                             }
                         }
 
-                        TimeframeDropdownPill(text = "30 Days")
+                        TimeframeDropdownPill(text = "Oct 2026")
                     }
 
-                    // Key Metric: 47 min + Avg per session + Pill on left, Legend Column on right
+                    // Key Metric: 70 min + Avg / Session + Pill on left, Legend Column on right
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -1005,13 +1018,13 @@ fun MasterWorkoutTrendCard(
                         ) {
                             Column {
                                 Text(
-                                    text = "47 min",
+                                    text = "70 min",
                                     fontSize = 26.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0284C7)
                                 )
                                 Text(
-                                    text = "Avg per session",
+                                    text = "Avg / Session",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF1E293B)
@@ -1034,7 +1047,7 @@ fun MasterWorkoutTrendCard(
                                     )
                                 }
                                 Text(
-                                    text = "vs previous 30 days",
+                                    text = "vs Sep",
                                     fontSize = 7.5.sp,
                                     color = Color(0xFF64748B)
                                 )
@@ -1043,14 +1056,33 @@ fun MasterWorkoutTrendCard(
 
                         // Right Legend Column
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            LegendDotItem(color = Color(0xFF0284C7), label = "Workout", value = "(24 days)")
-                            LegendDotItem(color = Color(0xFF94A3B8), label = "No Workout", value = "(6 days)")
+                            LegendDotItem(color = Color(0xFF0284C7), label = "Workout", value = "(22 d)")
+                            LegendDotItem(color = Color(0xFF94A3B8), label = "Rest", value = "(8 d)")
                         }
                     }
                 }
             }
 
-            // 30-Day Workout Bars Chart (0m, 45m, 90m)
+            // Quick Info Metrics Strip
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White.copy(alpha = 0.8f))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Sessions: 22", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+                Text(text = "•", fontSize = 8.sp, color = Color(0xFF94A3B8))
+                Text(text = "Total: 1.54 hr", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+                Text(text = "•", fontSize = 8.sp, color = Color(0xFF94A3B8))
+                Text(text = "Best: 2.0 hr", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
+                Text(text = "•", fontSize = 8.sp, color = Color(0xFF94A3B8))
+                Text(text = "Lowest: 20 min", fontSize = 8.5.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
+            }
+
+            // 30-Day Workout Bars Chart (0m, 60m, 120m)
             Column(modifier = Modifier.fillMaxWidth().padding(top = 2.dp)) {
                 Row(modifier = Modifier.fillMaxWidth().height(52.dp)) {
                     // Left Y-Axis
@@ -1059,8 +1091,8 @@ fun MasterWorkoutTrendCard(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.End
                     ) {
-                        Text(text = "90m", fontSize = 7.sp, color = Color(0xFF94A3B8))
-                        Text(text = "45m", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "120m", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "60m", fontSize = 7.sp, color = Color(0xFF94A3B8))
                         Text(text = "0m", fontSize = 7.sp, color = Color(0xFF94A3B8))
                     }
 
@@ -1073,9 +1105,9 @@ fun MasterWorkoutTrendCard(
                             .height(52.dp)
                     ) {
                         val workoutMins = listOf(
-                            50, 20, 60, 20, 75, 85, 30, 45, 65, 70,
-                            20, 55, 60, 20, 92, 70, 40, 50, 65, 75,
-                            20, 35, 80, 60, 65, 70, 85, 60, 45, 75
+                            60, 20, 75, 20, 85, 90, 45, 60, 70, 80,
+                            20, 65, 70, 20, 120, 80, 50, 60, 75, 85,
+                            20, 40, 90, 70, 75, 80, 95, 70, 55, 85
                         )
                         val count = workoutMins.size
                         val barWidth = 3.5.dp.toPx()
@@ -1084,7 +1116,7 @@ fun MasterWorkoutTrendCard(
 
                         workoutMins.forEachIndexed { i, mins ->
                             val x = i * step + (step - barWidth) / 2f
-                            val hRatio = (mins / 95f).coerceIn(0.15f, 0.95f)
+                            val hRatio = (mins / 125f).coerceIn(0.15f, 0.95f)
                             val h = size.height * hRatio
                             val y = size.height - h
 
@@ -1130,13 +1162,13 @@ fun MasterWorkoutTrendCard(
                 MiniStatCard(
                     icon = "⏱️",
                     title = "Total Workouts",
-                    value = "24",
+                    value = "22",
                     modifier = Modifier.weight(1f)
                 )
                 MiniStatCard(
                     icon = "🏆",
                     title = "Best Session",
-                    value = "92 min",
+                    value = "2.0 hr",
                     modifier = Modifier.weight(1f)
                 )
                 MiniStatCard(
@@ -1239,10 +1271,33 @@ fun MasterPaymentCard(
                             }
                         }
 
-                        TimeframeDropdownPill(text = "12 Months")
+                        // Plan History Pill
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color.White)
+                                .border(0.8.dp, Color(0xFFFECDD3), RoundedCornerShape(50.dp))
+                                .clickable { onClick() }
+                                .padding(horizontal = 7.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                text = "Plan History",
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFE11D48)
+                            )
+                            Text(
+                                text = "›",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFE11D48)
+                            )
+                        }
                     }
 
-                    // Key Metric: ₹2,800 + [ ! Due ]
+                    // Key Metric: ₹2,800 + [ ! Due Now ]
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -1260,51 +1315,124 @@ fun MasterPaymentCard(
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "! Due",
-                                fontSize = 9.sp,
+                                text = "! Due Now",
+                                fontSize = 8.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                         }
                     }
 
-                    // Next Due Date & View Receipt Button
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Next Due Date: 12 Nov 2026 (25 days left)",
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF991B1B)
-                        )
+                    Text(
+                        text = "Due on 16 Oct 2026",
+                        fontSize = 8.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF991B1B)
+                    )
 
+                    // Action Buttons Row: WhatsApp, Collect Payment, Receipt
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // WhatsApp
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color(0xFF22C55E))
+                                .clickable { /* WhatsApp */ }
+                                .padding(horizontal = 6.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(text = "💬", fontSize = 8.sp)
+                            Text(
+                                text = "WhatsApp",
+                                fontSize = 7.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        }
+
+                        // Collect Payment CTA
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color(0xFFEF4444))
+                                .clickable { /* Collect */ }
+                                .padding(horizontal = 7.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "₹ Collect Payment",
+                                fontSize = 7.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        }
+
+                        // View Receipt
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(50.dp))
                                 .background(Color.White)
-                                .border(0.8.dp, Color(0xFFBAE6FD), RoundedCornerShape(50.dp))
+                                .border(0.8.dp, Color(0xFFFECDD3), RoundedCornerShape(50.dp))
                                 .clickable { onViewReceiptClick() }
-                                .padding(horizontal = 7.dp, vertical = 3.dp),
+                                .padding(horizontal = 6.dp, vertical = 3.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Receipt,
                                 contentDescription = null,
-                                tint = Color(0xFF0284C7),
-                                modifier = Modifier.size(11.dp)
+                                tint = Color(0xFF0F172A),
+                                modifier = Modifier.size(9.dp)
                             )
                             Text(
-                                text = "View Receipt",
-                                fontSize = 8.5.sp,
+                                text = "Receipt",
+                                fontSize = 7.5.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0284C7)
+                                color = Color(0xFF0F172A),
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
+                }
+            }
+
+            // Plan Intelligence Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.85f))
+                    .border(0.8.dp, Color(0xFFFECDD3), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 8.dp, vertical = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(text = "CURRENT PLAN", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Text(text = "👑 Gold Monthly", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    Text(text = "Valid: 31 Oct 2026", fontSize = 7.5.sp, color = Color(0xFF059669), fontWeight = FontWeight.SemiBold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
+                Column {
+                    Text(text = "PREVIOUS", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Text(text = "🥈 Silver Monthly", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                    Text(text = "Upgraded", fontSize = 7.5.sp, color = Color(0xFF64748B))
+                }
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
+                Column {
+                    Text(text = "NEXT PREDICTED", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Text(text = "👑 Gold (₹2,800)", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
+                    Text(text = "Due 16 Oct", fontSize = 7.5.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -1331,20 +1459,20 @@ fun MasterPaymentCard(
                             .weight(1f)
                             .height(52.dp)
                     ) {
-                        // Status: 1 = Paid (green), 2 = Partial (orange), 3 = Due (red), 0 = No Data (grey)
+                        // Status: 1 = Paid (green), 2 = Plan Changed (indigo), 3 = Due Soon (amber), 4 = Due Now (red), 0 = No Data (grey)
                         val months = listOf(
                             Pair(1, 0.75f), // Jan Paid
                             Pair(1, 0.85f), // Feb Paid
-                            Pair(2, 0.50f), // Mar Partial
+                            Pair(1, 0.80f), // Mar Paid
                             Pair(1, 0.80f), // Apr Paid
-                            Pair(0, 0.60f), // May No Data
-                            Pair(2, 0.45f), // Jun Partial
+                            Pair(1, 0.70f), // May Paid
+                            Pair(2, 0.65f), // Jun Plan Changed
                             Pair(1, 0.85f), // Jul Paid
                             Pair(1, 0.70f), // Aug Paid
-                            Pair(1, 0.70f), // Sep Paid
-                            Pair(3, 0.65f), // Oct Due
-                            Pair(3, 0.50f), // Nov Due
-                            Pair(0, 0.60f)  // Dec No Data
+                            Pair(2, 0.75f), // Sep Plan Changed
+                            Pair(4, 0.85f), // Oct Due Now
+                            Pair(3, 0.50f), // Nov Due Soon
+                            Pair(0, 0.30f)  // Dec Unpaid
                         )
                         val count = months.size
                         val barWidth = 8.dp.toPx()
@@ -1366,8 +1494,9 @@ fun MasterPaymentCard(
 
                             val color = when (pair.first) {
                                 1 -> Color(0xFF10B981)
-                                2 -> Color(0xFFF59E0B)
-                                3 -> Color(0xFFEF4444)
+                                2 -> Color(0xFF6366F1)
+                                3 -> Color(0xFFF59E0B)
+                                4 -> Color(0xFFEF4444)
                                 else -> Color(0xFFCBD5E1)
                             }
 
@@ -1400,10 +1529,10 @@ fun MasterPaymentCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                LegendDotItem(color = Color(0xFF10B981), label = "Paid", value = "8 months")
-                LegendDotItem(color = Color(0xFFF59E0B), label = "Partial", value = "2 months")
-                LegendDotItem(color = Color(0xFFEF4444), label = "Due", value = "2 months")
-                LegendDotItem(color = Color(0xFF94A3B8), label = "No Data", value = "-")
+                LegendDotItem(color = Color(0xFF10B981), label = "Paid & Active", value = "(8 mo)")
+                LegendDotItem(color = Color(0xFF6366F1), label = "Plan Changed", value = "(2 mo)")
+                LegendDotItem(color = Color(0xFFEF4444), label = "Due Now", value = "(1 mo)")
+                LegendDotItem(color = Color(0xFFF59E0B), label = "Due Soon", value = "(1 mo)")
             }
 
             // Bottom 4-Card Row
@@ -1426,14 +1555,14 @@ fun MasterPaymentCard(
                 MiniStatCard(
                     icon = "🕒",
                     title = "Next Due",
-                    value = "12 Nov 2026\n(25 days left)",
+                    value = "16 Oct 2026\n(Due Now)",
                     valueColor = Color(0xFFDC2626),
                     modifier = Modifier.weight(1.15f)
                 )
                 MiniStatCard(
                     icon = "🟢",
                     title = "On Time",
-                    value = "80%\n(8/10 months)",
+                    value = "91%\n(10/11 mo)",
                     modifier = Modifier.weight(1.05f)
                 )
             }
@@ -1518,7 +1647,7 @@ fun MasterBodyProgressCard(
                             }
                         }
 
-                        TimeframeDropdownPill(text = "12 Months")
+                        TimeframeDropdownPill(text = "Last 6 Mo")
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -1622,6 +1751,54 @@ fun MasterBodyProgressCard(
                 ) {
                     listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { m ->
                         Text(text = m, fontSize = 6.5.sp, color = Color(0xFF94A3B8))
+                    }
+                }
+            }
+
+            // Insight Pill Strip
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White.copy(alpha = 0.8f))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "✓", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A))
+                    Text(
+                        text = "Good consistency this month",
+                        fontSize = 8.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF15803D)
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Text(
+                        text = "BMI: 22.8",
+                        fontSize = 8.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF6B21A8)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50.dp))
+                            .background(Color(0xFFDCFCE7))
+                            .padding(horizontal = 4.dp, vertical = 1.dp)
+                    ) {
+                        Text(
+                            text = "Normal",
+                            fontSize = 7.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF15803D)
+                        )
                     }
                 }
             }
