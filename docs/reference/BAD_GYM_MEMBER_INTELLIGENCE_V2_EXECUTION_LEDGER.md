@@ -161,3 +161,99 @@ Status values: PENDING | IN_PROGRESS | BLOCKED | VERIFIED
 
 
 
+
+## Milestone 8.0 - Luminous Liquid Glass Member Intelligence Dashboard (2026-10-24)
+- Scope: Pixel-perfect reverse engineering and implementation of the newly supplied Member Intelligence reference dashboard:
+  - 4 Specification MD Documents:
+    1. docs/reference/MEMBER_INTELLIGENCE_DASHBOARD_INSPECTION_ANALYSIS.md
+    2. docs/reference/MEMBER_INTELLIGENCE_DESIGN_TOKENS_SPEC.md
+    3. docs/reference/MEMBER_INTELLIGENCE_COMPONENT_HIERARCHY.md
+    4. docs/reference/MEMBER_INTELLIGENCE_IMPLEMENTATION_ROADMAP.md
+  - Implementation in :app:
+    - AquaGlassTokens.kt: Added vibrant jewel-tone bento gradients (Attendance, Payment, Workout, Body Progress), specular glares, and aura glows while maintaining backward compatibility.
+    - MemberDashboardComponents.kt: Created atomic composables for TopBar, Centerpiece Hero with dual halo ring & gold 3D crown badge, 2x2 Bento Intelligence cards, Detailed Overview Card with canvas dual-layer histogram & spline curve + tooltip, and Floating Glass Bottom Navigation Dock.
+    - MemberDashboardV2Screen.kt: Master screen scaffold binding all atomic components with interactive bottom sheets.
+    - MemberCheckInScreen.kt: Wired MemberDashboardV2Screen as primary view.
+- Build Verification:
+  - `./gradlew testDebugUnitTest assembleDebug` SUCCESSFUL.
+- Physical Device Verification (Xiaomi 11i 5G - zxdada69gunb7ls4):
+  - Streamed install and launch verified via ADB.
+  - Live screenshot captured: `docs/reference/images/member_dashboard_v2_live.png`.
+
+## Milestone 9.0 - Dual-Mode Compact (~300dp) & Expanded (~400dp) Dashboard with Quick Widgets (2026-10-25)
+- Scope: Pixel-perfect implementation of the Dual-Mode Master Reference:
+  - 1. COMPACT VIEW (~300dp height, 360dp mobile width):
+    - 4 Primary Bento cards (Attendance 85%, Workout 47 min, Payment ₹2,800, Body Progress 69.5 kg).
+    - Centerpiece Avatar with halo ring, gold crown pin, `• Online` pill, `Ashwini Singh 👑`, `BG305 | 23 yrs | Male`, and `Active Member` badge.
+    - Quick Widgets Carousel: `🔥 Activity 48 min`, `🎯 Goals 4/5`, `🍏 Nutrition 3,250 kcal`, `👑 Plan 25 Days`, `🎽 Trainer Rahul Sir`, `🕒 Next Session Today 6 PM`.
+  - 2. EXPANDED VIEW (~400dp height, On-Tap Expansion):
+    - Header with back navigation, `7D`, `30D`, `3M`, `6M`, `1Y` timeframe selector.
+    - 4 Rich Columns:
+      - Attendance: 30D bar/dot chart, Present 18 / Absent 3 / Gym Off 4, This Week M-T-W-T-F-S-S checkmark row, Insight bulb.
+      - Workout: 30D equalizer bars, Total 18 / Best Day 92 min / Streak 12 Days, This Week volume bars, Insight bulb.
+      - Payment: 30D timeline graph, Total Paid ₹12,600 / Pending ₹2,800 / Next Due 27 Oct 2026, 7-badge payment history, Insight bulb.
+      - Body Progress: 30D spline, Weight/BMI/Body Fat/Muscle tabs, Start 72.3 / Current 69.5 / Target 68 kg, Progress 38% bar, Body Goals capsules, Insight bulb.
+  - Interactive expansion banner with smooth `AnimatedVisibility`.
+  - Floating glass bottom dock with glowing active Home capsule.
+- Build Verification:
+  - `./gradlew compileDebugKotlin assembleDebug` SUCCESSFUL.
+- Physical Device Verification (Xiaomi 11i 5G - `zxdada69gunb7ls4`):
+  - Live screenshots captured:
+    - `docs/reference/images/dual_compact_expanded_live.png`
+    - `docs/reference/images/dual_compact_expanded_scrolled.png`
+
+## Milestone 10.0 - Full-Width 360dp Widget Integration (2026-10-25)
+- Scope: Implemented full-width 360dp mobile layout across all widgets:
+  - 1. Compact View Quick Widgets:
+    - Replaced single-row horizontal scroll with a responsive 2-row x 3-column full-width grid (`Modifier.weight(1f)` per chip).
+    - All 6 widgets (Activity 48 min, Goals 4/5, Nutrition 3,250 kcal, Plan 25 Days, Trainer Rahul Sir, Next Session Today 6 PM) span the full 360dp card width simultaneously without cutoffs.
+  - 2. Expanded View Widgets:
+    - All 4 inspection cards (Attendance, Workout, Payment, Body Progress) take full width 360dp (`fillMaxWidth()`).
+    - Added category filter pills: `All`, `Attendance`, `Workout`, `Payment`, `Body Progress`.
+    - 30-day histogram/splines, M-T-W-T-F-S-S checkmark rows, volume bars, payment stamps, and coach insights expand to span the entire 360dp canvas.
+- Build Verification:
+  - `./gradlew compileDebugKotlin assembleDebug` SUCCESSFUL.
+- Physical Device Verification (Xiaomi 11i 5G - `zxdada69gunb7ls4`):
+  - Live screenshots captured:
+    - Top Compact & Full-Width Grid: `docs/reference/images/full_width_360dp_live.png`
+    - Scrolled Full-Width Stacked Widgets: `docs/reference/images/full_width_360dp_scrolled.png`
+
+## Milestone 11.0 - Maximized Space, Enlarged Typography & Photo Scale (2026-10-25)
+- Scope: Refactored UI to use 100% of screen space with enlarged typography and prominent imagery:
+  - 1. Maximized Layout Space:
+    - Reduced outer horizontal margins from 8–14dp down to 4dp safe padding, filling edge-to-edge canvas.
+    - Expanded card heights and widths to eliminate blank gaps.
+  - 2. Enlarged Image Scale:
+    - Centerpiece member profile photo enlarged to 86dp (in 100dp container with 3dp glowing neon halo).
+    - Status icon containers enlarged from 20dp to 24–36dp with larger glyphs (14–20dp).
+    - Crown badge enlarged to 26dp.
+  - 3. Enhanced Typography Scale:
+    - Primary App title: 20sp Black.
+    - Bento & Widget key metrics: Boosted to 19–26sp Black (Attendance 85%, Workout 47 min, Payment ₹2,800, Body Progress 69.5 kg).
+    - Sublabels and demographic text: 10.5–12.5sp Bold.
+    - Quick Widget chips: Emojis enlarged to 15sp, text 11sp Black.
+    - Weekday circle badges enlarged to 28dp with 15dp status icons.
+    - Charts height expanded to 86dp with thicker bars (7dp) and glowing nodes.
+- Build Verification:
+  - `./gradlew compileDebugKotlin assembleDebug` SUCCESSFUL.
+- Physical Device Verification (Xiaomi 11i 5G - `zxdada69gunb7ls4`):
+  - Live screenshots captured:
+    - `docs/reference/images/enlarged_space_live.png`
+    - `docs/reference/images/enlarged_space_scrolled.png`
+
+## Milestone 12.0 - Master 9:19 Vertical Storyboard with 3D Visual Assets (2026-10-26)
+- **User Request**: 100% faithful implementation of the master mobile design storyboard featuring 7 full-width vertical sections, 3D character/illustrations, and intelligence cards.
+- **Components Implemented**:
+  1. `MasterHeroHeader`: Deep purple gradient header (`#2D0F62` to `#3B1266`), BAD GYM branding, `02 Oct 2026` pill, "Stronger Happier You! 😃" typography with lime green accent, Ashwini Singh avatar with green halo & crown, `Active Member` & `Prime Plan` pills, `"Better Than Yesterday" 💪` quote bubble, 3D flexing character illustration, 25-Day progress bar, and floating 4-metric quick dock (Height, Weight, BMI, Goal).
+  2. `MasterAttendanceCard`: Full-width mint green card (`#EFFEF2`), 3D calendar illustration, 85% hero stat with `↑ 12%` pill, 3-column legend (Present, Absent, Gym Off), 30-day vertical bar chart, and 4 bottom stat cards (Current Streak, Best Streak, Attendance Rate 🟢, Total Visits).
+  3. `MasterWorkoutTrendCard`: Full-width sky blue card (`#E5F1FB`), 3D dumbbells illustration, 47 min hero stat with `↑ 8%` pill, right-aligned legend column (Workout, No Workout), 30-day vertical workout bars (0m, 45m, 90m), and 4 bottom stat cards (Total Workouts, Best Session, Current Streak, Weekly Avg).
+  4. `MasterPaymentCard`: Full-width coral card (`#FEEDED`), 3D wallet with coins illustration, ₹2,800 hero stat with `! Due` badge, Next Due Date (12 Nov 2026), `View Receipt` pill button, 12-month capsule bars with colored pills, 4-status legend, and 4 bottom stat cards (Total Paid, Avg / Month, Next Due, On Time 🟢).
+  5. `MasterBodyProgressCard`: Full-width soft lavender card (`#E7D6F5`), 3D scale with cloud illustration, 12-month 4-line spline chart with smooth Bezier curves and circular data dots, and 2 rows of 4 stat cards (8 metric cards total: Weight, Muscle, Body Fat, Waist, Strength, Endurance, Overall Progress, Goal).
+  6. `MasterFooterBanner`: Deep purple banner (`#5D22B6`), 3D purple dumbbell illustration, "Consistent Steps, Brighter Days 彡" typography, and "Keep Going! ➔" neon yellow pill button.
+- **Build Verification**:
+  - `./gradlew.bat testDebugUnitTest assembleDebug` SUCCESSFUL (Exit Code 0).
+- **Physical Device Verification (Xiaomi 11i 5G - `zxdada69gunb7ls4`)**:
+  - Live screenshots captured & verified:
+    - Top & Hero View: `docs/reference/images/master_top_refined.png`
+    - Scrolled Cards & Footer: `docs/reference/images/master_bottom_refined.png`
+

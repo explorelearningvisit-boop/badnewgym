@@ -85,67 +85,19 @@ fun ThemedMemberIntelligenceCard(
     var showThemePicker by remember { mutableStateOf(false) }
     var showAttendanceDetails by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        // =========================================================================
-        // 1. TOP HERO MEMBER PROFILE CARD
-        // =========================================================================
-        HeroProfileCard(
-            data = data,
-            onAvatarClick = { showThemePicker = true },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // =========================================================================
-        // 2. 2x2 BENTO INTELLIGENCE GRID
-        // =========================================================================
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // Row 1: Attendance + Workout Trend
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                AttendanceBentoCard(
-                    data = data,
-                    onClick = {
-                        showAttendanceDetails = true
-                        onCardClick("Attendance")
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-
-                WorkoutTrendBentoCard(
-                    data = data,
-                    onClick = { onCardClick("Workout") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            // Row 2: Payment + Body Progress
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                PaymentBentoCard(
-                    data = data,
-                    onViewReceiptClick = { onCardClick("Receipt") },
-                    onClick = { onCardClick("Payment") },
-                    modifier = Modifier.weight(1f)
-                )
-
-                BodyProgressBentoCard(
-                    data = data,
-                    onClick = { onCardClick("BodyProgress") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
+    MasterStoryboardDashboard(
+        data = data,
+        onAvatarClick = { showThemePicker = true },
+        onAttendanceClick = {
+            showAttendanceDetails = true
+            onCardClick("Attendance")
+        },
+        onWorkoutClick = { onCardClick("Workout") },
+        onPaymentClick = { onCardClick("Payment") },
+        onViewReceiptClick = { onCardClick("Receipt") },
+        onBodyProgressClick = { onCardClick("BodyProgress") },
+        modifier = modifier
+    )
 
     if (showAttendanceDetails) {
         AttendanceDetailsDialog(
