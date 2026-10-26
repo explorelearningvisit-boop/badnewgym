@@ -147,8 +147,47 @@ fun MasterHeroHeader(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // --- LIVE GYM FLOOR PRESENCE BANNER ---
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color(0xFF00C271).copy(alpha = 0.20f))
+                    .border(0.8.dp, Color(0xFF00C271).copy(alpha = 0.45f), RoundedCornerShape(50.dp))
+                    .padding(horizontal = 9.dp, vertical = 3.5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF00E676)))
+                    Text(
+                        text = "Checked In • 10:27 PM (Today)  Gym Floor",
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFA7F3D0)
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color(0xFF047857))
+                        .padding(horizontal = 7.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Active Session ›",
+                        fontSize = 7.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+
             // --- TOP BRANDING ROW ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -887,6 +926,37 @@ fun MasterAttendanceCard(
                 }
             }
 
+            // Weekly Progress Strip
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White.copy(alpha = 0.8f))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "Weekly:", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Text(text = "W1 100%", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF047857))
+                    Text(text = "•", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                    Text(text = "W2 85%", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF047857))
+                    Text(text = "•", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                    Text(text = "W3 100%", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF047857))
+                    Text(text = "•", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                    Text(text = "W4 80%", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF047857))
+                }
+                Text(
+                    text = "Monthly: 90% (↑5%)",
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFF047857)
+                )
+            }
+
             // Bottom 4-Card Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1063,23 +1133,39 @@ fun MasterWorkoutTrendCard(
                 }
             }
 
-            // Quick Info Metrics Strip
+            // Quick Info Metrics Strip (4 KPIs from Image)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White.copy(alpha = 0.8f))
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    .background(Color.White.copy(alpha = 0.85f))
+                    .padding(horizontal = 7.dp, vertical = 4.5.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Sessions: 22", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
-                Text(text = "•", fontSize = 8.sp, color = Color(0xFF94A3B8))
-                Text(text = "Total: 1.54 hr", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
-                Text(text = "•", fontSize = 8.sp, color = Color(0xFF94A3B8))
-                Text(text = "Best: 2.0 hr", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
-                Text(text = "•", fontSize = 8.sp, color = Color(0xFF94A3B8))
-                Text(text = "Lowest: 20 min", fontSize = 8.5.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Total Duration", fontSize = 6.8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                    Text(text = "823 min", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
+                    Text(text = "↑ 14% vs Sep", fontSize = 6.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Sessions", fontSize = 6.8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                    Text(text = "22", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    Text(text = "↑ 2 vs prev", fontSize = 6.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Avg Duration", fontSize = 6.8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                    Text(text = "74 min", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
+                    Text(text = "↑ 8%", fontSize = 6.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Peak Duration", fontSize = 6.8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                    Text(text = "123 min", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFFD97706))
+                    Text(text = "↑ 12%", fontSize = 6.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                }
             }
 
             // 30-Day Workout Bars Chart (0m, 60m, 120m)
@@ -1120,23 +1206,18 @@ fun MasterWorkoutTrendCard(
                             val h = size.height * hRatio
                             val y = size.height - h
 
-                            if (mins > 25) {
-                                drawRoundRect(
-                                    brush = Brush.verticalGradient(
-                                        listOf(Color(0xFF0284C7), Color(0xFF38BDF8))
-                                    ),
-                                    topLeft = Offset(x, y),
-                                    size = Size(barWidth, h),
-                                    cornerRadius = barRadius
-                                )
-                            } else {
-                                drawRoundRect(
-                                    color = Color(0xFFCBD5E1),
-                                    topLeft = Offset(x, y),
-                                    size = Size(barWidth, h),
-                                    cornerRadius = barRadius
-                                )
+                            val barColor = when {
+                                mins >= 90 -> Color(0xFF0284C7)
+                                mins >= 30 -> Color(0xFF38BDF8)
+                                else -> Color(0xFFCBD5E1)
                             }
+
+                            drawRoundRect(
+                                color = barColor,
+                                topLeft = Offset(x, y),
+                                size = Size(barWidth, h),
+                                cornerRadius = barRadius
+                            )
                         }
                     }
                 }
@@ -1152,6 +1233,18 @@ fun MasterWorkoutTrendCard(
                         Text(text = mark, fontSize = 7.sp, color = Color(0xFF94A3B8))
                     }
                 }
+            }
+
+            // 4-Tier Workout Intensity Legend
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                LegendDotItem(color = Color(0xFF0284C7), label = "High (≥90m)", value = "12d")
+                LegendDotItem(color = Color(0xFF38BDF8), label = "Med (30-89m)", value = "14d")
+                LegendDotItem(color = Color(0xFFF59E0B), label = "Low (<30m)", value = "3d")
+                LegendDotItem(color = Color(0xFFCBD5E1), label = "Rest", value = "1d")
             }
 
             // Bottom 4-Card Row
@@ -1406,33 +1499,55 @@ fun MasterPaymentCard(
                 }
             }
 
-            // Plan Intelligence Row
-            Row(
+            // Plan Intelligence & 3-Month Payment Schedule Row
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White.copy(alpha = 0.85f))
+                    .background(Color.White.copy(alpha = 0.88f))
                     .border(0.8.dp, Color(0xFFFECDD3), RoundedCornerShape(10.dp))
-                    .padding(horizontal = 8.dp, vertical = 5.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Column {
-                    Text(text = "CURRENT PLAN", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
-                    Text(text = "👑 Gold Monthly", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text(text = "Valid: 31 Oct 2026", fontSize = 7.5.sp, color = Color(0xFF059669), fontWeight = FontWeight.SemiBold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(text = "👑 Gold Plan", fontSize = 8.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text(text = "• Monthly (Valid till 31 Oct 2026)", fontSize = 7.5.sp, color = Color(0xFF64748B))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Box(Modifier.size(4.5.dp).clip(CircleShape).background(Color(0xFF0284C7)))
+                        Text(text = "Auto Pay: Enabled", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
+                    }
                 }
-                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                Column {
-                    Text(text = "PREVIOUS", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
-                    Text(text = "🥈 Silver Monthly", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                    Text(text = "Upgraded", fontSize = 7.5.sp, color = Color(0xFF64748B))
-                }
-                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                Column {
-                    Text(text = "NEXT PREDICTED", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
-                    Text(text = "👑 Gold (₹2,800)", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
-                    Text(text = "Due 16 Oct", fontSize = 7.5.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
+
+                Box(modifier = Modifier.fillMaxWidth().height(0.6.dp).background(Color(0xFFF1F5F9)))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(text = "Last Paid (Paid)", fontSize = 6.8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "₹2,800", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text(text = "15 Sep 2026", fontSize = 6.5.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
+                    }
+                    Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFE2E8F0)))
+                    Column {
+                        Text(text = "Current Due (Due)", fontSize = 6.8.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
+                        Text(text = "₹2,800", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
+                        Text(text = "16 Oct 2026", fontSize = 6.5.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
+                    }
+                    Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFE2E8F0)))
+                    Column {
+                        Text(text = "Next Due (Scheduled)", fontSize = 6.8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "₹2,800", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF475569))
+                        Text(text = "16 Nov 2026", fontSize = 6.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
+                    }
                 }
             }
 
@@ -1840,6 +1955,40 @@ fun MasterBodyProgressCard(
                     label = "Waist",
                     modifier = Modifier.weight(1f)
                 )
+            }
+
+            // Muscle Focus Distribution & Top PR Exercise Strip (from image)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.88f))
+                    .border(0.8.dp, Color(0xFFDDD6FE), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 8.dp, vertical = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Left: Top PR Lift
+                Column {
+                    Text(text = "🏋️ Top Lift: Bench Press", fontSize = 8.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    Text(text = "65 ➔ 67.5 kg (+4% PR)", fontSize = 7.2.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
+                }
+
+                Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFE2E8F0)))
+
+                // Right: Muscle Focus Sets Distribution
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(text = "🎯 Current Focus:", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                        Text(text = "Legs 43%", fontSize = 8.sp, fontWeight = FontWeight.Black, color = Color(0xFF7C3AED))
+                    }
+                    Text(
+                        text = "Arms 18% • Shoulders 12% • Back 11% • Chest 7%",
+                        fontSize = 6.8.sp,
+                        color = Color(0xFF475569),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
 
             // Stat Cards - Row 2 (4 Cards: Strength, Endurance, Overall Progress, Goal)
