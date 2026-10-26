@@ -30,6 +30,11 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,6 +83,7 @@ fun ThemedMemberIntelligenceCard(
     modifier: Modifier = Modifier
 ) {
     var showThemePicker by remember { mutableStateOf(false) }
+    var showAttendanceDetails by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -106,7 +112,10 @@ fun ThemedMemberIntelligenceCard(
             ) {
                 AttendanceBentoCard(
                     data = data,
-                    onClick = { onCardClick("Attendance") },
+                    onClick = {
+                        showAttendanceDetails = true
+                        onCardClick("Attendance")
+                    },
                     modifier = Modifier.weight(1f)
                 )
 
@@ -136,6 +145,13 @@ fun ThemedMemberIntelligenceCard(
                 )
             }
         }
+    }
+
+    if (showAttendanceDetails) {
+        AttendanceDetailsDialog(
+            data = data,
+            onDismiss = { showAttendanceDetails = false }
+        )
     }
 
     if (showThemePicker) {
@@ -561,7 +577,8 @@ private fun BentoTimeframeDropdownPill(text: String) {
 }
 
 // =============================================================================
-// CARD 1: ATTENDANCE BENTO CARD (Top-Left)
+// =============================================================================
+// CARD 1: ATTENDANCE BENTO CARD (Top-Left) - CIRCULAR GAUGE + CALENDAR (NO BAR GRAPH)
 // =============================================================================
 @Composable
 fun AttendanceBentoCard(
@@ -575,13 +592,13 @@ fun AttendanceBentoCard(
             .background(Color.White.copy(alpha = 0.96f))
             .border(1.2.dp, Color(0x3310B981), RoundedCornerShape(20.dp))
             .clickable { onClick() }
-            .padding(10.dp)
+            .padding(9.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            // Header: [ Calendar ] Attendance / Last 30 Days | [ 30 Days v ]
+            // Header: [ Calendar ] Attendance / Oct 2026 | [ < Oct 2026 > ]
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -594,31 +611,35 @@ fun AttendanceBentoCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(26.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF10B981)),
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(Color(0xFF10B981), Color(0xFF059669))
+                                )
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(15.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                     }
 
                     Column {
                         Text(
                             text = "Attendance",
-                            fontSize = 13.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1,
                             softWrap = false
                         )
                         Text(
-                            text = "Last 30 Days",
-                            fontSize = 9.5.sp,
+                            text = "Oct 2026",
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B),
                             maxLines = 1,
@@ -627,122 +648,258 @@ fun AttendanceBentoCard(
                     }
                 }
 
-                BentoTimeframeDropdownPill(text = "30 Days")
+                // Month Navigator Pill
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color.White)
+                        .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(50.dp))
+                        .padding(horizontal = 5.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(text = "\u2039", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Text(
+                        text = "Oct 2026",
+                        fontSize = 7.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF334155),
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                    Text(text = "\u203A", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                }
             }
 
-            // Top Metric: 85% + ^ 12% (vs previous 30 days) + 18 of 21 days
-            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+            // Top Metrics: Radiant Circular Donut Gauge + Frosted Present Card
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                // 1. Radiant Donut Gauge (85% Attendance Rate with Golden Energy Tip)
+                Box(
+                    modifier = Modifier.size(54.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "85%",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF059669)
-                    )
-                    Column {
+                    Canvas(modifier = Modifier.size(54.dp)) {
+                        val strokeW = 5.5.dp.toPx()
+                        val center = Offset(size.width / 2f, size.height / 2f)
+                        val r = (size.minDimension - strokeW) / 2f
+
+                        // Outer subtle glow halo ring
+                        drawCircle(
+                            color = Color(0x1810B981),
+                            radius = r + strokeW * 0.7f,
+                            center = center,
+                            style = Stroke(width = 1.dp.toPx())
+                        )
+
+                        // Base translucent track
+                        drawCircle(
+                            color = Color(0xFFE2E8F0),
+                            radius = r,
+                            center = center,
+                            style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                        )
+
+                        // 85% Progress Arc with radiant golden/emerald gradient
+                        drawArc(
+                            brush = Brush.sweepGradient(
+                                0.0f to Color(0xFFFDE047), // Golden energy tip at -90 deg
+                                0.08f to Color(0xFF34D399), // Mint glow
+                                0.80f to Color(0xFF10B981), // Emerald
+                                1.0f to Color(0xFF059669),
+                                center = center
+                            ),
+                            startAngle = -90f,
+                            sweepAngle = 360f * 0.85f,
+                            useCenter = false,
+                            topLeft = Offset(strokeW / 2f, strokeW / 2f),
+                            size = Size(r * 2, r * 2),
+                            style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                        )
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         Text(
-                            text = "\u2191 12%",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF16A34A),
+                            text = "85%",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
                             maxLines = 1,
                             softWrap = false
                         )
                         Text(
-                            text = "(vs previous 30 days)",
-                            fontSize = 7.sp,
+                            text = "Attendance\nRate",
+                            fontSize = 5.5.sp,
+                            fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B),
+                            textAlign = TextAlign.Center,
+                            lineHeight = 6.5.sp,
+                            maxLines = 2,
+                            softWrap = false
+                        )
+                    }
+                }
+
+                // 2. Frosted Present Stat Card with Checkmark
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFF0FDF4),
+                    border = BorderStroke(0.8.dp, Color(0xFFBBF7D0)),
+                    modifier = Modifier.weight(1f).height(54.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 3.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(15.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF22C55E)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(10.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(1.dp))
+                        Text(
+                            text = "18",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                        Text(
+                            text = "Present",
+                            fontSize = 7.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF15803D),
                             maxLines = 1,
                             softWrap = false
                         )
                     }
                 }
-                Text(
-                    text = "18 of 21 days",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF64748B),
-                    maxLines = 1,
-                    softWrap = false
-                )
             }
 
-            // 30-Day Attendance Bar Chart
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(modifier = Modifier.fillMaxWidth().height(58.dp)) {
-                    // Left Y-Axis: 1, 0.5, 0
-                    Column(
-                        modifier = Modifier.height(58.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.End
+            // Monthly Calendar Grid Container (Su Mo Tu We Th Fr Sa + 31 Days)
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFFF8FAFC).copy(alpha = 0.95f),
+                border = BorderStroke(0.6.dp, Color(0xFFE2E8F0)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 3.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    // Weekday header: Su Mo Tu We Th Fr Sa
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "1", fontSize = 7.sp, color = Color(0xFF94A3B8))
-                        Text(text = "0.5", fontSize = 7.sp, color = Color(0xFF94A3B8))
-                        Text(text = "0", fontSize = 7.sp, color = Color(0xFF94A3B8))
-                    }
-
-                    Spacer(modifier = Modifier.width(3.dp))
-
-                    // 30 Bars Canvas
-                    Canvas(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(58.dp)
-                    ) {
-                        val attendanceStatuses = listOf(
-                            1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
-                            1, 1, 1, 2, 1, 1, 1, 1, 1, 1,
-                            1, 2, 1, 1, 1, 1, 1, 1, 0, 1
-                        )
-                        val count = attendanceStatuses.size
-                        val barWidth = 3.dp.toPx()
-                        val step = size.width / count.toFloat()
-                        val barRadius = CornerRadius(barWidth / 2f, barWidth / 2f)
-
-                        attendanceStatuses.forEachIndexed { i, status ->
-                            val x = i * step + (step - barWidth) / 2f
-                            val h = when (status) {
-                                1 -> size.height * 0.90f  // Present
-                                2 -> size.height * 0.40f  // Absent
-                                else -> size.height * 0.20f // Gym Off
-                            }
-                            val y = size.height - h
-                            val color = when (status) {
-                                1 -> Color(0xFF10B981)
-                                2 -> Color(0xFFEF4444)
-                                else -> Color(0xFF94A3B8)
-                            }
-                            drawRoundRect(
-                                color = color,
-                                topLeft = Offset(x, y),
-                                size = Size(barWidth, h),
-                                cornerRadius = barRadius
+                        listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa").forEach { day ->
+                            Text(
+                                text = day,
+                                fontSize = 6.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF64748B),
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(2.dp))
+                    // Calendar Day Rows
+                    // Oct 2026: Day 1 starts under Wednesday
+                    // 1 = Present (Mint), 2 = Absent (Red), 0 = Gym Off (Grey), 3 = Rest (White)
+                    val calendarRows = listOf(
+                        listOf(null, null, null, 1 to 1, 2 to 1, 3 to 1, 4 to 0),
+                        listOf(5 to 3, 6 to 1, 7 to 1, 8 to 1, 9 to 1, 10 to 1, 11 to 0),
+                        listOf(12 to 3, 13 to 1, 14 to 1, 15 to 1, 16 to 1, 17 to 1, 18 to 0),
+                        listOf(19 to 3, 20 to 1, 21 to 1, 22 to 2, 23 to 1, 24 to 1, 25 to 0),
+                        listOf(26 to 0, 27 to 1, 28 to 1, 29 to 1, 30 to 1, 31 to 3, null)
+                    )
 
-                // Bottom X-Axis Marks: 1, 5, 10, 15, 20, 25, 30
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    listOf("1", "5", "10", "15", "20", "25", "30").forEach { mark ->
-                        Text(
-                            text = mark,
-                            fontSize = 6.5.sp,
-                            color = Color(0xFF94A3B8)
-                        )
+                    calendarRows.forEach { week ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            week.forEach { item ->
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .aspectRatio(1f)
+                                        .padding(0.8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (item != null) {
+                                        val (dayNum, status) = item
+                                        val (bgColor, textColor, borderStroke) = when (status) {
+                                            1 -> Triple(
+                                                Color(0xFF6EE7B7), // Mint green
+                                                Color(0xFF064E3B), // Forest green
+                                                null
+                                            )
+                                            2 -> Triple(
+                                                Color(0xFFFDA4AF), // Coral red
+                                                Color(0xFF881337), // Crimson
+                                                null
+                                            )
+                                            0 -> Triple(
+                                                Color(0xFFCBD5E1), // Slate grey
+                                                Color(0xFF475569), // Grey text
+                                                null
+                                            )
+                                            else -> Triple(
+                                                Color.White.copy(alpha = 0.9f),
+                                                Color(0xFF475569),
+                                                BorderStroke(0.4.dp, Color(0xFFCBD5E1))
+                                            )
+                                        }
+
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(CircleShape)
+                                                .background(bgColor)
+                                                .then(
+                                                    if (borderStroke != null) Modifier.border(borderStroke, CircleShape) else Modifier
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "$dayNum",
+                                                fontSize = 6.5.sp,
+                                                fontWeight = if (status == 1 || status == 2) FontWeight.Black else FontWeight.Bold,
+                                                color = textColor,
+                                                maxLines = 1,
+                                                softWrap = false
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
 
-            // Legend Row: * Present 18  * Absent 3  * Gym Off 2
+            // Legend Row: * Present 18  * Absent 1  * Off 5
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -758,61 +915,36 @@ fun AttendanceBentoCard(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFEF4444)))
                     Text(text = "Absent ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "3", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
+                    Text(text = "1", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
                 }
                 // Gym Off
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF94A3B8)))
-                    Text(text = "Gym Off ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "2", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "Off ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "5", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
             }
 
             Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFF1F5F9)))
 
-            // Footer 3-Column Stats: Current Streak, Best Streak, Attendance Rate
+            // Footer 2-Column Streaks: Current Streak, Best Streak
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 1. Current Streak
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(text = "\uD83D\uDD25", fontSize = 11.sp)
                     Column {
                         Text(text = "Current Streak", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                         Text(text = "6 Days", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
-                // 2. Best Streak
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(text = "\uD83C\uDFC6", fontSize = 11.sp)
                     Column {
                         Text(text = "Best Streak", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                         Text(text = "12 Days", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
-                    }
-                }
-                // 3. Attendance Rate (with Custom Canvas Pie Chart Icon)
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Canvas(modifier = Modifier.size(11.dp)) {
-                        val r = size.minDimension / 2f
-                        drawCircle(Color(0xFF0D9488), radius = r)
-                        drawArc(
-                            color = Color(0xFFF59E0B),
-                            startAngle = -90f,
-                            sweepAngle = 100f,
-                            useCenter = true
-                        )
-                        drawArc(
-                            color = Color(0xFF10B981),
-                            startAngle = 10f,
-                            sweepAngle = 160f,
-                            useCenter = true
-                        )
-                    }
-                    Column {
-                        Text(text = "Attendance Rate", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "85%", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
             }
@@ -1873,6 +2005,364 @@ fun ThemePickerDialog(
                                     color = itemPalette.themeAccent
                                 )
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+// =============================================================================
+// ATTENDANCE DETAILS MODAL DIALOG (High-Fidelity Interactive Details View)
+// =============================================================================
+@Composable
+fun AttendanceDetailsDialog(
+    data: MemberCardData,
+    onDismiss: () -> Unit
+) {
+    var selectedDay by remember { mutableStateOf(16) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color.White.copy(alpha = 0.98f),
+            border = BorderStroke(1.2.dp, Color(0xFF86EFAC)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 12.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Header: [ Calendar ] Attendance Details + [ X ]
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color(0xFF10B981)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarToday,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "Attendance Details",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFF0F172A)
+                            )
+                            Text(
+                                text = "Monthly attendance overview & logs",
+                                fontSize = 10.sp,
+                                color = Color(0xFF64748B)
+                            )
+                        }
+                    }
+
+                    // Close Button
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFF1F5F9))
+                            .clickable { onDismiss() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = Color(0xFF475569),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+
+                // Month Selector
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50.dp))
+                            .background(Color(0xFFF1F5F9))
+                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(50.dp))
+                            .padding(horizontal = 14.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(text = "\u2039", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                        Text(
+                            text = "October 2026",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1E293B)
+                        )
+                        Text(text = "\u203A", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    }
+                }
+
+                // Top Metrics Row: Donut Gauge + 3 Stat Badges
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Donut Gauge
+                    Box(
+                        modifier = Modifier.size(72.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Canvas(modifier = Modifier.size(72.dp)) {
+                            val strokeW = 7.dp.toPx()
+                            val center = Offset(size.width / 2f, size.height / 2f)
+                            val r = (size.minDimension - strokeW) / 2f
+
+                            drawCircle(
+                                color = Color(0xFFE2E8F0),
+                                radius = r,
+                                center = center,
+                                style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                            )
+
+                            drawArc(
+                                brush = Brush.sweepGradient(
+                                    0.0f to Color(0xFFFDE047),
+                                    0.08f to Color(0xFF34D399),
+                                    0.80f to Color(0xFF10B981),
+                                    1.0f to Color(0xFF059669),
+                                    center = center
+                                ),
+                                startAngle = -90f,
+                                sweepAngle = 360f * 0.85f,
+                                useCenter = false,
+                                topLeft = Offset(strokeW / 2f, strokeW / 2f),
+                                size = Size(r * 2, r * 2),
+                                style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                            )
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "85%",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFF0F172A)
+                            )
+                            Text(
+                                text = "Rate",
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF64748B)
+                            )
+                        }
+                    }
+
+                    // 3 Stat Cards (Present, Absent, Off)
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        // Present
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFF0FDF4),
+                            border = BorderStroke(1.dp, Color(0xFFBBF7D0)),
+                            modifier = Modifier.weight(1f).height(62.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize().padding(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(text = "\u2713", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A))
+                                Text(text = "18", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text(text = "Present", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
+                            }
+                        }
+
+                        // Absent
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFFEF2F2),
+                            border = BorderStroke(1.dp, Color(0xFFFECACA)),
+                            modifier = Modifier.weight(1f).height(62.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize().padding(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(text = "!", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
+                                Text(text = "1", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text(text = "Absent", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFFDC2626))
+                            }
+                        }
+
+                        // Gym Off
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFF8FAFC),
+                            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                            modifier = Modifier.weight(1f).height(62.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize().padding(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(text = "\uD83C\uDFD6\uFE0F", fontSize = 11.sp)
+                                Text(text = "5", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text(text = "Off", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                            }
+                        }
+                    }
+                }
+
+                // Interactive Calendar Grid
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color(0xFFF8FAFC),
+                    border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // Weekday header
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa").forEach { day ->
+                                Text(
+                                    text = day,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF64748B),
+                                    modifier = Modifier.weight(1f),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+
+                        val calendarRows = listOf(
+                            listOf(null, null, null, 1 to 1, 2 to 1, 3 to 1, 4 to 0),
+                            listOf(5 to 3, 6 to 1, 7 to 1, 8 to 1, 9 to 1, 10 to 1, 11 to 0),
+                            listOf(12 to 3, 13 to 1, 14 to 1, 15 to 1, 16 to 1, 17 to 1, 18 to 0),
+                            listOf(19 to 3, 20 to 1, 21 to 1, 22 to 2, 23 to 1, 24 to 1, 25 to 0),
+                            listOf(26 to 0, 27 to 1, 28 to 1, 29 to 1, 30 to 1, 31 to 3, null)
+                        )
+
+                        calendarRows.forEach { week ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                week.forEach { item ->
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .aspectRatio(1f)
+                                            .padding(1.5.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (item != null) {
+                                            val (dayNum, status) = item
+                                            val isSelected = selectedDay == dayNum
+                                            val (bgColor, textColor) = when (status) {
+                                                1 -> Color(0xFF6EE7B7) to Color(0xFF064E3B)
+                                                2 -> Color(0xFFFDA4AF) to Color(0xFF881337)
+                                                0 -> Color(0xFFCBD5E1) to Color(0xFF475569)
+                                                else -> Color.White to Color(0xFF64748B)
+                                            }
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .clip(CircleShape)
+                                                    .background(bgColor)
+                                                    .then(
+                                                        if (isSelected) Modifier.border(2.dp, Color(0xFF0284C7), CircleShape) else Modifier
+                                                    )
+                                                    .clickable { selectedDay = dayNum },
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "$dayNum",
+                                                    fontSize = 9.sp,
+                                                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+                                                    color = textColor
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Selected Day Info Card
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFF0FDF4),
+                    border = BorderStroke(1.dp, Color(0xFF86EFAC)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "Day $selectedDay • 16 Oct 2026",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF065F46)
+                            )
+                            Text(
+                                text = "In: 06:10 AM • Out: 07:42 AM • Workout: 62 min",
+                                fontSize = 9.5.sp,
+                                color = Color(0xFF047857)
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color(0xFF10B981))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = "Present",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
                         }
                     }
                 }

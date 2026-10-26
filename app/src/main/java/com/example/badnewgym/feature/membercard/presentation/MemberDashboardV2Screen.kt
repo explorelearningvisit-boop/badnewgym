@@ -118,7 +118,7 @@ fun MemberDashboardV2Screen(
                     onCardClick = { card ->
                         when (card) {
                             "Payment" -> showReceiptSheet = true
-                            "Attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
+                            "Attendance" -> { /* Handled natively by AttendanceDetailsDialog */ }
                             else -> showAnalyticsSheet = true
                         }
                     }
