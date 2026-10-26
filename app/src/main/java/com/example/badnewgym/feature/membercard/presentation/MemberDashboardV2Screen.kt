@@ -96,40 +96,18 @@ fun MemberDashboardV2Screen(
             .fillMaxSize()
             .background(AquaGlassTokens.CanvasBackgroundGradient)
     ) {
-        // Main Vertical Scrollable Content
+        // Main Vertical Scrollable Content - Full Width on Xiaomi Screen
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(scrollState)
-                .padding(bottom = 96.dp)
+                .padding(horizontal = 4.dp, vertical = 6.dp)
         ) {
-            // 1. Top App Bar matching reference
-            DashboardTopBar(
-                dateText = "02 Oct 2026",
-                notificationCount = 1,
-                onMenuClick = {
-                    showTailscaleSheet = true
-                    onMenuClick()
-                },
-                onDateClick = {
-                    selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                },
-                onNotificationClick = {
-                    showNotificationsSheet = true
-                },
-                onMoreClick = {
-                    showThemePicker = true
-                }
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // 2. Themed Member Intelligence Card (Hero + 2x2 Bento + Detailed View)
+            // Themed Member Intelligence Card (Hero + 2x2 Bento + Detailed View)
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 ThemedMemberIntelligenceCard(
                     data = data,
@@ -149,24 +127,6 @@ fun MemberDashboardV2Screen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
-
-        // 3. Floating Glass Bottom Navigation Dock (5 Items)
-        FloatingGlassBottomDock(
-            activeTab = activeBottomTab,
-            onTabSelect = { tab ->
-                activeBottomTab = tab
-                when (tab) {
-                    "Attendance" -> selectedAttendanceDay = data.attendance.calendarDays.firstOrNull { it.dayOfMonth == 17 }
-                    "Workout" -> showAnalyticsSheet = true
-                    "Payment" -> showReceiptSheet = true
-                    "More" -> showThemePicker = true
-                    else -> {}
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-        )
 
         // Modal Theme Picker Dialog (Invoked by [ ••• ] or More tab)
         if (showThemePicker) {

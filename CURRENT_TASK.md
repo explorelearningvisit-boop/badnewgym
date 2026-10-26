@@ -101,7 +101,7 @@ Completion requires the new UI, widget editor architecture, admin command center
   6. **Stage 6 (Single-Viewport Zero-Scroll Physical Device Verification)**:
      - Full screen fits completely within the single mobile viewport on Xiaomi 11i with zero scrolling needed and ~40dp bottom breathing space above system navigation bar.
      - All 78 unit tests pass (`./gradlew testDebugUnitTest assembleDebug`).
-## VERIFIED MILESTONE — TARGET MOCKUP IMPLEMENTATION (ASHWINI SINGH 5-STAGE WIDGET ARCHITECTURE)
+## VERIFIED MILESTONE  TARGET MOCKUP IMPLEMENTATION (ASHWINI SINGH 5-STAGE WIDGET ARCHITECTURE)
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
 - **Device**: Xiaomi 11i / 21091116I (zxdada69gunb7ls4) via USB cable ADB
 - **Screenshot Evidence**: 
@@ -117,10 +117,10 @@ Completion requires the new UI, widget editor architecture, admin command center
      - Circular avatar inside glowing sweep gradient ring with gold crown badge at top-left and neon green active dot at bottom-right.
      - Identity: Ashwini Singh (18sp black bold), BG305 | 23 yrs | Male.
      - Status pills: ? Prime Plan (golden yellow) + ? Active (emerald green).
-     - Open horseshoe speedometer: 270° circular sweep arc, 75% bold green, 25 / 100, Days Left.
+     - Open horseshoe speedometer: 270 circular sweep arc, 75% bold green, 25 / 100, Days Left.
      - 3 Quick-Stat tiles: Joined 01 Sep 2026 (1 Month 10 Days), Goal Muscle Gain, Branch Varanasi.
   3. **Stage 2 (Body Stats Bento)**:
-     - Header: Dumbbell icon + Body Stats • Latest vs Previous, View Details > (blue text).
+     - Header: Dumbbell icon + Body Stats  Latest vs Previous, View Details > (blue text).
      - 4 Bento tiles:
        - Weight: 69.5 kg, Weight, ? 2.5 kg, smooth green Bezier curve, VectorSync + Good Progress.
        - Muscle: 57.2 kg, Muscle, ? 1.4 kg, smooth purple Bezier curve with peak dot, VectorTrendUp + Improving.
@@ -136,7 +136,7 @@ Completion requires the new UI, widget editor architecture, admin command center
      - Bottom legend row with custom vector icons: Present 24 Days (77%), Absent 3 Days (10%), Holiday 2 Days (6%), Avg 28 min, Peak 52 min, Lowest 12 min.
   5. **Stage 4 (Payment & Plan)**:
      - Header: Red wallet icon + Payment & Plan, amber pill ? Prime Plan (1 Month) >.
-     - Item 1: ?2,800 (single line!), Paid • On Time,  1 Sep 2026.
+     - Item 1: ?2,800 (single line!), Paid  On Time,  1 Sep 2026.
      - Item 2: Next Due, 30 Sep 2026 (single line!), 25 Days Left.
      - Item 3: View\nReceipt with blue receipt icon.
      - Item 4: Collect\nMoney emerald button with white Rupee circle.
@@ -148,3 +148,17 @@ Completion requires the new UI, widget editor architecture, admin command center
   7. **Device & Verification Integrity**:
      - Built and tested with ./gradlew testDebugUnitTest assembleDebug (ALL unit tests pass).
      - Deployed and verified on physical Xiaomi 11i device (zxdada69gunb7ls4).
+
+## MILESTONE VERIFIED: MASTER 2x2 BENTO DASHBOARD (100% FIDELITY)
+- **Target Specification**: Master Reference Mockup (Hero Profile Card + 2x2 Bento Intelligence Grid)
+- **Components Implemented & Validated**:
+  1. HeroProfileCard: Avatar with cyan/mint conic gradient halo & crown badge at 1 o'clock; Active Member & Prime Plan glass status pills; 25 Days Left expiry bar (~75%); Quote Bubble 'Better Than Yesterday' with bicep emoji; 4 quick stats (Height, Weight, BMI, Goal).
+  2. AttendanceBentoCard: 85% hero metric, +12%, 30 Days dropdown, 30 attendance bars, Y/X axes, 3-stat footer with custom Canvas pie chart.
+  3. WorkoutTrendBentoCard: 47 min hero metric, +8%, 30 Days dropdown, 30 cyan-blue workout bars, Y/X axes, 3-stat footer.
+  4. PaymentBentoCard: Rs 2,800 + Due badge, unclipt 'View Receipt' button, 12-month capsule bars in hollow tracks, Y/X axes, 3-stat footer.
+  5. BodyProgressBentoCard: 4 three-line metric chips (Weight, Muscle Mass, Body Fat, Waist), 12-month multi-line chart with 4 smooth solid Bezier splines & circular dots, warm gradient area, Dual Y-axes (kg / %), 12-month evenly spaced X-axis, 3-stat footer.
+- **Verification Evidence**:
+  - Screenshot: docs/reference/images/final_target_mockup_verified.png
+  - Device: Xiaomi 11i (zxdada69gunb7ls4)
+  - Unit Tests: ./gradlew.bat testDebugUnitTest PASSED
+  - Build: ./gradlew.bat assembleDebug PASSED

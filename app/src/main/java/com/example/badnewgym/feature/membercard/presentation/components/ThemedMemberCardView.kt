@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,18 +18,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +44,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -61,12 +60,14 @@ import com.example.badnewgym.feature.membercard.design.MemberCardThemeManager
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 
 /**
- * BAD GYM Master Themed Member Intelligence Card & Detailed Analytics
- * Faithfully reproducing the master reference mobile design:
- * 1. Top preset switcher for all 8 canonical themes
- * 2. Hero Member Card (Avatar with mint halo & crown, quote "Better Than Yesterday", 4 chips)
- * 3. 2x2 Bento Intelligence Grid (Attendance, Workout Trend, Payment, Body Progress with 30-day charts and 3-stat footers)
- * 4. Detailed View Section with 4 tabs, dual overview chart, donut ring gauge, streak, and check-in metadata
+ * BAD GYM Master Member Intelligence Dashboard
+ * 100% Pixel-Perfect Representation matching Master Reference Mockup:
+ * 1. Top Hero Member Card (Halo, Crown, Details, Quote Bubble, Progress Bar & 4 Quick Stats)
+ * 2. 2x2 Bento Intelligence Grid:
+ *    - Top-Left: Attendance (85%, 30-Day Vertical Bar Chart, Streaks & Legend)
+ *    - Top-Right: Workout Trend (47 min, 30-Day Session Duration Bars & KPI Footers)
+ *    - Bottom-Left: Payment (₹2,800 Due, 12-Month Capsule Bar Chart & Receipt Trigger)
+ *    - Bottom-Right: Body Progress (4 Stat Chips, 12-Month 4-Line Spline Chart & Progress Badges)
  */
 @Composable
 fun ThemedMemberIntelligenceCard(
@@ -77,111 +78,186 @@ fun ThemedMemberIntelligenceCard(
     modifier: Modifier = Modifier
 ) {
     var showThemePicker by remember { mutableStateOf(false) }
-    val selectedTheme = MemberCardThemeManager.activeTheme
-    val palette = MemberCardThemeManager.getPalette(selectedTheme)
-    var detailedTab by remember { mutableStateOf("Attendance") }
 
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-
+        // =========================================================================
+        // 1. TOP HERO MEMBER PROFILE CARD
+        // =========================================================================
+        HeroProfileCard(
+            data = data,
+            onAvatarClick = { showThemePicker = true },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // =========================================================================
-        // 1. HERO MEMBER CARD (Glassmorphism with Halo, Quote, and 4 Stat Chips)
+        // 2. 2x2 BENTO INTELLIGENCE GRID
         // =========================================================================
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
-                .background(palette.cardBackground)
-                .border(
-                    width = 1.5.dp,
-                    brush = palette.cardBorder,
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .padding(14.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Column(
+            // Row 1: Attendance + Workout Trend
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Top Row: Avatar + Middle Details + Right Quote Pill
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                AttendanceBentoCard(
+                    data = data,
+                    onClick = { onCardClick("Attendance") },
+                    modifier = Modifier.weight(1f)
+                )
+
+                WorkoutTrendBentoCard(
+                    data = data,
+                    onClick = { onCardClick("Workout") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Row 2: Payment + Body Progress
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                PaymentBentoCard(
+                    data = data,
+                    onViewReceiptClick = { onCardClick("Receipt") },
+                    onClick = { onCardClick("Payment") },
+                    modifier = Modifier.weight(1f)
+                )
+
+                BodyProgressBentoCard(
+                    data = data,
+                    onClick = { onCardClick("BodyProgress") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+
+    if (showThemePicker) {
+        ThemePickerDialog(
+            currentTheme = MemberCardThemeManager.activeTheme,
+            onThemeSelected = { newTheme ->
+                MemberCardThemeManager.activeTheme = newTheme
+                showThemePicker = false
+            },
+            onDismiss = { showThemePicker = false }
+        )
+    }
+}
+
+// =============================================================================
+// HERO MEMBER PROFILE CARD
+// =============================================================================
+@Composable
+fun HeroProfileCard(
+    data: MemberCardData,
+    onAvatarClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color.White.copy(alpha = 0.96f))
+            .border(1.2.dp, Color(0x55A7F3D0), RoundedCornerShape(24.dp))
+            .padding(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Top Section: Avatar + Identity + Quote Bubble
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Avatar with Glowing Conic Halo & Crown Badge
+                Box(
+                    modifier = Modifier.size(72.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    // Left Avatar with Cyan-Mint Sweep Gradient Halo & Crown Badge
-                    Box(
-                        modifier = Modifier.size(80.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Canvas(modifier = Modifier.size(78.dp)) {
-                            drawCircle(
-                                brush = palette.haloBrush,
-                                radius = size.minDimension / 2f - 2f,
-                                style = Stroke(width = 3.2.dp.toPx())
-                            )
-                        }
-
-                        Image(
-                            painter = painterResource(id = R.drawable.avatar_ashwini),
-                            contentDescription = data.profile.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(66.dp)
-                                .clip(CircleShape)
-                                .border(2.dp, Color.White, CircleShape)
+                    Canvas(modifier = Modifier.size(72.dp)) {
+                        drawCircle(
+                            brush = Brush.sweepGradient(
+                                listOf(
+                                    Color(0xFF10B981),
+                                    Color(0xFF06B6D4),
+                                    Color(0xFF10B981)
+                                )
+                            ),
+                            radius = size.minDimension / 2f - 2f,
+                            style = Stroke(width = 3.dp.toPx())
                         )
-
-                        // Green Circular Badge with Gold Crown (Top-Right)
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .offset(x = 2.dp, y = (-2).dp)
-                                .size(24.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF10B981))
-                                .border(1.5.dp, Color.White, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "👑", fontSize = 11.5.sp)
-                        }
                     }
 
-                    // Middle Details Column
-                    Column(
+                    Image(
+                        painter = painterResource(id = R.drawable.avatar_ashwini),
+                        contentDescription = data.profile.name,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .weight(1.2f)
-                            .padding(start = 10.dp, end = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Text(
-                            text = "Ashwini Singh",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Black,
-                            color = palette.textPrimary,
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                        Text(
-                            text = "BG305 | 23 yrs | Male",
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = palette.textSecondary
-                        )
+                            .size(60.dp)
+                            .clip(CircleShape)
+                            .border(2.dp, Color.White, CircleShape)
+                    )
 
-                        // Active Member Pill
+                    // Cyan Circular Badge with Gold Crown (Top-Right at ~1 o'clock)
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 2.dp, y = (-2).dp)
+                            .size(23.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF06B6D4))
+                            .border(1.5.dp, Color.White, CircleShape)
+                            .clickable { onAvatarClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "\uD83D\uDC51", fontSize = 11.sp)
+                    }
+                }
+
+                // Middle Column: Member Name, Details & Status Pills
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp, end = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.5.dp)
+                ) {
+                    Text(
+                        text = "Ashwini Singh",
+                        fontSize = 18.5.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF0F172A),
+                        maxLines = 1,
+                        softWrap = false
+                    )
+
+                    Text(
+                        text = "BG305 | 23 yrs | Male",
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF64748B),
+                        maxLines = 1,
+                        softWrap = false
+                    )
+
+                    // Badges Row: [ ● Active Member ] [ 👑 Prime Plan ]
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // Active Member Pill (Light mint background, green border & text)
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(50.dp))
-                                .background(
-                                    Brush.horizontalGradient(
-                                        listOf(Color(0xFF10B981), Color(0xFF059669))
-                                    )
-                                )
-                                .padding(horizontal = 8.dp, vertical = 2.5.dp),
+                                .background(Color(0xFFE6FBF2))
+                                .border(0.8.dp, Color(0xFF86EFAC), RoundedCornerShape(50.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
@@ -189,1105 +265,554 @@ fun ThemedMemberIntelligenceCard(
                                 modifier = Modifier
                                     .size(5.dp)
                                     .clip(CircleShape)
-                                    .background(Color.White)
+                                    .background(Color(0xFF059669))
                             )
                             Text(
                                 text = "Active Member",
-                                fontSize = 10.sp,
+                                fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = Color(0xFF059669),
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
 
-                        // Prime Plan & 25 Days Left Bar
+                        // Prime Plan Pill (Light amber background, amber border & text)
                         Row(
-                            modifier = Modifier.padding(top = 2.dp),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color(0xFFFEF3C7))
+                                .border(0.8.dp, Color(0xFFFDE68A), RoundedCornerShape(50.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Text(text = "👑", fontSize = 10.sp)
+                            Text(text = "\uD83D\uDC51", fontSize = 8.5.sp)
                             Text(
                                 text = "Prime Plan",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Black,
-                                color = if (palette.isDark) Color(0xFFFDE047) else Color(0xFFD97706)
-                            )
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Text(
-                                text = "25 Days Left",
-                                fontSize = 10.sp,
+                                fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = palette.textSecondary
+                                color = Color(0xFFD97706),
+                                maxLines = 1,
+                                softWrap = false
                             )
-                            Box(
-                                modifier = Modifier
-                                    .width(62.dp)
-                                    .height(5.dp)
-                                    .clip(RoundedCornerShape(50.dp))
-                                    .background(palette.progressBarTrack)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.62f)
-                                        .height(5.dp)
-                                        .clip(RoundedCornerShape(50.dp))
-                                        .background(palette.progressBarFill)
-                                )
-                            }
-                        }
-                    }
-
-                    // Right Quote Pill: "Better Than Yesterday" 💪
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(
-                                if (palette.isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.95f)
-                            )
-                            .border(
-                                1.dp,
-                                if (palette.isDark) Color.White.copy(alpha = 0.20f) else Color(0xFFE2E8F0),
-                                RoundedCornerShape(16.dp)
-                            )
-                            .padding(horizontal = 10.dp, vertical = 8.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Column {
-                                Text(
-                                    text = "“Better",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (palette.isDark) Color.White else Color(0xFF475569)
-                                )
-                                Text(
-                                    text = "Than",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (palette.isDark) Color.White else Color(0xFF475569)
-                                )
-                                Text(
-                                    text = "Yesterday”",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (palette.isDark) Color.White else Color(0xFF475569)
-                                )
-                            }
-                            Text(text = "💪", fontSize = 19.sp)
                         }
                     }
                 }
 
-                // Bottom Continuous Metric Compartments Strip (Matching Mockup 1:1)
+                // Top-Right Quote Bubble: "Better Than Yesterday" 💪
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(if (palette.isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.88f))
-                        .border(1.dp, if (palette.isDark) Color.White.copy(alpha = 0.20f) else Color.White, RoundedCornerShape(16.dp))
-                        .padding(horizontal = 8.dp, vertical = 7.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // 1. Height
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(text = "🧍", fontSize = 15.sp)
-                            Column {
-                                Text(text = "Height", fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = if (palette.isDark) Color.White.copy(alpha = 0.7f) else Color(0xFF64748B))
-                                Text(text = "178 cm", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = if (palette.isDark) Color.White else Color(0xFF0F172A))
-                            }
-                        }
-
-                        Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFCBD5E1).copy(alpha = 0.6f)))
-
-                        // 2. Weight
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.weight(1.05f).padding(start = 4.dp)
-                        ) {
-                            Text(text = "🧳", fontSize = 15.sp)
-                            Column {
-                                Text(text = "Weight", fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = if (palette.isDark) Color.White.copy(alpha = 0.7f) else Color(0xFF64748B))
-                                Text(text = "69.5 kg", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = if (palette.isDark) Color.White else Color(0xFF0F172A))
-                            }
-                        }
-
-                        Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFCBD5E1).copy(alpha = 0.6f)))
-
-                        // 3. BMI
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.weight(0.95f).padding(start = 4.dp)
-                        ) {
-                            Text(text = "⚖️", fontSize = 15.sp)
-                            Column {
-                                Text(text = "BMI", fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = if (palette.isDark) Color.White.copy(alpha = 0.7f) else Color(0xFF64748B))
-                                Text(text = "21.9", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = if (palette.isDark) Color.White else Color(0xFF0F172A))
-                            }
-                        }
-
-                        Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color(0xFFCBD5E1).copy(alpha = 0.6f)))
-
-                        // 4. Goal
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.weight(1.3f).padding(start = 4.dp)
-                        ) {
-                            Text(text = "🎯", fontSize = 15.sp)
-                            Column {
-                                Text(text = "Goal", fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = if (palette.isDark) Color.White.copy(alpha = 0.7f) else Color(0xFF64748B))
-                                Text(text = "Lean Muscle", fontSize = 11.sp, fontWeight = FontWeight.Black, color = if (palette.isDark) Color.White else Color(0xFF0F172A), maxLines = 1, softWrap = false)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // =========================================================================
-        // 2. 2x2 BENTO INTELLIGENCE CARDS GRID
-        // =========================================================================
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // Row 1: Attendance & Workout Trend
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                // Card 1: Attendance (Green)
-                RichBentoCard(
-                    title = "Attendance",
-                    value = "85%",
-                    badgeText = "↑ 12%",
-                    badgeBg = Color(0xFFDCFCE7),
-                    badgeTextColor = Color(0xFF15803D),
-                    subtitle = "18/21 Days",
-                    background = palette.bentoAttendanceBg,
-                    borderColor = palette.bentoAttendanceBorder,
-                    icon = Icons.Default.CalendarToday,
-                    iconBg = Color(0xFF10B981),
-                    accentColor = Color(0xFF10B981),
-                    titleColor = Color(0xFF064E3B),
-                    valueColor = Color(0xFF064E3B),
-                    isDark = palette.isDark,
-                    chartColor = palette.chartAttendanceColor,
-                    barHeights = listOf(0.35f, 0.50f, 0.40f, 0.70f, 0.55f, 0.45f, 0.80f, 0.60f, 0.75f, 0.50f, 0.65f, 0.85f, 0.70f, 0.60f, 0.90f, 0.75f, 0.80f, 0.65f, 0.85f, 0.70f, 0.95f, 0.80f, 0.75f, 0.90f),
-                    xAxisLabels = listOf("1", "5", "10", "15", "20", "25", "30"),
-                    footerStats = listOf(
-                        BentoFooterStat("● Present", "18", Color(0xFF10B981)),
-                        BentoFooterStat("● Absent", "3", Color(0xFFEF4444)),
-                        BentoFooterStat("● Gym Off", "0", Color(0xFF94A3B8))
-                    ),
-                    modifier = Modifier.weight(1f),
-                    onClick = { onCardClick("Attendance") }
-                )
-
-                // Card 2: Workout Trend (Cyan/Blue)
-                RichBentoCard(
-                    title = "Workout Trend",
-                    value = "47 min",
-                    badgeText = "↑ 8%",
-                    badgeBg = Color(0xFFE0F2FE),
-                    badgeTextColor = Color(0xFF0284C7),
-                    subtitle = "Avg / Day",
-                    background = palette.bentoWorkoutBg,
-                    borderColor = palette.bentoWorkoutBorder,
-                    icon = Icons.Default.FitnessCenter,
-                    iconBg = Color(0xFF0284C7),
-                    accentColor = Color(0xFF0284C7),
-                    titleColor = Color(0xFF0369A1),
-                    valueColor = Color(0xFF0369A1),
-                    isDark = palette.isDark,
-                    chartColor = Color(0xFF0284C7),
-                    barHeights = listOf(0.40f, 0.60f, 0.45f, 0.75f, 0.50f, 0.80f, 0.65f, 0.70f, 0.55f, 0.85f, 0.70f, 0.90f, 0.60f, 0.75f, 0.85f, 0.70f, 0.95f, 0.80f, 0.65f, 0.85f, 0.75f, 0.90f, 0.85f, 0.95f),
-                    xAxisLabels = listOf("1", "5", "15", "15", "20", "25", "30"),
-                    footerStats = listOf(
-                        BentoFooterStat("⏱️ Total Workouts", "18", Color(0xFF0284C7)),
-                        BentoFooterStat("🏆 Best Day", "92 min", Color(0xFFF59E0B)),
-                        BentoFooterStat("🔥 Streak", "12 Days", Color(0xFFEF4444))
-                    ),
-                    modifier = Modifier.weight(1f),
-                    onClick = { onCardClick("Workout") }
-                )
-            }
-
-            // Row 2: Payment & Body Progress
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                // Card 3: Payment (Amber/Gold)
-                RichBentoCard(
-                    title = "Payment",
-                    value = "₹2,800",
-                    badgeText = "! Due",
-                    badgeBg = Color(0xFFEF4444),
-                    badgeTextColor = Color.White,
-                    subtitle = "25 Days Left",
-                    background = palette.bentoPaymentBg,
-                    borderColor = palette.bentoPaymentBorder,
-                    icon = Icons.Default.AccountBalanceWallet,
-                    iconBg = Color(0xFFF59E0B),
-                    accentColor = Color(0xFFF59E0B),
-                    titleColor = Color(0xFF92400E),
-                    valueColor = Color(0xFF92400E),
-                    isDark = palette.isDark,
-                    chartColor = Color(0xFFF59E0B),
-                    barHeights = listOf(0.30f, 0.45f, 0.60f, 0.40f, 0.70f, 0.55f, 0.80f, 0.50f, 0.65f, 0.75f, 0.60f, 0.85f, 0.70f, 0.90f, 0.65f, 0.80f, 0.75f, 0.95f, 0.70f, 0.85f, 0.60f, 0.80f, 0.75f, 0.90f),
-                    xAxisLabels = listOf("1", "5", "10", "15", "20", "25", "30"),
-                    footerStats = listOf(
-                        BentoFooterStat("● Paid", "₹12,600", Color(0xFF10B981)),
-                        BentoFooterStat("📦 Pending", "₹2,800", Color(0xFFF59E0B)),
-                        BentoFooterStat("🍇 Avg / Day", "₹420", Color(0xFFA855F7))
-                    ),
-                    modifier = Modifier.weight(1f),
-                    onClick = { onCardClick("Payment") }
-                )
-
-                // Card 4: Body Progress (Purple/Magenta)
-                RichBentoCard(
-                    title = "Body Progress",
-                    value = "69.5 kg",
-                    badgeText = "↓ 0.7 kg",
-                    badgeBg = Color(0xFFFCE7F3),
-                    badgeTextColor = Color(0xFFBE185D),
-                    subtitle = "Current Weight",
-                    background = palette.bentoBodyBg,
-                    borderColor = palette.bentoBodyBorder,
-                    icon = Icons.Default.Person,
-                    iconBg = Color(0xFFA855F7),
-                    accentColor = Color(0xFFA855F7),
-                    titleColor = Color(0xFF86198F),
-                    valueColor = Color(0xFF86198F),
-                    isDark = palette.isDark,
-                    chartColor = Color(0xFFA855F7),
-                    barHeights = listOf(0.35f, 0.50f, 0.45f, 0.65f, 0.55f, 0.75f, 0.60f, 0.70f, 0.80f, 0.65f, 0.85f, 0.70f, 0.90f, 0.75f, 0.80f, 0.85f, 0.70f, 0.95f, 0.80f, 0.75f, 0.85f, 0.90f, 0.80f, 0.88f),
-                    xAxisLabels = listOf("1", "5", "10", "15", "20", "25", "30"),
-                    footerStats = listOf(
-                        BentoFooterStat("🎯 Plan", "Lean Muscle", Color(0xFFA855F7)),
-                        BentoFooterStat("🎗️ Body Fat", "14.2%", Color(0xFFEC4899)),
-                        BentoFooterStat("💪 Muscle", "+2.5 kg", Color(0xFF10B981))
-                    ),
-                    modifier = Modifier.weight(1f),
-                    onClick = { onCardClick("BodyProgress") }
-                )
-            }
-        }
-
-        // =========================================================================
-        // 3. DETAILED VIEW SECTION (Tabs + Dual Overview + Donut Gauge + Metadata)
-        // =========================================================================
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color.White.copy(alpha = 0.95f))
-                .border(1.5.dp, Color(0x66A7F3D0), RoundedCornerShape(24.dp))
-                .padding(14.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Header: [ 📊 ] Detailed View | 📅 Last 30 Days ⌵
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color.White)
+                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
+                        .padding(horizontal = 8.dp, vertical = 6.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFF10B981)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.BarChart,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(17.dp)
-                            )
-                        }
-                        Text(
-                            text = "Detailed View",
-                            fontSize = 15.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF0F172A)
-                        )
-                    }
-
-                    // Last 30 Days Pill
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(Color(0xFFF1F5F9))
-                            .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(50.dp))
-                            .padding(horizontal = 9.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = null,
-                            tint = Color(0xFF475569),
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = "Last 30 Days",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF334155)
-                        )
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = Color(0xFF475569),
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
-                }
-
-                // 4-Segmented Control / Tab Bar
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    val tabs = listOf("Attendance", "Workout", "Payment", "Body Progress")
-                    tabs.forEach { tab ->
-                        val isTabSelected = detailedTab == tab
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(50.dp))
-                                .then(
-                                    if (isTabSelected) {
-                                        Modifier.background(
-                                            Brush.verticalGradient(
-                                                listOf(Color(0xFF00E676), Color(0xFF00A336))
-                                            )
-                                        )
-                                    } else {
-                                        Modifier.background(Color(0xFFF1F5F9))
-                                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(50.dp))
-                                    }
-                                )
-                                .clickable { detailedTab = tab }
-                                .padding(vertical = 7.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Column {
                             Text(
-                                text = tab,
-                                fontSize = 11.sp,
-                                fontWeight = if (isTabSelected) FontWeight.Black else FontWeight.Bold,
-                                color = if (isTabSelected) Color.White else Color(0xFF475569),
-                                maxLines = 1
+                                text = "\u201CBetter",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1E293B),
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                            Text(
+                                text = "Than",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1E293B),
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                            Text(
+                                text = "Yesterday\u201D",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1E293B),
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
+                        Text(text = "\uD83D\uDCAA", fontSize = 21.sp)
                     }
                 }
-
-                // Dynamic Tab Body (Attendance view matches mockup exactly)
-                when (detailedTab) {
-                    "Attendance" -> AttendanceDetailedCardContent()
-                    "Workout" -> WorkoutDetailedCardContent()
-                    "Payment" -> PaymentDetailedCardContent()
-                    else -> BodyProgressDetailedCardContent()
-                }
             }
-        }
 
-        // Modal Theme Picker Dialog (Shows all 8 presets with swatches and details)
-        if (showThemePicker) {
-            ThemePickerDialog(
-                currentTheme = selectedTheme,
-                onThemeSelected = {
-                    MemberCardThemeManager.activeTheme = it
-                    showThemePicker = false
-                },
-                onDismiss = { showThemePicker = false }
-            )
-        }
-    }
-}
-
-/**
- * Attendance Detailed Content matching mockup:
- * - Left: Attendance Overview 85% 18/21 Days with 30-day bars & spline curve
- * - Right: Day Wise Status Donut Ring Gauge (85% Present) + Legend
- * - Streak & Average Row: 12 Days Current Streak + 4/5 Weekly Avg
- * - Footer: Last Check-In Today 06:12 AM | Location Near Gym | Method Face Recognition
- */
-@Composable
-fun AttendanceDetailedCardContent() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        // Dual Column: Overview Chart (55%) + Donut Gauge (45%)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // Left Column: Overview Chart
+            // Middle Section: 25 Days Left + Progress Bar + 75%
             Column(
-                modifier = Modifier
-                    .weight(1.2f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFF8FAFC))
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
-                    .padding(10.dp)
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Attendance Overview",
-                        fontSize = 11.5.sp,
+                        text = "25 Days Left",
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
+                    Text(
+                        text = " (4 Aug 2026 \u2013 12 Nov 2026)",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF64748B)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Box(
                         modifier = Modifier
+                            .weight(1f)
+                            .height(7.dp)
                             .clip(RoundedCornerShape(50.dp))
-                            .background(Color(0xFFDCFCE7))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .background(Color(0xFFE2E8F0))
                     ) {
-                        Text(
-                            text = "↑ 12%",
-                            fontSize = 9.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF15803D)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.75f)
+                                .height(7.dp)
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(
+                                    Brush.horizontalGradient(
+                                        listOf(Color(0xFF10B981), Color(0xFF059669))
+                                    )
+                                )
                         )
                     }
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
                     Text(
-                        text = "85%",
-                        fontSize = 20.sp,
+                        text = "75%",
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Black,
-                        color = Color(0xFF0F172A)
-                    )
-                    Text(
-                        text = "18/21 Days",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF10B981),
-                        modifier = Modifier.padding(bottom = 2.dp)
+                        color = Color(0xFF1E293B)
                     )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // 30-Day Dense Bar + Spline Chart (Matching Mockup 1:1)
-                Canvas(modifier = Modifier.fillMaxWidth().height(55.dp)) {
-                    val heights = listOf(0.35f, 0.50f, 0.40f, 0.70f, 0.55f, 0.45f, 0.80f, 0.60f, 0.75f, 0.50f, 0.65f, 0.85f, 0.70f, 0.60f, 0.90f, 0.75f, 0.80f, 0.65f, 0.85f, 0.70f, 0.95f, 0.80f, 0.75f, 0.90f)
-                    val barWidth = 2.4.dp.toPx()
-                    val gap = (size.width - (heights.size * barWidth)) / (heights.size - 1)
-                    val p = Path()
-
-                    heights.forEachIndexed { i, h ->
-                        val x = i * (barWidth + gap)
-                        val bh = size.height * h
-                        val y = size.height - bh
-                        drawRoundRect(
-                            brush = Brush.verticalGradient(
-                                listOf(Color(0xFF00E676), Color(0xFF00A336).copy(alpha = 0.25f))
-                            ),
-                            topLeft = Offset(x, y),
-                            size = Size(barWidth, bh),
-                            cornerRadius = CornerRadius(1.2.dp.toPx(), 1.2.dp.toPx())
-                        )
-
-                        val cx = x + barWidth / 2f
-                        if (i == 0) p.moveTo(cx, y) else p.lineTo(cx, y)
-                        drawCircle(Color.White, radius = 2.4.dp.toPx(), center = Offset(cx, y))
-                        drawCircle(Color(0xFF00A336), radius = 1.2.dp.toPx(), center = Offset(cx, y))
-                    }
-                    drawPath(p, Color.White.copy(alpha = 0.95f), style = Stroke(1.8.dp.toPx()))
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // X-Axis Labels
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    listOf("1", "5", "10", "15", "20", "25", "30").forEach { lbl ->
-                        Text(text = lbl, fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.SemiBold)
-                    }
-                }
             }
 
-            // Right Column: Donut Gauge + Legend
-            Column(
-                modifier = Modifier
-                    .weight(0.9f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFF8FAFC))
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
-                    .padding(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Day Wise Status",
-                    fontSize = 11.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Donut Circular Ring Gauge
-                Box(
-                    modifier = Modifier.size(72.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Canvas(modifier = Modifier.size(70.dp)) {
-                        val strokeW = 8.dp.toPx()
-                        // Pale mint track
-                        drawArc(
-                            color = Color(0xFFE2E8F0),
-                            startAngle = -90f,
-                            sweepAngle = 360f,
-                            useCenter = false,
-                            style = Stroke(strokeW)
-                        )
-                        // Green arc (85% Present)
-                        drawArc(
-                            color = Color(0xFF10B981),
-                            startAngle = -90f,
-                            sweepAngle = 360f * 0.85f,
-                            useCenter = false,
-                            style = Stroke(strokeW)
-                        )
-                    }
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "85%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text(text = "Present", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Legend
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    LegendItem("Present", "18", Color(0xFF10B981))
-                    LegendItem("Absent", "3", Color(0xFFEF4444))
-                    LegendItem("Gym Off", "0", Color(0xFF94A3B8))
-                }
-            }
-        }
-
-        // Streak & Average Row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFF8FAFC))
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
-                    .padding(horizontal = 10.dp, vertical = 7.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(text = "🔥", fontSize = 18.sp)
-                Column {
-                    Text(text = "12 Days", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text(text = "Current Streak", fontSize = 9.sp, color = Color(0xFF64748B))
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFF8FAFC))
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
-                    .padding(horizontal = 10.dp, vertical = 7.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(text = "📅", fontSize = 18.sp)
-                Column {
-                    Text(text = "4/5", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text(text = "Weekly Avg", fontSize = 9.sp, color = Color(0xFF64748B))
-                }
-            }
-        }
-
-        // Footer Metadata Strip: Last Check-In, Location, Method
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFF1F5F9))
-                .padding(horizontal = 8.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            MetadataChip("🕒", "Last Check-In", "Today 06:12 AM")
-            MetadataChip("📍", "Location", "Near Gym")
-            MetadataChip("👁️", "Method", "Face Recognition")
-        }
-    }
-}
-
-@Composable
-fun WorkoutDetailedCardContent() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1.2f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFF0F9FF))
-                    .border(1.dp, Color(0xFFBAE6FD), RoundedCornerShape(16.dp))
-                    .padding(10.dp)
-            ) {
-                Text(text = "Workout Trend Overview", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0369A1))
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "47 min / day", fontSize = 18.sp, fontWeight = FontWeight.Black, color = Color(0xFF0C4A6E))
-                Spacer(modifier = Modifier.height(8.dp))
-                Canvas(modifier = Modifier.fillMaxWidth().height(50.dp)) {
-                    val pts = listOf(0.40f, 0.75f, 0.50f, 0.85f, 0.65f, 0.90f)
-                    val step = size.width / (pts.size - 1)
-                    val p = Path()
-                    pts.forEachIndexed { i, f ->
-                        val cx = i * step
-                        val cy = size.height * (1f - f)
-                        if (i == 0) p.moveTo(cx, cy) else p.lineTo(cx, cy)
-                        drawCircle(Color(0xFF0284C7), radius = 2.8.dp.toPx(), center = Offset(cx, cy))
-                    }
-                    drawPath(p, Color(0xFF0284C7), style = Stroke(2.dp.toPx()))
-                }
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(0.9f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFF0F9FF))
-                    .border(1.dp, Color(0xFFBAE6FD), RoundedCornerShape(16.dp))
-                    .padding(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Workout Split", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0369A1))
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(text = "Strength: 60%", fontSize = 10.sp, color = Color(0xFF0C4A6E), fontWeight = FontWeight.SemiBold)
-                Text(text = "Cardio: 25%", fontSize = 10.sp, color = Color(0xFF0C4A6E), fontWeight = FontWeight.SemiBold)
-                Text(text = "Mobility: 15%", fontSize = 10.sp, color = Color(0xFF0C4A6E), fontWeight = FontWeight.SemiBold)
-            }
-        }
-    }
-}
-
-@Composable
-fun PaymentDetailedCardContent() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .background(Color(0xFFFFFBEB))
-                .border(1.dp, Color(0xFFFDE68A), RoundedCornerShape(14.dp))
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(text = "Payment Status", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF92400E))
-                Text(text = "₹2,800 Due in 25 Days", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color(0xFF78350F))
-            }
+            // Bottom Section: 4 Metric Compartments (Height, Weight, BMI, Goal)
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(Color(0xFFF59E0B))
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color(0xFFF8FAFC))
+                    .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
+                    .padding(horizontal = 6.dp, vertical = 6.dp)
             ) {
-                Text(text = "Pay Now", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 1. Height
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        modifier = Modifier.weight(0.9f)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFE0F2FE)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = Color(0xFF0284C7),
+                                modifier = Modifier.size(13.dp)
+                            )
+                        }
+                        Column {
+                            Text(text = "Height", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                            Text(text = "178 cm", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        }
+                    }
+
+                    Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
+
+                    // 2. Weight
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        modifier = Modifier.weight(1.35f).padding(start = 3.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFDCFCE7)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "\uD83C\uDFF7\uFE0F", fontSize = 11.sp)
+                        }
+                        Column {
+                            Text(text = "Weight", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(text = "69.5 kg", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                                Column {
+                                    Text(text = "\u2193 2.5 kg", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                                    Text(text = "(vs last month)", fontSize = 5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                                }
+                            }
+                        }
+                    }
+
+                    Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
+
+                    // 3. BMI
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        modifier = Modifier.weight(1.05f).padding(start = 3.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFE0F2FE)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "\u2696\uFE0F", fontSize = 11.sp)
+                        }
+                        Column {
+                            Text(text = "BMI", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(text = "21.9", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(50.dp))
+                                        .background(Color(0xFFDCFCE7))
+                                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                                ) {
+                                    Text(text = "Normal", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF166534), maxLines = 1, softWrap = false)
+                                }
+                            }
+                        }
+                    }
+
+                    Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
+
+                    // 4. Goal
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        modifier = Modifier.weight(1.05f).padding(start = 3.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFFFE4E6)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "\uD83C\uDFAF", fontSize = 11.sp)
+                        }
+                        Column {
+                            Text(text = "Goal", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                            Text(text = "Lean Muscle", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        }
+                    }
+                }
             }
         }
     }
 }
 
+// =============================================================================
+// =============================================================================
+// REUSABLE BENTO TIMEFRAME DROPDOWN PILL
+// =============================================================================
 @Composable
-fun BodyProgressDetailedCardContent() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .background(Color(0xFFFAF5FF))
-                .border(1.dp, Color(0xFFE9D5FF), RoundedCornerShape(14.dp))
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(text = "Weight Change", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF7E22CE))
-                Text(text = "69.5 kg (-0.7 kg this month)", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color(0xFF581C87))
-            }
-            Text(text = "Target: 65 kg", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFFA855F7))
-        }
-    }
-}
-
-@Composable
-fun LegendItem(label: String, count: String, color: Color) {
+private fun BentoTimeframeDropdownPill(text: String) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(color))
-            Text(text = label, fontSize = 9.sp, color = Color(0xFF334155), fontWeight = FontWeight.SemiBold)
-        }
-        Text(text = count, fontSize = 9.5.sp, color = color, fontWeight = FontWeight.Black)
-    }
-}
-
-@Composable
-fun MetadataChip(icon: String, title: String, value: String) {
-    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50.dp))
+            .background(Color.White)
+            .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(50.dp))
+            .padding(horizontal = 5.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(3.dp)
+        horizontalArrangement = Arrangement.spacedBy(1.dp)
     ) {
-        Text(text = icon, fontSize = 11.sp)
-        Column {
-            Text(text = title, fontSize = 8.sp, color = Color(0xFF64748B))
-            Text(text = value, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
-        }
+        Text(
+            text = text,
+            fontSize = 7.5.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF334155),
+            maxLines = 1,
+            softWrap = false
+        )
+        Icon(
+            imageVector = Icons.Default.KeyboardArrowDown,
+            contentDescription = null,
+            tint = Color(0xFF64748B),
+            modifier = Modifier.size(9.dp)
+        )
     }
 }
 
+// =============================================================================
+// CARD 1: ATTENDANCE BENTO CARD (Top-Left)
+// =============================================================================
 @Composable
-fun HeroQuickStatChip(
-    icon: String,
-    label: String,
-    value: String,
-    isDark: Boolean,
+fun AttendanceBentoCard(
+    data: MemberCardData,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.90f)
-            )
-            .border(
-                1.dp,
-                if (isDark) Color.White.copy(alpha = 0.20f) else Color(0xFFE2E8F0),
-                RoundedCornerShape(12.dp)
-            )
-            .padding(vertical = 5.dp, horizontal = 4.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(text = icon, fontSize = 10.sp)
-                Text(
-                    text = value,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Black,
-                    color = if (isDark) Color.White else Color(0xFF0F172A),
-                    maxLines = 1
-                )
-            }
-            Text(
-                text = label,
-                fontSize = 8.5.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (isDark) Color.White.copy(alpha = 0.7f) else Color(0xFF64748B),
-                maxLines = 1
-            )
-        }
-    }
-}
-
-data class BentoFooterStat(
-    val label: String,
-    val value: String,
-    val color: Color
-)
-
-@Composable
-fun RichBentoCard(
-    title: String,
-    value: String,
-    badgeText: String,
-    badgeBg: Color,
-    badgeTextColor: Color,
-    subtitle: String,
-    background: Brush,
-    borderColor: Color,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    iconBg: Color,
-    accentColor: Color,
-    titleColor: Color = Color(0xFF0F172A),
-    valueColor: Color = Color(0xFF0F172A),
-    isDark: Boolean,
-    chartColor: Color,
-    barHeights: List<Float>,
-    xAxisLabels: List<String>,
-    footerStats: List<BentoFooterStat>,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(194.dp)
-            .clip(RoundedCornerShape(22.dp))
-            .background(background)
-            .border(1.5.dp, borderColor, RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.White.copy(alpha = 0.96f))
+            .border(1.2.dp, Color(0x3310B981), RoundedCornerShape(20.dp))
             .clickable { onClick() }
-            .padding(horizontal = 9.dp, vertical = 8.dp)
+            .padding(10.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
-            // Header Row: 3D Orb Icon | Title + Value/Badge + Subtitle | Circle Chevron >
+            // Header: [ Calendar ] Attendance / Last 30 Days | [ 30 Days v ]
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
+                    modifier = Modifier.weight(1f, fill = false),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    modifier = Modifier.weight(1f)
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    // 3D Glowing Circular Orb Icon (Matching Mockup 1:1)
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(accentColor.copy(alpha = 0.95f), iconBg)
-                                )
-                            )
-                            .border(1.dp, Color.White.copy(alpha = 0.9f), CircleShape),
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF10B981)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = icon,
+                            imageVector = Icons.Default.CalendarToday,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(17.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                     }
 
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Column {
                         Text(
-                            text = title,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = titleColor,
+                            text = "Attendance",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
                             maxLines = 1,
                             softWrap = false
                         )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Text(
-                                text = value,
-                                fontSize = 14.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = valueColor,
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(50.dp))
-                                    .background(badgeBg)
-                                    .padding(horizontal = 4.dp, vertical = 1.dp)
-                            ) {
-                                Text(
-                                    text = badgeText,
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = badgeTextColor,
-                                    maxLines = 1,
-                                    softWrap = false
-                                )
-                            }
-                        }
                         Text(
-                            text = subtitle,
-                            fontSize = 8.5.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = titleColor.copy(alpha = 0.75f),
+                            text = "Last 30 Days",
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF64748B),
                             maxLines = 1,
                             softWrap = false
                         )
                     }
                 }
 
-                // White Circular Glass Chevron >
-                Box(
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.92f))
-                        .border(0.8.dp, Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = titleColor,
-                        modifier = Modifier.size(13.dp)
-                    )
-                }
+                BentoTimeframeDropdownPill(text = "30 Days")
             }
 
-            // Center Chart Area: Dense Vertical Glowing Bars + White Spline + X-Axis
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Canvas(modifier = Modifier.fillMaxWidth().height(46.dp)) {
-                    val barWidth = 2.4.dp.toPx()
-                    val gap = (size.width - (barHeights.size * barWidth)) / (barHeights.size - 1)
-                    val p = Path()
-
-                    barHeights.forEachIndexed { i, h ->
-                        val x = i * (barWidth + gap)
-                        val bh = size.height * h
-                        val y = size.height - bh
-
-                        drawRoundRect(
-                            brush = Brush.verticalGradient(
-                                listOf(chartColor.copy(alpha = 0.85f), chartColor.copy(alpha = 0.15f))
-                            ),
-                            topLeft = Offset(x, y),
-                            size = Size(barWidth, bh),
-                            cornerRadius = CornerRadius(1.2.dp.toPx(), 1.2.dp.toPx())
+            // Top Metric: 85% + ^ 12% (vs previous 30 days) + 18 of 21 days
+            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        text = "85%",
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF059669)
+                    )
+                    Column {
+                        Text(
+                            text = "\u2191 12%",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF16A34A),
+                            maxLines = 1,
+                            softWrap = false
                         )
-
-                        val cx = x + barWidth / 2f
-                        if (i == 0) p.moveTo(cx, y) else p.lineTo(cx, y)
-                        drawCircle(Color.White, radius = 2.4.dp.toPx(), center = Offset(cx, y))
-                        drawCircle(chartColor, radius = 1.2.dp.toPx(), center = Offset(cx, y))
+                        Text(
+                            text = "(vs previous 30 days)",
+                            fontSize = 7.sp,
+                            color = Color(0xFF64748B),
+                            maxLines = 1,
+                            softWrap = false
+                        )
                     }
-                    drawPath(p, Color.White.copy(alpha = 0.95f), style = Stroke(1.8.dp.toPx()))
+                }
+                Text(
+                    text = "18 of 21 days",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF64748B),
+                    maxLines = 1,
+                    softWrap = false
+                )
+            }
+
+            // 30-Day Attendance Bar Chart
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth().height(58.dp)) {
+                    // Left Y-Axis: 1, 0.5, 0
+                    Column(
+                        modifier = Modifier.height(58.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(text = "1", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "0.5", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "0", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                    }
+
+                    Spacer(modifier = Modifier.width(3.dp))
+
+                    // 30 Bars Canvas
+                    Canvas(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(58.dp)
+                    ) {
+                        val attendanceStatuses = listOf(
+                            1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+                            1, 1, 1, 2, 1, 1, 1, 1, 1, 1,
+                            1, 2, 1, 1, 1, 1, 1, 1, 0, 1
+                        )
+                        val count = attendanceStatuses.size
+                        val barWidth = 3.dp.toPx()
+                        val step = size.width / count.toFloat()
+                        val barRadius = CornerRadius(barWidth / 2f, barWidth / 2f)
+
+                        attendanceStatuses.forEachIndexed { i, status ->
+                            val x = i * step + (step - barWidth) / 2f
+                            val h = when (status) {
+                                1 -> size.height * 0.90f  // Present
+                                2 -> size.height * 0.40f  // Absent
+                                else -> size.height * 0.20f // Gym Off
+                            }
+                            val y = size.height - h
+                            val color = when (status) {
+                                1 -> Color(0xFF10B981)
+                                2 -> Color(0xFFEF4444)
+                                else -> Color(0xFF94A3B8)
+                            }
+                            drawRoundRect(
+                                color = color,
+                                topLeft = Offset(x, y),
+                                size = Size(barWidth, h),
+                                cornerRadius = barRadius
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(2.dp))
 
+                // Bottom X-Axis Marks: 1, 5, 10, 15, 20, 25, 30
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(start = 14.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    xAxisLabels.forEach { lbl ->
+                    listOf("1", "5", "10", "15", "20", "25", "30").forEach { mark ->
                         Text(
-                            text = lbl,
-                            fontSize = 7.5.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = titleColor.copy(alpha = 0.65f)
+                            text = mark,
+                            fontSize = 6.5.sp,
+                            color = Color(0xFF94A3B8)
                         )
                     }
                 }
             }
 
-            // Bottom 3-Stat Footer Row (Rounded Frosted Glass Pill)
+            // Legend Row: * Present 18  * Absent 3  * Gym Off 2
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White.copy(alpha = 0.86f))
-                    .border(0.8.dp, Color.White, RoundedCornerShape(12.dp))
-                    .padding(horizontal = 4.dp, vertical = 3.5.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                footerStats.forEach { stat ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = stat.label,
-                            fontSize = 7.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF64748B),
-                            maxLines = 1,
-                            softWrap = false,
-                            letterSpacing = (-0.3).sp
+                // Present
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
+                    Text(text = "Present ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "18", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981), maxLines = 1, softWrap = false)
+                }
+                // Absent
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFEF4444)))
+                    Text(text = "Absent ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "3", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
+                }
+                // Gym Off
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF94A3B8)))
+                    Text(text = "Gym Off ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "2", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFF1F5F9)))
+
+            // Footer 3-Column Stats: Current Streak, Best Streak, Attendance Rate
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 1. Current Streak
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\uD83D\uDD25", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Current Streak", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "6 Days", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                }
+                // 2. Best Streak
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\uD83C\uDFC6", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Best Streak", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "12 Days", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                }
+                // 3. Attendance Rate (with Custom Canvas Pie Chart Icon)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Canvas(modifier = Modifier.size(11.dp)) {
+                        val r = size.minDimension / 2f
+                        drawCircle(Color(0xFF0D9488), radius = r)
+                        drawArc(
+                            color = Color(0xFFF59E0B),
+                            startAngle = -90f,
+                            sweepAngle = 100f,
+                            useCenter = true
                         )
-                        Spacer(modifier = Modifier.height(1.dp))
-                        Text(
-                            text = stat.value,
-                            fontSize = 8.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = stat.color,
-                            maxLines = 1,
-                            softWrap = false
+                        drawArc(
+                            color = Color(0xFF10B981),
+                            startAngle = 10f,
+                            sweepAngle = 160f,
+                            useCenter = true
                         )
+                    }
+                    Column {
+                        Text(text = "Attendance Rate", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "85%", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
             }
@@ -1295,9 +820,936 @@ fun RichBentoCard(
     }
 }
 
-/**
- * Interactive Dialog displaying all 8 Canonical Member Intelligence Card Themes
- */
+// =============================================================================
+// CARD 2: WORKOUT TREND BENTO CARD (Top-Right)
+// =============================================================================
+@Composable
+fun WorkoutTrendBentoCard(
+    data: MemberCardData,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.White.copy(alpha = 0.96f))
+            .border(1.2.dp, Color(0x330284C7), RoundedCornerShape(20.dp))
+            .clickable { onClick() }
+            .padding(10.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            // Header: [ FitnessCenter ] Workout Trend / Last 30 Days | [ 30 Days v ]
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f, fill = false),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF0284C7)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FitnessCenter,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(15.dp)
+                        )
+                    }
+
+                    Column {
+                        Text(
+                            text = "Workout Trend",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                        Text(
+                            text = "Last 30 Days",
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF64748B),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                }
+
+                BentoTimeframeDropdownPill(text = "30 Days")
+            }
+
+            // Top Metric: 47 min + ^ 8% (vs previous 30 days) + Avg per session
+            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        text = "47 min",
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF0369A1)
+                    )
+                    Column {
+                        Text(
+                            text = "\u2191 8%",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF16A34A),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                        Text(
+                            text = "(vs previous 30 days)",
+                            fontSize = 7.sp,
+                            color = Color(0xFF64748B),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                }
+                Text(
+                    text = "Avg per session",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF64748B),
+                    maxLines = 1,
+                    softWrap = false
+                )
+            }
+
+            // 30-Day Workout Bars (Graduated Cyan-Blue Bars)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth().height(58.dp)) {
+                    // Left Y-Axis: 90m, 45m, 0
+                    Column(
+                        modifier = Modifier.height(58.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(text = "90m", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "45m", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "0", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                    }
+
+                    Spacer(modifier = Modifier.width(3.dp))
+
+                    // 30 Workout Bars Canvas
+                    Canvas(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(58.dp)
+                    ) {
+                        val workoutDays = listOf(
+                            1, 1, 0, 1, 1, 1, 1, 0, 1, 1,
+                            1, 1, 0, 1, 1, 1, 1, 1, 0, 1,
+                            1, 1, 1, 0, 1, 1, 1, 1, 1, 1
+                        )
+                        val count = workoutDays.size
+                        val barWidth = 3.dp.toPx()
+                        val step = size.width / count.toFloat()
+                        val barRadius = CornerRadius(barWidth / 2f, barWidth / 2f)
+
+                        workoutDays.forEachIndexed { i, active ->
+                            val x = i * step + (step - barWidth) / 2f
+                            val hRatio = if (active == 1) {
+                                (0.50f + ((i * 7) % 45) / 100f).coerceIn(0.40f, 0.95f)
+                            } else {
+                                0.15f
+                            }
+                            val h = size.height * hRatio
+                            val y = size.height - h
+
+                            if (active == 1) {
+                                drawRoundRect(
+                                    brush = Brush.verticalGradient(
+                                        listOf(Color(0xFF0284C7), Color(0xFF38BDF8))
+                                    ),
+                                    topLeft = Offset(x, y),
+                                    size = Size(barWidth, h),
+                                    cornerRadius = barRadius
+                                )
+                            } else {
+                                drawRoundRect(
+                                    color = Color(0xFFCBD5E1),
+                                    topLeft = Offset(x, y),
+                                    size = Size(barWidth, h),
+                                    cornerRadius = barRadius
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Bottom X-Axis Marks: 1, 5, 10, 15, 20, 25, 30
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    listOf("1", "5", "10", "15", "20", "25", "30").forEach { mark ->
+                        Text(
+                            text = mark,
+                            fontSize = 6.5.sp,
+                            color = Color(0xFF94A3B8)
+                        )
+                    }
+                }
+            }
+
+            // Legend Row: * Workout 24 days  * No Workout 6 days
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Workout
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF0284C7)))
+                    Text(text = "Workout ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "24 days", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7), maxLines = 1, softWrap = false)
+                }
+                // No Workout
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFCBD5E1)))
+                    Text(text = "No Workout ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "6 days", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFF1F5F9)))
+
+            // Footer 3-Column Stats: Total Workouts, Best Session, Current Streak
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 1. Total Workouts
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\u23F1\uFE0F", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Total Workouts", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "24", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                }
+                // 2. Best Session
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\uD83C\uDFC6", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Best Session", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "92 min", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                }
+                // 3. Current Streak
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\uD83D\uDD25", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Current Streak", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "8 Days", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+// CARD 3: PAYMENT BENTO CARD (Bottom-Left)
+// =============================================================================
+@Composable
+fun PaymentBentoCard(
+    data: MemberCardData,
+    onClick: () -> Unit,
+    onViewReceiptClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.White.copy(alpha = 0.96f))
+            .border(1.2.dp, Color(0x33EF4444), RoundedCornerShape(20.dp))
+            .clickable { onClick() }
+            .padding(10.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            // Header: [ Wallet ] Payment / Last 12 Months | [ 12 Months v ]
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f, fill = false),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFEF4444)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AccountBalanceWallet,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(15.dp)
+                        )
+                    }
+
+                    Column {
+                        Text(
+                            text = "Payment",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                        Text(
+                            text = "Last 12 Months",
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF64748B),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                }
+
+                BentoTimeframeDropdownPill(text = "12 Months")
+            }
+
+            // Top Metric: Rs 2,800 + [ ! Due ] + Next Due Date + View Receipt Button
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "\u20B92,800",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF991B1B)
+                        )
+                        // Red Due Badge
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color(0xFFEF4444))
+                                .padding(horizontal = 4.dp, vertical = 1.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(text = "!", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            Text(text = "Due", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
+
+                    // View Receipt Button (Protected against truncation)
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFEFF6FF))
+                            .border(0.8.dp, Color(0xFF93C5FD), RoundedCornerShape(8.dp))
+                            .clickable { onViewReceiptClick() }
+                            .padding(horizontal = 4.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Receipt,
+                            contentDescription = null,
+                            tint = Color(0xFF2563EB),
+                            modifier = Modifier.size(9.dp)
+                        )
+                        Text(
+                            text = "View Receipt",
+                            fontSize = 7.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2563EB),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                }
+
+                Text(
+                    text = "Next Due Date: 12 Nov 2026",
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF64748B),
+                    maxLines = 1,
+                    softWrap = false
+                )
+            }
+
+            // 12-Month Capsule Bar Chart with Track
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth().height(58.dp)) {
+                    // Left Y-Axis: Rs 3k, Rs 1.5k, 0
+                    Column(
+                        modifier = Modifier.height(58.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(text = "\u20B93k", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "\u20B91.5k", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "0", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                    }
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    // 12 Monthly Capsule Bars inside Translucent Capsule Tracks
+                    Canvas(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(58.dp)
+                    ) {
+                        val months = listOf(
+                            1 to 0.70f, // Jan: Paid
+                            1 to 0.88f, // Feb: Paid
+                            2 to 0.50f, // Mar: Partial
+                            1 to 0.88f, // Apr: Paid
+                            1 to 0.75f, // May: Paid
+                            2 to 0.45f, // Jun: Partial
+                            1 to 0.95f, // Jul: Paid
+                            1 to 0.88f, // Aug: Paid
+                            1 to 0.78f, // Sep: Paid
+                            3 to 0.48f, // Oct: Due
+                            3 to 0.38f, // Nov: Due
+                            0 to 0.35f  // Dec: No Data
+                        )
+                        val count = months.size
+                        val barWidth = 6.dp.toPx()
+                        val slotWidth = size.width / count.toFloat()
+                        val trackRadius = CornerRadius(barWidth / 2f, barWidth / 2f)
+
+                        months.forEachIndexed { i, (status, h) ->
+                            val x = i * slotWidth + (slotWidth - barWidth) / 2f
+                            val fullH = size.height
+
+                            // Draw full-height background track
+                            drawRoundRect(
+                                color = Color(0xFFF1F5F9),
+                                topLeft = Offset(x, 0f),
+                                size = Size(barWidth, fullH),
+                                cornerRadius = trackRadius
+                            )
+
+                            if (status != 0) {
+                                val bh = (fullH * h).coerceIn(barWidth, fullH)
+                                val y = fullH - bh
+
+                                val barBrush = when (status) {
+                                    1 -> Brush.verticalGradient(listOf(Color(0xFF10B981), Color(0xFF059669))) // Paid
+                                    2 -> Brush.verticalGradient(listOf(Color(0xFFFBBF24), Color(0xFFF59E0B))) // Partial
+                                    else -> Brush.verticalGradient(listOf(Color(0xFFF87171), Color(0xFFEF4444))) // Due
+                                }
+
+                                drawRoundRect(
+                                    brush = barBrush,
+                                    topLeft = Offset(x, y),
+                                    size = Size(barWidth, bh),
+                                    cornerRadius = trackRadius
+                                )
+                            } else {
+                                // Dec No Data: subtle outline
+                                drawRoundRect(
+                                    color = Color(0xFFCBD5E1),
+                                    topLeft = Offset(x, fullH * 0.65f),
+                                    size = Size(barWidth, fullH * 0.35f),
+                                    cornerRadius = trackRadius,
+                                    style = Stroke(width = 0.8.dp.toPx())
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Bottom X-Axis Labels: Jan to Dec with equal distribution
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 18.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { lbl ->
+                        Text(
+                            text = lbl,
+                            fontSize = 6.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF64748B),
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                }
+            }
+
+            // Legend Row: * Paid 8 mo  * Partial 2 mo  * Due 2 mo  * No Data -
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Paid
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
+                    Text(text = "Paid ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "8 mo", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981), maxLines = 1, softWrap = false)
+                }
+                // Partial
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFF59E0B)))
+                    Text(text = "Partial ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "2 mo", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF59E0B), maxLines = 1, softWrap = false)
+                }
+                // Due
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFEF4444)))
+                    Text(text = "Due ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "2 mo", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
+                }
+                // No Data
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF94A3B8)))
+                    Text(text = "No Data ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "-", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFF1F5F9)))
+
+            // Footer 3-Column Stats: Total Paid, Avg / Month, Next Due
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 1. Total Paid
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\uD83D\uDCB3", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Total Paid", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "\u20B912,600", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                }
+                // 2. Avg / Month
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarToday,
+                        contentDescription = null,
+                        tint = Color(0xFFF59E0B),
+                        modifier = Modifier.size(10.dp)
+                    )
+                    Column {
+                        Text(text = "Avg / Month", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "\u20B91,050", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                }
+                // 3. Next Due
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\uD83D\uDD52", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Next Due", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(text = "12 Nov", fontSize = 8.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                            Text(text = "(25d left)", fontSize = 6.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+// CARD 4: BODY PROGRESS BENTO CARD (Bottom-Right)
+// =============================================================================
+@Composable
+fun BodyProgressBentoCard(
+    data: MemberCardData,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.White.copy(alpha = 0.96f))
+            .border(1.2.dp, Color(0x3310B981), RoundedCornerShape(20.dp))
+            .clickable { onClick() }
+            .padding(10.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            // Header: [ Person ] Body Progress / Last 12 Months | [ 12 Months v ]
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f, fill = false),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF10B981)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(15.dp)
+                        )
+                    }
+
+                    Column {
+                        Text(
+                            text = "Body Progress",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                        Text(
+                            text = "Last 12 Months",
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF64748B),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                }
+
+                BentoTimeframeDropdownPill(text = "12 Months")
+            }
+
+            // Top 4 Metric Chips Row (Weight, Muscle, Body Fat, Waist in 3-line format)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                // 1. Weight
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(7.dp))
+                        .background(Color(0xFFF8FAFC))
+                        .border(0.6.dp, Color(0xFFE2E8F0), RoundedCornerShape(7.dp))
+                        .padding(horizontal = 2.dp, vertical = 2.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+                        Text(text = "\uD83D\uDCE6", fontSize = 6.5.sp)
+                        Text(text = "69.5 kg", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                    Text(text = "\u2193 2.5 kg", fontSize = 5.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                    Text(text = "Weight", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+
+                // 2. Muscle
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(7.dp))
+                        .background(Color(0xFFF8FAFC))
+                        .border(0.6.dp, Color(0xFFE2E8F0), RoundedCornerShape(7.dp))
+                        .padding(horizontal = 2.dp, vertical = 2.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+                        Text(text = "\uD83D\uDCAA", fontSize = 6.5.sp)
+                        Text(text = "57.2 kg", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                    Text(text = "\u2191 1.4 kg", fontSize = 5.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                    Text(text = "Muscle Mass", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+
+                // 3. Body Fat
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(7.dp))
+                        .background(Color(0xFFF8FAFC))
+                        .border(0.6.dp, Color(0xFFE2E8F0), RoundedCornerShape(7.dp))
+                        .padding(horizontal = 2.dp, vertical = 2.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+                        Text(text = "\uD83D\uDD25", fontSize = 6.5.sp)
+                        Text(text = "17.6 %", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                    Text(text = "\u2193 1.2 %", fontSize = 5.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                    Text(text = "Body Fat", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+
+                // 4. Waist
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(7.dp))
+                        .background(Color(0xFFF8FAFC))
+                        .border(0.6.dp, Color(0xFFE2E8F0), RoundedCornerShape(7.dp))
+                        .padding(horizontal = 2.dp, vertical = 2.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+                        Text(text = "\uD83E\uDE90", fontSize = 6.5.sp)
+                        Text(text = "81 cm", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                    }
+                    Text(text = "\u2193 4 cm", fontSize = 5.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                    Text(text = "Waist", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+            }
+
+            // 12-Month Multi-Line Spline Chart
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth().height(58.dp)) {
+                    // Left Y-Axis (kg): 90kg, 60kg, 30kg, 0
+                    Column(
+                        modifier = Modifier.height(58.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(text = "90kg", fontSize = 6.5.sp, color = Color(0xFF94A3B8))
+                        Text(text = "60kg", fontSize = 6.5.sp, color = Color(0xFF94A3B8))
+                        Text(text = "30kg", fontSize = 6.5.sp, color = Color(0xFF94A3B8))
+                        Text(text = "0", fontSize = 6.5.sp, color = Color(0xFF94A3B8))
+                    }
+
+                    Spacer(modifier = Modifier.width(3.dp))
+
+                    // 4 Clean Spline Curves with Circular Dots & Soft Area Fill
+                    Canvas(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(58.dp)
+                    ) {
+                        // 12 data points for 4 metrics
+                        val weightPts = listOf(0.22f, 0.20f, 0.23f, 0.28f, 0.28f, 0.30f, 0.29f, 0.28f, 0.29f, 0.31f, 0.33f, 0.33f)
+                        val musclePts = listOf(0.40f, 0.33f, 0.35f, 0.36f, 0.34f, 0.38f, 0.39f, 0.38f, 0.40f, 0.42f, 0.42f, 0.43f)
+                        val waistPts = listOf(0.38f, 0.45f, 0.43f, 0.42f, 0.44f, 0.42f, 0.44f, 0.44f, 0.45f, 0.47f, 0.48f, 0.49f)
+                        val fatPts = listOf(0.66f, 0.69f, 0.68f, 0.69f, 0.70f, 0.70f, 0.71f, 0.71f, 0.70f, 0.71f, 0.72f, 0.73f)
+
+                        val count = weightPts.size
+                        val stepX = size.width / (count - 1).toFloat()
+
+                        // Subtle green area gradient under the curve
+                        val areaPath = Path().apply {
+                            moveTo(0f, size.height)
+                            weightPts.forEachIndexed { i, yRatio ->
+                                val x = i * stepX
+                                val y = size.height * yRatio
+                                if (i == 0) lineTo(x, y) else {
+                                    val prevX = (i - 1) * stepX
+                                    val prevY = size.height * weightPts[i - 1]
+                                    val cx = (prevX + x) / 2f
+                                    cubicTo(cx, prevY, cx, y, x, y)
+                                }
+                            }
+                            lineTo(size.width, size.height)
+                            close()
+                        }
+                        drawPath(
+                            path = areaPath,
+                            brush = Brush.verticalGradient(
+                                listOf(Color(0xFF10B981).copy(alpha = 0.12f), Color(0xFFFBBF24).copy(alpha = 0.04f), Color.Transparent)
+                            )
+                        )
+
+                        // Helper function to draw smooth solid Bezier spline and solid circular dots
+                        fun drawSeries(points: List<Float>, color: Color) {
+                            val path = Path()
+                            points.forEachIndexed { i, yRatio ->
+                                val x = i * stepX
+                                val y = size.height * yRatio
+                                if (i == 0) {
+                                    path.moveTo(x, y)
+                                } else {
+                                    val prevX = (i - 1) * stepX
+                                    val prevY = size.height * points[i - 1]
+                                    val cx = (prevX + x) / 2f
+                                    path.cubicTo(cx, prevY, cx, y, x, y)
+                                }
+                            }
+                            drawPath(
+                                path = path,
+                                color = color,
+                                style = Stroke(
+                                    width = 1.4.dp.toPx(),
+                                    cap = StrokeCap.Round,
+                                    join = StrokeJoin.Round
+                                )
+                            )
+
+                            // Draw solid circle dots at each data point matching curve color
+                            points.forEachIndexed { i, yRatio ->
+                                val x = i * stepX
+                                val y = size.height * yRatio
+                                drawCircle(color = color, radius = 1.6.dp.toPx(), center = Offset(x, y))
+                            }
+                        }
+
+                        // Draw all 4 curves
+                        drawSeries(fatPts, Color(0xFFF59E0B))      // Body Fat (Yellow)
+                        drawSeries(waistPts, Color(0xFF8B5CF6))    // Waist (Purple)
+                        drawSeries(musclePts, Color(0xFF0284C7))   // Muscle (Blue)
+                        drawSeries(weightPts, Color(0xFF10B981))   // Weight (Green)
+                    }
+
+                    Spacer(modifier = Modifier.width(3.dp))
+
+                    // Right Y-Axis (%): 30%, 20%, 10%, 0%
+                    Column(
+                        modifier = Modifier.height(58.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Text(text = "30%", fontSize = 6.5.sp, color = Color(0xFFEF4444))
+                        Text(text = "20%", fontSize = 6.5.sp, color = Color(0xFFEF4444))
+                        Text(text = "10%", fontSize = 6.5.sp, color = Color(0xFFEF4444))
+                        Text(text = "0%", fontSize = 6.5.sp, color = Color(0xFFEF4444))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Bottom X-Axis Labels: Jan to Dec with equal distribution matching canvas data points
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 22.dp, end = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { lbl ->
+                        Text(
+                            text = lbl,
+                            fontSize = 5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF64748B),
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                }
+            }
+
+            // Legend Row: * Weight (kg)  * Muscle (kg)  * Body Fat (%)  * Waist (cm)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Weight
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
+                    Text(text = "Weight (kg)", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+                // Muscle
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF0284C7)))
+                    Text(text = "Muscle (kg)", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+                // Body Fat
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFF59E0B)))
+                    Text(text = "Body Fat (%)", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+                // Waist
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF8B5CF6)))
+                    Text(text = "Waist (cm)", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFF1F5F9)))
+
+            // Footer 3-Column Stats: Strength, Endurance, Overall Progress
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 1. Strength
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\uD83D\uDCCA", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Strength", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "+18%", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                        Text(text = "(Est. 1RM)", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    }
+                }
+                // 2. Endurance
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\u2764\uFE0F", fontSize = 11.sp)
+                    Column {
+                        Text(text = "Endurance", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "+22%", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                        Text(text = "(Avg Cardio Time)", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    }
+                }
+                // 3. Overall Progress
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "\uD83D\uDCC8", fontSize = 11.sp)
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(text = "Overall Progress", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Spacer(modifier = Modifier.height(1.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color(0xFF10B981))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "On Track",
+                                fontSize = 7.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White,
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+// THEME PICKER DIALOG (Interactive modal for preset themes)
+// =============================================================================
 @Composable
 fun ThemePickerDialog(
     currentTheme: MemberCardTheme,
@@ -1345,7 +1797,7 @@ fun ThemePickerDialog(
                             .clickable { onDismiss() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "✕", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(text = "\u2715", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -1383,7 +1835,6 @@ fun ThemePickerDialog(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                                 modifier = Modifier.weight(1f)
                             ) {
-                                // Theme ID Badge
                                 Box(
                                     modifier = Modifier
                                         .size(32.dp)
@@ -1407,7 +1858,7 @@ fun ThemePickerDialog(
                                         color = if (isSelected) Color.White else Color(0xFFE2E8F0)
                                     )
                                     Text(
-                                        text = "${theme.badge} • ${itemPalette.stats.goal} • ${itemPalette.stats.totalVisits} visits",
+                                        text = "${theme.badge} \u2022 ${itemPalette.stats.goal} \u2022 ${itemPalette.stats.totalVisits} visits",
                                         fontSize = 10.5.sp,
                                         color = if (isSelected) itemPalette.themeAccent else Color(0xFF94A3B8)
                                     )
@@ -1416,7 +1867,7 @@ fun ThemePickerDialog(
 
                             if (isSelected) {
                                 Text(
-                                    text = "✓",
+                                    text = "\u2713",
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.Black,
                                     color = itemPalette.themeAccent
