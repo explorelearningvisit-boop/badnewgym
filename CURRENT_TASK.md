@@ -152,15 +152,15 @@ Completion requires the new UI, widget editor architecture, admin command center
      - Bottom legend row with custom vector icons: Present 24 Days (77%), Absent 3 Days (10%), Holiday 2 Days (6%), Avg 28 min, Peak 52 min, Lowest 12 min.
   5. **Stage 4 (Payment & Plan)**:
      - Header: Red wallet icon + Payment & Plan, amber pill ? Prime Plan (1 Month) >.
-     - Item 1: ?2,800 (single line!), Paid  On Time,  1 Sep 2026.
+     - Item 1: ?2,800 (single line!), Paid  On Time, 1 Sep 2026.
      - Item 2: Next Due, 30 Sep 2026 (single line!), 25 Days Left.
      - Item 3: View\nReceipt with blue receipt icon.
      - Item 4: Collect\nMoney emerald button with white Rupee circle.
   6. **Stage 5 (Today's Activity)**:
      - Header: Purple lightning bolt + Today's Activity, Details >.
-     - Check-in:  6:10 AM with soft green radial ambient bloom and clock icon.
+     - Check-in: 6:10 AM with soft green radial ambient bloom and clock icon.
      - Workout: 62 min with soft purple radial ambient bloom and dumbbell icon.
-     - Check-out:  7:42 AM with soft red radial ambient bloom and clock icon.
+     - Check-out: 7:42 AM with soft red radial ambient bloom and clock icon.
   7. **Device & Verification Integrity**:
      - Built and tested with ./gradlew testDebugUnitTest assembleDebug (ALL unit tests pass).
      - Deployed and verified on physical Xiaomi 11i device (zxdada69gunb7ls4).

@@ -77,7 +77,6 @@ fun MemberDashboardV2Screen(
     var showThemePicker by remember { mutableStateOf(false) }
 
     var activeBottomTab by remember { mutableStateOf("Home") }
-    val scrollState = rememberScrollState()
 
     LaunchedEffect(initialSheet) {
         when (initialSheet?.lowercase()) {
@@ -96,37 +95,25 @@ fun MemberDashboardV2Screen(
             .fillMaxSize()
             .background(AquaGlassTokens.CanvasBackgroundGradient)
     ) {
-        // Main Vertical Scrollable Content - Full Width on Xiaomi Screen
-        Column(
+        // Sticky Header Dashboard View - Full Width with Pinned Menu Bar & Below Expanded Widgets
+        ThemedMemberIntelligenceCard(
+            data = data,
+            onMenuClick = {
+                showTailscaleSheet = true
+                onMenuClick()
+            },
+            onCardClick = { card ->
+                when (card) {
+                    "Payment" -> showReceiptSheet = true
+                    "Attendance" -> { /* Handled natively by AttendanceDetailsDialog */ }
+                    else -> showAnalyticsSheet = true
+                }
+            },
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .verticalScroll(scrollState)
-                .padding(horizontal = 4.dp, vertical = 6.dp)
-        ) {
-            // Themed Member Intelligence Card (Hero + 2x2 Bento + Detailed View)
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                ThemedMemberIntelligenceCard(
-                    data = data,
-                    onMenuClick = {
-                        showTailscaleSheet = true
-                        onMenuClick()
-                    },
-                    onCardClick = { card ->
-                        when (card) {
-                            "Payment" -> showReceiptSheet = true
-                            "Attendance" -> { /* Handled natively by AttendanceDetailsDialog */ }
-                            else -> showAnalyticsSheet = true
-                        }
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+        )
 
         // Modal Theme Picker Dialog (Invoked by [ ••• ] or More tab)
         if (showThemePicker) {

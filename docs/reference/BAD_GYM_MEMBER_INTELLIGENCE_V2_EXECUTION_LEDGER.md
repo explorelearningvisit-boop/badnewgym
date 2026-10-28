@@ -271,3 +271,36 @@ Status values: PENDING | IN_PROGRESS | BLOCKED | VERIFIED
   - Elite 36-Month: docs/reference/images/live_pass_verified.png
   - Power 3-Month: docs/reference/images/live_pass_switched.png
   - Spark 2-Month: docs/reference/images/live_pass_spark.png
+
+## Milestone 14.0 - Sticky Menu Bar, Dynamic Color Blending & Expanded Widgets Architecture (2026-10-28)
+- **User Request**: Menu bar must always stick below member card widget when scrolling through expanded widgets, seamlessly blend colors when menu and related widget open, fix dashboard fonts, text, contrast, buttons ("buttio"), and data presentation techniques.
+- **Architectural & Design Implementation**:
+  1. **Sticky Menu Bar Layout**:
+     - Migrated `MemberDashboardV2Screen.kt` and `MasterStoryboardDashboard.kt` to `LazyColumn` with native `stickyHeader`.
+     - When scrolling down past the member pass card, `MasterStoryboardStickyMenuBar` pins permanently at the top of the viewport.
+  2. **Dynamic Liquid Color Blending**:
+     - Menu bar container, active tab, and open widget below seamlessly blend colors with animated transitions (`animateColorAsState`):
+       - **Attendance (0)**: Mint Green (`#EFFEF2` surface, `#86EFAC` border, `#DCFCE7` tab fill, `#059669` accent).
+       - **Workout (1)**: Sky Blue (`#E5F1FB` surface, `#7DD3FC` border, `#E0F2FE` tab fill, `#0284C7` accent).
+       - **Payment (2)**: Coral Rose (`#FEEDED` surface, `#FDA4AF` border, `#FFE4E6` tab fill, `#DC2626` accent).
+       - **Body Progress (3)**: Lavender Amethyst (`#E7D6F5` surface, `#D8B4FE` border, `#F3E8FF` tab fill, `#7C3AED` accent).
+     - Clean Material vector icons (`CalendarToday`, `FitnessCenter`, `AccountBalanceWallet`, `Person`) replacing inconsistent emojis.
+  3. **Dual View Modes (Focused vs. All Expanded)**:
+     - `[ 🎯 Focused View ]`: Fluid animated tab switching blending color directly into the active widget.
+     - `[ 📜 All Expanded ]`: Full vertical layout of all 4 widgets with scroll-tracking tab illumination and direct tap-to-scroll.
+  4. **Typography & Button ("buttio") Standardization**:
+     - Standardized touch targets to 44dp height (`WhatsApp`, `₹ Collect Payment`, `Receipt`, `Keep Going! ➔`).
+     - Replaced low-contrast text with high-contrast Slate 900 (`#0F172A`) and Slate 700 (`#334155`).
+     - Minimum font size increased to 9.5sp - 11.5sp, hero metrics to 28sp Black.
+  5. **Data Presentation Techniques**:
+     - **Attendance**: 30-Day Calendar Strip with filled status tokens (Present, Late, Absent, Holiday, Sunday, Upcoming) & weekly consistency breakdown.
+     - **Workout**: 60dp canvas with dashed 70m average guideline, rounded bar caps, intensity hierarchy, peak day 120m, 4 KPI cards.
+     - **Payment**: ₹2,800 due now, plan schedule row with Gold Plan & Auto-pay, 12-month capsule bars, bottom summary container.
+     - **Body Progress**: Interactive metric selector chips (`[Weight]`, `[Muscle]`, `[Body Fat]`, `[Waist]`, `[All 4]`) with calibrated Y-axes and gradient area fills.
+- **Build Verification**:
+  - `./gradlew testDebugUnitTest assembleDebug` PASSED (Code 0).
+- **Physical Device Verification (Xiaomi 11i 5G - `zxdada69gunb7ls4`)**:
+  - Top & Member Pass: `docs/reference/images/live_fresh.png`
+  - Scrolled Sticky Menu Bar & Body Progress: `docs/reference/images/live_scrolled.png`
+  - Color Blended Payment Widget: `docs/reference/images/live_payment.png`
+  - Color Blended Attendance Widget: `docs/reference/images/live_attendance_real.png`
