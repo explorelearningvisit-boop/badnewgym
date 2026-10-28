@@ -257,3 +257,17 @@ Status values: PENDING | IN_PROGRESS | BLOCKED | VERIFIED
     - Top & Hero View: `docs/reference/images/master_top_refined.png`
     - Scrolled Cards & Footer: `docs/reference/images/master_bottom_refined.png`
 
+
+## Milestone 13.0 - 8 Canonical BAD GYM Member Passes System (2026-10-28)
+- **User Reference Design**: User provided official 8 Member Pass visual specification (Spark, Power, Silver, Gold, Diamond, Platinum, Elite, Basic Overdue).
+- **Components Implemented**:
+  1. BadGymMemberPassModels.kt: 8 Pass Tiers with complete member demographics and biometrics.
+  2. BadGymMemberPassCard.kt: 1:1 Pixel-perfect reproduction of all 8 designs.
+  3. BadGymPassShowcase.kt: Interactive horizontal chips selector and tap-to-cycle carousel.
+  4. MemberCardThemePresets.kt: Linked 8 themes and palettes dynamically to each pass tier.
+  5. MasterStoryboardDashboard.kt: Integrated BadGymPassShowcase at MasterHeroHeader.
+- **Build Verification**: ./gradlew testDebugUnitTest assembleDebug PASSED (Code 0).
+- **Physical Device Verification (Xiaomi 11i 5G - zxdada69gunb7ls4)**:
+  - Elite 36-Month: docs/reference/images/live_pass_verified.png
+  - Power 3-Month: docs/reference/images/live_pass_switched.png
+  - Spark 2-Month: docs/reference/images/live_pass_spark.png
