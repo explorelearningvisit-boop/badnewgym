@@ -234,16 +234,16 @@ fun BadGymMemberPassCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Avatar with Halo Ring & Badge
+                // Maximized Member Avatar with Halo Ring & Corner Badge
                 Box(
-                    modifier = Modifier.size(68.dp),
+                    modifier = Modifier.size(92.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Canvas(modifier = Modifier.size(68.dp)) {
+                    Canvas(modifier = Modifier.size(92.dp)) {
                         drawCircle(
                             brush = Brush.sweepGradient(haloColors),
                             radius = size.minDimension / 2f - 2f,
-                            style = Stroke(width = 2.8.dp.toPx())
+                            style = Stroke(width = 3.5.dp.toPx())
                         )
                     }
 
@@ -252,9 +252,9 @@ fun BadGymMemberPassCard(
                         contentDescription = pass.name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(56.dp)
+                            .size(80.dp)
                             .clip(CircleShape)
-                            .border(2.dp, if (isElite) Color(0xFFEAB308) else Color.White, CircleShape)
+                            .border(2.8.dp, if (isElite) Color(0xFFEAB308) else Color.White, CircleShape)
                             .clickable { onAvatarClick() }
                     )
 
@@ -262,8 +262,8 @@ fun BadGymMemberPassCard(
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .offset(x = 2.dp, y = 2.dp)
-                            .size(20.dp)
+                            .offset(x = 1.dp, y = 1.dp)
+                            .size(26.dp)
                             .clip(CircleShape)
                             .background(
                                 when {
@@ -277,7 +277,7 @@ fun BadGymMemberPassCard(
                                     else -> Color(0xFF10B981)
                                 }
                             )
-                            .border(1.5.dp, Color.White, CircleShape),
+                            .border(2.dp, Color.White, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -291,7 +291,7 @@ fun BadGymMemberPassCard(
                                 tier == BadGymPassTier.POWER -> "⚡"
                                 else -> "✓"
                             },
-                            fontSize = 9.sp,
+                            fontSize = 12.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
@@ -302,14 +302,14 @@ fun BadGymMemberPassCard(
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
-                                .offset(x = (-4).dp, y = 2.dp)
+                                .offset(x = (-3).dp, y = 1.dp)
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(Color(0xFFEAB308))
                                 .padding(horizontal = 4.dp, vertical = 1.dp)
                         ) {
                             Text(
                                 text = "VIP",
-                                fontSize = 8.sp,
+                                fontSize = 8.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.Black
                             )
@@ -322,11 +322,11 @@ fun BadGymMemberPassCard(
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 10.dp, end = 6.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    verticalArrangement = Arrangement.spacedBy(2.5.dp)
                 ) {
                     Text(
                         text = pass.name,
-                        fontSize = 17.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Black,
                         color = textPrimary,
                         maxLines = 1
@@ -334,8 +334,8 @@ fun BadGymMemberPassCard(
 
                     Text(
                         text = "${pass.memberId}  |  ${pass.age} yrs  |  ${pass.gender}",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold,
                         color = textSubtitle,
                         maxLines = 1
                     )
@@ -347,13 +347,13 @@ fun BadGymMemberPassCard(
                     ) {
                         Text(
                             text = "\u201C${pass.quote}\u201D",
-                            fontSize = 11.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isElite) Color(0xFFFDE047) else Color(0xFF1E293B),
                             maxLines = 1
                         )
                         if (pass.quoteEmoji.isNotBlank()) {
-                            Text(text = pass.quoteEmoji, fontSize = 11.sp)
+                            Text(text = pass.quoteEmoji, fontSize = 11.5.sp)
                         }
                     }
 
@@ -366,12 +366,12 @@ fun BadGymMemberPassCard(
                             imageVector = Icons.Default.CalendarToday,
                             contentDescription = null,
                             tint = if (isElite) Color(0xFFEAB308) else Color(0xFF059669),
-                            modifier = Modifier.size(10.dp)
+                            modifier = Modifier.size(11.dp)
                         )
                         Text(
                             text = "${pass.startDate} – ${pass.endDate}",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = textSubtitle
                         )
                     }
@@ -573,57 +573,162 @@ fun BadGymMemberPassCard(
             }
 
             // =========================================================================
-            // ROW 4: 4-COLUMN BIOMETRIC & GOAL FOOTER
+            // ROW 4: UNIFIED COHESIVE BIOMETRIC & GOAL DOCK
             // =========================================================================
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = statCardBg,
+                border = BorderStroke(1.dp, statCardBorder),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                PassMetricChip(
-                    label = "Height",
-                    value = pass.height,
-                    iconText = "📏",
-                    isElite = isElite,
-                    backgroundColor = statCardBg,
-                    borderColor = statCardBorder,
-                    modifier = Modifier.weight(1f)
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Height Column
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text("📏", fontSize = 11.sp)
+                            Text(
+                                text = pass.height,
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = if (isElite) Color.White else Color(0xFF0F172A),
+                                maxLines = 1
+                            )
+                        }
+                        Text(
+                            text = "Height",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
+                            maxLines = 1
+                        )
+                    }
 
-                PassMetricChip(
-                    label = "Weight",
-                    value = pass.weight,
-                    iconText = "⚖️",
-                    isElite = isElite,
-                    backgroundColor = statCardBg,
-                    borderColor = statCardBorder,
-                    modifier = Modifier.weight(1f)
-                )
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .height(26.dp)
+                            .background(statCardBorder.copy(alpha = 0.6f))
+                    )
 
-                PassMetricChip(
-                    label = "BMI",
-                    value = pass.bmi,
-                    iconText = "📊",
-                    isElite = isElite,
-                    backgroundColor = statCardBg,
-                    borderColor = statCardBorder,
-                    modifier = Modifier.weight(1f)
-                )
+                    // Weight Column
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text("⚖️", fontSize = 11.sp)
+                            Text(
+                                text = pass.weight,
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = if (isElite) Color.White else Color(0xFF0F172A),
+                                maxLines = 1
+                            )
+                        }
+                        Text(
+                            text = "Weight",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
+                            maxLines = 1
+                        )
+                    }
 
-                PassMetricChip(
-                    label = "Goal",
-                    value = pass.goal,
-                    iconText = when {
-                        pass.goal.contains("Muscle", ignoreCase = true) -> "💪"
-                        pass.goal.contains("Strength", ignoreCase = true) -> "🏋️"
-                        pass.goal.contains("Fat", ignoreCase = true) -> "🔥"
-                        pass.goal.contains("Toning", ignoreCase = true) -> "🦾"
-                        else -> "🎯"
-                    },
-                    isElite = isElite,
-                    backgroundColor = statCardBg,
-                    borderColor = statCardBorder,
-                    modifier = Modifier.weight(1.25f)
-                )
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .height(26.dp)
+                            .background(statCardBorder.copy(alpha = 0.6f))
+                    )
+
+                    // BMI Column
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text("📊", fontSize = 11.sp)
+                            Text(
+                                text = pass.bmi,
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = if (isElite) Color.White else Color(0xFF0F172A),
+                                maxLines = 1
+                            )
+                        }
+                        Text(
+                            text = "BMI",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
+                            maxLines = 1
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .height(26.dp)
+                            .background(statCardBorder.copy(alpha = 0.6f))
+                    )
+
+                    // Goal Column
+                    Column(
+                        modifier = Modifier.weight(1.25f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(
+                                text = when {
+                                    pass.goal.contains("Muscle", ignoreCase = true) -> "💪"
+                                    pass.goal.contains("Strength", ignoreCase = true) -> "🏋️"
+                                    pass.goal.contains("Fat", ignoreCase = true) -> "🔥"
+                                    pass.goal.contains("Toning", ignoreCase = true) -> "🦾"
+                                    else -> "🎯"
+                                },
+                                fontSize = 11.sp
+                            )
+                            Text(
+                                text = pass.goal,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Black,
+                                color = if (isElite) Color.White else Color(0xFF0F172A),
+                                maxLines = 1
+                            )
+                        }
+                        Text(
+                            text = "Goal",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
+                            maxLines = 1
+                        )
+                    }
+                }
             }
         }
     }
