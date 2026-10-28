@@ -137,13 +137,13 @@ fun MasterHeroHeader(
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        Color(0xFF062319), // Deep dark gym emerald
-                        Color(0xFF0A3425), // Rich forest emerald
-                        Color(0xFF0F4430)  // Gym dark emerald
+                        Color(0xFFE8FDF0), // Fresh light mint green
+                        Color(0xFFDCFCE7), // Soft pastel emerald
+                        Color(0xFFD1FAE5)  // Light spring green
                     )
                 )
             )
-            .border(1.2.dp, Color(0xFF1B6B4D), RoundedCornerShape(22.dp))
+            .border(1.2.dp, Color(0xFF86EFAC), RoundedCornerShape(22.dp))
             .padding(12.dp)
     ) {
         Column(
@@ -164,29 +164,29 @@ fun MasterHeroHeader(
                     Icon(
                         imageVector = Icons.Default.FitnessCenter,
                         contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(17.dp)
+                        tint = Color(0xFF047857),
+                        modifier = Modifier.size(19.dp)
                     )
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "BAD ",
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Black,
-                                color = Color.White
+                                color = Color(0xFF0F172A)
                             )
                             Text(
                                 text = "GYM",
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Black,
-                                color = Color(0xFFCAFF04)
+                                color = Color(0xFF16A34A)
                             )
                         }
                         Text(
                             text = "Member Intelligence",
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFFA7F3D0)
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF047857)
                         )
                     }
                 }
@@ -194,24 +194,24 @@ fun MasterHeroHeader(
                 // Right Status: Active Session + Date Pill
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     // Active Session Pill
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50.dp))
-                            .background(Color(0xFF00C271).copy(alpha = 0.22f))
-                            .border(0.8.dp, Color(0xFF00C271).copy(alpha = 0.5f), RoundedCornerShape(50.dp))
-                            .padding(horizontal = 7.dp, vertical = 3.dp),
+                            .background(Color.White.copy(alpha = 0.9f))
+                            .border(0.9.dp, Color(0xFF86EFAC), RoundedCornerShape(50.dp))
+                            .padding(horizontal = 8.dp, vertical = 3.5.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Box(modifier = Modifier.size(5.5.dp).clip(CircleShape).background(Color(0xFF00E676)))
+                        Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF10B981)))
                         Text(
                             text = "Active Session",
-                            fontSize = 8.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFA7F3D0)
+                            color = Color(0xFF047857)
                         )
                     }
 
@@ -219,29 +219,29 @@ fun MasterHeroHeader(
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50.dp))
-                            .background(Color(0xFF09291D))
-                            .border(0.8.dp, Color(0xFF1B6B4D), RoundedCornerShape(50.dp))
-                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                            .background(Color.White.copy(alpha = 0.9f))
+                            .border(0.9.dp, Color(0xFF86EFAC), RoundedCornerShape(50.dp))
+                            .padding(horizontal = 9.dp, vertical = 3.5.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
                             contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(10.dp)
+                            tint = Color(0xFF047857),
+                            modifier = Modifier.size(11.dp)
                         )
                         Text(
                             text = "02 Oct 2026",
-                            fontSize = 8.5.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF0F172A)
                         )
                     }
                 }
             }
 
-            // --- HERO BANNER: ENLARGED HEADLINE + BIGGER AVATAR PHOTO & BADGES ---
+            // --- HERO BANNER: ENLARGED HEADLINE + BIGGER AVATAR PHOTO & BADGES (LIGHT GREEN) ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -257,32 +257,32 @@ fun MasterHeroHeader(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Stronger, ",
-                            fontSize = 21.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color.White,
+                            color = Color(0xFF0F172A),
                             letterSpacing = (-0.3).sp
                         )
                         Text(
                             text = "Happier ",
-                            fontSize = 21.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFFCAFF04),
+                            color = Color(0xFF16A34A),
                             letterSpacing = (-0.3).sp
                         )
                         Text(
                             text = "You! 😃",
-                            fontSize = 21.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color.White,
+                            color = Color(0xFF0F172A),
                             letterSpacing = (-0.3).sp
                         )
                     }
 
                     Text(
                         text = "Track progress, stay consistent & be your best!",
-                        fontSize = 10.5.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFFA7F3D0)
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF334155)
                     )
 
                     // Speech Bubble Pill: "Better Than Yesterday" 💪
@@ -290,15 +290,15 @@ fun MasterHeroHeader(
                         modifier = Modifier
                             .padding(top = 2.dp)
                             .clip(RoundedCornerShape(50.dp))
-                            .background(Color.White.copy(alpha = 0.95f))
-                            .border(0.8.dp, Color(0xFFBBEFDB), RoundedCornerShape(50.dp))
+                            .background(Color.White)
+                            .border(0.9.dp, Color(0xFF86EFAC), RoundedCornerShape(50.dp))
                             .padding(horizontal = 10.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         Text(
                             text = "“Better Than Yesterday”",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
@@ -395,14 +395,14 @@ fun MasterHeroHeader(
                 }
             }
 
-            // --- HARMONIOUS DARK EMERALD PROFILE & STATS PANEL (NO JARRING WHITE BOX) ---
+            // --- HARMONIOUS LIGHT GREEN PROFILE & STATS PANEL ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF072418).copy(alpha = 0.95f))
-                    .border(1.dp, Color(0xFF1B6B4D), RoundedCornerShape(16.dp))
-                    .padding(horizontal = 12.dp, vertical = 9.dp)
+                    .background(Color.White.copy(alpha = 0.95f))
+                    .border(1.dp, Color(0xFF86EFAC), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -417,15 +417,15 @@ fun MasterHeroHeader(
                         Column {
                             Text(
                                 text = "Ashwini Singh",
-                                fontSize = 17.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Black,
-                                color = Color.White
+                                color = Color(0xFF0F172A)
                             )
                             Text(
                                 text = "BG305  |  23 yrs  |  Male",
-                                fontSize = 10.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFA7F3D0)
+                                color = Color(0xFF475569)
                             )
                         }
 
@@ -439,15 +439,15 @@ fun MasterHeroHeader(
                             ) {
                                 Text(
                                     text = "25 Days Left",
-                                    fontSize = 10.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = Color(0xFF0F172A)
                                 )
                                 Text(
                                     text = "75%",
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFF34D399)
+                                    color = Color(0xFF047857)
                                 )
                             }
                             Box(
@@ -455,7 +455,7 @@ fun MasterHeroHeader(
                                     .width(115.dp)
                                     .height(6.dp)
                                     .clip(RoundedCornerShape(50.dp))
-                                    .background(Color(0xFF164733))
+                                    .background(Color(0xFFE2E8F0))
                             ) {
                                 Box(
                                     modifier = Modifier
@@ -464,7 +464,7 @@ fun MasterHeroHeader(
                                         .clip(RoundedCornerShape(50.dp))
                                         .background(
                                             Brush.horizontalGradient(
-                                                listOf(Color(0xFF00E676), Color(0xFF06B6D4))
+                                                listOf(Color(0xFF10B981), Color(0xFF06B6D4))
                                             )
                                         )
                                 )
@@ -472,9 +472,9 @@ fun MasterHeroHeader(
                         }
                     }
 
-                    Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFF164733)))
+                    Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFE2E8F0)))
 
-                    // 4-Metric Quick Stats Bar (Enlarged with High Contrast)
+                    // 4-Metric Quick Stats Bar (Enlarged Fonts with High Contrast & Perfect Fit)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -483,114 +483,156 @@ fun MasterHeroHeader(
                         Row(
                             modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(26.dp)
+                                    .size(22.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF0B3827)),
+                                    .background(Color(0xFFE0F2FE)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = null,
-                                    tint = Color(0xFF38BDF8),
-                                    modifier = Modifier.size(15.dp)
+                                    tint = Color(0xFF0284C7),
+                                    modifier = Modifier.size(13.dp)
                                 )
                             }
                             Column {
-                                Text(text = "178 cm", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color.White)
-                                Text(text = "Height", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFFA7F3D0))
+                                Text(
+                                    text = "178 cm",
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF0F172A),
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                                Text(text = "Height", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                             }
                         }
 
-                        Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFF164733)))
+                        Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
 
                         // 2. Weight
                         Row(
-                            modifier = Modifier.weight(1.35f).padding(start = 5.dp),
+                            modifier = Modifier.weight(1.3f).padding(start = 3.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(26.dp)
+                                    .size(22.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF0B3827)),
+                                    .background(Color(0xFFDCFCE7)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = "🏷️", fontSize = 12.sp)
+                                Text(text = "🏷️", fontSize = 10.5.sp)
                             }
                             Column {
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                                    Text(text = "69.5 kg", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color.White)
-                                    Text(text = "↓ 2.5", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF34D399))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = "69.5 kg",
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color(0xFF0F172A),
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
+                                    Text(
+                                        text = "↓2.5",
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF15803D),
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
                                 }
-                                Text(text = "Weight", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFFA7F3D0))
+                                Text(text = "Weight", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                             }
                         }
 
-                        Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFF164733)))
+                        Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
 
                         // 3. BMI
                         Row(
-                            modifier = Modifier.weight(1.3f).padding(start = 4.dp),
+                            modifier = Modifier.weight(1.2f).padding(start = 3.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(25.dp)
+                                    .size(22.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF0B3827)),
+                                    .background(Color(0xFFF3E8FF)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = "✨", fontSize = 11.sp)
+                                Text(text = "✨", fontSize = 10.sp)
                             }
                             Column {
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                                    Text(text = "21.9", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.White)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = "21.9",
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color(0xFF0F172A),
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(50.dp))
-                                            .background(Color(0xFF00C271))
-                                            .padding(horizontal = 4.dp, vertical = 0.5.dp)
+                                            .background(Color(0xFFDCFCE7))
+                                            .border(0.6.dp, Color(0xFF86EFAC), RoundedCornerShape(50.dp))
+                                            .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
                                     ) {
                                         Text(
                                             text = "Normal",
-                                            fontSize = 7.sp,
+                                            fontSize = 6.8.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color.White,
+                                            color = Color(0xFF15803D),
                                             maxLines = 1,
                                             softWrap = false
                                         )
                                     }
                                 }
-                                Text(text = "BMI", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFA7F3D0))
+                                Text(text = "BMI", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                             }
                         }
 
-                        Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFF164733)))
+                        Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
 
                         // 4. Goal
                         Row(
-                            modifier = Modifier.weight(1.05f).padding(start = 4.dp),
+                            modifier = Modifier.weight(1.3f).padding(start = 3.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(25.dp)
+                                    .size(22.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF0B3827)),
+                                    .background(Color(0xFFFFE4E6)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = "🎯", fontSize = 11.sp)
+                                Text(text = "🎯", fontSize = 10.sp)
                             }
                             Column {
-                                Text(text = "Lean Muscle", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color.White, maxLines = 1)
-                                Text(text = "Goal", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFA7F3D0))
+                                Text(
+                                    text = "Lean Muscle",
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF0F172A),
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                                Text(text = "Goal", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                             }
                         }
                     }
