@@ -304,3 +304,41 @@ Status values: PENDING | IN_PROGRESS | BLOCKED | VERIFIED
   - Scrolled Sticky Menu Bar & Body Progress: `docs/reference/images/live_scrolled.png`
   - Color Blended Payment Widget: `docs/reference/images/live_payment.png`
   - Color Blended Attendance Widget: `docs/reference/images/live_attendance_real.png`
+
+## Milestone 15.0 - Monolithic Menu Blending, Unified Metric Docks, Weekly Mini Graph & Enlarge Member Avatar (2026-10-29)
+- **User Request**:
+  - Eliminate awkward menu design and clumsy sub-bars; make the menu blend directly into the widget as one continuous master container.
+  - In pass cards, merge all small detached metric chips (Height, Weight, BMI, Goal) into a single cohesive, unified dock widget.
+  - In Attendance, replace plain text weekly trend with an actual mini graph (vertical weekly progress bars with percentages).
+  - In Attendance, Workout, Payment, and Body cards, merge bottom scattered mini cards into unified multi-column summary docks with hairline dividers.
+  - Enlarge member photo/avatar in the pass card as much as possible in the available space.
+  - Fix all whole dashboard fonts, contrast, button sizing, and professional data presentation standards.
+- **Architectural & Design Implementation**:
+  1. **Member Pass Photo Maximization**:
+     - Enlarged avatar container from 68dp to 92dp, halo canvas to 92dp with 3.5dp stroke, high-resolution circular photo to 80dp (up from 56dp), and floating corner badge to 26dp with 12sp bold badge text.
+  2. **Biometric & Goal Unified Dock**:
+     - Merged 4 loose PassMetricChips into a single rounded dock (Surface(shape = RoundedCornerShape(14.dp), color = statCardBg, border = BorderStroke(1.dp, statCardBorder))).
+     - Features 4 balanced columns (Height, Weight, BMI, Goal) separated by vertical hairline dividers.
+  3. **Monolithic Menu Blending**:
+     - Removed the clumsy second row sub-bar completely.
+     - Redesigned MasterStoryboardStickyMenuBar as an integrated top header: RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 0.dp, bottomEnd = 0.dp).
+     - Active widget below has RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 20.dp, bottomEnd = 20.dp) with 0dp vertical spacing between them.
+     - When a tab is selected, the menu bar and the active widget physically merge into one seamless master widget container sharing dynamic background colors (animatedSurfaceBg) and borders (animatedBorderColor).
+     - Incorporated a compact 34dp circular view mode toggle neatly in the header row.
+  4. **Weekly Attendance Trend Mini Graph**:
+     - Replaced plain text weekly summary with an actual Weekly Progress Mini Graph: 4 vertical progress bar capsules (W1 100%, W2 85%, W3 100%, W4 80%) with dual-color gradient fills (emerald / amber), percentage badges, and days attended (6/6 d, 5/6 d, 6/6 d, 4/5 d).
+  5. **Unified Multi-Column Summary Docks**:
+     - Replaced scattered bottom mini cards across Attendance and Workout cards with cohesive 4-column summary docks with hairline dividers, standardizing across all 4 widgets.
+  6. **Breathing Room & Typography Refinement**:
+     - Adjusted 3D illustrations to 74dp and tuned breakdown column text sizes so Holiday 1 3%, Present 27 90%, and all metrics breathe with zero edge clipping on any Android viewport.
+- **Git Commit**: d13679d31ab11d3870595978f610c479dbb63390
+- **Build Verification**:
+  - ./gradlew testDebugUnitTest PASSED (Code 0, 36s).
+  - ./gradlew assembleDebug PASSED (Code 0, 1m 24s).
+- **Physical Device Verification (Xiaomi 11i 5G - zxdada69gunb7ls4)**:
+  - Final Verified Dashboard (Top View & Attendance): docs/reference/images/live_final_top.png
+  - Clean Blended Attendance View: docs/reference/images/live_clean.png
+  - Clean Blended Workout View: docs/reference/images/live_workout.png
+  - Clean Blended Payment View: docs/reference/images/live_payment.png
+  - Clean Blended Body Progress View: docs/reference/images/live_body.png
+  - Gold Tier Pass Verification: docs/reference/images/live_gold.png
