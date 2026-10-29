@@ -126,8 +126,8 @@ fun MasterStoryboardDashboard(
     val currentPass = passes.getOrElse(currentPassIndex) { passes.first() }
 
     val hasDues = data.paymentPlan.dueAlertAmount.isNotEmpty() || data.paymentPlan.currentDueAmount.isNotEmpty()
-    val initialCardType = if (hasDues) MemberCardType.PAYMENT else MemberCardType.CHECK_IN
-    val initialTabIndex = if (hasDues) 2 else 0
+    val initialCardType = MemberCardType.CHECK_IN
+    val initialTabIndex = 0
 
     var currentCardType by remember { mutableStateOf(initialCardType) }
     var currentPaymentStatus by remember { mutableStateOf(if (hasDues) PaymentStatus.PENDING else PaymentStatus.DONE) }
@@ -158,6 +158,16 @@ fun MasterStoryboardDashboard(
         state = lazyListState,
         modifier = modifier
             .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFE8F6FF),
+                        Color(0xFFF0FDF4),
+                        Color(0xFFFAF5FF),
+                        Color(0xFFE0F2FE)
+                    )
+                )
+            )
             .padding(horizontal = 6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
