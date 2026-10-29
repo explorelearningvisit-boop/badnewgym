@@ -16,6 +16,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,15 +37,19 @@ import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -58,6 +64,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -73,6 +80,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.R
@@ -927,7 +935,7 @@ private fun AttendanceBreakdownCol(label: String, count: String, pct: String, co
 }
 
 // =============================================================================
-// 2. MASTER WORKOUT TREND CARD (Sky Blue #E5F1FB)
+// 2. MASTER WORKOUT TREND CARD (Pixel-Perfect Target Matching media_1793268101617_bba53a00.jpg)
 // =============================================================================
 
 @Composable
@@ -937,337 +945,863 @@ fun MasterWorkoutTrendCard(
     isBlendedWithTab: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val cardShape = if (isBlendedWithTab) {
-        RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 20.dp, bottomEnd = 20.dp)
-    } else {
-        RoundedCornerShape(20.dp)
-    }
-
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(450.dp)
+            .clickable { onClick() },
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // CARD 1: 30-Day Workout Trend Card
+        Workout30DayTrendCard()
+
+        // CARD 2: Monthly Pattern Card
+        WorkoutMonthlyPatternCard()
+    }
+}
+
+// -----------------------------------------------------------------------------
+// CARD 1: 30-DAY WORKOUT TREND CARD
+// -----------------------------------------------------------------------------
+
+@Composable
+private fun Workout30DayTrendCard() {
+    val cardShape = RoundedCornerShape(20.dp)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
             .clip(cardShape)
-            .background(Color(0xFFE5F1FB))
-            .border(1.2.dp, Color(0xFF7DD3FC), cardShape)
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .background(Color.White)
+            .border(1.2.dp, Color(0xFFBAE6FD), cardShape)
+            .padding(horizontal = 10.dp, vertical = 9.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
-            // Header Row: 3D Dumbbells Illustration + Details
+            // 1. Header & Hero Metric Section
+            WorkoutHeaderSection()
+
+            // 2. 4 Quick KPI Pods Row
+            WorkoutQuickKpiRow()
+
+            // 3. 30-Day Daily Bar Chart Section
+            Workout30DayBarChartSection()
+        }
+    }
+}
+
+@Composable
+private fun WorkoutHeaderSection() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        // 3D Dumbbells Illustration
+        Image(
+            painter = painterResource(id = R.drawable.illustration_3d_workout_dumbbells),
+            contentDescription = "Workout 3D Dumbbells",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(58.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            // Row 1: Badge + "Workout Trend" + "Last 30 Days" | "Oct 2026 ⌵"
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.illustration_3d_workout_dumbbells),
-                    contentDescription = "Workout 3D Dumbbells",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(68.dp)
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(26.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF0284C7)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.FitnessCenter,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            }
-                            Column {
-                                Text(
-                                    text = "Workout Trend",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0F172A)
-                                )
-                                Text(
-                                    text = "Last 30 Days",
-                                    fontSize = 13.5.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF475569)
-                                )
-                            }
-                        }
-
-                        TimeframeDropdownPill(text = "Oct 2026")
-                    }
-
-                    // Key Metric: 70 min + Avg/Session on left, Legend Column on right
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Column {
-                                Text(
-                                    text = "70 min",
-                                    fontSize = 34.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0284C7)
-                                )
-                                Text(
-                                    text = "Avg / Session",
-                                    fontSize = 13.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0F172A)
-                                )
-                            }
-
-                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Row(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(50.dp))
-                                        .background(Color(0xFFDCFCE7))
-                                        .padding(horizontal = 7.dp, vertical = 2.5.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "↑ 8%",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF047857)
-                                    )
-                                }
-                                Text(
-                                    text = "vs Sep",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF475569)
-                                )
-                            }
-                        }
-
-                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            LegendDotItem(color = Color(0xFF0284C7), label = "Workout", value = "(22 d)")
-                            LegendDotItem(color = Color(0xFF94A3B8), label = "Rest", value = "(8 d)")
-                        }
-                    }
-                }
-            }
-
-            // Quick Info Metrics Strip (4 KPIs - De-duplicated)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White.copy(alpha = 0.92f))
-                    .border(0.8.dp, Color(0xFFBAE6FD), RoundedCornerShape(10.dp))
-                    .padding(horizontal = 7.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                    Text(text = "Volume", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                    Text(text = "823 min", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
-                    Text(text = "Total Time", fontSize = 10.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF0284C7)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FitnessCenter,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(13.dp)
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = "Workout Trend",
+                            fontSize = 17.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
+                            letterSpacing = (-0.3).sp
+                        )
+                        Text(
+                            text = "Last 30 Days",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF64748B)
+                        )
+                    }
                 }
-                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                    Text(text = "Active Days", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                    Text(text = "22 Days", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text(text = "73% active", fontSize = 10.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
-                }
-                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                    Text(text = "Peak Lift", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                    Text(text = "123 min", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
-                    Text(text = "Session PR", fontSize = 10.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
-                }
-                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                    Text(text = "Est. Burn", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                    Text(text = "~14.5k", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFFD97706))
-                    Text(text = "kcal total", fontSize = 10.5.sp, color = Color(0xFFD97706), fontWeight = FontWeight.Bold)
-                }
+
+                TimeframeDropdownPill(text = "Oct 2026")
             }
 
-            // 30-Day Workout Volume Bars Chart with Dashed Average Guideline
-            Column(modifier = Modifier.fillMaxWidth().padding(top = 2.dp)) {
-                Row(modifier = Modifier.fillMaxWidth().height(66.dp)) {
-                    // Left Y-Axis
-                    Column(
-                        modifier = Modifier.height(66.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Text(text = "120m", fontSize = 10.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "60m", fontSize = 10.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "0m", fontSize = 10.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+            // Row 2: Hero Metric (70 min, Avg/Session, ↑8% vs Sep) on left | Legend on right
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = "70 min",
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0284C7),
+                            letterSpacing = (-1).sp
+                        )
+                        Text(
+                            text = "Avg / Session",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF0F172A)
+                        )
                     }
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color(0xFFDCFCE7))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "↑ 8%",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF16A34A)
+                            )
+                        }
+                        Text(
+                            text = "vs Sep",
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF64748B)
+                        )
+                    }
+                }
 
-                    // 30 Bars Canvas
-                    Canvas(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(66.dp)
+                // 3-Row Legend
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(2.5.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        val workoutMins = listOf(
-                            60, 20, 75, 20, 85, 90, 45, 60, 70, 80,
-                            20, 65, 70, 20, 120, 80, 50, 60, 75, 85,
-                            20, 40, 90, 70, 75, 80, 95, 70, 55, 85
-                        )
-                        val count = workoutMins.size
-                        val barWidth = 3.8.dp.toPx()
-                        val step = size.width / count.toFloat()
-                        val barRadius = CornerRadius(barWidth / 2f, barWidth / 2f)
+                        Box(Modifier.size(7.dp).clip(CircleShape).background(Color(0xFF38BDF8)))
+                        Text("Workout", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
+                        Text("(22 d)", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Box(Modifier.size(7.dp).clip(CircleShape).background(Color(0xFFCBD5E1)))
+                        Text("Rest", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
+                        Text("(8 d)", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Box(Modifier.size(7.dp).clip(CircleShape).border(1.dp, Color(0xFFCBD5E1), CircleShape))
+                        Text("No Membership", fontSize = 9.5.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
+                        Text("(0 d)", fontSize = 9.5.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
+                    }
+                }
+            }
+        }
+    }
+}
 
-                        // Draw dashed horizontal guideline for Average 70m
-                        val avgY = size.height * (1f - (70f / 125f))
+// -----------------------------------------------------------------------------
+// 4 QUICK KPI PODS ROW
+// -----------------------------------------------------------------------------
+
+@Composable
+private fun WorkoutQuickKpiRow() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Pod 1: Total Time
+        WorkoutKpiPod(
+            icon = Icons.Default.Timer,
+            iconTint = Color(0xFF10B981),
+            value = "823 min",
+            label = "Total Time",
+            subLabel = null,
+            subLabelColor = Color.Transparent,
+            showInfoIcon = false,
+            modifier = Modifier.weight(1f)
+        )
+
+        // Pod 2: Active Days
+        WorkoutKpiPod(
+            icon = Icons.Default.DateRange,
+            iconTint = Color(0xFF0284C7),
+            value = "22 Days",
+            label = "Active Days",
+            subLabel = "73% active",
+            subLabelColor = Color(0xFF16A34A),
+            showInfoIcon = false,
+            modifier = Modifier.weight(1f)
+        )
+
+        // Pod 3: Peak Session
+        WorkoutKpiPod(
+            icon = Icons.Default.EmojiEvents,
+            iconTint = Color(0xFFD97706),
+            value = "123 min",
+            label = "Peak Session",
+            subLabel = "15 Oct",
+            subLabelColor = Color(0xFF0284C7),
+            showInfoIcon = false,
+            modifier = Modifier.weight(1f)
+        )
+
+        // Pod 4: Energy Burn
+        WorkoutKpiPod(
+            icon = Icons.Default.LocalFireDepartment,
+            iconTint = Color(0xFFEA580C),
+            value = "~14.5k",
+            label = "Energy Burn",
+            subLabel = null,
+            subLabelColor = Color.Transparent,
+            showInfoIcon = true,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun WorkoutKpiPod(
+    icon: ImageVector,
+    iconTint: Color,
+    value: String,
+    label: String,
+    subLabel: String?,
+    subLabelColor: Color,
+    showInfoIcon: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val podShape = RoundedCornerShape(10.dp)
+    Row(
+        modifier = modifier
+            .clip(podShape)
+            .background(Color.White)
+            .border(0.8.dp, Color(0xFFE2E8F0), podShape)
+            .padding(horizontal = 4.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier.size(15.dp)
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(0.5.dp)) {
+            Text(
+                text = value,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFF0F172A),
+                maxLines = 1,
+                softWrap = false
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(1.5.dp)
+            ) {
+                Text(
+                    text = label,
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF64748B),
+                    maxLines = 1,
+                    softWrap = false
+                )
+                if (showInfoIcon) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = Color(0xFF94A3B8),
+                        modifier = Modifier.size(8.5.dp)
+                    )
+                }
+            }
+            if (subLabel != null) {
+                Text(
+                    text = subLabel,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = subLabelColor,
+                    maxLines = 1,
+                    softWrap = false
+                )
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 30-DAY DAILY BAR CHART SECTION
+// -----------------------------------------------------------------------------
+
+private data class DailyWorkoutBar(
+    val day: Int,
+    val minutes: Int
+)
+
+@Composable
+private fun FloatingChartBadge(
+    title: String,
+    subtitle: String,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(5.dp))
+                .background(backgroundColor)
+                .padding(horizontal = 4.dp, vertical = 2.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = title,
+                    fontSize = 7.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 7.5.sp
+                )
+                Text(
+                    text = subtitle,
+                    fontSize = 6.2.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 7.sp
+                )
+            }
+        }
+        // Speech-bubble downward caret
+        Box(
+            modifier = Modifier
+                .offset(y = (-2.5).dp)
+                .size(5.dp)
+                .rotate(45f)
+                .background(backgroundColor)
+        )
+    }
+}
+
+@Composable
+private fun Workout30DayBarChartSection() {
+    // 30 days matching target: 8 High (≥90m), 12 Medium (30-89m), 2 Low (<30m), 8 Rest (0m)
+    val dailyData = remember {
+        listOf(
+            DailyWorkoutBar(1, 55),
+            DailyWorkoutBar(2, 0),
+            DailyWorkoutBar(3, 32),
+            DailyWorkoutBar(4, 60),
+            DailyWorkoutBar(5, 25), // Min (5 Oct) -> Red Bar & Red Badge
+            DailyWorkoutBar(6, 22), // Low (<30m) -> Amber Bar
+            DailyWorkoutBar(7, 0),
+            DailyWorkoutBar(8, 48),
+            DailyWorkoutBar(9, 58),
+            DailyWorkoutBar(10, 92), // High (≥90m)
+            DailyWorkoutBar(11, 0),
+            DailyWorkoutBar(12, 52),
+            DailyWorkoutBar(13, 60),
+            DailyWorkoutBar(14, 50),
+            DailyWorkoutBar(15, 120), // Peak (15 Oct) -> Green Gradient Bar & Green Badge
+            DailyWorkoutBar(16, 65),
+            DailyWorkoutBar(17, 0),
+            DailyWorkoutBar(18, 50),
+            DailyWorkoutBar(19, 60),
+            DailyWorkoutBar(20, 0),
+            DailyWorkoutBar(21, 0),
+            DailyWorkoutBar(22, 95), // High (≥90m)
+            DailyWorkoutBar(23, 90), // High (≥90m)
+            DailyWorkoutBar(24, 92), // High (≥90m)
+            DailyWorkoutBar(25, 98), // High (≥90m)
+            DailyWorkoutBar(26, 95), // High (≥90m)
+            DailyWorkoutBar(27, 0),
+            DailyWorkoutBar(28, 90), // High (≥90m)
+            DailyWorkoutBar(29, 0),
+            DailyWorkoutBar(30, 62)
+        )
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(78.dp)
+        ) {
+            // Left Y-Axis
+            Column(
+                modifier = Modifier
+                    .height(78.dp)
+                    .padding(end = 4.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(text = "120m", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "90m", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "60m", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "30m", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "0m", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+            }
+
+            // 30 Daily Bars + Guidelines + Floating Badges
+            BoxWithConstraints(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(78.dp)
+            ) {
+                val labelMarginDp = 36.dp
+                val plotWidthDp = maxWidth - labelMarginDp
+                val stepDp = plotWidthDp / 30f
+
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val labelMarginPx = labelMarginDp.toPx()
+                    val plotWidthPx = size.width - labelMarginPx
+                    val step = plotWidthPx / dailyData.size.toFloat()
+                    val barWidth = 3.6.dp.toPx()
+                    val barRadius = CornerRadius(barWidth / 2f, barWidth / 2f)
+
+                    // Subtle solid grid lines at 90m, 60m, 30m, 0m (across full width)
+                    listOf(90f, 60f, 30f, 0f).forEach { gridMins ->
+                        val gridY = size.height * (1f - (gridMins / 125f))
                         drawLine(
-                            color = Color(0x600284C7),
-                            start = Offset(0f, avgY),
-                            end = Offset(size.width, avgY),
-                            strokeWidth = 1.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
+                            color = Color(0xFFE2E8F0).copy(alpha = 0.45f),
+                            start = Offset(0f, gridY),
+                            end = Offset(size.width, gridY),
+                            strokeWidth = 0.8.dp.toPx()
                         )
+                    }
 
-                        workoutMins.forEachIndexed { i, mins ->
-                            val x = i * step + (step - barWidth) / 2f
-                            val hRatio = (mins / 125f).coerceIn(0.12f, 0.96f)
-                            val h = size.height * hRatio
+                    // 1. Max Guideline (120m) - Green dashed line (across full width)
+                    val max120Y = size.height * (1f - (120f / 125f))
+                    drawLine(
+                        color = Color(0xFF10B981).copy(alpha = 0.55f),
+                        start = Offset(0f, max120Y),
+                        end = Offset(size.width, max120Y),
+                        strokeWidth = 1.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
+                    )
+
+                    // 2. Avg Guideline (70m) - Blue dashed line (across full width)
+                    val avg70Y = size.height * (1f - (70f / 125f))
+                    drawLine(
+                        color = Color(0xFF0284C7).copy(alpha = 0.55f),
+                        start = Offset(0f, avg70Y),
+                        end = Offset(size.width, avg70Y),
+                        strokeWidth = 1.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
+                    )
+
+                    // 3. Min Guideline (25m) - Orange dashed line (across full width)
+                    val min25Y = size.height * (1f - (25f / 125f))
+                    drawLine(
+                        color = Color(0xFFF59E0B).copy(alpha = 0.55f),
+                        start = Offset(0f, min25Y),
+                        end = Offset(size.width, min25Y),
+                        strokeWidth = 1.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
+                    )
+
+                    // Draw 30 Bars inside plotWidthPx
+                    dailyData.forEachIndexed { i, item ->
+                        val x = i * step + (step - barWidth) / 2f
+                        if (item.minutes == 0) {
+                            val h = 2.5.dp.toPx()
                             val y = size.height - h
-
-                            val barColor = when {
-                                mins >= 90 -> Color(0xFF0284C7) // High
-                                mins >= 30 -> Color(0xFF38BDF8) // Medium
-                                else -> Color(0xFFCBD5E1)       // Low / Rest
-                            }
-
                             drawRoundRect(
-                                color = barColor,
+                                color = Color(0xFFE2E8F0),
                                 topLeft = Offset(x, y),
                                 size = Size(barWidth, h),
                                 cornerRadius = barRadius
                             )
+                        } else {
+                            val hRatio = (item.minutes / 125f).coerceIn(0.08f, 0.98f)
+                            val h = size.height * hRatio
+                            val y = size.height - h
+
+                            if (i == 14) { // Day 15 Peak (Green gradient)
+                                drawRoundRect(
+                                    brush = Brush.verticalGradient(
+                                        listOf(Color(0xFF34D399), Color(0xFF10B981))
+                                    ),
+                                    topLeft = Offset(x, y),
+                                    size = Size(barWidth, h),
+                                    cornerRadius = barRadius
+                                )
+                            } else if (i == 4) { // Day 5 Min (Coral Red bar matching badge)
+                                drawRoundRect(
+                                    color = Color(0xFFEF4444),
+                                    topLeft = Offset(x, y),
+                                    size = Size(barWidth, h),
+                                    cornerRadius = barRadius
+                                )
+                            } else {
+                                val barColor = when {
+                                    item.minutes >= 90 -> Color(0xFF0284C7)
+                                    item.minutes >= 30 -> Color(0xFF38BDF8)
+                                    else -> Color(0xFFFBBF24)
+                                }
+                                drawRoundRect(
+                                    color = barColor,
+                                    topLeft = Offset(x, y),
+                                    size = Size(barWidth, h),
+                                    cornerRadius = barRadius
+                                )
+                            }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(2.dp))
+                // Guideline Labels on Right Edge (positioned in labelMarginDp zone)
+                Text(
+                    text = "Max 120m",
+                    fontSize = 7.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF16A34A),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(y = (-3).dp)
+                )
 
-                // X-Axis Marks
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    listOf("1", "5", "10", "15", "20", "25", "30").forEach { mark ->
-                        Text(text = mark, fontSize = 10.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                    }
-                }
+                Text(
+                    text = "Avg 70m",
+                    fontSize = 7.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0284C7),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(y = (78f * (1f - (70f / 125f)) - 9f).dp)
+                )
+
+                Text(
+                    text = "Min 25m",
+                    fontSize = 7.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFF59E0B),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(y = (78f * (1f - (25f / 125f)) - 9f).dp)
+                )
+
+                // Floating Badge 1: Day 15 (Peak 120m - Green Speech Bubble)
+                FloatingChartBadge(
+                    title = "120m",
+                    subtitle = "(15 Oct)",
+                    backgroundColor = Color(0xFF10B981),
+                    modifier = Modifier.offset(x = (stepDp * 14.5f - 16.dp), y = 0.dp)
+                )
+
+                // Floating Badge 2: Day 5 (Min 25m - Red Speech Bubble)
+                FloatingChartBadge(
+                    title = "25m",
+                    subtitle = "(5 Oct)",
+                    backgroundColor = Color(0xFFEF4444),
+                    modifier = Modifier.offset(
+                        x = (stepDp * 4.5f - 14.dp),
+                        y = (78f * (1f - (25f / 125f)) - 22f).dp
+                    )
+                )
             }
+        }
 
-            // 4-Tier Workout Intensity Legend
+        Spacer(modifier = Modifier.height(2.dp))
+
+        // X-Axis Marks Row (Days 1, 5, 10, 15, 20, 25, 30 precisely aligned under bars)
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 28.dp, end = 36.dp)
+                .height(14.dp)
+        ) {
+            val stepDp = maxWidth / 30f
+            listOf(1, 5, 10, 15, 20, 25, 30).forEach { day ->
+                val xPos = (stepDp * (day - 0.5f)) - 5.dp
+                Text(
+                    text = day.toString(),
+                    fontSize = 8.sp,
+                    color = Color(0xFF64748B),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.offset(x = xPos, y = 0.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(3.dp))
+
+        // 4-Tier Workout Intensity Legend (Single row, non-wrapping)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            WorkoutLegendItem(color = Color(0xFF0284C7), label = "High (≥90m)", value = "8 d")
+            WorkoutLegendItem(color = Color(0xFF38BDF8), label = "Medium (30–89m)", value = "12 d")
+            WorkoutLegendItem(color = Color(0xFFFBBF24), label = "Low (<30m)", value = "2 d")
+            WorkoutLegendItem(color = Color(0xFFCBD5E1), label = "Rest", value = "8 d")
+        }
+    }
+}
+
+@Composable
+private fun WorkoutLegendItem(
+    color: Color,
+    label: String,
+    value: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.5.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+        Text(
+            text = label,
+            fontSize = 7.6.sp,
+            letterSpacing = (-0.2).sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF475569),
+            maxLines = 1,
+            softWrap = false
+        )
+        Text(
+            text = value,
+            fontSize = 7.6.sp,
+            fontWeight = FontWeight.Black,
+            color = Color(0xFF0F172A),
+            maxLines = 1,
+            softWrap = false
+        )
+    }
+}
+
+// -----------------------------------------------------------------------------
+// CARD 2: MONTHLY PATTERN CARD
+// -----------------------------------------------------------------------------
+
+private data class MonthlyWorkoutItem(
+    val month: String,
+    val daysLabel: String?,
+    val heightDp: Float,
+    val isNoMembership: Boolean = false,
+    val isPeak: Boolean = false,
+    val isLow: Boolean = false
+)
+
+@Composable
+private fun WorkoutMonthlyPatternCard() {
+    val cardShape = RoundedCornerShape(16.dp)
+
+    val monthlyData = remember {
+        listOf(
+            MonthlyWorkoutItem("Jan", "18d", 28f),
+            MonthlyWorkoutItem("Feb", "20d", 32f),
+            MonthlyWorkoutItem("Mar", "6d", 10f, isLow = true),
+            MonthlyWorkoutItem("Apr", null, 0f, isNoMembership = true),
+            MonthlyWorkoutItem("May", "12d", 20f),
+            MonthlyWorkoutItem("Jun", "16d", 26f),
+            MonthlyWorkoutItem("Jul", "22d", 36f, isPeak = true),
+            MonthlyWorkoutItem("Aug", null, 0f, isNoMembership = true),
+            MonthlyWorkoutItem("Sep", "14d", 23f),
+            MonthlyWorkoutItem("Oct", "22d", 36f),
+            MonthlyWorkoutItem("Nov", "8d", 13f, isLow = true),
+            MonthlyWorkoutItem("Dec", "20d", 32f)
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(cardShape)
+            .background(Color.White)
+            .border(1.dp, Color(0xFFE2E8F0), cardShape)
+            .padding(horizontal = 10.dp, vertical = 7.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            // Header: Icon + Monthly Pattern | 12 Months ⌵
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                LegendDotItem(color = Color(0xFF0284C7), label = "High (≥90m)", value = "12d")
-                LegendDotItem(color = Color(0xFF38BDF8), label = "Med (30-89m)", value = "14d")
-                LegendDotItem(color = Color(0xFFF59E0B), label = "Low (<30m)", value = "3d")
-                LegendDotItem(color = Color(0xFFCBD5E1), label = "Rest", value = "1d")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(1.5.dp),
+                        modifier = Modifier.height(13.dp)
+                    ) {
+                        Box(Modifier.width(3.dp).height(8.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF10B981)))
+                        Box(Modifier.width(3.dp).height(13.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF0284C7)))
+                        Box(Modifier.width(3.dp).height(10.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF38BDF8)))
+                    }
+                    Text(
+                        text = "Monthly Pattern",
+                        fontSize = 13.5.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF0F172A)
+                    )
+                }
+
+                TimeframeDropdownPill(text = "12 Months")
             }
 
-            // Unified Workout Summary Dock (De-duplicated)
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = Color.White.copy(alpha = 0.94f),
-                border = BorderStroke(1.dp, Color(0xFFBAE6FD)),
-                modifier = Modifier.fillMaxWidth()
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // 1. 12 Monthly Bars Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 6.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                monthlyData.forEach { item ->
                     Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        // Value label on top
+                        if (item.daysLabel != null) {
+                            Text(
+                                text = item.daysLabel,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFF0F172A),
+                                maxLines = 1
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.height(11.dp))
+                        }
+
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        // Bar or No Membership box
+                        if (item.isNoMembership) {
+                            Box(
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(26.dp)
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color(0xFFF8FAFC))
+                                    .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "No\nMemb",
+                                    fontSize = 6.2.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF64748B),
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 7.5.sp,
+                                    maxLines = 2,
+                                    softWrap = false
+                                )
+                            }
+                        } else {
+                            val barBrush = when {
+                                item.isPeak -> Brush.verticalGradient(
+                                    listOf(Color(0xFF34D399), Color(0xFF10B981))
+                                )
+                                item.isLow -> Brush.verticalGradient(
+                                    listOf(Color(0xFFFCD34D), Color(0xFFFBBF24))
+                                )
+                                else -> Brush.verticalGradient(
+                                    listOf(Color(0xFF38BDF8), Color(0xFF0284C7))
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(item.heightDp.dp)
+                                    .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                                    .background(barBrush)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // 2. Subtle continuous horizontal baseline
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(0.8.dp)
+                    .background(Color(0xFFE2E8F0).copy(alpha = 0.7f))
+            )
+
+            // 3. Month labels row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                monthlyData.forEach { item ->
+                    Box(
                         modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                            Text("⏱️", fontSize = 12.sp)
-                            Text("Total", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("13.7 hrs", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Monthly", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1.05f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                            Text("🏆", fontSize = 12.sp)
-                            Text("Best", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("120 min", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("2.0 hrs", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                            Text("🔥", fontSize = 12.sp)
-                            Text("Streak", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("8 Days", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Active", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1.05f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                            Text("⚡", fontSize = 12.sp)
-                            Text("Freq", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("5.1 d/wk", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Consistent", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
+                        Text(
+                            text = item.month,
+                            fontSize = 8.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF64748B)
+                        )
                     }
                 }
             }
