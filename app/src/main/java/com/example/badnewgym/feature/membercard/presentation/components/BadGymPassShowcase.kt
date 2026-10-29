@@ -51,14 +51,14 @@ fun BadGymPassShowcase(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Horizontal Tier Selector Chips
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             passes.forEachIndexed { index, pass ->
                 val isSelected = index == currentIndex
@@ -91,7 +91,7 @@ fun BadGymPassShowcase(
                     }
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
@@ -110,11 +110,11 @@ fun BadGymPassShowcase(
                                 BadGymPassTier.DIAMOND -> "💎"
                                 BadGymPassTier.ELITE -> "👑"
                             },
-                            fontSize = 11.sp
+                            fontSize = 11.5.sp
                         )
                         Text(
                             text = tier.title,
-                            fontSize = 11.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                             color = if (isSelected) Color.White else Color(0xFF334155)
                         )

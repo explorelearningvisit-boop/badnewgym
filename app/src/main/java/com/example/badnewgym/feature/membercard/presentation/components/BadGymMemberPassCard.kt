@@ -76,11 +76,11 @@ fun BadGymMemberPassCard(
             .clip(RoundedCornerShape(24.dp))
             .background(palette.cardBackground)
             .border(1.2.dp, palette.cardBorder, RoundedCornerShape(24.dp))
-            .padding(14.dp)
+            .padding(horizontal = 12.dp, vertical = 9.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(11.dp)
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
             // =========================================================================
             // ROW 1: HEADER (BAD GYM Logo + Plan Pill / Overdue Pill)
@@ -93,21 +93,21 @@ fun BadGymMemberPassCard(
                 // Left: Logo Emblem & Brand
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(7.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(width = 28.dp, height = 34.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .size(width = 26.dp, height = 30.dp)
+                            .clip(RoundedCornerShape(9.dp))
                             .background(palette.emblemBg)
-                            .border(1.dp, palette.emblemBorder, RoundedCornerShape(10.dp)),
+                            .border(1.dp, palette.emblemBorder, RoundedCornerShape(9.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.FitnessCenter,
                             contentDescription = null,
                             tint = palette.emblemTint,
-                            modifier = Modifier.size(17.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                     }
 
@@ -115,22 +115,22 @@ fun BadGymMemberPassCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "BAD ",
-                                fontSize = 17.5.sp,
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Black,
                                 color = palette.brandBadText
                             )
                             Text(
                                 text = "GYM",
-                                fontSize = 17.5.sp,
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Black,
                                 color = palette.brandGymText
                             )
                         }
                         Text(
                             text = "MEMBER PASS",
-                            fontSize = 9.5.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Black,
-                            letterSpacing = 1.6.sp,
+                            letterSpacing = 1.5.sp,
                             color = palette.subtitleText
                         )
                     }
@@ -145,20 +145,20 @@ fun BadGymMemberPassCard(
                         modifier = Modifier.clickable { onChevronClick() }
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(14.dp)
+                                    .size(13.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFFEF4444)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = "!",
-                                    fontSize = 10.sp,
+                                    fontSize = 9.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color.White
                                 )
@@ -179,14 +179,14 @@ fun BadGymMemberPassCard(
                         modifier = Modifier.clickable { onChevronClick() }
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(text = "👑", fontSize = 12.sp)
+                            Text(text = "👑", fontSize = 11.sp)
                             Text(
                                 text = pass.planName,
-                                fontSize = 11.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = palette.planPillText
                             )
@@ -194,7 +194,7 @@ fun BadGymMemberPassCard(
                                 imageVector = Icons.Default.ChevronRight,
                                 contentDescription = null,
                                 tint = palette.planPillText.copy(alpha = 0.8f),
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(13.dp)
                             )
                         }
                     }
@@ -211,14 +211,14 @@ fun BadGymMemberPassCard(
             ) {
                 // Maximized Member Avatar with Halo & Status Badge
                 Box(
-                    modifier = Modifier.size(76.dp),
+                    modifier = Modifier.size(68.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Canvas(modifier = Modifier.size(76.dp)) {
+                    Canvas(modifier = Modifier.size(68.dp)) {
                         drawCircle(
                             brush = Brush.sweepGradient(palette.haloColors),
                             radius = size.minDimension / 2f - 2f,
-                            style = Stroke(width = 3.dp.toPx())
+                            style = Stroke(width = 2.8.dp.toPx())
                         )
                     }
 
@@ -227,21 +227,21 @@ fun BadGymMemberPassCard(
                         contentDescription = pass.name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(66.dp)
+                            .size(59.dp)
                             .clip(CircleShape)
-                            .border(2.dp, Color.White, CircleShape)
+                            .border(1.8.dp, Color.White, CircleShape)
                             .clickable { onAvatarClick() }
                     )
 
-                    // Floating Corner Badge (Solid glowing accent dot with crisp white border)
+                    // Floating Corner Badge
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .offset(x = 1.dp, y = 1.dp)
-                            .size(19.dp)
+                            .size(17.dp)
                             .clip(CircleShape)
                             .background(palette.avatarBadgeBg)
-                            .border(2.5.dp, Color.White, CircleShape)
+                            .border(2.dp, Color.White, CircleShape)
                     )
                 }
 
@@ -249,17 +249,17 @@ fun BadGymMemberPassCard(
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 10.dp, end = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                        .padding(start = 9.dp, end = 7.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.5.dp)
                 ) {
                     // Name & Blue Verified Badge
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         Text(
                             text = pass.name,
-                            fontSize = 18.5.sp,
+                            fontSize = 19.sp,
                             fontWeight = FontWeight.Black,
                             color = palette.nameText,
                             maxLines = 1
@@ -267,7 +267,7 @@ fun BadGymMemberPassCard(
                         if (pass.isVerified) {
                             Box(
                                 modifier = Modifier
-                                    .size(16.dp)
+                                    .size(15.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFF0284C7)),
                                 contentAlignment = Alignment.Center
@@ -276,7 +276,7 @@ fun BadGymMemberPassCard(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = "Verified Member",
                                     tint = Color.White,
-                                    modifier = Modifier.size(11.dp)
+                                    modifier = Modifier.size(10.dp)
                                 )
                             }
                         }
@@ -285,8 +285,8 @@ fun BadGymMemberPassCard(
                     // Member ID | Age | Gender
                     Text(
                         text = "${pass.memberId}  |  ${pass.age} yrs  |  ${pass.gender}",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.Bold,
                         color = palette.metaText,
                         maxLines = 1
                     )
@@ -294,12 +294,12 @@ fun BadGymMemberPassCard(
                     // Personal Quote
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
                         Text(
                             text = "\u201C${pass.quote}\u201D",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Bold,
                             color = palette.quoteText,
                             maxLines = 1
                         )
@@ -312,7 +312,7 @@ fun BadGymMemberPassCard(
                 // Sharp Canvas QR Code
                 BadGymQrCode(
                     data = "${pass.memberId}-${pass.name.uppercase()}-PRIME",
-                    modifier = Modifier.size(64.dp)
+                    modifier = Modifier.size(58.dp)
                 )
             }
 
@@ -321,7 +321,7 @@ fun BadGymMemberPassCard(
             // =========================================================================
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 // Validity Dates Row & Days Left Pill
                 Row(
@@ -331,11 +331,11 @@ fun BadGymMemberPassCard(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(24.dp)
+                                .size(22.dp)
                                 .clip(RoundedCornerShape(6.dp))
                                 .background(palette.calendarIconBg),
                             contentAlignment = Alignment.Center
@@ -344,19 +344,19 @@ fun BadGymMemberPassCard(
                                 imageVector = Icons.Default.CalendarToday,
                                 contentDescription = null,
                                 tint = palette.calendarIconTint,
-                                modifier = Modifier.size(13.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                         }
                         Text(
                             text = if (pass.isOverdue) "Plan Expired" else "Plan Validity",
-                            fontSize = 11.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (pass.isOverdue) Color.White else palette.validityLabelText
                         )
                         Text(
                             text = "${pass.startDate} – ${pass.endDate}",
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = palette.validityDateText
                         )
                     }
@@ -372,21 +372,21 @@ fun BadGymMemberPassCard(
                     ) {
                         Text(
                             text = if (pass.isOverdue) "${pass.overdueDays} Days Overdue" else "${pass.daysLeft} Days Left",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Black,
                             color = if (pass.isOverdue) Color.White else palette.daysLeftPillText,
-                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.5.dp)
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.dp)
                         )
                     }
                 }
 
-                // Horizontal Gradient Capsule Progress Bar (75% for active, 0% for overdue)
+                // Horizontal Gradient Capsule Progress Bar
                 val progressFraction = if (pass.isOverdue) 0f else 0.75f
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(10.dp)
+                        .height(7.dp)
                         .clip(CircleShape)
                         .background(palette.progressTrackColor)
                 ) {
@@ -394,7 +394,7 @@ fun BadGymMemberPassCard(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(fraction = progressFraction)
-                                .height(10.dp)
+                                .height(7.dp)
                                 .clip(CircleShape)
                                 .background(palette.progressBarBrush)
                         )
@@ -408,7 +408,7 @@ fun BadGymMemberPassCard(
                     } else {
                         "75% (25/30 days)"
                     },
-                    fontSize = 10.5.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = palette.progressPercentText,
                     textAlign = TextAlign.End,
@@ -421,7 +421,7 @@ fun BadGymMemberPassCard(
             // =========================================================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(7.dp)
             ) {
                 // Pod 1: Prime Plan
                 PassVectorPod(
@@ -499,21 +499,21 @@ private fun PassVectorPod(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 7.dp)
+                .padding(horizontal = 7.dp, vertical = 5.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(26.dp)
+                    .size(24.dp)
                     .clip(CircleShape)
                     .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 when (iconType) {
                     PodIconType.BOLT -> {
-                        Canvas(modifier = Modifier.size(13.dp)) {
+                        Canvas(modifier = Modifier.size(12.dp)) {
                             val path = Path().apply {
                                 moveTo(size.width * 0.62f, 0f)
                                 lineTo(size.width * 0.16f, size.height * 0.54f)
@@ -531,7 +531,7 @@ private fun PassVectorPod(
                             imageVector = Icons.Default.FitnessCenter,
                             contentDescription = null,
                             tint = iconTint,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                     }
                     PodIconType.LOCATION -> {
@@ -539,7 +539,7 @@ private fun PassVectorPod(
                             imageVector = Icons.Default.LocationOn,
                             contentDescription = null,
                             tint = iconTint,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                     }
                 }
@@ -550,15 +550,15 @@ private fun PassVectorPod(
             ) {
                 Text(
                     text = title,
-                    fontSize = 11.5.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = titleColor,
                     maxLines = 1
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
                     color = subtitleColor,
                     maxLines = 1
                 )
