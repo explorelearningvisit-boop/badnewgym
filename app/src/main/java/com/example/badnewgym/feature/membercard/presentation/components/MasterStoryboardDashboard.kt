@@ -169,10 +169,10 @@ fun MasterStoryboardDashboard(
                 )
             )
             .padding(horizontal = 6.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // =====================================================================
-        // 1. TOP HEADER COMPONENT (Component 1 in Infographic Specification)
+        // 1. TOP HEADER COMPONENT (Matching Final Master Specification)
         // =====================================================================
         item(key = "infographic_component_1_header") {
             Spacer(modifier = Modifier.height(2.dp))
@@ -182,6 +182,8 @@ fun MasterStoryboardDashboard(
                 isActive = !currentPass.isOverdue,
                 cardType = currentCardType,
                 paymentStatus = currentPaymentStatus,
+                paidAmount = "₹500",
+                paidDate = "12 Oct 2026",
                 onCheckInClick = {
                     val types = MemberCardType.entries
                     val nextIdx = (types.indexOf(currentCardType) + 1) % types.size
@@ -194,6 +196,11 @@ fun MasterStoryboardDashboard(
                         selectedTabIndex = 1
                     }
                 },
+                onPaymentHeaderClick = {
+                    currentCardType = MemberCardType.PAYMENT
+                    selectedTabIndex = 2
+                    onPaymentClick()
+                },
                 onPlanClick = {
                     currentPassIndex = (currentPassIndex + 1) % passes.size
                 }
@@ -201,7 +208,7 @@ fun MasterStoryboardDashboard(
         }
 
         // =====================================================================
-        // 2. PROFILE SECTION (Component 2 in Infographic Specification)
+        // 2. PROFILE SECTION (Component 2 in Final Master Specification)
         // =====================================================================
         item(key = "infographic_component_2_profile") {
             ProfileSection(
@@ -220,32 +227,9 @@ fun MasterStoryboardDashboard(
         }
 
         // =====================================================================
-        // 3. PROGRESS & PAYMENT ROW (Component 3 in Infographic Specification)
+        // 3. STATS ROW (COMPACT) (Component 3 in Final Master Specification)
         // =====================================================================
-        item(key = "infographic_component_3_progress_payment") {
-            ProgressAndPaymentRow(
-                daysPassed = currentPass.totalDays - currentPass.daysLeft,
-                totalDays = currentPass.totalDays,
-                paidAmount = "₹500",
-                paidTime = "08:49 AM",
-                onProgressClick = {
-                    selectedTabIndex = 0
-                    currentCardType = MemberCardType.CHECK_IN
-                    onAttendanceClick()
-                },
-                onPaymentClick = {
-                    currentCardType = MemberCardType.PAYMENT
-                    selectedTabIndex = 2
-                    currentPaymentStatus = if (currentPaymentStatus == PaymentStatus.DONE) PaymentStatus.PENDING else PaymentStatus.DONE
-                    onPaymentClick()
-                }
-            )
-        }
-
-        // =====================================================================
-        // 4. STATS ROW (COMPACT) (Component 4 in Infographic Specification)
-        // =====================================================================
-        item(key = "infographic_component_4_stats") {
+        item(key = "infographic_component_3_stats") {
             StatsRowCompact(
                 height = currentPass.height,
                 weight = currentPass.weight,
@@ -253,6 +237,24 @@ fun MasterStoryboardDashboard(
                 bmiCategory = "Normal",
                 goal = currentPass.goal,
                 onGoalClick = onBodyProgressClick
+            )
+        }
+
+        // =====================================================================
+        // 4. FULL-WIDTH PROGRESS BAR (Component 4 in Final Master Specification)
+        // =====================================================================
+        item(key = "infographic_component_4_progress") {
+            val daysPassed = currentPass.totalDays - currentPass.daysLeft
+            val pct = ((daysPassed.toFloat() / currentPass.totalDays.toFloat()) * 100).toInt()
+            FullWidthDaysProgressCard(
+                daysPassed = daysPassed,
+                totalDays = currentPass.totalDays,
+                percentage = pct,
+                onClick = {
+                    selectedTabIndex = 0
+                    currentCardType = MemberCardType.CHECK_IN
+                    onAttendanceClick()
+                }
             )
         }
 
