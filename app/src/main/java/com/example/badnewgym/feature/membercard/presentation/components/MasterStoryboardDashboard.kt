@@ -34,10 +34,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Star
@@ -278,28 +281,28 @@ fun MasterStoryboardStickyMenuBar(
     val activeColor = when (selectedTabIndex) {
         0 -> Color(0xFF059669) // Mint Emerald
         1 -> Color(0xFF0284C7) // Sky Blue
-        2 -> Color(0xFFDC2626) // Coral Red
+        2 -> Color(0xFF059669) // Emerald Green (matching reference design!)
         else -> Color(0xFF7C3AED) // Amethyst Purple
     }
 
     val activeTabBg = when (selectedTabIndex) {
         0 -> Color(0xFFDCFCE7)
         1 -> Color(0xFFE0F2FE)
-        2 -> Color(0xFFFFE4E6)
+        2 -> Color(0xFFDCFCE7)
         else -> Color(0xFFF3E8FF)
     }
 
     val activeSurfaceBg = when (selectedTabIndex) {
         0 -> Color(0xFFEFFEF2)
         1 -> Color(0xFFE5F1FB)
-        2 -> Color(0xFFFEEDED)
-        else -> Color(0xFFE7D6F5)
+        2 -> Color(0xFFEFFEF2)
+        else -> Color(0xFFF3E8FF)
     }
 
     val activeBorderColor = when (selectedTabIndex) {
         0 -> Color(0xFF86EFAC)
         1 -> Color(0xFF7DD3FC)
-        2 -> Color(0xFFFDA4AF)
+        2 -> Color(0xFF86EFAC)
         else -> Color(0xFFD8B4FE)
     }
 
@@ -312,7 +315,7 @@ fun MasterStoryboardStickyMenuBar(
         listOf(
             DashboardTabItem(Icons.Default.CalendarToday, "Attendance", "90%"),
             DashboardTabItem(Icons.Default.FitnessCenter, "Workout", "70m"),
-            DashboardTabItem(Icons.Default.AccountBalanceWallet, "Payment", "₹2.8k"),
+            DashboardTabItem(Icons.Default.AccountBalanceWallet, "Payment", "₹800"),
             DashboardTabItem(Icons.Default.Person, "Body", "69.5kg")
         )
     }
@@ -338,7 +341,7 @@ fun MasterStoryboardStickyMenuBar(
                 val tabItemColor = when (index) {
                     0 -> Color(0xFF059669)
                     1 -> Color(0xFF0284C7)
-                    2 -> Color(0xFFDC2626)
+                    2 -> Color(0xFF059669)
                     else -> Color(0xFF7C3AED)
                 }
 
@@ -387,11 +390,19 @@ fun MasterStoryboardStickyMenuBar(
                             softWrap = false
                         )
                     }
-                    if (index == 3 && isSelected) {
-                        Spacer(modifier = Modifier.width(3.dp))
-                        Text(text = "🎯", fontSize = 11.sp)
-                    }
                 }
+            }
+
+            // Target Icon Pill on far right of tabs dock
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(1.dp, Color(0xFFCBD5E1), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "🎯", fontSize = 14.sp)
             }
         }
     }
@@ -1265,7 +1276,7 @@ fun MasterWorkoutTrendCard(
 }
 
 // =============================================================================
-// 3. MASTER PAYMENT CARD (Coral Pink #FEEDED)
+// 3. MASTER PAYMENT CARD (Clean White Card #FFFFFF with Stacked Monthly Trend)
 // =============================================================================
 
 @Composable
@@ -1287,434 +1298,741 @@ fun MasterPaymentCard(
             .fillMaxWidth()
             .height(450.dp)
             .clip(cardShape)
-            .background(Color(0xFFFEEDED))
+            .background(Color.White)
             .border(1.2.dp, Color(0xFFFDA4AF), cardShape)
             .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .padding(horizontal = 9.dp, vertical = 7.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Header Row: 3D Wallet Illustration + Details
+            // SECTION 1: HEADER & DUE AMOUNT
+            PaymentHeaderSection(onPlanHistoryClick = onClick)
+
+            // SECTION 2: 3 ACTION BUTTONS (Send Reminder, Collect Payment, Send Receipt)
+            PaymentActionButtonsRow(
+                onSendReminder = { /* WhatsApp */ },
+                onCollectPayment = onClick,
+                onSendReceipt = onViewReceiptClick
+            )
+
+            // SECTION 3: PAYMENT TREND (Stacked 12-Month Bar Chart & Legend)
+            PaymentTrendSection()
+
+            // SECTION 4: BOTTOM 3 METRIC CARDS (Collected, Unpaid Balance, Waived by Owner)
+            PaymentSummaryMetricsRow()
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// SECTION 1: HEADER & DUE AMOUNT
+// -----------------------------------------------------------------------------
+
+@Composable
+private fun PaymentHeaderSection(
+    onPlanHistoryClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Left: 3D Cute Wallet Illustration
+        Image(
+            painter = painterResource(id = R.drawable.illustration_3d_payment_wallet),
+            contentDescription = "Payment 3D Wallet",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(56.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
+            // Header Row: Red icon + Payment / Monthly Plan ₹1,200 + Plan History >
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.illustration_3d_payment_wallet),
-                    contentDescription = "Payment 3D Wallet",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(68.dp)
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFEF4444)),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
+                        Icon(
+                            imageVector = Icons.Default.AccountBalanceWallet,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(13.dp)
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = "Payment",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
+                            lineHeight = 18.sp
+                        )
+                        Text(
+                            text = "Monthly Plan ₹1,200",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF64748B),
+                            lineHeight = 12.sp
+                        )
+                    }
+                }
+
+                // Plan History > Pill Button
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color(0xFFFFF1F2))
+                        .border(0.8.dp, Color(0xFFFECDD3), RoundedCornerShape(50.dp))
+                        .clickable { onPlanHistoryClick() }
+                        .padding(horizontal = 8.dp, vertical = 2.5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        text = "Plan History",
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFE11D48)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = Color(0xFFE11D48),
+                        modifier = Modifier.size(12.dp)
+                    )
+                }
+            }
+
+            // Middle: ₹ 800 + [ Pending ] Pill
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "₹ 800",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFFE11D48),
+                    lineHeight = 28.sp
+                )
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color(0xFFEF4444))
+                        .padding(horizontal = 8.dp, vertical = 2.5.dp)
+                ) {
+                    Text(
+                        text = "Pending",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+
+            // Subtext: 📅 Due on 12 Oct 2026 (4 days left)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CalendarToday,
+                    contentDescription = null,
+                    tint = Color(0xFFDC2626),
+                    modifier = Modifier.size(11.dp)
+                )
+                Text(
+                    text = "Due on 12 Oct 2026 ",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFDC2626)
+                )
+                Text(
+                    text = "(4 days left)",
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF64748B)
+                )
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// SECTION 2: 3 ACTION BUTTONS (Send Reminder, Collect Payment, Send Receipt)
+// -----------------------------------------------------------------------------
+
+@Composable
+private fun PaymentActionButtonsRow(
+    onSendReminder: () -> Unit = {},
+    onCollectPayment: () -> Unit = {},
+    onSendReceipt: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 1. Send Reminder on WhatsApp
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .height(42.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFF16A34A))
+                .clickable { onSendReminder() }
+                .padding(horizontal = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(text = "💬", fontSize = 13.sp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "Send Reminder\non WhatsApp",
+                fontSize = 10.5.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                lineHeight = 11.5.sp
+            )
+        }
+
+        // 2. Collect Payment
+        Row(
+            modifier = Modifier
+                .weight(1.15f)
+                .height(42.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFFDC2626))
+                .clickable { onCollectPayment() }
+                .padding(horizontal = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.CreditCard,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "Collect Payment",
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White
+            )
+        }
+
+        // 3. Send Receipt on WhatsApp
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .height(42.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White)
+                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                .clickable { onSendReceipt() }
+                .padding(horizontal = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Receipt,
+                contentDescription = null,
+                tint = Color(0xFF0F172A),
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "Send Receipt\non WhatsApp",
+                fontSize = 10.5.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F172A),
+                lineHeight = 11.5.sp
+            )
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// SECTION 3: PAYMENT TREND STACKED 12-MONTH BAR CHART & LEGEND
+// -----------------------------------------------------------------------------
+
+private data class MonthlyPaymentData(
+    val month: String,
+    val totalLabel: String?,
+    val blocks: List<PaymentBlock> = emptyList(),
+    val specialText: String? = null
+)
+
+private data class PaymentBlock(
+    val amountText: String,
+    val color: Color,
+    val heightDp: Int
+)
+
+@Composable
+private fun PaymentTrendSection(modifier: Modifier = Modifier) {
+    val monthsData = remember {
+        listOf(
+            MonthlyPaymentData("Jan", "₹1.2k", listOf(PaymentBlock("₹600", Color(0xFF10B981), 13), PaymentBlock("₹600", Color(0xFF10B981), 13))),
+            MonthlyPaymentData("Feb", "₹600", listOf(PaymentBlock("₹600", Color(0xFF10B981), 14))),
+            MonthlyPaymentData("Mar", null, specialText = "No\nADM"),
+            MonthlyPaymentData("Apr", null, specialText = "No\nADM"),
+            MonthlyPaymentData("May", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 24))),
+            MonthlyPaymentData("Jun", "₹840", listOf(PaymentBlock("₹440", Color(0xFFEF4444), 12), PaymentBlock("₹400", Color(0xFFF59E0B), 11))),
+            MonthlyPaymentData("Jul", "₹2.0k", listOf(
+                PaymentBlock("₹500", Color(0xFF10B981), 10),
+                PaymentBlock("₹500", Color(0xFF10B981), 10),
+                PaymentBlock("₹500", Color(0xFF10B981), 10),
+                PaymentBlock("₹500", Color(0xFF8B5CF6), 10)
+            )),
+            MonthlyPaymentData("Aug", null, specialText = "No\nVisit"),
+            MonthlyPaymentData("Sep", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 24))),
+            MonthlyPaymentData("Oct", "₹400", listOf(PaymentBlock("₹400", Color(0xFFEF4444), 12))),
+            MonthlyPaymentData("Nov", null, specialText = "₹100\nWaived"),
+            MonthlyPaymentData("Dec", "₹2.4k", listOf(
+                PaymentBlock("₹800", Color(0xFF10B981), 14),
+                PaymentBlock("₹800", Color(0xFF10B981), 14),
+                PaymentBlock("₹800", Color(0xFF8B5CF6), 14)
+            ))
+        )
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        // Header Row: 📊 Payment Trend ℹ️ + 12 Months ⌵
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(text = "📊", fontSize = 11.sp)
+                Text(
+                    text = "Payment Trend",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFF0F172A)
+                )
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = Color(0xFF64748B),
+                    modifier = Modifier.size(11.dp)
+                )
+            }
+
+            // Dropdown Pill
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color(0xFFF8FAFC))
+                    .border(0.6.dp, Color(0xFFCBD5E1), RoundedCornerShape(50.dp))
+                    .padding(horizontal = 6.dp, vertical = 1.5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = "12 Months",
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF334155)
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = Color(0xFF334155),
+                    modifier = Modifier.size(10.dp)
+                )
+            }
+        }
+
+        // Stacked Bar Chart with Y-Axis
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(72.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            // Y-Axis Labels
+            Column(
+                modifier = Modifier.height(60.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(text = "₹3k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
+                Text(text = "₹2k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
+                Text(text = "₹1k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
+                Text(text = "0", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
+            }
+
+            Spacer(modifier = Modifier.width(3.dp))
+
+            // 12 Monthly Stacked Bars Row
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                monthsData.forEach { data ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        // Total amount label on top
+                        if (data.totalLabel != null) {
+                            Text(
+                                text = data.totalLabel,
+                                fontSize = 6.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFF0F172A),
+                                maxLines = 1
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        Spacer(modifier = Modifier.height(1.dp))
+
+                        // Middle: Stacked blocks OR Special outline box
+                        if (data.specialText != null) {
                             Box(
                                 modifier = Modifier
-                                    .size(26.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFFEF4444)),
+                                    .width(18.dp)
+                                    .height(22.dp)
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color(0xFFF8FAFC))
+                                    .border(0.7.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.AccountBalanceWallet,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(14.dp)
+                                Text(
+                                    text = data.specialText,
+                                    fontSize = 5.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF64748B),
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 6.5.sp
                                 )
                             }
-                            Column {
-                                Text(
-                                    text = "Payment",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0F172A)
-                                )
-                                Text(
-                                    text = "Last 12 Months",
-                                    fontSize = 13.5.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF475569)
-                                )
+                        } else {
+                            Column(
+                                modifier = Modifier.width(18.dp),
+                                verticalArrangement = Arrangement.spacedBy(1.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                data.blocks.reversed().forEach { block ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(block.heightDp.dp)
+                                            .clip(RoundedCornerShape(2.5.dp))
+                                            .background(block.color),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = block.amountText,
+                                            fontSize = 5.5.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White,
+                                            maxLines = 1
+                                        )
+                                    }
+                                }
                             }
                         }
 
-                        // Plan History Pill
-                        Row(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50.dp))
-                                .background(Color.White)
-                                .border(0.8.dp, Color(0xFFFDA4AF), RoundedCornerShape(50.dp))
-                                .clickable { onClick() }
-                                .padding(horizontal = 9.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Text(
-                                text = "Plan History",
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFFE11D48)
-                            )
-                            Text(
-                                text = "›",
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFFE11D48)
-                            )
-                        }
-                    }
+                        Spacer(modifier = Modifier.height(1.5.dp))
 
-                    // Key Metric: ₹2,800 + [ ! Due Now ]
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
+                        // Month label at bottom
                         Text(
-                            text = "₹2,800",
-                            fontSize = 34.sp,
+                            text = data.month,
+                            fontSize = 7.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF64748B)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Legend Row (6 items)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LegendColorItem(color = Color(0xFF10B981), label = "On Time (6m)")
+            LegendColorItem(color = Color(0xFFF59E0B), label = "Partial (1m)")
+            LegendColorItem(color = Color(0xFFEF4444), label = "Late (1m)")
+            LegendColorItem(color = Color(0xFF8B5CF6), label = "Extra (1m)")
+            LegendBorderItem(label = "No ADM (2m)")
+            LegendBorderItem(label = "Waived (1m)")
+        }
+    }
+}
+
+@Composable
+private fun LegendColorItem(color: Color, label: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+        Text(
+            text = label,
+            fontSize = 7.sp,
+            color = Color(0xFF475569),
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
+private fun LegendBorderItem(label: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(RoundedCornerShape(1.dp))
+                .background(Color(0xFFF8FAFC))
+                .border(0.6.dp, Color(0xFF94A3B8), RoundedCornerShape(1.dp))
+        )
+        Text(
+            text = label,
+            fontSize = 7.sp,
+            color = Color(0xFF475569),
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+// -----------------------------------------------------------------------------
+// SECTION 4: BOTTOM 3 METRIC CARDS (Collected, Unpaid Balance, Waived by Owner)
+// -----------------------------------------------------------------------------
+
+@Composable
+private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(4.5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Card 1: Collected (Jan - Dec)
+        Box(
+            modifier = Modifier
+                .weight(1.05f)
+                .clip(RoundedCornerShape(9.dp))
+                .background(Color.White)
+                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(9.dp))
+                .padding(horizontal = 4.5.dp, vertical = 4.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Donut Chart Canvas
+                Canvas(modifier = Modifier.size(24.dp)) {
+                    val stroke = 3.dp.toPx()
+                    // Green segment: 75%
+                    drawArc(
+                        color = Color(0xFF10B981),
+                        startAngle = -90f,
+                        sweepAngle = 270f,
+                        useCenter = false,
+                        style = Stroke(width = stroke, cap = StrokeCap.Round)
+                    )
+                    // Amber segment: 15%
+                    drawArc(
+                        color = Color(0xFFF59E0B),
+                        startAngle = 180f,
+                        sweepAngle = 54f,
+                        useCenter = false,
+                        style = Stroke(width = stroke, cap = StrokeCap.Round)
+                    )
+                    // Red segment: 10%
+                    drawArc(
+                        color = Color(0xFFEF4444),
+                        startAngle = 234f,
+                        sweepAngle = 36f,
+                        useCenter = false,
+                        style = Stroke(width = stroke, cap = StrokeCap.Round)
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = "Collected (Jan – Dec)",
+                        fontSize = 7.5.sp,
+                        color = Color(0xFF64748B),
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = "₹11,400",
+                        fontSize = 13.5.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF059669)
+                    )
+                    Text(
+                        text = "(9 payments)",
+                        fontSize = 7.5.sp,
+                        color = Color(0xFF64748B),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
+
+        // Card 2: Unpaid Balance
+        Box(
+            modifier = Modifier
+                .weight(0.95f)
+                .clip(RoundedCornerShape(9.dp))
+                .background(Color.White)
+                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(9.dp))
+                .padding(horizontal = 4.5.dp, vertical = 4.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Text(text = "🎯", fontSize = 14.sp)
+                    Column {
+                        Text(
+                            text = "Unpaid Balance",
+                            fontSize = 7.5.sp,
+                            color = Color(0xFF64748B),
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = "₹100",
+                            fontSize = 13.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFFDC2626)
                         )
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50.dp))
-                                .background(Color(0xFFEF4444))
-                                .padding(horizontal = 8.dp, vertical = 3.dp)
-                        ) {
-                            Text(
-                                text = "! Due Now",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = "Due on 16 Oct 2026",
-                        fontSize = 13.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF991B1B)
-                    )
-                }
-            }
-
-            // PROMINENT FULL-WIDTH 44dp ACTION BUTTONS: WhatsApp, Collect Payment, Receipt
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 1.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // WhatsApp Button
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF16A34A))
-                        .clickable { /* WhatsApp */ }
-                        .padding(horizontal = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(text = "💬", fontSize = 14.sp)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "WhatsApp",
-                        fontSize = 13.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        maxLines = 1,
-                        softWrap = false
-                    )
-                }
-
-                // Collect Payment CTA Button (Elevated Gradient)
-                Row(
-                    modifier = Modifier
-                        .weight(1.3f)
-                        .height(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(Color(0xFFEF4444), Color(0xFFDC2626))
-                            )
+                        Text(
+                            text = "Nov 2026 Fee",
+                            fontSize = 7.5.sp,
+                            color = Color(0xFF64748B),
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1
                         )
-                        .clickable { onClick() }
-                        .padding(horizontal = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "₹ Collect Payment",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White,
-                        maxLines = 1,
-                        softWrap = false
-                    )
+                    }
                 }
 
-                // View Receipt Button
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White)
-                        .border(1.2.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp))
-                        .clickable { onViewReceiptClick() }
-                        .padding(horizontal = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Receipt,
-                        contentDescription = null,
-                        tint = Color(0xFF0F172A),
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Receipt",
-                        fontSize = 13.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A),
-                        maxLines = 1,
-                        softWrap = false
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = Color(0xFF94A3B8),
+                    modifier = Modifier.size(10.dp)
+                )
             }
+        }
 
-            // Plan Intelligence & 3-Month Payment Schedule Row
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White.copy(alpha = 0.90f))
-                    .border(0.8.dp, Color(0xFFFDA4AF), RoundedCornerShape(10.dp))
-                    .padding(horizontal = 8.dp, vertical = 6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(text = "👑 Gold Plan", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text(text = "• Monthly (Valid till 31 Oct 2026)", fontSize = 11.sp, color = Color(0xFF475569))
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF0284C7)))
-                        Text(text = "Auto Pay: Enabled", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
-                    }
-                }
-
-                Box(modifier = Modifier.fillMaxWidth().height(0.6.dp).background(Color(0xFFF1F5F9)))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(text = "Last Paid (Paid)", fontSize = 11.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                        Text(text = "₹2,800", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text(text = "15 Sep 2026", fontSize = 11.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
-                    }
-                    Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                    Column {
-                        Text(text = "Current Due (Due)", fontSize = 11.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
-                        Text(text = "₹2,800", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
-                        Text(text = "16 Oct 2026", fontSize = 11.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
-                    }
-                    Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                    Column {
-                        Text(text = "Next Due (Scheduled)", fontSize = 11.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                        Text(text = "₹2,800", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF334155))
-                        Text(text = "16 Nov 2026", fontSize = 11.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                    }
-                }
-            }
-
-            // 12-Month Capsule Bar Chart
-            Column(modifier = Modifier.fillMaxWidth().padding(top = 2.dp)) {
-                Row(modifier = Modifier.fillMaxWidth().height(52.dp)) {
-                    // Left Y-Axis
-                    Column(
-                        modifier = Modifier.height(52.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Text(text = "₹3k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "₹2k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "₹1k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "0", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                    }
-
-                    Spacer(modifier = Modifier.width(4.dp))
-
-                    // 12 Capsule Bars Canvas
-                    Canvas(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(52.dp)
-                    ) {
-                        val months = listOf(
-                            Pair(1, 0.75f), Pair(1, 0.85f), Pair(1, 0.80f), Pair(1, 0.80f),
-                            Pair(1, 0.70f), Pair(2, 0.65f), Pair(1, 0.85f), Pair(1, 0.70f),
-                            Pair(2, 0.75f), Pair(4, 0.88f), Pair(3, 0.50f), Pair(0, 0.30f)
-                        )
-                        val count = months.size
-                        val barWidth = 8.5.dp.toPx()
-                        val step = size.width / count.toFloat()
-                        val barRadius = CornerRadius(barWidth / 2f, barWidth / 2f)
-
-                        months.forEachIndexed { i, pair ->
-                            val x = i * step + (step - barWidth) / 2f
-                            val h = size.height * pair.second
-                            val y = size.height - h
-
-                            // Background Track
-                            drawRoundRect(
-                                color = Color(0x15000000),
-                                topLeft = Offset(x, 0f),
-                                size = Size(barWidth, size.height),
-                                cornerRadius = barRadius
-                            )
-
-                            val color = when (pair.first) {
-                                1 -> Color(0xFF10B981) // Paid
-                                2 -> Color(0xFF6366F1) // Plan Upgrade
-                                3 -> Color(0xFFF59E0B) // Due Soon
-                                4 -> Color(0xFFEF4444) // Due Now
-                                else -> Color(0xFFCBD5E1)
-                            }
-
-                            drawRoundRect(
-                                color = color,
-                                topLeft = Offset(x, y),
-                                size = Size(barWidth, h),
-                                cornerRadius = barRadius
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                // X-Axis Marks: Jan..Dec
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 18.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { m ->
-                        Text(text = m, fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-
-            // Legend Row
+        // Card 3: Waived by Owner
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(9.dp))
+                .background(Color.White)
+                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(9.dp))
+                .padding(horizontal = 4.5.dp, vertical = 4.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                LegendDotItem(color = Color(0xFF10B981), label = "Paid", value = "8m")
-                LegendDotItem(color = Color(0xFF6366F1), label = "Upgrade", value = "2m")
-                LegendDotItem(color = Color(0xFFEF4444), label = "Due Now", value = "1m")
-                LegendDotItem(color = Color(0xFFF59E0B), label = "Due Soon", value = "1m")
-            }
-
-            // Payment Bottom Summary Container (De-duplicated)
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = Color.White.copy(alpha = 0.94f),
-                border = BorderStroke(1.dp, Color(0xFFFDA4AF)),
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 6.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE0F2FE)),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                            Text("👛", fontSize = 12.sp)
-                            Text("Total Paid", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("₹12,600", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Last 12 mo", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
+                        Icon(
+                            imageVector = Icons.Default.Percent,
+                            contentDescription = null,
+                            tint = Color(0xFF0284C7),
+                            modifier = Modifier.size(11.dp)
+                        )
                     }
-
-                    Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                            Text("📅", fontSize = 12.sp)
-                            Text("Avg / Mo", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("₹1,050", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Gold Tier", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1.05f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                            Text("💳", fontSize = 12.sp)
-                            Text("AutoPay", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("UPI Active", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
-                        Text("HDFC ••4920", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
-                            Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF10B981)))
-                            Text("On Time", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("91%", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF10B981))
-                        Text("10/11 mo", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
+                    Column {
+                        Text(
+                            text = "Waived by Owner",
+                            fontSize = 7.5.sp,
+                            color = Color(0xFF64748B),
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = "₹100",
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF059669)
+                        )
+                        Text(
+                            text = "Nov 2026 Fee",
+                            fontSize = 7.5.sp,
+                            color = Color(0xFF64748B),
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1
+                        )
                     }
                 }
+
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = Color(0xFF94A3B8),
+                    modifier = Modifier.size(10.dp)
+                )
             }
         }
     }
