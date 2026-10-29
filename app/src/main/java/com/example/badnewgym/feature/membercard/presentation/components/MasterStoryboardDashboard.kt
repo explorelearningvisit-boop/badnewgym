@@ -357,7 +357,7 @@ fun MasterStoryboardStickyMenuBar(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable { onTabSelected(index) }
-                        .padding(horizontal = 1.dp, vertical = 3.dp),
+                        .padding(horizontal = 1.dp, vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -365,16 +365,16 @@ fun MasterStoryboardStickyMenuBar(
                         imageVector = tab.icon,
                         contentDescription = tab.label,
                         tint = if (isSelected) tabItemColor else Color(0xFF64748B),
-                        modifier = Modifier.size(13.5.dp)
+                        modifier = Modifier.size(14.5.dp)
                     )
-                    Spacer(modifier = Modifier.width(1.5.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = tab.label,
-                            fontSize = 11.5.sp,
+                            fontSize = 12.sp,
                             letterSpacing = (-0.3).sp,
                             fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                             color = if (isSelected) tabItemColor else Color(0xFF334155),
@@ -383,7 +383,7 @@ fun MasterStoryboardStickyMenuBar(
                         )
                         Text(
                             text = tab.badge,
-                            fontSize = 10.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             color = if (isSelected) tabItemColor else Color(0xFF64748B),
                             maxLines = 1,
@@ -1301,7 +1301,7 @@ fun MasterPaymentCard(
             .background(Color.White)
             .border(1.2.dp, Color(0xFFFDA4AF), cardShape)
             .clickable { onClick() }
-            .padding(horizontal = 9.dp, vertical = 7.dp)
+            .padding(horizontal = 10.dp, vertical = 9.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -1344,7 +1344,7 @@ private fun PaymentHeaderSection(
             painter = painterResource(id = R.drawable.illustration_3d_payment_wallet),
             contentDescription = "Payment 3D Wallet",
             contentScale = ContentScale.Fit,
-            modifier = Modifier.size(56.dp)
+            modifier = Modifier.size(60.dp)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -1365,8 +1365,8 @@ private fun PaymentHeaderSection(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
-                            .clip(RoundedCornerShape(6.dp))
+                            .size(26.dp)
+                            .clip(RoundedCornerShape(7.dp))
                             .background(Color(0xFFEF4444)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -1374,23 +1374,23 @@ private fun PaymentHeaderSection(
                             imageVector = Icons.Default.AccountBalanceWallet,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(13.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                     Column {
                         Text(
                             text = "Payment",
-                            fontSize = 17.sp,
+                            fontSize = 19.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
-                            lineHeight = 18.sp
+                            lineHeight = 20.sp
                         )
                         Text(
                             text = "Monthly Plan ₹1,200",
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF64748B),
-                            lineHeight = 12.sp
+                            lineHeight = 13.sp
                         )
                     }
                 }
@@ -1402,13 +1402,13 @@ private fun PaymentHeaderSection(
                         .background(Color(0xFFFFF1F2))
                         .border(0.8.dp, Color(0xFFFECDD3), RoundedCornerShape(50.dp))
                         .clickable { onPlanHistoryClick() }
-                        .padding(horizontal = 8.dp, vertical = 2.5.dp),
+                        .padding(horizontal = 9.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
                         text = "Plan History",
-                        fontSize = 10.5.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFE11D48)
                     )
@@ -1416,7 +1416,7 @@ private fun PaymentHeaderSection(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
                         tint = Color(0xFFE11D48),
-                        modifier = Modifier.size(12.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
@@ -1428,20 +1428,20 @@ private fun PaymentHeaderSection(
             ) {
                 Text(
                     text = "₹ 800",
-                    fontSize = 28.sp,
+                    fontSize = 32.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFFE11D48),
-                    lineHeight = 28.sp
+                    lineHeight = 32.sp
                 )
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50.dp))
                         .background(Color(0xFFEF4444))
-                        .padding(horizontal = 8.dp, vertical = 2.5.dp)
+                        .padding(horizontal = 9.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = "Pending",
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -1451,24 +1451,24 @@ private fun PaymentHeaderSection(
             // Subtext: 📅 Due on 12 Oct 2026 (4 days left)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                horizontalArrangement = Arrangement.spacedBy(3.5.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.CalendarToday,
                     contentDescription = null,
                     tint = Color(0xFFDC2626),
-                    modifier = Modifier.size(11.dp)
+                    modifier = Modifier.size(12.dp)
                 )
                 Text(
                     text = "Due on 12 Oct 2026 ",
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFDC2626)
                 )
                 Text(
                     text = "(4 days left)",
-                    fontSize = 10.5.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF64748B)
                 )
             }
@@ -1496,7 +1496,7 @@ private fun PaymentActionButtonsRow(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .height(42.dp)
+                .height(44.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xFF16A34A))
                 .clickable { onSendReminder() }
@@ -1504,14 +1504,14 @@ private fun PaymentActionButtonsRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "💬", fontSize = 13.sp)
+            Text(text = "💬", fontSize = 14.sp)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "Send Reminder\non WhatsApp",
-                fontSize = 10.5.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
-                lineHeight = 11.5.sp
+                lineHeight = 12.sp
             )
         }
 
@@ -1519,7 +1519,7 @@ private fun PaymentActionButtonsRow(
         Row(
             modifier = Modifier
                 .weight(1.15f)
-                .height(42.dp)
+                .height(44.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xFFDC2626))
                 .clickable { onCollectPayment() }
@@ -1531,12 +1531,12 @@ private fun PaymentActionButtonsRow(
                 imageVector = Icons.Default.CreditCard,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "Collect Payment",
-                fontSize = 11.5.sp,
+                fontSize = 12.5.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White
             )
@@ -1546,10 +1546,10 @@ private fun PaymentActionButtonsRow(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .height(42.dp)
+                .height(44.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
-                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp))
                 .clickable { onSendReceipt() }
                 .padding(horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -1559,15 +1559,15 @@ private fun PaymentActionButtonsRow(
                 imageVector = Icons.Default.Receipt,
                 contentDescription = null,
                 tint = Color(0xFF0F172A),
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(15.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "Send Receipt\non WhatsApp",
-                fontSize = 10.5.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A),
-                lineHeight = 11.5.sp
+                lineHeight = 12.sp
             )
         }
     }
@@ -1594,33 +1594,33 @@ private data class PaymentBlock(
 private fun PaymentTrendSection(modifier: Modifier = Modifier) {
     val monthsData = remember {
         listOf(
-            MonthlyPaymentData("Jan", "₹1.2k", listOf(PaymentBlock("₹600", Color(0xFF10B981), 13), PaymentBlock("₹600", Color(0xFF10B981), 13))),
-            MonthlyPaymentData("Feb", "₹600", listOf(PaymentBlock("₹600", Color(0xFF10B981), 14))),
+            MonthlyPaymentData("Jan", "₹1.2k", listOf(PaymentBlock("₹600", Color(0xFF10B981), 16), PaymentBlock("₹600", Color(0xFF10B981), 16))),
+            MonthlyPaymentData("Feb", "₹600", listOf(PaymentBlock("₹600", Color(0xFF10B981), 18))),
             MonthlyPaymentData("Mar", null, specialText = "No\nADM"),
             MonthlyPaymentData("Apr", null, specialText = "No\nADM"),
-            MonthlyPaymentData("May", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 24))),
-            MonthlyPaymentData("Jun", "₹840", listOf(PaymentBlock("₹440", Color(0xFFEF4444), 12), PaymentBlock("₹400", Color(0xFFF59E0B), 11))),
+            MonthlyPaymentData("May", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 32))),
+            MonthlyPaymentData("Jun", "₹840", listOf(PaymentBlock("₹440", Color(0xFFEF4444), 16), PaymentBlock("₹400", Color(0xFFF59E0B), 15))),
             MonthlyPaymentData("Jul", "₹2.0k", listOf(
-                PaymentBlock("₹500", Color(0xFF10B981), 10),
-                PaymentBlock("₹500", Color(0xFF10B981), 10),
-                PaymentBlock("₹500", Color(0xFF10B981), 10),
-                PaymentBlock("₹500", Color(0xFF8B5CF6), 10)
+                PaymentBlock("₹500", Color(0xFF10B981), 13),
+                PaymentBlock("₹500", Color(0xFF10B981), 13),
+                PaymentBlock("₹500", Color(0xFF10B981), 13),
+                PaymentBlock("₹500", Color(0xFF8B5CF6), 13)
             )),
             MonthlyPaymentData("Aug", null, specialText = "No\nVisit"),
-            MonthlyPaymentData("Sep", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 24))),
-            MonthlyPaymentData("Oct", "₹400", listOf(PaymentBlock("₹400", Color(0xFFEF4444), 12))),
+            MonthlyPaymentData("Sep", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 32))),
+            MonthlyPaymentData("Oct", "₹400", listOf(PaymentBlock("₹400", Color(0xFFEF4444), 16))),
             MonthlyPaymentData("Nov", null, specialText = "₹100\nWaived"),
             MonthlyPaymentData("Dec", "₹2.4k", listOf(
-                PaymentBlock("₹800", Color(0xFF10B981), 14),
-                PaymentBlock("₹800", Color(0xFF10B981), 14),
-                PaymentBlock("₹800", Color(0xFF8B5CF6), 14)
+                PaymentBlock("₹800", Color(0xFF10B981), 18),
+                PaymentBlock("₹800", Color(0xFF10B981), 18),
+                PaymentBlock("₹800", Color(0xFF8B5CF6), 18)
             ))
         )
     }
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         // Header Row: 📊 Payment Trend ℹ️ + 12 Months ⌵
         Row(
@@ -1632,10 +1632,10 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = "📊", fontSize = 11.sp)
+                Text(text = "📊", fontSize = 13.sp)
                 Text(
                     text = "Payment Trend",
-                    fontSize = 11.sp,
+                    fontSize = 12.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
@@ -1643,7 +1643,7 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
                     tint = Color(0xFF64748B),
-                    modifier = Modifier.size(11.dp)
+                    modifier = Modifier.size(13.dp)
                 )
             }
 
@@ -1652,14 +1652,14 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(50.dp))
                     .background(Color(0xFFF8FAFC))
-                    .border(0.6.dp, Color(0xFFCBD5E1), RoundedCornerShape(50.dp))
-                    .padding(horizontal = 6.dp, vertical = 1.5.dp),
+                    .border(0.7.dp, Color(0xFFCBD5E1), RoundedCornerShape(50.dp))
+                    .padding(horizontal = 7.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
                     text = "12 Months",
-                    fontSize = 8.5.sp,
+                    fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF334155)
                 )
@@ -1667,7 +1667,7 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
                     tint = Color(0xFF334155),
-                    modifier = Modifier.size(10.dp)
+                    modifier = Modifier.size(11.dp)
                 )
             }
         }
@@ -1676,19 +1676,19 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(72.dp),
+                .height(84.dp),
             verticalAlignment = Alignment.Bottom
         ) {
             // Y-Axis Labels
             Column(
-                modifier = Modifier.height(60.dp),
+                modifier = Modifier.height(68.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.End
             ) {
-                Text(text = "₹3k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                Text(text = "₹2k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                Text(text = "₹1k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                Text(text = "0", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
+                Text(text = "₹3k", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "₹2k", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "₹1k", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "0", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.width(3.dp))
@@ -1711,40 +1711,42 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                         if (data.totalLabel != null) {
                             Text(
                                 text = data.totalLabel,
-                                fontSize = 6.5.sp,
+                                fontSize = 8.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1
                             )
                         } else {
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
 
-                        Spacer(modifier = Modifier.height(1.dp))
+                        Spacer(modifier = Modifier.height(1.5.dp))
 
                         // Middle: Stacked blocks OR Special outline box
                         if (data.specialText != null) {
                             Box(
                                 modifier = Modifier
-                                    .width(18.dp)
-                                    .height(22.dp)
+                                    .width(22.dp)
+                                    .height(26.dp)
                                     .clip(RoundedCornerShape(3.dp))
                                     .background(Color(0xFFF8FAFC))
-                                    .border(0.7.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
+                                    .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = data.specialText,
-                                    fontSize = 5.5.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 6.2.sp,
+                                    fontWeight = FontWeight.Black,
                                     color = Color(0xFF64748B),
                                     textAlign = TextAlign.Center,
-                                    lineHeight = 6.5.sp
+                                    lineHeight = 7.5.sp,
+                                    maxLines = 2,
+                                    softWrap = false
                                 )
                             }
                         } else {
                             Column(
-                                modifier = Modifier.width(18.dp),
+                                modifier = Modifier.width(22.dp),
                                 verticalArrangement = Arrangement.spacedBy(1.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
@@ -1759,8 +1761,8 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                                     ) {
                                         Text(
                                             text = block.amountText,
-                                            fontSize = 5.5.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 7.5.sp,
+                                            fontWeight = FontWeight.Black,
                                             color = Color.White,
                                             maxLines = 1
                                         )
@@ -1769,32 +1771,45 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(1.5.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
 
                         // Month label at bottom
                         Text(
                             text = data.month,
-                            fontSize = 7.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF64748B)
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF475569)
                         )
                     }
                 }
             }
         }
 
-        // Legend Row (6 items)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        // Legend Rows (2 clean rows of 3 items matching reference)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp, vertical = 1.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
-            LegendColorItem(color = Color(0xFF10B981), label = "On Time (6m)")
-            LegendColorItem(color = Color(0xFFF59E0B), label = "Partial (1m)")
-            LegendColorItem(color = Color(0xFFEF4444), label = "Late (1m)")
-            LegendColorItem(color = Color(0xFF8B5CF6), label = "Extra (1m)")
-            LegendBorderItem(label = "No ADM (2m)")
-            LegendBorderItem(label = "Waived (1m)")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                LegendColorItem(color = Color(0xFF10B981), label = "On Time (6 months)")
+                LegendColorItem(color = Color(0xFFF59E0B), label = "Partial (1 month)")
+                LegendColorItem(color = Color(0xFFEF4444), label = "Late (1 month)")
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                LegendColorItem(color = Color(0xFF8B5CF6), label = "Extra (1 month)")
+                LegendBorderItem(label = "No Admission (2 months)")
+                LegendHatchedItem(label = "Waived (1 month)")
+            }
         }
     }
 }
@@ -1803,19 +1818,19 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
 private fun LegendColorItem(color: Color, label: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(6.dp)
+                .size(7.5.dp)
                 .clip(CircleShape)
                 .background(color)
         )
         Text(
             text = label,
-            fontSize = 7.sp,
+            fontSize = 9.sp,
             color = Color(0xFF475569),
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -1824,20 +1839,42 @@ private fun LegendColorItem(color: Color, label: String) {
 private fun LegendBorderItem(label: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(6.dp)
-                .clip(RoundedCornerShape(1.dp))
+                .size(7.5.dp)
+                .clip(RoundedCornerShape(1.5.dp))
                 .background(Color(0xFFF8FAFC))
-                .border(0.6.dp, Color(0xFF94A3B8), RoundedCornerShape(1.dp))
+                .border(0.8.dp, Color(0xFF94A3B8), RoundedCornerShape(1.5.dp))
         )
         Text(
             text = label,
-            fontSize = 7.sp,
+            fontSize = 9.sp,
             color = Color(0xFF475569),
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun LegendHatchedItem(label: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(7.5.dp)
+                .clip(RoundedCornerShape(1.5.dp))
+                .background(Color(0xFFE2E8F0))
+                .border(0.8.dp, Color(0xFF94A3B8), RoundedCornerShape(1.5.dp))
+        )
+        Text(
+            text = label,
+            fontSize = 9.sp,
+            color = Color(0xFF475569),
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -1856,19 +1893,19 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
         // Card 1: Collected (Jan - Dec)
         Box(
             modifier = Modifier
-                .weight(1.05f)
-                .clip(RoundedCornerShape(9.dp))
+                .weight(1.15f)
+                .clip(RoundedCornerShape(10.dp))
                 .background(Color.White)
-                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(9.dp))
-                .padding(horizontal = 4.5.dp, vertical = 4.dp)
+                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
+                .padding(horizontal = 5.dp, vertical = 5.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 // Donut Chart Canvas
-                Canvas(modifier = Modifier.size(24.dp)) {
-                    val stroke = 3.dp.toPx()
+                Canvas(modifier = Modifier.size(28.dp)) {
+                    val stroke = 3.8.dp.toPx()
                     // Green segment: 75%
                     drawArc(
                         color = Color(0xFF10B981),
@@ -1895,25 +1932,26 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                     )
                 }
 
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text(
                         text = "Collected (Jan – Dec)",
-                        fontSize = 7.5.sp,
+                        fontSize = 8.5.sp,
                         color = Color(0xFF64748B),
-                        fontWeight = FontWeight.Medium,
-                        maxLines = 1
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false
                     )
                     Text(
                         text = "₹11,400",
-                        fontSize = 13.5.sp,
+                        fontSize = 15.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF059669)
                     )
                     Text(
                         text = "(9 payments)",
-                        fontSize = 7.5.sp,
+                        fontSize = 8.5.sp,
                         color = Color(0xFF64748B),
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -1922,11 +1960,11 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
         // Card 2: Unpaid Balance
         Box(
             modifier = Modifier
-                .weight(0.95f)
-                .clip(RoundedCornerShape(9.dp))
+                .weight(0.92f)
+                .clip(RoundedCornerShape(10.dp))
                 .background(Color.White)
-                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(9.dp))
-                .padding(horizontal = 4.5.dp, vertical = 4.dp)
+                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
+                .padding(horizontal = 5.dp, vertical = 5.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1935,29 +1973,31 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(text = "🎯", fontSize = 14.sp)
-                    Column {
+                    Text(text = "🎯", fontSize = 15.sp)
+                    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                         Text(
                             text = "Unpaid Balance",
-                            fontSize = 7.5.sp,
+                            fontSize = 8.5.sp,
                             color = Color(0xFF64748B),
-                            fontWeight = FontWeight.Medium,
-                            maxLines = 1
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false
                         )
                         Text(
                             text = "₹100",
-                            fontSize = 13.5.sp,
+                            fontSize = 15.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFFDC2626)
                         )
                         Text(
                             text = "Nov 2026 Fee",
-                            fontSize = 7.5.sp,
+                            fontSize = 8.sp,
                             color = Color(0xFF64748B),
-                            fontWeight = FontWeight.Medium,
-                            maxLines = 1
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
@@ -1966,7 +2006,7 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
                     tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(10.dp)
+                    modifier = Modifier.size(11.dp)
                 )
             }
         }
@@ -1974,11 +2014,11 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
         // Card 3: Waived by Owner
         Box(
             modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(9.dp))
+                .weight(0.93f)
+                .clip(RoundedCornerShape(10.dp))
                 .background(Color.White)
-                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(9.dp))
-                .padding(horizontal = 4.5.dp, vertical = 4.dp)
+                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
+                .padding(horizontal = 5.dp, vertical = 5.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1987,11 +2027,11 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(18.dp)
+                            .size(19.dp)
                             .clip(CircleShape)
                             .background(Color(0xFFE0F2FE)),
                         contentAlignment = Alignment.Center
@@ -2003,26 +2043,28 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                             modifier = Modifier.size(11.dp)
                         )
                     }
-                    Column {
+                    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                         Text(
                             text = "Waived by Owner",
-                            fontSize = 7.5.sp,
+                            fontSize = 8.5.sp,
                             color = Color(0xFF64748B),
-                            fontWeight = FontWeight.Medium,
-                            maxLines = 1
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false
                         )
                         Text(
                             text = "₹100",
-                            fontSize = 13.5.sp,
+                            fontSize = 15.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF059669)
                         )
                         Text(
                             text = "Nov 2026 Fee",
-                            fontSize = 7.5.sp,
+                            fontSize = 8.sp,
                             color = Color(0xFF64748B),
-                            fontWeight = FontWeight.Medium,
-                            maxLines = 1
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
@@ -2031,7 +2073,7 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
                     tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(10.dp)
+                    modifier = Modifier.size(11.dp)
                 )
             }
         }
@@ -2066,7 +2108,7 @@ fun MasterBodyProgressCard(
             .background(Color.White)
             .border(1.2.dp, Color(0xFFDDD6FE), cardShape)
             .clickable { onClick() }
-            .padding(horizontal = 10.dp, vertical = 9.dp)
+            .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -2121,7 +2163,7 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
             painter = painterResource(id = R.drawable.illustration_3d_body_scale),
             contentDescription = "Body 3D Scale",
             contentScale = ContentScale.Fit,
-            modifier = Modifier.size(54.dp)
+            modifier = Modifier.size(52.dp)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -2142,7 +2184,7 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(26.dp)
                             .clip(CircleShape)
                             .background(
                                 Brush.linearGradient(
@@ -2151,22 +2193,22 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "🧘", fontSize = 12.sp)
+                        Text(text = "🧘", fontSize = 13.sp)
                     }
                     Column {
                         Text(
                             text = "Body Progress",
-                            fontSize = 17.sp,
+                            fontSize = 19.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
-                            lineHeight = 18.sp
+                            lineHeight = 20.sp
                         )
                         Text(
                             text = "Goal Based Tracking",
-                            fontSize = 10.5.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF64748B),
-                            lineHeight = 12.sp
+                            lineHeight = 13.sp
                         )
                     }
                 }
@@ -2177,13 +2219,13 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                         .clip(RoundedCornerShape(50.dp))
                         .background(Color(0xFFF3E8FF))
                         .border(0.8.dp, Color(0xFFD8B4FE), RoundedCornerShape(50.dp))
-                        .padding(horizontal = 7.dp, vertical = 2.5.dp),
+                        .padding(horizontal = 8.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
                         text = "Last 6 Months",
-                        fontSize = 10.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF7C3AED)
                     )
@@ -2210,38 +2252,38 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                     Column {
                         Text(
                             text = "69.5 kg",
-                            fontSize = 24.sp,
+                            fontSize = 28.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF6D28D9),
-                            lineHeight = 24.sp
+                            lineHeight = 28.sp
                         )
                         Text(
                             text = "Current Weight",
-                            fontSize = 11.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
                     }
 
-                    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(1.5.dp)) {
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(50.dp))
                                 .background(Color(0xFFDCFCE7))
-                                .padding(horizontal = 6.dp, vertical = 2.dp),
+                                .padding(horizontal = 7.dp, vertical = 2.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = "↓ 2.5 kg",
-                                fontSize = 10.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF15803D)
                             )
                         }
                         Text(
                             text = "vs Aug (-3.5%)",
-                            fontSize = 9.5.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF64748B)
                         )
                     }
@@ -2250,22 +2292,22 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                 // Goal Block
                 Column(
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                    verticalArrangement = Arrangement.spacedBy(1.5.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
-                        Text(text = "🎯", fontSize = 11.sp)
+                        Text(text = "🎯", fontSize = 12.sp)
                         Text(
                             text = "Goal: ",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = "66.0 kg",
-                            fontSize = 12.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF15803D)
                         )
@@ -2278,8 +2320,8 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                     ) {
                         Box(
                             modifier = Modifier
-                                .width(54.dp)
-                                .height(5.5.dp)
+                                .width(56.dp)
+                                .height(6.dp)
                                 .clip(RoundedCornerShape(50.dp))
                                 .background(Color(0xFFE2E8F0))
                         ) {
@@ -2293,7 +2335,7 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                         }
                         Text(
                             text = "67%",
-                            fontSize = 10.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A)
                         )
@@ -2301,7 +2343,7 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
 
                     Text(
                         text = "↓ 3.5 kg to go",
-                        fontSize = 10.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF16A34A)
                     )
@@ -2397,30 +2439,31 @@ private fun BodySingleGoalCard(
             .clip(RoundedCornerShape(10.dp))
             .background(Color(0xFFFAFAFC))
             .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
-            .padding(horizontal = 4.5.dp, vertical = 5.dp)
+            .padding(horizontal = 4.5.dp, vertical = 3.5.dp)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(2.5.dp)
+            verticalArrangement = Arrangement.spacedBy(1.5.dp)
         ) {
             // Icon + Title Row
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(19.dp)
+                        .size(20.dp)
                         .clip(RoundedCornerShape(5.dp))
                         .background(iconBg),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = emojiIcon, fontSize = 9.5.sp)
+                    Text(text = emojiIcon, fontSize = 10.sp)
                 }
                 Text(
                     text = title,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF64748B),
+                    fontSize = if (title.contains("Muscle")) 8.2.sp else 9.5.sp,
+                    letterSpacing = (-0.2).sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF475569),
                     maxLines = 1,
                     softWrap = false
                 )
@@ -2429,7 +2472,7 @@ private fun BodySingleGoalCard(
             // Value
             Text(
                 text = value,
-                fontSize = 12.5.sp,
+                fontSize = 13.5.sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF0F172A),
                 maxLines = 1
@@ -2438,7 +2481,7 @@ private fun BodySingleGoalCard(
             // Delta
             Text(
                 text = delta,
-                fontSize = 8.sp,
+                fontSize = 9.sp,
                 fontWeight = FontWeight.Bold,
                 color = deltaColor,
                 maxLines = 1
@@ -2448,7 +2491,7 @@ private fun BodySingleGoalCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(3.5.dp)
+                    .height(4.dp)
                     .clip(RoundedCornerShape(50.dp))
                     .background(Color(0xFFE2E8F0))
             ) {
@@ -2467,15 +2510,15 @@ private fun BodySingleGoalCard(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(50.dp))
                     .background(Color(0xFFDCFCE7))
-                    .border(0.5.dp, Color(0xFF86EFAC), RoundedCornerShape(50.dp))
-                    .padding(vertical = 1.dp),
+                    .border(0.6.dp, Color(0xFF86EFAC), RoundedCornerShape(50.dp))
+                    .padding(vertical = 1.5.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = statusText,
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.Black,
                     color = Color(0xFF15803D),
                     maxLines = 1
                 )
@@ -2498,7 +2541,7 @@ private fun BodyProgressTrendSection(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         // Header Row: 📊 Progress Trend + Metric Chips + Time Range Chips
         Row(
@@ -2511,10 +2554,10 @@ private fun BodyProgressTrendSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = "📊", fontSize = 11.sp)
+                Text(text = "📊", fontSize = 12.sp)
                 Text(
                     text = "Progress Trend",
-                    fontSize = 11.5.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
@@ -2522,7 +2565,7 @@ private fun BodyProgressTrendSection(
 
             // Middle: Metric chips (Weight, Muscle, Body Fat, BMI)
             Row(
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 listOf("Weight", "Muscle", "Body Fat", "BMI").forEachIndexed { i, label ->
@@ -2537,7 +2580,7 @@ private fun BodyProgressTrendSection(
                                 shape = RoundedCornerShape(6.dp)
                             )
                             .clickable { onSelectMetric(i) }
-                            .padding(horizontal = 5.dp, vertical = 2.dp)
+                            .padding(horizontal = 4.dp, vertical = 1.5.dp)
                     ) {
                         Text(
                             text = label,
@@ -2551,7 +2594,7 @@ private fun BodyProgressTrendSection(
 
             // Right: Time chips (1M, 3M, 6M, 12M)
             Row(
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                horizontalArrangement = Arrangement.spacedBy(1.5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 listOf("1M", "3M", "6M", "12M").forEachIndexed { i, label ->
@@ -2561,7 +2604,7 @@ private fun BodyProgressTrendSection(
                             .clip(RoundedCornerShape(6.dp))
                             .background(if (isSelected) Color(0xFF7C3AED) else Color.Transparent)
                             .clickable { onSelectTime(i) }
-                            .padding(horizontal = 4.5.dp, vertical = 2.dp)
+                            .padding(horizontal = 3.5.dp, vertical = 1.5.dp)
                     ) {
                         Text(
                             text = label,
@@ -2578,7 +2621,7 @@ private fun BodyProgressTrendSection(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(48.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
@@ -2593,7 +2636,7 @@ private fun BodyProgressTrendSection(
                 }
 
                 Column(
-                    modifier = Modifier.height(44.dp),
+                    modifier = Modifier.height(38.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.End
                 ) {
@@ -2602,7 +2645,7 @@ private fun BodyProgressTrendSection(
                             text = label,
                             fontSize = 8.sp,
                             color = Color(0xFF64748B),
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -2613,7 +2656,7 @@ private fun BodyProgressTrendSection(
                 Canvas(
                     modifier = Modifier
                         .weight(1f)
-                        .height(46.dp)
+                        .height(38.dp)
                 ) {
                     val count = 12
                     val step = size.width / (count - 1).toFloat()
@@ -2673,13 +2716,13 @@ private fun BodyProgressTrendSection(
                         drawPath(
                             path = path,
                             color = Color(0xFF7C3AED),
-                            style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                            style = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
                         )
 
                         // Dots at points
                         coords.forEach { c ->
-                            drawCircle(color = Color(0xFF7C3AED), radius = 2.4.dp.toPx(), center = c)
-                            drawCircle(color = Color.White, radius = 1.1.dp.toPx(), center = c)
+                            drawCircle(color = Color(0xFF7C3AED), radius = 2.8.dp.toPx(), center = c)
+                            drawCircle(color = Color.White, radius = 1.2.dp.toPx(), center = c)
                         }
                     }
                 }
@@ -2692,7 +2735,7 @@ private fun BodyProgressTrendSection(
                     .padding(end = 4.dp, top = 2.dp)
                     .clip(RoundedCornerShape(4.dp))
                     .background(Color(0xFF7C3AED))
-                    .padding(horizontal = 5.dp, vertical = 1.5.dp)
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
                     text = when (selectedMetricIndex) {
@@ -2701,8 +2744,8 @@ private fun BodyProgressTrendSection(
                         2 -> "17.6 %"
                         else -> "22.8"
                     },
-                    fontSize = 8.5.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Black,
                     color = Color.White
                 )
             }
@@ -2718,9 +2761,9 @@ private fun BodyProgressTrendSection(
             listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { m ->
                 Text(
                     text = m,
-                    fontSize = 8.sp,
-                    color = Color(0xFF64748B),
-                    fontWeight = FontWeight.Medium
+                    fontSize = 8.5.sp,
+                    color = Color(0xFF475569),
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -2738,10 +2781,10 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-            .padding(horizontal = 6.dp, vertical = 5.dp)
+            .padding(horizontal = 5.dp, vertical = 4.dp)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             // Header Row: 🏋️ Workout Distribution + This Month ⌵
             Row(
@@ -2761,7 +2804,7 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                     )
                     Text(
                         text = "Workout Distribution",
-                        fontSize = 10.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A)
                     )
@@ -2814,18 +2857,18 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                         AnatomicalMuscleSilhouette(
                             muscle = name,
                             highlightColor = color,
-                            modifier = Modifier.size(width = 17.dp, height = 28.dp)
+                            modifier = Modifier.size(width = 16.dp, height = 26.dp)
                         )
                         Text(
                             text = name,
-                            fontSize = 7.5.sp,
+                            fontSize = 8.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF334155),
                             maxLines = 1
                         )
                         Text(
                             text = pct,
-                            fontSize = 8.sp,
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Black,
                             color = color,
                             maxLines = 1
@@ -2833,7 +2876,7 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                         Box(
                             modifier = Modifier
                                 .width(12.dp)
-                                .height(2.5.dp)
+                                .height(2.dp)
                                 .clip(RoundedCornerShape(50.dp))
                                 .background(color)
                         )
@@ -2996,10 +3039,10 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-            .padding(horizontal = 6.dp, vertical = 5.dp)
+            .padding(horizontal = 5.dp, vertical = 4.dp)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             // Header Row: 🏃 Activity Type + >
             Row(
@@ -3019,7 +3062,7 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
                     )
                     Text(
                         text = "Activity Type",
-                        fontSize = 10.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A)
                     )
@@ -3053,11 +3096,11 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
                     ) {
                         // Donut Ring with Icon
                         Box(
-                            modifier = Modifier.size(28.dp),
+                            modifier = Modifier.size(26.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Canvas(modifier = Modifier.fillMaxSize()) {
-                                val strokeWidth = 2.5.dp.toPx()
+                                val strokeWidth = 2.4.dp.toPx()
                                 drawCircle(
                                     color = Color(0xFFF1F5F9),
                                     style = Stroke(width = strokeWidth)
@@ -3081,14 +3124,14 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
 
                         Text(
                             text = act.name,
-                            fontSize = 7.5.sp,
+                            fontSize = 8.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF475569),
                             maxLines = 1
                         )
                         Text(
                             text = "${act.percent}%",
-                            fontSize = 8.sp,
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Black,
                             color = act.color,
                             maxLines = 1
@@ -3096,7 +3139,7 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
                         Text(
                             text = act.days,
                             fontSize = 7.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B),
                             maxLines = 1
                         )
