@@ -56,6 +56,45 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — WIDGET THEMING, MONTHLY TRENDS, MUSCLE GRAPHICS & DATA-DRIVEN PROGRESS FILL
+- **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Commit**: `e38c592`
+- **Device**: Xiaomi 11i 5G / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB (1080x2400)
+- **Live Device Screenshot Evidence (All 4 Tabs 1:1 Pixel-Perfect in Single Viewport)**:
+  - Attendance Tab: [docs/reference/images/device_screen_attendance_updated.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_attendance_updated.png)
+  - Workout Tab: [docs/reference/images/device_screen_workout_now.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_workout_now.png)
+  - Payment Tab: [docs/reference/images/device_screen_payment_updated.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_payment_updated.png)
+  - Body Progress Tab: [docs/reference/images/device_screen_body_polished.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_body_polished.png)
+- **Key Enhancements Completed**:
+  1. **Monthly Attendance Trend Outer Border & Background**:
+     - Bordered with `#A7F3D0` (1.2dp) and filled with soft mint background (`#F0FDF4`, 13dp corners).
+     - Fixed "No Member" bar text clipping by formatting as `"No\nMem"` at `7.5.sp` with `8.sp` line height inside the 20dp box.
+     - Added `"★ Best"` badge above Dec (100%) and `"▼ Min"` badge above Mar (60%).
+     - Added present days numbers (`30`, `24`, `18`, `27`, `21`, `29`, etc.) centered in white inside each candle bar.
+     - Scaled candle heights proportionally with data: 60% -> 17dp, 70% -> 20dp, 75% -> 21dp, 80% -> 23dp, 85% -> 25dp, 90% -> 27dp, 95% -> 29dp, 100% -> 32dp.
+  2. **Comprehensive Category Theming Across All Widgets**:
+     - Attendance Card: Mint Emerald theme (`#F8FEFA` surface, `#A7F3D0` border).
+     - Workout Card: Ocean Sky Blue theme (`#F0F9FF` surface, `#BAE6FD` border).
+     - Payment Card: Rose Coral theme (`#FFF1F2` surface, `#FECDD3` border).
+     - Body Progress Card: Lavender Amethyst theme (`#FAF5FF` surface, `#DDD6FE` border).
+  3. **Body Progress Trend Y-Axis Truncation Fix**:
+     - Increased Y-axis label column and Canvas height from `29.dp` to `38.dp` inside `44.dp` container.
+     - Formatted labels as `"76"`, `"72"`, `"68"`, `"64"`, eliminating number truncation on `"64"`.
+  4. **Workout Distribution Transparent Muscle Graphics**:
+     - Generated and integrated 6 high-res transparent anatomical PNGs (`ic_muscle_chest.png`, `ic_muscle_back.png`, `ic_muscle_shoulder.png`, `ic_muscle_biceps.png`, `ic_muscle_triceps.png`, `ic_muscle_legs.png`).
+     - Displayed with athletic silhouettes, V-taper torsos, and targeted colored muscle group highlights.
+     - Header polished to "Distribution" and "This Month ⌵" with generous spacing.
+  5. **Spacious Activity Type Pod**:
+     - Expanded donut rings to `28.dp` with `2.6.dp` stroke and larger `13.dp` icons.
+     - Increased typography to `10.sp` / `11.sp` / `9.sp` and padding to `horizontal = 7.dp, vertical = 5.dp`.
+  6. **Workout Monthly Pattern Top & Low Badges**:
+     - Added `"★ Top"` callout over peak month (Jul 22d) and `"▼ Low"` callout over minimum month (Mar 6d).
+  7. **Data-Driven Member Pass Progress Bar Fill**:
+     - Updated Row 3 Days Left capsule to dynamically fill proportional to actual data: `92 / 180 Days Left (51%)`.
+     - 51% filled with vibrant emerald gradient (`#10B981` to `#059669`) over a deep emerald green track (`#064E3B`).
+  8. **Strict Zero-Scroll Single-Viewport Retention**:
+     - All 4 tabs tested on physical Xiaomi 11i 5G (1080×2400) via ADB; 100% single viewport with zero vertical scrolling.
+
 ## VERIFIED MILESTONE — PRODUCTION ULTRA-CLEAR SCALED TYPOGRAPHY & ZERO-SCROLL SINGLE-VIEWPORT DASHBOARD
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
 - **Device**: Xiaomi 11i 5G / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB (1080x2400)
