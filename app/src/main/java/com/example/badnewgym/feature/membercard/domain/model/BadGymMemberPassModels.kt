@@ -148,30 +148,56 @@ data class BadGymMemberPass(
     val isVerified: Boolean = true
 ) {
     companion object {
+        fun sampleRohitKumarSingh(): BadGymMemberPass = BadGymMemberPass(
+            tier = BadGymPassTier.SILVER,
+            memberId = "BG215",
+            name = "Rohit Kumar Singh",
+            age = 28,
+            gender = "Male",
+            quote = "Discipline Builds Freedom",
+            quoteEmoji = "",
+            startDate = "01 Aug 2026",
+            endDate = "31 Jan 2027",
+            daysLeft = 92,
+            totalDays = 180,
+            isOverdue = false,
+            height = "5'9\"",
+            weight = "74.1 kg",
+            bmi = "23.5",
+            goal = "Fat Loss",
+            avatarRes = R.drawable.avatar_rohit,
+            planName = "Silver",
+            planPrice = "6 Months",
+            branchName = "Varanasi",
+            isVerified = true
+        )
+
         fun getAll8Passes(): List<BadGymMemberPass> = getAll9Passes()
 
         fun getAll9Passes(): List<BadGymMemberPass> = listOf(
-            // 01: Emerald Green (Saturated Glass)
+            // 01: Canonical Master Rohit Kumar Singh (Silver 6 Months Luxury White)
+            sampleRohitKumarSingh(),
+            // 02: Emerald Green (Saturated Glass)
             BadGymMemberPass(
                 tier = BadGymPassTier.SPARK,
-                memberId = "BG305",
-                name = "Aman Tripathi",
-                age = 23,
+                memberId = "BG215",
+                name = "Rohit Kumar Singh",
+                age = 28,
                 gender = "Male",
-                quote = "Better Than Yesterday",
-                quoteEmoji = "\uD83D\uDCAA",
-                startDate = "05 Oct 2026",
-                endDate = "04 Nov 2026",
-                daysLeft = 25,
-                totalDays = 30,
+                quote = "Discipline Builds Freedom",
+                quoteEmoji = "",
+                startDate = "01 Aug 2026",
+                endDate = "31 Jan 2027",
+                daysLeft = 92,
+                totalDays = 180,
                 isOverdue = false,
-                height = "5'8\"",
-                weight = "69.5 kg",
-                bmi = "22.8",
-                goal = "Muscle Gain",
-                avatarRes = R.drawable.avatar_aman,
-                planName = "Prime Plan",
-                planPrice = "₹1,200 / month",
+                height = "5'9\"",
+                weight = "74.1 kg",
+                bmi = "23.5",
+                goal = "Fat Loss",
+                avatarRes = R.drawable.avatar_rohit,
+                planName = "Emerald",
+                planPrice = "6 Months",
                 branchName = "Varanasi",
                 isVerified = true
             ),

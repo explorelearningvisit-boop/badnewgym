@@ -42,6 +42,7 @@ import com.example.badnewgym.feature.membercard.domain.model.BadGymPassTier
 fun BadGymPassShowcase(
     passes: List<BadGymMemberPass> = remember { BadGymMemberPass.getAll9Passes() },
     selectedIndex: Int = 0,
+    showTierSelector: Boolean = false,
     onPassSelected: (Int) -> Unit = {},
     onAvatarClick: (BadGymMemberPass) -> Unit = {},
     modifier: Modifier = Modifier
@@ -51,79 +52,81 @@ fun BadGymPassShowcase(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // Horizontal Tier Selector Chips
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-            passes.forEachIndexed { index, pass ->
-                val isSelected = index == currentIndex
-                val tier = pass.tier
-                val chipColor = when (tier) {
-                    BadGymPassTier.SPARK -> Color(0xFF059669)
-                    BadGymPassTier.POWER -> Color(0xFF0284C7)
-                    BadGymPassTier.PLATINUM -> Color(0xFF7C3AED)
-                    BadGymPassTier.GOLD -> Color(0xFFD97706)
-                    BadGymPassTier.BASIC -> Color(0xFFE11D48)
-                    BadGymPassTier.CYAN -> Color(0xFF0D9488)
-                    BadGymPassTier.WHITE_MINT -> Color(0xFF10B981)
-                    BadGymPassTier.WHITE_OCEAN -> Color(0xFF0284C7)
-                    BadGymPassTier.WHITE_LAVENDER -> Color(0xFF9333EA)
-                    BadGymPassTier.SILVER -> Color(0xFF64748B)
-                    BadGymPassTier.DIAMOND -> Color(0xFF0284C7)
-                    BadGymPassTier.ELITE -> Color(0xFFEAB308)
-                }
-
-                Surface(
-                    shape = RoundedCornerShape(50.dp),
-                    color = if (isSelected) chipColor else Color.White.copy(alpha = 0.9f),
-                    border = BorderStroke(
-                        1.dp,
-                        if (isSelected) chipColor else Color(0xFFCBD5E1)
-                    ),
-                    modifier = Modifier.clickable {
-                        currentIndex = index
-                        onPassSelected(index)
+        if (showTierSelector) {
+            // Horizontal Tier Selector Chips
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                passes.forEachIndexed { index, pass ->
+                    val isSelected = index == currentIndex
+                    val tier = pass.tier
+                    val chipColor = when (tier) {
+                        BadGymPassTier.SPARK -> Color(0xFF059669)
+                        BadGymPassTier.POWER -> Color(0xFF0284C7)
+                        BadGymPassTier.PLATINUM -> Color(0xFF7C3AED)
+                        BadGymPassTier.GOLD -> Color(0xFFD97706)
+                        BadGymPassTier.BASIC -> Color(0xFFE11D48)
+                        BadGymPassTier.CYAN -> Color(0xFF0D9488)
+                        BadGymPassTier.WHITE_MINT -> Color(0xFF10B981)
+                        BadGymPassTier.WHITE_OCEAN -> Color(0xFF0284C7)
+                        BadGymPassTier.WHITE_LAVENDER -> Color(0xFF9333EA)
+                        BadGymPassTier.SILVER -> Color(0xFF64748B)
+                        BadGymPassTier.DIAMOND -> Color(0xFF0284C7)
+                        BadGymPassTier.ELITE -> Color(0xFFEAB308)
                     }
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.5.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+
+                    Surface(
+                        shape = RoundedCornerShape(50.dp),
+                        color = if (isSelected) chipColor else Color.White.copy(alpha = 0.9f),
+                        border = BorderStroke(
+                            1.dp,
+                            if (isSelected) chipColor else Color(0xFFCBD5E1)
+                        ),
+                        modifier = Modifier.clickable {
+                            currentIndex = index
+                            onPassSelected(index)
+                        }
                     ) {
-                        Text(
-                            text = when (tier) {
-                                BadGymPassTier.SPARK -> "🌱"
-                                BadGymPassTier.POWER -> "⚡"
-                                BadGymPassTier.PLATINUM -> "👑"
-                                BadGymPassTier.GOLD -> "👑"
-                                BadGymPassTier.BASIC -> "⏱️"
-                                BadGymPassTier.CYAN -> "💎"
-                                BadGymPassTier.WHITE_MINT -> "🌱"
-                                BadGymPassTier.WHITE_OCEAN -> "⚡"
-                                BadGymPassTier.WHITE_LAVENDER -> "👑"
-                                BadGymPassTier.SILVER -> "⭐"
-                                BadGymPassTier.DIAMOND -> "💎"
-                                BadGymPassTier.ELITE -> "👑"
-                            },
-                            fontSize = 11.5.sp
-                        )
-                        Text(
-                            text = tier.title,
-                            fontSize = 11.5.sp,
-                            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
-                            color = if (isSelected) Color.White else Color(0xFF334155)
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = when (tier) {
+                                    BadGymPassTier.SPARK -> "🌱"
+                                    BadGymPassTier.POWER -> "⚡"
+                                    BadGymPassTier.PLATINUM -> "👑"
+                                    BadGymPassTier.GOLD -> "👑"
+                                    BadGymPassTier.BASIC -> "⏱️"
+                                    BadGymPassTier.CYAN -> "💎"
+                                    BadGymPassTier.WHITE_MINT -> "🌱"
+                                    BadGymPassTier.WHITE_OCEAN -> "⚡"
+                                    BadGymPassTier.WHITE_LAVENDER -> "👑"
+                                    BadGymPassTier.SILVER -> "⭐"
+                                    BadGymPassTier.DIAMOND -> "💎"
+                                    BadGymPassTier.ELITE -> "👑"
+                                },
+                                fontSize = 11.5.sp
+                            )
+                            Text(
+                                text = tier.title,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+                                color = if (isSelected) Color.White else Color(0xFF334155)
+                            )
+                        }
                     }
                 }
             }
         }
 
-        // Active Member Pass Card
+        // Active Member Pass Card (Luxury Crisp White Card Matching Reference)
         BadGymMemberPassCard(
             pass = currentPass,
             onAvatarClick = { onAvatarClick(currentPass) },
