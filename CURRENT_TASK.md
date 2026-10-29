@@ -56,6 +56,25 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — COMPACT SINGLE-VIEWPORT DASHBOARD & ULTRA-CLEAR TYPOGRAPHY
+- **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Commit**: `1a4aef4`
+- **Device**: Xiaomi 11i 5G / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB (1080x2400)
+- **Live Device Screenshot Evidence (All 4 Tabs Fit in 1 Viewport With Zero Scrolling)**:
+  - Attendance Tab (Zero-Scroll): [docs/reference/images/device_screen_attendance_compact.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_attendance_compact.png)
+  - Workout Tab (Zero-Scroll): [docs/reference/images/device_screen_workout_compact.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_workout_compact.png)
+  - Payment Tab (Zero-Scroll): [docs/reference/images/device_screen_payment_perfect_final.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_payment_perfect_final.png)
+  - Body Progress Tab (Zero-Scroll): [docs/reference/images/device_screen_body_perfect_final.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_body_perfect_final.png)
+- **Key Enhancements**:
+  1. **Zero Dead Space**: Removed hardcoded `450.dp` heights and `SpaceBetween` stretching from Payment and Body Progress cards. Replaced with natural `spacedBy(5.dp)` to wrap cleanly.
+  2. **Compacted Hero Pass (`BadGymMemberPassCard`)**: Outer padding tightened to `9.dp`, column spacing to `7.dp`, avatar halo `68.dp`, progress bar `7.dp`, bottom pods `7.dp x 5.dp`. Saved ~40dp of vertical space.
+  3. **Enlarged Typography**: Name `19.sp` Black, Plan `12.5.sp` Bold, Validity `12.sp` Bold, Days Left pill `11.5.sp` Black, Tier chips `11.5.sp` Bold.
+  4. **Compact Sticky Menubar**: Dock height `42.dp`, tab labels `11.5.sp` Bold/Black, badge numbers `11.sp` Black.
+  5. **Compact Workout Trend**: 30-day daily volume canvas height `72.dp`, Y-axis & guidelines `8.5.sp` Bold, day numbers `9.sp` Black, 4 quick KPI pods values `14.sp` Black, monthly pattern `44.dp` with `9.5.sp` Bold months.
+  6. **Compact Payment Card**: 3D wallet `50.dp`, amount `₹800` `32.sp` Black, 3 action buttons height `38.dp` with `11.sp` bold text, stacked chart `74.dp`, bottom metrics `16.sp` Black.
+  7. **Compact Body Progress Card**: 3D scale `48.dp`, current weight `28.sp` Black, 4 goal cards values `14.sp` Black, progress spline `44.dp`, bottom muscle & activity pods compact with `11.sp` headers and `9.5.sp` bold metrics.
+  8. **Compact Footer Banner**: Vertical padding `7.dp`, 3D dumbbell `36.dp`, text `13.5.sp` Black, action button `11.5.sp` Black.
+
 ## VERIFIED MILESTONE — 1:1 PIXEL-PERFECT MASTER ATTENDANCE CARD IMPLEMENTED & VERIFIED
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
 - **Commit**: `7acf112`
