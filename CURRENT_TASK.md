@@ -419,3 +419,28 @@ Completion requires the new UI, widget editor architecture, admin command center
   - Unit Tests: `./gradlew.bat testDebugUnitTest` PASSED (code 0)
   - Compilation & Packaging: `./gradlew.bat assembleDebug` PASSED (code 0)
 
+
+### Milestone [2026-10-30]: Unified Physical Member Card, Image 1 Menu Tabs & Image 2 Payment Studio
+- **Unified Member Card Container**:
+  - Combined Top Header (BAD GYM logo, CHECK-IN / CHECK-OUT / PAYMENT status badge, Silver Plan badge), Profile Section (Avatar, Name, Member ID, Age, Gender, Quote, Dates, Active badge), Stats pods (Height 5'9", Weight 74.1 kg, BMI 23.5 Normal, Goal Fat Loss), and Days Progress bar (22/30 Days Left, 73%) into a single unified widget (`UnifiedBadGymMemberCard`).
+  - Styled with genuine physical membership card aesthetic: crisp rounded corners (22.dp), luxury border `BorderStroke(1.2.dp, Color(0xFFBAE6FD))`, frosted glass surface, and zero nested visual clutter.
+- **Image 1 Menu Tabs (media_1793300075801_5ac48325.jpg)**:
+  - Implemented 4-capsule Sticky Menu Row with 3D spherical circular icons on the left, titles, bold metrics, chevrons, mini progress bars inside each tab (Attendance 90%, Workout 70m, Payment ₹800, Body 74.1 kg), and glowing warm amber active tab with red `(!)` alert badge on Payment.
+- **Image 2 Payment Studio (media_1793300207105_ea6c02fd.jpg)**:
+  - Full-fidelity Payment Studio View with 3D leather wallet & coins illustration.
+  - Due Amount Hero Card: Due Amount ₹800 with glowing red `[! Pending]` badge, Due on 12 Oct 2026 › (calendar icon), and 4 Days Left (hourglass icon).
+  - 5 Action Buttons Row: Large red gradient `Collect Payment` CTA, WhatsApp Reminder with red `(1)` badge, Message, Send Receipt, and More (⋮).
+  - 6 Quick Actions Capsules: `+ Add Payment`, `◔ Split Payment`, `🔗 Payment Link`, `% Mark Waived`, `⚙ Adjust Amount`, `📄 Add Note`.
+  - 12-Month Payment Trend Chart: Y-axis (₹3k, ₹2k, ₹1k, 0), exact rupee amounts above each bar, and 6-color status legend (🟢 On Time, 🟡 Partial, 🔴 Late, ⚪ No Payment, 🟣 Extra, 🔵 Waived).
+  - 3 Summary Cards Row: Total Paid ₹11,400 with circular progress gauge, Unpaid Balance ₹800 with 🎯 bullseye, and Waived by Owner ₹100 with % badge.
+- **Cohesive Dashboard Color Palette**:
+  - Light luxury aurora background gradient (`Color(0xFFF0FDF9)`, `Color(0xFFF8FAFC)`, `Color(0xFFF0F9FF)`, `Color(0xFFFAF5FF)`).
+  - Clean frosted card surfaces with crisp themed borders, eliminating clashing colors.
+- **Live Verification**:
+  - Target Physical Device: Xiaomi 11i 5G (`zxdada69gunb7ls4`, 1080×2400).
+  - Screenshots:
+    - `docs/reference/images/payment_studio_live_perfect.png` (Payment Studio View)
+    - `docs/reference/images/attendance_live_perfect.png` (Attendance View)
+  - Viewport Fit: Clean single-viewport zero-scroll fit (Y=0 to Y=2190 out of 2400).
+  - Unit Tests: `./gradlew testDebugUnitTest --no-daemon` PASSED (code 0).
+  - Compilation: `./gradlew assembleDebug --no-daemon` PASSED (code 0).

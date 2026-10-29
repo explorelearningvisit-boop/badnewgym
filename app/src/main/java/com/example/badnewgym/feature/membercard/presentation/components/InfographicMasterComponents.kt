@@ -1125,8 +1125,105 @@ fun StatsRowCompact(
     }
 }
 
+
 // =============================================================================
-// COMPONENT 5: MENU ROW (4 TABS) (56dp Neon Gradient Buttons)
+// UNIFIED MASTER MEMBER CARD WIDGET (Packs Header, Profile, Stats & Progress)
+// =============================================================================
+
+@Composable
+fun UnifiedBadGymMemberCard(
+    planTitle: String = "SILVER",
+    checkInTime: String = "Today • 08:49 AM",
+    isActive: Boolean = true,
+    cardType: MemberCardType = MemberCardType.CHECK_IN,
+    paymentStatus: PaymentStatus? = null,
+    paidAmount: String = "₹500",
+    paidDate: String = "12 Oct 2026",
+    name: String = "Ashwani Kumar Singh Srivastav",
+    memberId: String = "BG215",
+    age: Int = 28,
+    gender: String = "Male",
+    quote: String = "Discipline Builds Freedom",
+    validity: String = "01 Aug 2026 – 31 Aug 2026 (30 Days Plan)",
+    avatarRes: Int = R.drawable.avatar_ashwini,
+    height: String = "5'9\"",
+    weight: String = "74.1 kg",
+    bmi: String = "23.5",
+    bmiCategory: String = "Normal",
+    goal: String = "Fat Loss",
+    daysPassed: Int = 22,
+    totalDays: Int = 30,
+    percentage: Int = 73,
+    onCheckInClick: () -> Unit = {},
+    onPaymentHeaderClick: () -> Unit = {},
+    onPlanClick: () -> Unit = {},
+    onAvatarClick: () -> Unit = {},
+    onGoalClick: () -> Unit = {},
+    onProgressClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shape = RoundedCornerShape(22.dp),
+        color = Color.White.copy(alpha = 0.98f),
+        border = BorderStroke(1.2.dp, Color(0xFFBAE6FD).copy(alpha = 0.9f)),
+        shadowElevation = 2.dp,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            // 1. TOP HEADER ROW (Inside unified card)
+            TopHeaderComponent(
+                planTitle = planTitle,
+                checkInTime = checkInTime,
+                isActive = isActive,
+                cardType = cardType,
+                paymentStatus = paymentStatus,
+                paidAmount = paidAmount,
+                paidDate = paidDate,
+                onCheckInClick = onCheckInClick,
+                onPaymentHeaderClick = onPaymentHeaderClick,
+                onPlanClick = onPlanClick
+            )
+
+            // 2. PROFILE DETAILS ROW
+            ProfileSection(
+                name = name,
+                memberId = memberId,
+                age = age,
+                gender = gender,
+                quote = quote,
+                validity = validity,
+                avatarRes = avatarRes,
+                onAvatarClick = onAvatarClick
+            )
+
+            // 3. STATS ROW (Compact 4 Pods)
+            StatsRowCompact(
+                height = height,
+                weight = weight,
+                bmi = bmi,
+                bmiCategory = bmiCategory,
+                goal = goal,
+                onGoalClick = onGoalClick
+            )
+
+            // 4. FULL-WIDTH DAYS PROGRESS BAR
+            FullWidthDaysProgressCard(
+                daysPassed = daysPassed,
+                totalDays = totalDays,
+                percentage = percentage,
+                onClick = onProgressClick
+            )
+        }
+    }
+}
+
+// =============================================================================
+// COMPONENT 5: MENU ROW (4 TABS) (Matching Image 1: media_1793300075801_5ac48325.jpg)
 // =============================================================================
 
 @Composable
@@ -1136,55 +1233,72 @@ fun MenuRow4Tabs(
     attendanceRate: String = "90%",
     workoutAvg: String = "70m",
     paymentDue: String = "₹800",
-    bodyWeight: String = "69.5 kg",
+    bodyWeight: String = "74.1 kg",
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+            .height(52.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        // Tab 0: Attendance (Green Neon Gradient)
-        MenuTabItem(
+        // Tab 0: Attendance (Emerald Green with Mini Progress Bar)
+        NewMenuTabItem(
             title = "Attendance",
             value = attendanceRate,
             icon = Icons.Default.CalendarToday,
-            gradient = InfographicTokens.AttendanceGradient,
+            iconBg = Brush.radialGradient(listOf(Color(0xFF22C55E), Color(0xFF059669))),
+            textColor = Color(0xFF059669),
+            barGradient = Brush.horizontalGradient(listOf(Color(0xFF22C55E), Color(0xFF059669))),
+            progress = 0.90f,
             isSelected = selectedTabIndex == 0,
+            hasAlert = false,
             onClick = { onTabSelected(0) },
             modifier = Modifier.weight(1f)
         )
 
-        // Tab 1: Workout (Purple Neon Gradient)
-        MenuTabItem(
+        // Tab 1: Workout (Purple Neon with Mini Progress Bar)
+        NewMenuTabItem(
             title = "Workout",
             value = workoutAvg,
             icon = Icons.Default.FitnessCenter,
-            gradient = InfographicTokens.WorkoutGradient,
+            iconBg = Brush.radialGradient(listOf(Color(0xFFA855F7), Color(0xFF7C3AED))),
+            textColor = Color(0xFF7C3AED),
+            barGradient = Brush.horizontalGradient(listOf(Color(0xFFA855F7), Color(0xFF6D28D9))),
+            progress = 0.70f,
             isSelected = selectedTabIndex == 1,
+            hasAlert = false,
             onClick = { onTabSelected(1) },
             modifier = Modifier.weight(1f)
         )
 
-        // Tab 2: Payment (Orange Neon Gradient)
-        MenuTabItem(
+        // Tab 2: Payment (Orange Glowing with Red ! Alert & Mini Progress Bar)
+        NewMenuTabItem(
             title = "Payment",
             value = paymentDue,
             icon = Icons.Default.AccountBalanceWallet,
-            gradient = InfographicTokens.PaymentGradient,
+            iconBg = Brush.radialGradient(listOf(Color(0xFFFB923C), Color(0xFFEA580C))),
+            textColor = if (selectedTabIndex == 2) Color.White else Color(0xFFEA580C),
+            barGradient = Brush.horizontalGradient(listOf(Color(0xFFFBBF24), Color(0xFFEA580C))),
+            progress = 0.65f,
             isSelected = selectedTabIndex == 2,
+            hasAlert = true,
+            isOrangeGlow = true,
             onClick = { onTabSelected(2) },
             modifier = Modifier.weight(1f)
         )
 
-        // Tab 3: Body (Sky Blue Neon Gradient)
-        MenuTabItem(
+        // Tab 3: Body (Sky Blue with Mini Progress Bar)
+        NewMenuTabItem(
             title = "Body",
             value = bodyWeight,
             icon = Icons.Default.Person,
-            gradient = InfographicTokens.BodyGradient,
+            iconBg = Brush.radialGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7))),
+            textColor = Color(0xFF0284C7),
+            barGradient = Brush.horizontalGradient(listOf(Color(0xFF38BDF8), Color(0xFF0369A1))),
+            progress = 0.74f,
             isSelected = selectedTabIndex == 3,
+            hasAlert = false,
             onClick = { onTabSelected(3) },
             modifier = Modifier.weight(1f)
         )
@@ -1192,78 +1306,149 @@ fun MenuRow4Tabs(
 }
 
 @Composable
-private fun MenuTabItem(
+private fun NewMenuTabItem(
     title: String,
     value: String,
     icon: ImageVector,
-    gradient: Brush,
+    iconBg: Brush,
+    textColor: Color,
+    barGradient: Brush,
+    progress: Float,
     isSelected: Boolean,
+    hasAlert: Boolean = false,
+    isOrangeGlow: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val tabBg = when {
+        isSelected && isOrangeGlow -> Brush.horizontalGradient(
+            listOf(Color(0xFFEA580C), Color(0xFFF97316), Color(0xFFFB923C))
+        )
+        isSelected -> Brush.horizontalGradient(
+            listOf(Color(0xFFF0FDF4), Color(0xFFDCFCE7))
+        )
+        else -> Brush.horizontalGradient(
+            listOf(Color.White.copy(alpha = 0.95f), Color(0xFFF8FAFC).copy(alpha = 0.95f))
+        )
+    }
+
+    val borderColor = when {
+        isSelected && isOrangeGlow -> Color(0xFFFDBA74)
+        isSelected -> Color(0xFF10B981)
+        else -> Color(0xFFE2E8F0)
+    }
+
     Surface(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(18.dp),
         color = Color.Transparent,
-        border = BorderStroke(
-            if (isSelected) 2.dp else 0.8.dp,
-            if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
-        ),
+        border = BorderStroke(if (isSelected) 1.5.dp else 1.dp, borderColor),
         modifier = modifier
             .fillMaxHeight()
-            .clip(RoundedCornerShape(20.dp))
-            .background(gradient)
+            .clip(RoundedCornerShape(18.dp))
+            .background(tabBg)
             .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 5.dp, vertical = 4.dp),
+                .padding(horizontal = 4.5.dp, vertical = 3.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Icon in circular semi-transparent white box
+            // 3D Spherical Icon Badge
             Box(
                 modifier = Modifier
-                    .size(23.dp)
+                    .size(28.dp)
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.25f)),
+                    .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
                     tint = Color.White,
-                    modifier = Modifier.size(13.dp)
+                    modifier = Modifier.size(15.dp)
                 )
             }
 
+            // Details Column: Title (+ alert), Value + chevron, Mini Progress Bar
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = title,
-                    fontSize = 8.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    maxLines = 1
-                )
+                // Top: Title (+ Red ! Alert if Payment)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = 8.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isSelected && isOrangeGlow) Color.White.copy(alpha = 0.9f) else Color(0xFF64748B),
+                        maxLines = 1
+                    )
+                    if (hasAlert) {
+                        Box(
+                            modifier = Modifier
+                                .size(11.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFEF4444)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "!",
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White,
+                                lineHeight = 8.sp
+                            )
+                        }
+                    }
+                }
+
+                // Middle: Value + Chevron
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
                     Text(
                         text = value,
-                        fontSize = 10.5.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Black,
-                        color = Color.White,
+                        color = if (isSelected && isOrangeGlow) Color.White else textColor,
                         maxLines = 1
                     )
                     Text(
                         text = "›",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Black,
-                        color = Color.White
+                        color = if (isSelected && isOrangeGlow) Color.White else textColor
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(1.5.dp))
+
+                // Bottom: Mini Horizontal Progress Bar
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.5.dp)
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(
+                            if (isSelected && isOrangeGlow) Color.White.copy(alpha = 0.35f)
+                            else Color(0xFFE2E8F0)
+                        )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(progress.coerceIn(0f, 1f))
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(50.dp))
+                            .background(
+                                if (isSelected && isOrangeGlow) Brush.horizontalGradient(listOf(Color(0xFFFDE047), Color.White))
+                                else barGradient
+                            )
                     )
                 }
             }

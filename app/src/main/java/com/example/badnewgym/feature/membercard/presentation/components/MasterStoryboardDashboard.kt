@@ -33,6 +33,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ChevronRight
@@ -161,10 +170,10 @@ fun MasterStoryboardDashboard(
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        Color(0xFFE8F6FF),
-                        Color(0xFFF0FDF4),
-                        Color(0xFFFAF5FF),
-                        Color(0xFFE0F2FE)
+                        Color(0xFFF0FDF9),
+                        Color(0xFFF8FAFC),
+                        Color(0xFFF0F9FF),
+                        Color(0xFFFAF5FF)
                     )
                 )
             )
@@ -172,11 +181,13 @@ fun MasterStoryboardDashboard(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // =====================================================================
-        // 1. TOP HEADER COMPONENT (Matching Final Master Specification)
+        // UNIFIED MEMBER CARD (Packs Header, Profile, Stats & Progress in 1 Card)
         // =====================================================================
-        item(key = "infographic_component_1_header") {
+        item(key = "unified_badgym_member_card") {
             Spacer(modifier = Modifier.height(2.dp))
-            TopHeaderComponent(
+            val daysPassed = currentPass.totalDays - currentPass.daysLeft
+            val pct = ((daysPassed.toFloat() / currentPass.totalDays.toFloat()) * 100).toInt()
+            UnifiedBadGymMemberCard(
                 planTitle = currentPass.tier.title,
                 checkInTime = "Today • 08:49 AM",
                 isActive = !currentPass.isOverdue,
@@ -184,6 +195,21 @@ fun MasterStoryboardDashboard(
                 paymentStatus = currentPaymentStatus,
                 paidAmount = "₹500",
                 paidDate = "12 Oct 2026",
+                name = currentPass.name,
+                memberId = currentPass.memberId,
+                age = currentPass.age,
+                gender = currentPass.gender,
+                quote = currentPass.quote,
+                validity = "${currentPass.startDate} – ${currentPass.endDate} (${currentPass.totalDays} Days Plan)",
+                avatarRes = currentPass.avatarRes,
+                height = currentPass.height,
+                weight = currentPass.weight,
+                bmi = currentPass.bmi,
+                bmiCategory = "Normal",
+                goal = currentPass.goal,
+                daysPassed = daysPassed,
+                totalDays = currentPass.totalDays,
+                percentage = pct,
                 onCheckInClick = {
                     val types = MemberCardType.entries
                     val nextIdx = (types.indexOf(currentCardType) + 1) % types.size
@@ -203,54 +229,13 @@ fun MasterStoryboardDashboard(
                 },
                 onPlanClick = {
                     currentPassIndex = (currentPassIndex + 1) % passes.size
-                }
-            )
-        }
-
-        // =====================================================================
-        // 2. PROFILE SECTION (Component 2 in Final Master Specification)
-        // =====================================================================
-        item(key = "infographic_component_2_profile") {
-            ProfileSection(
-                name = currentPass.name,
-                memberId = currentPass.memberId,
-                age = currentPass.age,
-                gender = currentPass.gender,
-                quote = currentPass.quote,
-                validity = "${currentPass.startDate} – ${currentPass.endDate} (${currentPass.totalDays} Days Plan)",
-                avatarRes = currentPass.avatarRes,
+                },
                 onAvatarClick = {
                     currentPassIndex = (currentPassIndex + 1) % passes.size
                     onAvatarClick()
-                }
-            )
-        }
-
-        // =====================================================================
-        // 3. STATS ROW (COMPACT) (Component 3 in Final Master Specification)
-        // =====================================================================
-        item(key = "infographic_component_3_stats") {
-            StatsRowCompact(
-                height = currentPass.height,
-                weight = currentPass.weight,
-                bmi = currentPass.bmi,
-                bmiCategory = "Normal",
-                goal = currentPass.goal,
-                onGoalClick = onBodyProgressClick
-            )
-        }
-
-        // =====================================================================
-        // 4. FULL-WIDTH PROGRESS BAR (Component 4 in Final Master Specification)
-        // =====================================================================
-        item(key = "infographic_component_4_progress") {
-            val daysPassed = currentPass.totalDays - currentPass.daysLeft
-            val pct = ((daysPassed.toFloat() / currentPass.totalDays.toFloat()) * 100).toInt()
-            FullWidthDaysProgressCard(
-                daysPassed = daysPassed,
-                totalDays = currentPass.totalDays,
-                percentage = pct,
-                onClick = {
+                },
+                onGoalClick = onBodyProgressClick,
+                onProgressClick = {
                     selectedTabIndex = 0
                     currentCardType = MemberCardType.CHECK_IN
                     onAttendanceClick()
@@ -275,7 +260,13 @@ fun MasterStoryboardDashboard(
                         }
                         if (isAllExpandedMode) {
                             coroutineScope.launch {
-                                lazyListState.animateScrollToItem(index = index + 5)
+                                val target = when (index) {
+                                    0 -> 2
+                                    1 -> 4
+                                    2 -> 5
+                                    else -> 6
+                                }
+                                lazyListState.animateScrollToItem(index = target)
                             }
                         }
                     },
@@ -2273,236 +2264,306 @@ fun MasterPaymentCard(
         RoundedCornerShape(20.dp)
     }
 
-    Box(
+    Surface(
+        shape = cardShape,
+        color = Color(0xFFFFF9F9),
+        border = BorderStroke(1.2.dp, Color(0xFFFECDD3).copy(alpha = 0.9f)),
+        shadowElevation = 1.dp,
         modifier = modifier
             .fillMaxWidth()
-            .clip(cardShape)
-            .background(Color(0xFFFFF1F2).copy(alpha = 0.45f))
-            .border(1.2.dp, Color(0xFFFECDD3), cardShape)
             .clickable { onClick() }
-            .padding(horizontal = 9.dp, vertical = 6.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 9.dp, vertical = 7.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            // SECTION 1: HEADER & DUE AMOUNT
-            PaymentHeaderSection(onPlanHistoryClick = onClick)
-
-            // SECTION 2: 3 ACTION BUTTONS (Send Reminder, Collect Payment, Send Receipt)
-            PaymentActionButtonsRow(
-                onSendReminder = { /* WhatsApp */ },
-                onCollectPayment = onClick,
-                onSendReceipt = onViewReceiptClick
+            // 1. TOP HEADER & DUE AMOUNT HERO CARD
+            PaymentHeaderHeroSection(
+                onPlanHistoryClick = onClick
             )
 
-            // SECTION 3: PAYMENT TREND (Stacked 12-Month Bar Chart & Legend)
+            // 2. 5 ACTION BUTTONS (Collect Payment, WhatsApp Reminder, Message, Send Receipt, More)
+            PaymentActionButtonsRow(
+                onCollectPayment = onClick,
+                onWhatsAppReminder = { /* WhatsApp */ },
+                onMessage = { /* Message */ },
+                onSendReceipt = onViewReceiptClick,
+                onMore = { /* More */ }
+            )
+
+            // 3. 6 QUICK ACTION CAPSULES (Add Payment, Split Payment, Payment Link, Mark Waived, Adjust Amount, Add Note)
+            PaymentQuickActionsRow()
+
+            // 4. PAYMENT TREND (Stacked 12-Month Bar Chart & Legend)
             PaymentTrendSection()
 
-            // SECTION 4: BOTTOM 3 METRIC CARDS (Collected, Unpaid Balance, Waived by Owner)
-            PaymentSummaryMetricsRow()
+            // 5. BOTTOM 3 SUMMARY METRIC CARDS (Total Paid, Unpaid Balance, Waived by Owner)
+            PaymentSummaryMetricsRow(
+                onTotalPaidClick = onClick,
+                onUnpaidBalanceClick = onClick,
+                onWaivedClick = onClick
+            )
         }
     }
 }
 
 // -----------------------------------------------------------------------------
-// SECTION 1: HEADER & DUE AMOUNT
+// SECTION 1: HEADER & DUE AMOUNT HERO CARD (Image 2)
 // -----------------------------------------------------------------------------
 
 @Composable
-private fun PaymentHeaderSection(
+private fun PaymentHeaderHeroSection(
     onPlanHistoryClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        // Left: 3D Cute Wallet Illustration
-        Image(
-            painter = painterResource(id = R.drawable.illustration_3d_payment_wallet),
-            contentDescription = "Payment 3D Wallet",
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.size(50.dp)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+        // Top Row: Payment Header & Plan History Button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Header Row: Red icon + Payment / Monthly Plan ₹1,200 + Plan History >
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                // Red rounded wallet icon
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFEF4444)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccountBalanceWallet,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = "Payment",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF0F172A),
+                        lineHeight = 18.sp
+                    )
+                    Text(
+                        text = "Monthly Plan ₹1,200",
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF64748B),
+                        lineHeight = 12.sp
+                    )
+                }
+            }
+
+            // (⏰ Plan History >) Pill
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color(0xFFFFF1F2))
+                    .border(0.8.dp, Color(0xFFFECDD3), RoundedCornerShape(50.dp))
+                    .clickable { onPlanHistoryClick() }
+                    .padding(horizontal = 9.dp, vertical = 3.5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AccessTime,
+                    contentDescription = null,
+                    tint = Color(0xFFE11D48),
+                    modifier = Modifier.size(11.dp)
+                )
+                Text(
+                    text = "Plan History",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFE11D48)
+                )
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = Color(0xFFE11D48),
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
+
+        // Hero Card: 3D Cute Leather Wallet with coins, Due Amount, Due Date & Days Left
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = Color(0xFFFFF5F5),
+            border = BorderStroke(1.dp, Color(0xFFFFE4E6)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 7.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                // Left: 3D Leather Wallet
+                Image(
+                    painter = painterResource(id = R.drawable.illustration_3d_payment_wallet),
+                    contentDescription = "Wallet",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(54.dp)
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // Middle: Due Amount & ₹ 800 & [! Pending] Badge
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
-                    Box(
+                    Text(
+                        text = "Due Amount",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFDC2626)
+                    )
+                    Text(
+                        text = "₹800",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFFDC2626),
+                        lineHeight = 32.sp
+                    )
+                    // Pending Glow Badge
+                    Row(
                         modifier = Modifier
-                            .size(24.dp)
-                            .clip(RoundedCornerShape(7.dp))
-                            .background(Color(0xFFEF4444)),
-                        contentAlignment = Alignment.Center
+                            .clip(RoundedCornerShape(50.dp))
+                            .background(Color(0xFFEF4444))
+                            .padding(horizontal = 7.dp, vertical = 1.5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(CircleShape)
+                                .background(Color.White),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "!",
+                                fontSize = 7.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFFEF4444),
+                                lineHeight = 7.5.sp
+                            )
+                        }
+                        Text(
+                            text = "Pending",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                // Right Pod: Due Date & Days Left
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // Due on 12 Oct 2026 >
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.AccountBalanceWallet,
+                            imageVector = Icons.Default.CalendarToday,
                             contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(13.dp)
+                            tint = Color(0xFFDC2626),
+                            modifier = Modifier.size(12.dp)
                         )
+                        Column(horizontalAlignment = Alignment.Start) {
+                            Text(
+                                text = "Due on",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF64748B)
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "12 Oct 2026",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFDC2626)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = null,
+                                    tint = Color(0xFFDC2626),
+                                    modifier = Modifier.size(11.dp)
+                                )
+                            }
+                        }
                     }
-                    Column {
-                        Text(
-                            text = "Payment",
-                            fontSize = 18.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF0F172A),
-                            lineHeight = 19.sp
+
+                    // 4 Days Left
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.HourglassEmpty,
+                            contentDescription = null,
+                            tint = Color(0xFFDC2626),
+                            modifier = Modifier.size(12.dp)
                         )
                         Text(
-                            text = "Monthly Plan ₹1,200",
-                            fontSize = 13.sp,
+                            text = "4 Days Left",
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF64748B),
-                            lineHeight = 13.sp
+                            color = Color(0xFF0F172A)
                         )
                     }
                 }
-
-                // Plan History > Pill Button
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50.dp))
-                        .background(Color(0xFFFFF1F2))
-                        .border(0.8.dp, Color(0xFFFECDD3), RoundedCornerShape(50.dp))
-                        .clickable { onPlanHistoryClick() }
-                        .padding(horizontal = 9.dp, vertical = 3.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Text(
-                        text = "Plan History",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFE11D48)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
-                        tint = Color(0xFFE11D48),
-                        modifier = Modifier.size(13.dp)
-                    )
-                }
-            }
-
-            // Middle: ₹ 800 + [ Pending ] Pill
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "₹ 800",
-                    fontSize = 35.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFFE11D48),
-                    lineHeight = 35.sp
-                )
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50.dp))
-                        .background(Color(0xFFEF4444))
-                        .padding(horizontal = 9.dp, vertical = 2.5.dp)
-                ) {
-                    Text(
-                        text = "Pending",
-                        fontSize = 12.5.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
-                    )
-                }
-            }
-
-            // Subtext: 📅 Due on 12 Oct 2026 (4 days left)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.5.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CalendarToday,
-                    contentDescription = null,
-                    tint = Color(0xFFDC2626),
-                    modifier = Modifier.size(12.dp)
-                )
-                Text(
-                    text = "Due on 12 Oct 2026 ",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFDC2626)
-                )
-                Text(
-                    text = "(4 days left)",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF64748B)
-                )
             }
         }
     }
 }
 
 // -----------------------------------------------------------------------------
-// SECTION 2: 3 ACTION BUTTONS (Send Reminder, Collect Payment, Send Receipt)
+// SECTION 2: 5 ACTION BUTTONS (Image 2)
 // -----------------------------------------------------------------------------
 
 @Composable
 private fun PaymentActionButtonsRow(
-    onSendReminder: () -> Unit = {},
     onCollectPayment: () -> Unit = {},
+    onWhatsAppReminder: () -> Unit = {},
+    onMessage: () -> Unit = {},
     onSendReceipt: () -> Unit = {},
+    onMore: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 1. Send Reminder on WhatsApp
+        // 1. Collect Payment (Large Red Gradient Button)
         Row(
             modifier = Modifier
-                .weight(1f)
-                .height(38.dp)
+                .weight(1.35f)
+                .height(42.dp)
                 .clip(RoundedCornerShape(11.dp))
-                .background(Color(0xFF16A34A))
-                .clickable { onSendReminder() }
-                .padding(horizontal = 5.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(text = "💬", fontSize = 13.sp)
-            Spacer(modifier = Modifier.width(3.dp))
-            Text(
-                text = "Send Reminder\non WhatsApp",
-                fontSize = 11.5.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                lineHeight = 12.5.sp
-            )
-        }
-
-        // 2. Collect Payment
-        Row(
-            modifier = Modifier
-                .weight(1.15f)
-                .height(38.dp)
-                .clip(RoundedCornerShape(11.dp))
-                .background(Color(0xFFDC2626))
+                .background(Brush.horizontalGradient(listOf(Color(0xFFEF4444), Color(0xFFDC2626))))
                 .clickable { onCollectPayment() }
-                .padding(horizontal = 5.dp),
+                .padding(horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -2515,91 +2576,313 @@ private fun PaymentActionButtonsRow(
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "Collect Payment",
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Black,
-                color = Color.White
+                color = Color.White,
+                maxLines = 1
             )
         }
 
-        // 3. Send Receipt on WhatsApp
-        Row(
+        // 2. WhatsApp Reminder (with red badge 1)
+        Box(
             modifier = Modifier
-                .weight(1f)
-                .height(38.dp)
+                .weight(0.85f)
+                .height(42.dp)
                 .clip(RoundedCornerShape(11.dp))
-                .background(Color.White)
-                .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(11.dp))
-                .clickable { onSendReceipt() }
-                .padding(horizontal = 5.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+                .background(Color(0xFFF0FDF4))
+                .border(0.8.dp, Color(0xFFBBF7D0), RoundedCornerShape(11.dp))
+                .clickable { onWhatsAppReminder() }
+                .padding(vertical = 3.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Receipt,
-                contentDescription = null,
-                tint = Color(0xFF0F172A),
-                modifier = Modifier.size(14.dp)
-            )
-            Spacer(modifier = Modifier.width(3.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // WhatsApp Icon with badge
+                Box {
+                    Text(text = "💬", fontSize = 13.sp)
+                    // Red Notification Badge "1"
+                    Box(
+                        modifier = Modifier
+                            .offset(x = 10.dp, y = (-3).dp)
+                            .size(11.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFEF4444)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "1",
+                            fontSize = 7.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            lineHeight = 7.5.sp
+                        )
+                    }
+                }
+                Text(
+                    text = "Reminder",
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF16A34A),
+                    maxLines = 1
+                )
+            }
+        }
+
+        // 3. Message
+        Box(
+            modifier = Modifier
+                .weight(0.85f)
+                .height(42.dp)
+                .clip(RoundedCornerShape(11.dp))
+                .background(Color(0xFFF0F9FF))
+                .border(0.8.dp, Color(0xFFBAE6FD), RoundedCornerShape(11.dp))
+                .clickable { onMessage() }
+                .padding(vertical = 3.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = null,
+                    tint = Color(0xFF0284C7),
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.height(1.dp))
+                Text(
+                    text = "Message",
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0284C7),
+                    maxLines = 1
+                )
+            }
+        }
+
+        // 4. Send Receipt
+        Box(
+            modifier = Modifier
+                .weight(0.95f)
+                .height(42.dp)
+                .clip(RoundedCornerShape(11.dp))
+                .background(Color(0xFFFAF5FF))
+                .border(0.8.dp, Color(0xFFDDD6FE), RoundedCornerShape(11.dp))
+                .clickable { onSendReceipt() }
+                .padding(vertical = 3.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Receipt,
+                    contentDescription = null,
+                    tint = Color(0xFF7C3AED),
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.height(1.dp))
+                Text(
+                    text = "Send Receipt",
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF7C3AED),
+                    maxLines = 1
+                )
+            }
+        }
+
+        // 5. More
+        Box(
+            modifier = Modifier
+                .weight(0.65f)
+                .height(42.dp)
+                .clip(RoundedCornerShape(11.dp))
+                .background(Color(0xFFF8FAFC))
+                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(11.dp))
+                .clickable { onMore() }
+                .padding(vertical = 3.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = null,
+                    tint = Color(0xFF64748B),
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.height(1.dp))
+                Text(
+                    text = "More",
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF64748B),
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// SECTION 3: 6 QUICK ACTION CAPSULES (Image 2)
+// -----------------------------------------------------------------------------
+
+@Composable
+private fun PaymentQuickActionsRow(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 1. + Add Payment
+        QuickActionItem(
+            icon = Icons.Default.Add,
+            label = "Add Payment",
+            iconColor = Color(0xFF0284C7),
+            bgColor = Color(0xFFF0F9FF),
+            borderColor = Color(0xFFBAE6FD),
+            modifier = Modifier.weight(1f)
+        )
+        // 2. ◔ Split Payment
+        QuickActionItem(
+            icon = Icons.Default.PieChart,
+            label = "Split Payment",
+            iconColor = Color(0xFF7C3AED),
+            bgColor = Color(0xFFFAF5FF),
+            borderColor = Color(0xFFDDD6FE),
+            modifier = Modifier.weight(1f)
+        )
+        // 3. 🔗 Payment Link
+        QuickActionItem(
+            icon = Icons.Default.Link,
+            label = "Payment Link",
+            iconColor = Color(0xFF4F46E5),
+            bgColor = Color(0xFFEEF2FF),
+            borderColor = Color(0xFFC7D2FE),
+            modifier = Modifier.weight(1f)
+        )
+        // 4. % Mark Waived
+        QuickActionItem(
+            icon = Icons.Default.Percent,
+            label = "Mark Waived",
+            iconColor = Color(0xFF0284C7),
+            bgColor = Color(0xFFECFEFF),
+            borderColor = Color(0xFFA5F3FC),
+            modifier = Modifier.weight(1f)
+        )
+        // 5. ⚙ Adjust Amount
+        QuickActionItem(
+            icon = Icons.Default.Tune,
+            label = "Adjust Amount",
+            iconColor = Color(0xFF0284C7),
+            bgColor = Color(0xFFF0F9FF),
+            borderColor = Color(0xFFBAE6FD),
+            modifier = Modifier.weight(1f)
+        )
+        // 6. 📄 Add Note
+        QuickActionItem(
+            icon = Icons.Default.Edit,
+            label = "Add Note",
+            iconColor = Color(0xFF0284C7),
+            bgColor = Color(0xFFF0F9FF),
+            borderColor = Color(0xFFBAE6FD),
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun QuickActionItem(
+    icon: ImageVector,
+    label: String,
+    iconColor: Color,
+    bgColor: Color,
+    borderColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(44.dp)
+            .clip(RoundedCornerShape(9.dp))
+            .background(bgColor)
+            .border(0.7.dp, borderColor, RoundedCornerShape(9.dp))
+            .padding(horizontal = 1.dp, vertical = 2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(17.dp)
+                    .clip(CircleShape)
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = iconColor,
+                    modifier = Modifier.size(10.5.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "Send Receipt\non WhatsApp",
-                fontSize = 11.5.sp,
+                text = label,
+                fontSize = 7.5.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A),
-                lineHeight = 12.5.sp
+                color = Color(0xFF334155),
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                softWrap = false
             )
         }
     }
 }
 
 // -----------------------------------------------------------------------------
-// SECTION 3: PAYMENT TREND STACKED 12-MONTH BAR CHART & LEGEND
+// SECTION 4: PAYMENT TREND STACKED 12-MONTH BAR CHART & LEGEND (Image 2)
 // -----------------------------------------------------------------------------
 
 private data class MonthlyPaymentData(
     val month: String,
     val totalLabel: String?,
-    val blocks: List<PaymentBlock> = emptyList(),
-    val specialText: String? = null
-)
-
-private data class PaymentBlock(
-    val amountText: String,
-    val color: Color,
-    val heightDp: Int
+    val barColor: Color,
+    val heightDp: Int,
+    val isDashed: Boolean = false
 )
 
 @Composable
 private fun PaymentTrendSection(modifier: Modifier = Modifier) {
     val monthsData = remember {
         listOf(
-            MonthlyPaymentData("Jan", "₹1.2k", listOf(PaymentBlock("₹600", Color(0xFF10B981), 16), PaymentBlock("₹600", Color(0xFF10B981), 16))),
-            MonthlyPaymentData("Feb", "₹600", listOf(PaymentBlock("₹600", Color(0xFF10B981), 18))),
-            MonthlyPaymentData("Mar", null, specialText = "No\nADM"),
-            MonthlyPaymentData("Apr", null, specialText = "No\nADM"),
-            MonthlyPaymentData("May", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 32))),
-            MonthlyPaymentData("Jun", "₹840", listOf(PaymentBlock("₹440", Color(0xFFEF4444), 15), PaymentBlock("₹400", Color(0xFFF59E0B), 14))),
-            MonthlyPaymentData("Jul", "₹2.0k", listOf(
-                PaymentBlock("₹500", Color(0xFF10B981), 11),
-                PaymentBlock("₹500", Color(0xFF10B981), 11),
-                PaymentBlock("₹500", Color(0xFF10B981), 11),
-                PaymentBlock("₹500", Color(0xFF8B5CF6), 11)
-            )),
-            MonthlyPaymentData("Aug", null, specialText = "No\nVisit"),
-            MonthlyPaymentData("Sep", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 30))),
-            MonthlyPaymentData("Oct", "₹400", listOf(PaymentBlock("₹400", Color(0xFFEF4444), 15))),
-            MonthlyPaymentData("Nov", null, specialText = "₹100\nWaived"),
-            MonthlyPaymentData("Dec", "₹2.4k", listOf(
-                PaymentBlock("₹800", Color(0xFF10B981), 14),
-                PaymentBlock("₹800", Color(0xFF10B981), 14),
-                PaymentBlock("₹800", Color(0xFF8B5CF6), 14)
-            ))
+            MonthlyPaymentData("Jan", "₹600", Color(0xFF10B981), 22),
+            MonthlyPaymentData("Feb", "₹600", Color(0xFF10B981), 22),
+            MonthlyPaymentData("Mar", "-", Color(0xFFE2E8F0), 10, isDashed = true),
+            MonthlyPaymentData("Apr", "-", Color(0xFFE2E8F0), 10, isDashed = true),
+            MonthlyPaymentData("May", "₹1.2k", Color(0xFF10B981), 32),
+            MonthlyPaymentData("Jun", "₹840", Color(0xFFF59E0B), 27),
+            MonthlyPaymentData("Jul", "₹2.0k", Color(0xFF10B981), 44),
+            MonthlyPaymentData("Aug", "-", Color(0xFFE2E8F0), 10, isDashed = true),
+            MonthlyPaymentData("Sep", "₹1.2k", Color(0xFF10B981), 32),
+            MonthlyPaymentData("Oct", "₹400", Color(0xFFEF4444), 16),
+            MonthlyPaymentData("Nov", "₹100", Color(0xFF94A3B8), 12),
+            MonthlyPaymentData("Dec", "₹2.4k", Color(0xFF10B981), 48)
         )
     }
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(3.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // Header Row: 📊 Payment Trend ℹ️ + 12 Months ⌵
         Row(
@@ -2614,14 +2897,14 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                 Text(text = "📊", fontSize = 13.5.sp)
                 Text(
                     text = "Payment Trend",
-                    fontSize = 15.sp,
+                    fontSize = 14.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
-                    tint = Color(0xFF64748B),
+                    tint = Color(0xFF94A3B8),
                     modifier = Modifier.size(13.dp)
                 )
             }
@@ -2638,7 +2921,7 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
             ) {
                 Text(
                     text = "12 Months",
-                    fontSize = 11.5.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF334155)
                 )
@@ -2651,285 +2934,211 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
             }
         }
 
-        // Stacked Bar Chart with Y-Axis
-        Row(
+        // Chart Container with Y-Axis and 12 Columns
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(74.dp),
-            verticalAlignment = Alignment.Bottom
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White)
+                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                .padding(horizontal = 6.dp, vertical = 6.dp)
         ) {
-            // Y-Axis Labels
-            Column(
-                modifier = Modifier.height(58.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.End
-            ) {
-                Text(text = "₹3k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "₹2k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "₹1k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "0", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-            }
-
-            Spacer(modifier = Modifier.width(3.dp))
-
-            // 12 Monthly Stacked Bars Row
             Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom
             ) {
-                monthsData.forEach { data ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        // Total amount label on top
-                        if (data.totalLabel != null) {
+                // Left Y-Axis Labels
+                Column(
+                    modifier = Modifier
+                        .height(72.dp)
+                        .padding(end = 4.dp),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(text = "₹3k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+                    Text(text = "₹2k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+                    Text(text = "₹1k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+                    Text(text = "0", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+                }
+
+                // 12 Months Columns
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    monthsData.forEach { item ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Bottom,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            // Top Amount Label
                             Text(
-                                text = data.totalLabel,
-                                fontSize = 10.sp,
+                                text = item.totalLabel ?: "-",
+                                fontSize = 7.sp,
                                 fontWeight = FontWeight.Black,
-                                color = Color(0xFF0F172A),
-                                maxLines = 1
+                                color = if (item.isDashed) Color(0xFF94A3B8) else Color(0xFF0F172A),
+                                maxLines = 1,
+                                softWrap = false
                             )
-                        } else {
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
 
-                        Spacer(modifier = Modifier.height(1.5.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
 
-                        // Middle: Stacked blocks OR Special outline box
-                        if (data.specialText != null) {
+                            // Bar
                             Box(
                                 modifier = Modifier
-                                    .width(22.dp)
-                                    .height(22.dp)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(Color(0xFFF8FAFC))
-                                    .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = data.specialText,
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF64748B),
-                                    textAlign = TextAlign.Center,
-                                    lineHeight = 9.sp,
-                                    maxLines = 2,
-                                    softWrap = false
-                                )
-                            }
-                        } else {
-                            Column(
-                                modifier = Modifier.width(22.dp),
-                                verticalArrangement = Arrangement.spacedBy(1.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                data.blocks.reversed().forEach { block ->
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(block.heightDp.dp)
-                                            .clip(RoundedCornerShape(2.5.dp))
-                                            .background(block.color),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = block.amountText,
-                                            fontSize = 8.sp,
-                                            fontWeight = FontWeight.Black,
-                                            color = Color.White,
-                                            maxLines = 1,
-                                            softWrap = false
-                                        )
-                                    }
-                                }
-                            }
+                                    .width(13.dp)
+                                    .height(item.heightDp.dp)
+                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                    .background(item.barColor)
+                            )
+
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            // Month Label
+                            Text(
+                                text = item.month,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF64748B)
+                            )
                         }
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        // Month label at bottom
-                        Text(
-                            text = data.month,
-                            fontSize = 10.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF475569)
-                        )
                     }
                 }
             }
         }
 
-        // Legend Rows (2 clean rows of 3 items matching reference)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 2.dp, vertical = 1.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp)
+        // Multi-Color Legend Row (Image 2)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                LegendColorItem(color = Color(0xFF10B981), label = "On Time (6 months)")
-                LegendColorItem(color = Color(0xFFF59E0B), label = "Partial (1 month)")
-                LegendColorItem(color = Color(0xFFEF4444), label = "Late (1 month)")
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                LegendColorItem(color = Color(0xFF8B5CF6), label = "Extra (1 month)")
-                LegendBorderItem(label = "No Admission (2 months)")
-                LegendHatchedItem(label = "Waived (1 month)")
-            }
+            PaymentLegendItem(color = Color(0xFF10B981), label = "On Time")
+            PaymentLegendItem(color = Color(0xFFF59E0B), label = "Partial")
+            PaymentLegendItem(color = Color(0xFFEF4444), label = "Late")
+            PaymentLegendItem(color = Color(0xFFE2E8F0), label = "No Payment")
+            PaymentLegendItem(color = Color(0xFF8B5CF6), label = "Extra")
+            PaymentLegendItem(color = Color(0xFF0284C7), label = "Waived")
         }
     }
 }
 
 @Composable
-private fun LegendColorItem(color: Color, label: String) {
+private fun PaymentLegendItem(color: Color, label: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(7.5.dp)
+                .size(7.dp)
                 .clip(CircleShape)
                 .background(color)
         )
         Text(
             text = label,
-            fontSize = 10.5.sp,
-            color = Color(0xFF475569),
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-private fun LegendBorderItem(label: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(7.5.dp)
-                .clip(RoundedCornerShape(1.5.dp))
-                .background(Color(0xFFF8FAFC))
-                .border(0.8.dp, Color(0xFF94A3B8), RoundedCornerShape(1.5.dp))
-        )
-        Text(
-            text = label,
-            fontSize = 10.5.sp,
-            color = Color(0xFF475569),
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-private fun LegendHatchedItem(label: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(7.5.dp)
-                .clip(RoundedCornerShape(1.5.dp))
-                .background(Color(0xFFE2E8F0))
-                .border(0.8.dp, Color(0xFF94A3B8), RoundedCornerShape(1.5.dp))
-        )
-        Text(
-            text = label,
-            fontSize = 10.5.sp,
-            color = Color(0xFF475569),
-            fontWeight = FontWeight.Bold
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF64748B)
         )
     }
 }
 
 // -----------------------------------------------------------------------------
-// SECTION 4: BOTTOM 3 METRIC CARDS (Collected, Unpaid Balance, Waived by Owner)
+// SECTION 5: BOTTOM 3 SUMMARY METRIC CARDS (Image 2)
 // -----------------------------------------------------------------------------
 
 @Composable
-private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
+private fun PaymentSummaryMetricsRow(
+    onTotalPaidClick: () -> Unit = {},
+    onUnpaidBalanceClick: () -> Unit = {},
+    onWaivedClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Card 1: Collected (Jan - Dec)
+        // Card 1: Total Paid
         Box(
             modifier = Modifier
-                .weight(1.15f)
-                .clip(RoundedCornerShape(10.dp))
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
-                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
-                .padding(horizontal = 5.dp, vertical = 4.5.dp)
+                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                .clickable { onTotalPaidClick() }
+                .padding(horizontal = 6.dp, vertical = 5.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                // Donut Chart Canvas
-                Canvas(modifier = Modifier.size(26.dp)) {
-                    val stroke = 3.8.dp.toPx()
-                    // Green segment: 75%
-                    drawArc(
-                        color = Color(0xFF10B981),
-                        startAngle = -90f,
-                        sweepAngle = 270f,
-                        useCenter = false,
-                        style = Stroke(width = stroke, cap = StrokeCap.Round)
-                    )
-                    // Amber segment: 15%
-                    drawArc(
-                        color = Color(0xFFF59E0B),
-                        startAngle = 180f,
-                        sweepAngle = 54f,
-                        useCenter = false,
-                        style = Stroke(width = stroke, cap = StrokeCap.Round)
-                    )
-                    // Red segment: 10%
-                    drawArc(
-                        color = Color(0xFFEF4444),
-                        startAngle = 234f,
-                        sweepAngle = 36f,
-                        useCenter = false,
-                        style = Stroke(width = stroke, cap = StrokeCap.Round)
+                // Donut Chart Canvas with calendar badge
+                Box(
+                    modifier = Modifier.size(26.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val stroke = 3.2.dp.toPx()
+                        drawArc(
+                            color = Color(0xFF10B981),
+                            startAngle = -90f,
+                            sweepAngle = 260f,
+                            useCenter = false,
+                            style = Stroke(width = stroke, cap = StrokeCap.Round)
+                        )
+                        drawArc(
+                            color = Color(0xFFF59E0B),
+                            startAngle = 170f,
+                            sweepAngle = 60f,
+                            useCenter = false,
+                            style = Stroke(width = stroke, cap = StrokeCap.Round)
+                        )
+                        drawArc(
+                            color = Color(0xFFEF4444),
+                            startAngle = 230f,
+                            sweepAngle = 40f,
+                            useCenter = false,
+                            style = Stroke(width = stroke, cap = StrokeCap.Round)
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.CalendarToday,
+                        contentDescription = null,
+                        tint = Color(0xFF059669),
+                        modifier = Modifier.size(11.dp)
                     )
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text(
-                        text = "Collected (Jan – Dec)",
-                        fontSize = 10.5.sp,
+                        text = "Total Paid",
+                        fontSize = 10.sp,
                         color = Color(0xFF64748B),
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         softWrap = false
                     )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "₹11,400",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF059669)
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = Color(0xFF059669),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
                     Text(
-                        text = "₹11,400",
-                        fontSize = 17.5.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF059669)
-                    )
-                    Text(
-                        text = "(9 payments)",
-                        fontSize = 10.sp,
+                        text = "📅 9 Payments",
+                        fontSize = 8.5.sp,
                         color = Color(0xFF64748B),
                         fontWeight = FontWeight.SemiBold
                     )
@@ -2940,129 +3149,125 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
         // Card 2: Unpaid Balance
         Box(
             modifier = Modifier
-                .weight(0.92f)
-                .clip(RoundedCornerShape(10.dp))
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
-                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
-                .padding(horizontal = 5.dp, vertical = 4.5.dp)
+                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                .clickable { onUnpaidBalanceClick() }
+                .padding(horizontal = 6.dp, vertical = 5.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                // Bullseye Target Icon
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFFFF1F2)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "🎯", fontSize = 14.sp)
-                    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Text(text = "🎯", fontSize = 13.sp)
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Text(
+                        text = "Unpaid Balance",
+                        fontSize = 10.sp,
+                        color = Color(0xFF64748B),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Unpaid Balance",
-                            fontSize = 10.5.sp,
-                            color = Color(0xFF64748B),
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                        Text(
-                            text = "₹100",
-                            fontSize = 17.5.sp,
+                            text = "₹800",
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFFDC2626)
                         )
-                        Text(
-                            text = "Nov 2026 Fee",
-                            fontSize = 9.5.sp,
-                            color = Color(0xFF64748B),
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            softWrap = false
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = Color(0xFFDC2626),
+                            modifier = Modifier.size(12.dp)
                         )
                     }
+                    Text(
+                        text = "📅 1 Month Due",
+                        fontSize = 8.5.sp,
+                        color = Color(0xFFDC2626),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(11.dp)
-                )
             }
         }
 
         // Card 3: Waived by Owner
         Box(
             modifier = Modifier
-                .weight(0.93f)
-                .clip(RoundedCornerShape(10.dp))
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
-                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
-                .padding(horizontal = 5.dp, vertical = 4.5.dp)
+                .border(0.9.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                .clickable { onWaivedClick() }
+                .padding(horizontal = 6.dp, vertical = 5.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                // % Circle Icon
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE0F2FE)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(19.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFE0F2FE)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Percent,
-                            contentDescription = null,
-                            tint = Color(0xFF0284C7),
-                            modifier = Modifier.size(11.dp)
-                        )
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                        Text(
-                            text = "Waived by Owner",
-                            fontSize = 10.5.sp,
-                            color = Color(0xFF64748B),
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                        Text(
-                            text = "₹100",
-                            fontSize = 17.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF059669)
-                        )
-                        Text(
-                            text = "Nov 2026 Fee",
-                            fontSize = 9.5.sp,
-                            color = Color(0xFF64748B),
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Percent,
+                        contentDescription = null,
+                        tint = Color(0xFF0284C7),
+                        modifier = Modifier.size(13.dp)
+                    )
                 }
 
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(11.dp)
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Text(
+                        text = "Waived by Owner",
+                        fontSize = 10.sp,
+                        color = Color(0xFF64748B),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "₹100",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0284C7)
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = Color(0xFF0284C7),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                    Text(
+                        text = "📅 1 Payment",
+                        fontSize = 8.5.sp,
+                        color = Color(0xFF64748B),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
         }
     }
 }
-
-// =============================================================================
-// 4. MASTER BODY PROGRESS CARD (Clean White Card #FFFFFF with Goal-Based Tracking)
-// =============================================================================
 
 @Composable
 fun MasterBodyProgressCard(
