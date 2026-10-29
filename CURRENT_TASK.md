@@ -56,6 +56,24 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — 1:1 PIXEL-PERFECT MASTER ATTENDANCE CARD IMPLEMENTED & VERIFIED
+- **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Commit**: `7acf112`
+- **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
+- **Target Image**: `media_1793271128777_8bf1743c.jpg` (`docs/reference/images/attendance_trend_target.jpg`)
+- **Screenshot Evidence**: 
+  - Attendance Tab Verified: [docs/reference/images/device_screen_attendance_perfect.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_attendance_perfect.png)
+  - Workout Tab Live: [docs/reference/images/device_screen_workout_live_now.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_workout_live_now.png)
+  - Payment Tab Live: [docs/reference/images/device_screen_payment_live_now.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_payment_live_now.png)
+  - Body Progress Tab Live: [docs/reference/images/device_screen_body_live_now.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_body_live_now.png)
+- **Key Deliverables Completed**:
+  1. **Dual Floating Card Architecture**: Card 1 (30-Day Attendance Dashboard) + Card 2 (Key Insights) separated by 8dp gap.
+  2. **Card 1 Hero & Legend Pod**: 3D Calendar illustration (`illustration_3d_attendance_calendar`), green badge with star + "Attendance" title, "Oct 2026" with circular `‹` and `›` chevrons, 35sp bold emerald **90%**, **27 / 30 Days**, and right container legend (Present 27, Absent 1, Holiday 1, Sunday 1, Not a Member 0).
+  3. **30-Day Numbered Attendance Circles**: Two rows of 15 circles (1..15, 16..30) with exact status colors (Present emerald, Late amber, Absent red, Sunday soft gray, Upcoming white outline).
+  4. **Monthly Attendance Trend**: Mini 3-bar icon + "Monthly Attendance Trend" + "12 Months ⌵" pill, 12 monthly bars with Oct highlighted in green border box, dashed outline for non-member months, continuous baseline connecting all bars.
+  5. **Card 2 Key Insights Pods**: Purple lightbulb icon badge, 3 insight pods (Trophy Best Month Dec 2026 100%, Coral Trend Lowest Month Mar 2026 60%, Calendar Next Month Target 21 Days to maintain 90%+).
+  6. **Zero-Scroll Viewport**: Entire attendance section fits comfortably in the viewport below the sticky tab bar.
+
 ## VERIFIED MILESTONE — ALL 7 GEMINI MASTER 3D ASSETS WITH TRUE ALPHA INTEGRATED
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
 - **Device**: Xiaomi 11i / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB
