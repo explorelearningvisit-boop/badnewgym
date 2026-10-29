@@ -182,22 +182,22 @@ fun BadGymMemberPassCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "BAD ",
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Black,
                                 color = if (isElite) Color(0xFFFACC15) else Color(0xFF0F172A)
                             )
                             Text(
                                 text = "GYM",
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Black,
                                 color = if (isElite) Color.White else Color(0xFF0F172A)
                             )
                         }
                         Text(
                             text = "MEMBER PASS",
-                            fontSize = 8.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.6.sp,
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.8.sp,
                             color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B)
                         )
                     }
@@ -209,7 +209,7 @@ fun BadGymMemberPassCard(
                 ) {
                     Text(
                         text = tier.mottoLine1,
-                        fontSize = 8.5.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Black,
                         color = mottoColor,
                         letterSpacing = 0.5.sp,
@@ -217,7 +217,7 @@ fun BadGymMemberPassCard(
                     )
                     Text(
                         text = tier.mottoLine2,
-                        fontSize = 8.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = mottoColor.copy(alpha = 0.9f),
                         letterSpacing = 0.5.sp,
@@ -309,7 +309,7 @@ fun BadGymMemberPassCard(
                         ) {
                             Text(
                                 text = "VIP",
-                                fontSize = 8.5.sp,
+                                fontSize = 9.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.Black
                             )
@@ -326,7 +326,7 @@ fun BadGymMemberPassCard(
                 ) {
                     Text(
                         text = pass.name,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
                         color = textPrimary,
                         maxLines = 1
@@ -334,7 +334,7 @@ fun BadGymMemberPassCard(
 
                     Text(
                         text = "${pass.memberId}  |  ${pass.age} yrs  |  ${pass.gender}",
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = textSubtitle,
                         maxLines = 1
@@ -347,13 +347,13 @@ fun BadGymMemberPassCard(
                     ) {
                         Text(
                             text = "\u201C${pass.quote}\u201D",
-                            fontSize = 11.5.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isElite) Color(0xFFFDE047) else Color(0xFF1E293B),
                             maxLines = 1
                         )
                         if (pass.quoteEmoji.isNotBlank()) {
-                            Text(text = pass.quoteEmoji, fontSize = 11.5.sp)
+                            Text(text = pass.quoteEmoji, fontSize = 13.sp)
                         }
                     }
 
@@ -366,11 +366,11 @@ fun BadGymMemberPassCard(
                             imageVector = Icons.Default.CalendarToday,
                             contentDescription = null,
                             tint = if (isElite) Color(0xFFEAB308) else Color(0xFF059669),
-                            modifier = Modifier.size(11.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                         Text(
                             text = "${pass.startDate} – ${pass.endDate}",
-                            fontSize = 10.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = textSubtitle
                         )
@@ -425,18 +425,18 @@ fun BadGymMemberPassCard(
                                     BadGymPassTier.ELITE -> "👑"
                                     BadGymPassTier.BASIC -> "⏱️"
                                 },
-                                fontSize = 11.sp
+                                fontSize = 12.sp
                             )
                             Column {
                                 Text(
                                     text = tier.title,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.5.sp,
                                     fontWeight = FontWeight.Black,
                                     color = if (isElite) Color(0xFFFDE047) else textPrimary
                                 )
                                 Text(
                                     text = tier.durationText,
-                                    fontSize = 8.5.sp,
+                                    fontSize = 10.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = textSubtitle
                                 )
@@ -457,7 +457,7 @@ fun BadGymMemberPassCard(
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(13.dp)
+                                        .size(14.dp)
                                         .clip(CircleShape)
                                         .background(Color.White),
                                     contentAlignment = Alignment.Center
@@ -466,12 +466,12 @@ fun BadGymMemberPassCard(
                                         imageVector = Icons.Default.PriorityHigh,
                                         contentDescription = null,
                                         tint = Color(0xFFEF4444),
-                                        modifier = Modifier.size(9.dp)
+                                        modifier = Modifier.size(10.dp)
                                     )
                                 }
                                 Text(
                                     text = "Overdue ${pass.overdueDays} Days",
-                                    fontSize = 9.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
@@ -489,7 +489,7 @@ fun BadGymMemberPassCard(
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(13.dp)
+                                        .size(14.dp)
                                         .clip(CircleShape)
                                         .background(Color.White),
                                     contentAlignment = Alignment.Center
@@ -498,12 +498,12 @@ fun BadGymMemberPassCard(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = null,
                                         tint = Color(0xFF10B981),
-                                        modifier = Modifier.size(9.dp)
+                                        modifier = Modifier.size(10.dp)
                                     )
                                 }
                                 Text(
                                     text = "Active",
-                                    fontSize = 9.5.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
@@ -534,7 +534,7 @@ fun BadGymMemberPassCard(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(26.dp)
+                            .height(30.dp)
                             .clip(RoundedCornerShape(50.dp))
                             .background(progressBrush),
                         contentAlignment = Alignment.Center
@@ -545,7 +545,7 @@ fun BadGymMemberPassCard(
                             } else {
                                 "${pass.daysLeft} / ${pass.totalDays} Days Left"
                             },
-                            fontSize = 11.5.sp,
+                            fontSize = 13.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White,
                             textAlign = TextAlign.Center
@@ -557,7 +557,7 @@ fun BadGymMemberPassCard(
                     // Circular Chevron Button
                     Box(
                         modifier = Modifier
-                            .size(26.dp)
+                            .size(30.dp)
                             .clip(CircleShape)
                             .background(Color.White.copy(alpha = if (isElite) 0.15f else 0.85f)),
                         contentAlignment = Alignment.Center
@@ -566,7 +566,7 @@ fun BadGymMemberPassCard(
                             imageVector = Icons.Default.KeyboardArrowRight,
                             contentDescription = null,
                             tint = if (isElite) Color(0xFFFDE047) else textPrimary,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
@@ -584,7 +584,7 @@ fun BadGymMemberPassCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 6.dp, vertical = 7.dp),
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Height Column
@@ -597,10 +597,10 @@ fun BadGymMemberPassCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
-                            Text("📏", fontSize = 11.sp)
+                            Text("📏", fontSize = 13.sp)
                             Text(
                                 text = pass.height,
-                                fontSize = 12.5.sp,
+                                fontSize = 14.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = if (isElite) Color.White else Color(0xFF0F172A),
                                 maxLines = 1
@@ -608,7 +608,7 @@ fun BadGymMemberPassCard(
                         }
                         Text(
                             text = "Height",
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
                             maxLines = 1
@@ -618,7 +618,7 @@ fun BadGymMemberPassCard(
                     Box(
                         modifier = Modifier
                             .width(1.dp)
-                            .height(26.dp)
+                            .height(28.dp)
                             .background(statCardBorder.copy(alpha = 0.6f))
                     )
 
@@ -632,10 +632,10 @@ fun BadGymMemberPassCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
-                            Text("⚖️", fontSize = 11.sp)
+                            Text("⚖️", fontSize = 13.sp)
                             Text(
                                 text = pass.weight,
-                                fontSize = 12.5.sp,
+                                fontSize = 14.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = if (isElite) Color.White else Color(0xFF0F172A),
                                 maxLines = 1
@@ -643,7 +643,7 @@ fun BadGymMemberPassCard(
                         }
                         Text(
                             text = "Weight",
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
                             maxLines = 1
@@ -653,7 +653,7 @@ fun BadGymMemberPassCard(
                     Box(
                         modifier = Modifier
                             .width(1.dp)
-                            .height(26.dp)
+                            .height(28.dp)
                             .background(statCardBorder.copy(alpha = 0.6f))
                     )
 
@@ -667,10 +667,10 @@ fun BadGymMemberPassCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
-                            Text("📊", fontSize = 11.sp)
+                            Text("📊", fontSize = 13.sp)
                             Text(
                                 text = pass.bmi,
-                                fontSize = 12.5.sp,
+                                fontSize = 14.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = if (isElite) Color.White else Color(0xFF0F172A),
                                 maxLines = 1
@@ -678,7 +678,7 @@ fun BadGymMemberPassCard(
                         }
                         Text(
                             text = "BMI",
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
                             maxLines = 1
@@ -688,13 +688,13 @@ fun BadGymMemberPassCard(
                     Box(
                         modifier = Modifier
                             .width(1.dp)
-                            .height(26.dp)
+                            .height(28.dp)
                             .background(statCardBorder.copy(alpha = 0.6f))
                     )
 
                     // Goal Column
                     Column(
-                        modifier = Modifier.weight(1.25f),
+                        modifier = Modifier.weight(1.3f),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
@@ -710,11 +710,11 @@ fun BadGymMemberPassCard(
                                     pass.goal.contains("Toning", ignoreCase = true) -> "🦾"
                                     else -> "🎯"
                                 },
-                                fontSize = 11.sp
+                                fontSize = 13.sp
                             )
                             Text(
                                 text = pass.goal,
-                                fontSize = 12.sp,
+                                fontSize = 13.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = if (isElite) Color.White else Color(0xFF0F172A),
                                 maxLines = 1
@@ -722,7 +722,7 @@ fun BadGymMemberPassCard(
                         }
                         Text(
                             text = "Goal",
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
                             maxLines = 1

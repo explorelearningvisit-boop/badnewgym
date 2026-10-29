@@ -344,7 +344,7 @@ fun MasterStoryboardStickyMenuBar(
                 Row(
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp)
+                        .height(48.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(if (isSelected) Color.White else Color.Transparent)
                         .border(
@@ -353,7 +353,7 @@ fun MasterStoryboardStickyMenuBar(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable { onTabSelected(index) }
-                        .padding(horizontal = 2.dp, vertical = 3.dp),
+                        .padding(horizontal = 1.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -361,16 +361,17 @@ fun MasterStoryboardStickyMenuBar(
                         imageVector = tab.icon,
                         contentDescription = tab.label,
                         tint = if (isSelected) tabItemColor else Color(0xFF64748B),
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(13.5.dp)
                     )
-                    Spacer(modifier = Modifier.width(2.dp))
+                    Spacer(modifier = Modifier.width(1.5.dp))
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = tab.label,
-                            fontSize = 11.sp,
+                            fontSize = 11.5.sp,
+                            letterSpacing = (-0.3).sp,
                             fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                             color = if (isSelected) tabItemColor else Color(0xFF334155),
                             maxLines = 1,
@@ -378,8 +379,8 @@ fun MasterStoryboardStickyMenuBar(
                         )
                         Text(
                             text = tab.badge,
-                            fontSize = 9.5.sp,
-                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Black,
                             color = if (isSelected) tabItemColor else Color(0xFF64748B),
                             maxLines = 1,
                             softWrap = false
@@ -391,7 +392,7 @@ fun MasterStoryboardStickyMenuBar(
             // Compact View Mode Toggle Button
             Box(
                 modifier = Modifier
-                    .size(34.dp)
+                    .size(38.dp)
                     .clip(CircleShape)
                     .background(Color.White.copy(alpha = 0.9f))
                     .border(1.dp, animatedBorderColor.copy(alpha = 0.7f), CircleShape)
@@ -400,7 +401,7 @@ fun MasterStoryboardStickyMenuBar(
             ) {
                 Text(
                     text = if (isAllExpanded) "📜" else "🎯",
-                    fontSize = 13.sp
+                    fontSize = 15.sp
                 )
             }
         }
@@ -490,7 +491,7 @@ fun MasterAttendanceCard(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(24.dp)
+                                    .size(26.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFF10B981)),
                                 contentAlignment = Alignment.Center
@@ -499,19 +500,19 @@ fun MasterAttendanceCard(
                                     imageVector = Icons.Default.Star,
                                     contentDescription = null,
                                     tint = Color.White,
-                                    modifier = Modifier.size(13.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
                             }
                             Column {
                                 Text(
                                     text = "Attendance",
-                                    fontSize = 17.sp,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0F172A)
                                 )
                                 Text(
                                     text = "Last 30 Days",
-                                    fontSize = 11.sp,
+                                    fontSize = 13.5.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF475569)
                                 )
@@ -521,7 +522,7 @@ fun MasterAttendanceCard(
                         TimeframeDropdownPill(text = "Oct 2026")
                     }
 
-                    // Key Metric: 90% + 27 / 30 Days + Delta on left, 4 Breakdowns on right
+                    // Key Metric Row: 90% Hero + Delta on left, Status Dots on right
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -529,58 +530,88 @@ fun MasterAttendanceCard(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Column {
                                 Text(
                                     text = "90%",
-                                    fontSize = 28.sp,
+                                    fontSize = 34.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF047857)
                                 )
                                 Text(
                                     text = "27 / 30 Present Days",
-                                    fontSize = 11.sp,
+                                    fontSize = 13.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF0F172A)
                                 )
                             }
 
-                            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                 Row(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(50.dp))
                                         .background(Color(0xFFDCFCE7))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                                        .padding(horizontal = 7.dp, vertical = 2.5.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
                                         text = "↑ 5%",
-                                        fontSize = 10.sp,
+                                        fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF047857)
                                     )
                                 }
                                 Text(
                                     text = "vs Sep",
-                                    fontSize = 9.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color(0xFF475569)
                                 )
                             }
                         }
 
-                        // Breakdown Columns: Present 27, Late 1, Absent 1, Holiday 1
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(3.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AttendanceBreakdownCol("Present", "27", "90%", Color(0xFF10B981))
-                            AttendanceBreakdownCol("Late", "1", "3%", Color(0xFFF59E0B))
-                            AttendanceBreakdownCol("Absent", "1", "3%", Color(0xFFEF4444))
-                            AttendanceBreakdownCol("Holiday", "1", "3%", Color(0xFF8B5CF6))
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            LegendDotItem(color = Color(0xFF10B981), label = "Present", value = "(27 d)")
+                            LegendDotItem(color = Color(0xFFEF4444), label = "Absent", value = "(1 d)")
                         }
                     }
+                }
+            }
+
+            // Quick Info Metrics Strip (4 KPIs for Attendance, matching Workout style)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.92f))
+                    .border(0.8.dp, Color(0xFF86EFAC), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 7.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Present", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "27d", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF047857))
+                    Text(text = "90% rate", fontSize = 10.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Late", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "1d", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFD97706))
+                    Text(text = "3% rate", fontSize = 10.5.sp, color = Color(0xFFD97706), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Absent", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "1d", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFEF4444))
+                    Text(text = "3% rate", fontSize = 10.5.sp, color = Color(0xFFEF4444), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Holiday", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "1d", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF8B5CF6))
+                    Text(text = "3% rate", fontSize = 10.5.sp, color = Color(0xFF8B5CF6), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -633,126 +664,184 @@ fun MasterAttendanceCard(
                     AttendanceLegendItem(label = "Late", count = "1", color = Color(0xFFF59E0B))
                     AttendanceLegendItem(label = "Absent", count = "1", color = Color(0xFFEF4444))
                     AttendanceLegendItem(label = "Holiday", count = "1", color = Color(0xFF8B5CF6))
-                    AttendanceLegendItem(label = "Sunday", count = "4", color = Color(0xFF94A3B8))
-                    AttendanceLegendItem(label = "Upcoming", count = "3", color = Color(0xFFCBD5E1), isHollow = true)
+                    AttendanceLegendItem(label = "Sun", count = "4", color = Color(0xFF94A3B8))
+                    AttendanceLegendItem(label = "Next", count = "3", color = Color(0xFFCBD5E1), isHollow = true)
                 }
             }
 
-            // Weekly Attendance Trend Mini Graph (4 Vertical Progress Bars)
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White.copy(alpha = 0.94f),
-                border = BorderStroke(0.8.dp, Color(0xFFBBF7D0)),
-                modifier = Modifier.fillMaxWidth()
+            // Weekly Consistency Trend (Low-Width Split Row)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 7.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                // Left: Low-Width Weekly Trend Card (only required space, ~168dp)
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color.White.copy(alpha = 0.95f),
+                    border = BorderStroke(0.9.dp, Color(0xFFBBF7D0)),
+                    modifier = Modifier.width(168.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Column(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text("📊", fontSize = 11.sp)
+                            Text("📊", fontSize = 12.sp)
                             Text(
-                                text = "Weekly Consistency Trend",
-                                fontSize = 11.sp,
+                                text = "Weekly Trend",
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF0F172A)
                             )
                         }
+
+                        // 4 Vertical Progress Bars
                         Row(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50.dp))
-                                .background(Color(0xFFDCFCE7))
-                                .border(0.6.dp, Color(0xFF86EFAC), RoundedCornerShape(50.dp))
-                                .padding(horizontal = 7.dp, vertical = 2.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
                         ) {
-                            Text(
-                                text = "Monthly: 90% (↑5%)",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF047857)
+                            val weekData = listOf(
+                                Triple("W1", 100, "6/6"),
+                                Triple("W2", 85, "5/6"),
+                                Triple("W3", 100, "6/6"),
+                                Triple("W4", 80, "4/5")
                             )
-                        }
-                    }
 
-                    // The 4-Week Mini Bar Graph
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        val weekData = listOf(
-                            Triple("W1", 100, "6/6 d"),
-                            Triple("W2", 85, "5/6 d"),
-                            Triple("W3", 100, "6/6 d"),
-                            Triple("W4", 80, "4/5 d")
-                        )
-
-                        weekData.forEach { (weekLabel, pct, daysText) ->
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                Text(
-                                    text = "$pct%",
-                                    fontSize = 10.5.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = if (pct >= 85) Color(0xFF047857) else Color(0xFFD97706)
-                                )
-
-                                // Vertical Progress Bar (Capsule Track + Filled Capsule)
-                                Box(
-                                    modifier = Modifier
-                                        .width(26.dp)
-                                        .height(42.dp)
-                                        .clip(RoundedCornerShape(50.dp))
-                                        .background(Color(0xFFE2E8F0)),
-                                    contentAlignment = Alignment.BottomCenter
+                            weekData.forEach { (weekLabel, pct, daysText) ->
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
-                                    val fillHeightFraction = (pct / 100f).coerceIn(0.15f, 1f)
+                                    Text(
+                                        text = "$pct%",
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = if (pct >= 85) Color(0xFF047857) else Color(0xFFD97706)
+                                    )
+
                                     Box(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height((42 * fillHeightFraction).dp)
+                                            .width(18.dp)
+                                            .height(36.dp)
                                             .clip(RoundedCornerShape(50.dp))
-                                            .background(
-                                                Brush.verticalGradient(
-                                                    listOf(
-                                                        if (pct >= 85) Color(0xFF34D399) else Color(0xFFFDE047),
-                                                        if (pct >= 85) Color(0xFF059669) else Color(0xFFD97706)
+                                            .background(Color(0xFFE2E8F0)),
+                                        contentAlignment = Alignment.BottomCenter
+                                    ) {
+                                        val fillHeightFraction = (pct / 100f).coerceIn(0.15f, 1f)
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height((36 * fillHeightFraction).dp)
+                                                .clip(RoundedCornerShape(50.dp))
+                                                .background(
+                                                    Brush.verticalGradient(
+                                                        listOf(
+                                                            if (pct >= 85) Color(0xFF34D399) else Color(0xFFFDE047),
+                                                            if (pct >= 85) Color(0xFF059669) else Color(0xFFD97706)
+                                                        )
                                                     )
                                                 )
-                                            )
+                                        )
+                                    }
+
+                                    Text(
+                                        text = weekLabel,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color(0xFF0F172A)
+                                    )
+
+                                    Text(
+                                        text = daysText,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFF64748B)
                                     )
                                 }
+                            }
+                        }
+                    }
+                }
 
+                // Right: Monthly Target Achievement Card
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color.White.copy(alpha = 0.95f),
+                    border = BorderStroke(0.9.dp, Color(0xFFBBF7D0)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 7.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text("🎯", fontSize = 12.sp)
                                 Text(
-                                    text = weekLabel,
-                                    fontSize = 10.sp,
+                                    text = "Target Status",
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0F172A)
                                 )
-
-                                Text(
-                                    text = daysText,
-                                    fontSize = 8.5.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF64748B)
-                                )
                             }
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50.dp))
+                                    .background(Color(0xFFDCFCE7))
+                                    .padding(horizontal = 6.dp, vertical = 1.5.dp)
+                            ) {
+                                Text("On Track", fontSize = 10.sp, fontWeight = FontWeight.Black, color = Color(0xFF047857))
+                            }
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "90%",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFF047857)
+                            )
+                            Text(
+                                text = "Target ≥85% Met",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0F172A)
+                            )
+                        }
+
+                        Text(
+                            text = "3 of 4 weeks on track (↑5% vs Sep)",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF475569)
+                        )
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text("🔥", fontSize = 11.sp)
+                            Text(
+                                text = "Active 6-day streak maintained",
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF059669)
+                            )
                         }
                     }
                 }
@@ -774,14 +863,14 @@ fun MasterAttendanceCard(
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("🔥", fontSize = 10.sp)
-                            Text("Current Streak", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("🔥", fontSize = 13.sp)
+                            Text("Streak", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                         }
-                        Text("6 Days", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Active", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
+                        Text("6 Days", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Active", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
                     }
 
                     Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
@@ -789,14 +878,14 @@ fun MasterAttendanceCard(
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("🏆", fontSize = 10.sp)
-                            Text("Best Streak", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("🏆", fontSize = 13.sp)
+                            Text("Best", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                         }
-                        Text("12 Days", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Record", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
+                        Text("12 Days", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Record", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
                     }
 
                     Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
@@ -804,14 +893,14 @@ fun MasterAttendanceCard(
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Box(Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
-                            Text("Rate", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF10B981)))
+                            Text("Rate", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                         }
-                        Text("90%", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF047857))
-                        Text("Target ≥85%", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
+                        Text("90%", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF047857))
+                        Text("Target ≥85%", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
                     }
 
                     Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
@@ -819,14 +908,14 @@ fun MasterAttendanceCard(
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("📅", fontSize = 10.sp)
-                            Text("Total Visits", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("📅", fontSize = 13.sp)
+                            Text("Visits", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                         }
-                        Text("27 Days", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Oct 2026", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
+                        Text("27 Days", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Oct 2026", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
                     }
                 }
             }
@@ -906,7 +995,7 @@ fun MasterWorkoutTrendCard(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(24.dp)
+                                    .size(26.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFF0284C7)),
                                 contentAlignment = Alignment.Center
@@ -915,19 +1004,19 @@ fun MasterWorkoutTrendCard(
                                     imageVector = Icons.Default.FitnessCenter,
                                     contentDescription = null,
                                     tint = Color.White,
-                                    modifier = Modifier.size(13.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
                             }
                             Column {
                                 Text(
                                     text = "Workout Trend",
-                                    fontSize = 17.sp,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0F172A)
                                 )
                                 Text(
                                     text = "Last 30 Days",
-                                    fontSize = 11.sp,
+                                    fontSize = 13.5.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF475569)
                                 )
@@ -945,48 +1034,48 @@ fun MasterWorkoutTrendCard(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Column {
                                 Text(
                                     text = "70 min",
-                                    fontSize = 28.sp,
+                                    fontSize = 34.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0284C7)
                                 )
                                 Text(
                                     text = "Avg / Session",
-                                    fontSize = 11.sp,
+                                    fontSize = 13.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF0F172A)
                                 )
                             }
 
-                            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                 Row(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(50.dp))
                                         .background(Color(0xFFDCFCE7))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                                        .padding(horizontal = 7.dp, vertical = 2.5.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
                                         text = "↑ 8%",
-                                        fontSize = 10.sp,
+                                        fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF047857)
                                     )
                                 }
                                 Text(
                                     text = "vs Sep",
-                                    fontSize = 9.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color(0xFF475569)
                                 )
                             }
                         }
 
-                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                             LegendDotItem(color = Color(0xFF0284C7), label = "Workout", value = "(22 d)")
                             LegendDotItem(color = Color(0xFF94A3B8), label = "Rest", value = "(8 d)")
                         }
@@ -998,34 +1087,35 @@ fun MasterWorkoutTrendCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White.copy(alpha = 0.90f))
-                    .padding(horizontal = 7.dp, vertical = 5.dp),
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.92f))
+                    .border(0.8.dp, Color(0xFFBAE6FD), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 7.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Total Duration", fontSize = 9.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                    Text(text = "823 min", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
-                    Text(text = "↑ 14% vs Sep", fontSize = 8.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Total Duration", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "823 min", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
+                    Text(text = "↑ 14% vs Sep", fontSize = 10.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
                 }
                 Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Sessions", fontSize = 9.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                    Text(text = "22", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text(text = "↑ 2 vs prev", fontSize = 8.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Sessions", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "22", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    Text(text = "↑ 2 vs prev", fontSize = 10.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
                 }
                 Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Avg Duration", fontSize = 9.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                    Text(text = "74 min", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
-                    Text(text = "↑ 8%", fontSize = 8.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Avg Duration", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "74 min", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
+                    Text(text = "↑ 8%", fontSize = 10.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
                 }
                 Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Peak Duration", fontSize = 9.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                    Text(text = "123 min", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFD97706))
-                    Text(text = "↑ 12%", fontSize = 8.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Peak Duration", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "123 min", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFD97706))
+                    Text(text = "↑ 12%", fontSize = 10.5.sp, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -1038,9 +1128,9 @@ fun MasterWorkoutTrendCard(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.End
                     ) {
-                        Text(text = "120m", fontSize = 8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "60m", fontSize = 8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "0m", fontSize = 8.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "120m", fontSize = 10.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "60m", fontSize = 10.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "0m", fontSize = 10.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
                     }
 
                     Spacer(modifier = Modifier.width(4.dp))
@@ -1101,7 +1191,7 @@ fun MasterWorkoutTrendCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     listOf("1", "5", "10", "15", "20", "25", "30").forEach { mark ->
-                        Text(text = mark, fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = mark, fontSize = 10.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -1134,14 +1224,29 @@ fun MasterWorkoutTrendCard(
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("⏱️", fontSize = 10.sp)
-                            Text("Total", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("⏱️", fontSize = 13.sp)
+                            Text("Total", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                         }
-                        Text("22", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Sessions", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
+                        Text("22", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Sessions", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
+                    }
+
+                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
+
+                    Column(
+                        modifier = Modifier.weight(1.05f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("🏆", fontSize = 13.sp)
+                            Text("Best", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        }
+                        Text("120 m", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("2.0 hrs", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
                     }
 
                     Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
@@ -1149,14 +1254,14 @@ fun MasterWorkoutTrendCard(
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("🏆", fontSize = 10.sp)
-                            Text("Best Session", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("🔥", fontSize = 13.sp)
+                            Text("Streak", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                         }
-                        Text("120 m", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("2.0 hrs", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
+                        Text("8 Days", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Active", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
                     }
 
                     Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
@@ -1164,29 +1269,14 @@ fun MasterWorkoutTrendCard(
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("🔥", fontSize = 10.sp)
-                            Text("Streak", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("📊", fontSize = 13.sp)
+                            Text("Avg", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                         }
-                        Text("8 Days", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Active", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("📊", fontSize = 10.sp)
-                            Text("Weekly Avg", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("3.4 d", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("Target Met", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
+                        Text("3.4 d", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Target Met", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
                     }
                 }
             }
@@ -1254,7 +1344,7 @@ fun MasterPaymentCard(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(24.dp)
+                                    .size(26.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFFEF4444)),
                                 contentAlignment = Alignment.Center
@@ -1263,19 +1353,19 @@ fun MasterPaymentCard(
                                     imageVector = Icons.Default.AccountBalanceWallet,
                                     contentDescription = null,
                                     tint = Color.White,
-                                    modifier = Modifier.size(13.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
                             }
                             Column {
                                 Text(
                                     text = "Payment",
-                                    fontSize = 17.sp,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0F172A)
                                 )
                                 Text(
                                     text = "Last 12 Months",
-                                    fontSize = 11.sp,
+                                    fontSize = 13.5.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF475569)
                                 )
@@ -1289,19 +1379,19 @@ fun MasterPaymentCard(
                                 .background(Color.White)
                                 .border(0.8.dp, Color(0xFFFDA4AF), RoundedCornerShape(50.dp))
                                 .clickable { onClick() }
-                                .padding(horizontal = 8.dp, vertical = 3.5.dp),
+                                .padding(horizontal = 9.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
                             Text(
                                 text = "Plan History",
-                                fontSize = 9.5.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFE11D48)
                             )
                             Text(
                                 text = "›",
-                                fontSize = 11.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFFE11D48)
                             )
@@ -1311,11 +1401,11 @@ fun MasterPaymentCard(
                     // Key Metric: ₹2,800 + [ ! Due Now ]
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
                             text = "₹2,800",
-                            fontSize = 28.sp,
+                            fontSize = 34.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFFDC2626)
                         )
@@ -1323,11 +1413,11 @@ fun MasterPaymentCard(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(50.dp))
                                 .background(Color(0xFFEF4444))
-                                .padding(horizontal = 7.dp, vertical = 2.5.dp)
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
                                 text = "! Due Now",
-                                fontSize = 9.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White
                             )
@@ -1336,14 +1426,14 @@ fun MasterPaymentCard(
 
                     Text(
                         text = "Due on 16 Oct 2026",
-                        fontSize = 11.sp,
+                        fontSize = 13.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF991B1B)
                     )
                 }
             }
 
-            // PROMINENT FULL-WIDTH 44dp ACTION BUTTONS: WhatsApp, Collect Payment, Receipt
+            // PROMINENT FULL-WIDTH 48dp ACTION BUTTONS: WhatsApp, Collect Payment, Receipt
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1355,7 +1445,7 @@ fun MasterPaymentCard(
                 Row(
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp)
+                        .height(48.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color(0xFF16A34A))
                         .clickable { /* WhatsApp */ }
@@ -1363,11 +1453,11 @@ fun MasterPaymentCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(text = "💬", fontSize = 13.sp)
+                    Text(text = "💬", fontSize = 15.sp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "WhatsApp",
-                        fontSize = 12.5.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         maxLines = 1,
@@ -1379,7 +1469,7 @@ fun MasterPaymentCard(
                 Row(
                     modifier = Modifier
                         .weight(1.3f)
-                        .height(44.dp)
+                        .height(48.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(
                             Brush.horizontalGradient(
@@ -1393,7 +1483,7 @@ fun MasterPaymentCard(
                 ) {
                     Text(
                         text = "₹ Collect Payment",
-                        fontSize = 13.sp,
+                        fontSize = 14.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.White,
                         maxLines = 1,
@@ -1405,7 +1495,7 @@ fun MasterPaymentCard(
                 Row(
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp)
+                        .height(48.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color.White)
                         .border(1.2.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp))
@@ -1418,12 +1508,12 @@ fun MasterPaymentCard(
                         imageVector = Icons.Default.Receipt,
                         contentDescription = null,
                         tint = Color(0xFF0F172A),
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Receipt",
-                        fontSize = 12.5.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A),
                         maxLines = 1,
@@ -1448,12 +1538,12 @@ fun MasterPaymentCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(text = "👑 Gold Plan", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text(text = "• Monthly (Valid till 31 Oct 2026)", fontSize = 8.5.sp, color = Color(0xFF475569))
+                        Text(text = "👑 Gold Plan", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text(text = "• Monthly (Valid till 31 Oct 2026)", fontSize = 11.sp, color = Color(0xFF475569))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Box(Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF0284C7)))
-                        Text(text = "Auto Pay: Enabled", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
+                        Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF0284C7)))
+                        Text(text = "Auto Pay: Enabled", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
                     }
                 }
 
@@ -1465,21 +1555,21 @@ fun MasterPaymentCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(text = "Last Paid (Paid)", fontSize = 8.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                        Text(text = "₹2,800", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text(text = "15 Sep 2026", fontSize = 8.5.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
+                        Text(text = "Last Paid (Paid)", fontSize = 11.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                        Text(text = "₹2,800", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text(text = "15 Sep 2026", fontSize = 11.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
                     }
-                    Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
+                    Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
                     Column {
-                        Text(text = "Current Due (Due)", fontSize = 8.5.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
-                        Text(text = "₹2,800", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
-                        Text(text = "16 Oct 2026", fontSize = 8.5.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
+                        Text(text = "Current Due (Due)", fontSize = 11.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
+                        Text(text = "₹2,800", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
+                        Text(text = "16 Oct 2026", fontSize = 11.sp, color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
                     }
-                    Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
+                    Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
                     Column {
-                        Text(text = "Next Due (Scheduled)", fontSize = 8.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                        Text(text = "₹2,800", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF334155))
-                        Text(text = "16 Nov 2026", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
+                        Text(text = "Next Due (Scheduled)", fontSize = 11.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                        Text(text = "₹2,800", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF334155))
+                        Text(text = "16 Nov 2026", fontSize = 11.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -1493,10 +1583,10 @@ fun MasterPaymentCard(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.End
                     ) {
-                        Text(text = "₹3k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "₹2k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "₹1k", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                        Text(text = "0", fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "₹3k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "₹2k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "₹1k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = "0", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
                     }
 
                     Spacer(modifier = Modifier.width(4.dp))
@@ -1556,7 +1646,7 @@ fun MasterPaymentCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { m ->
-                        Text(text = m, fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = m, fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -1567,78 +1657,82 @@ fun MasterPaymentCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                LegendDotItem(color = Color(0xFF10B981), label = "Paid & Active", value = "(8 mo)")
-                LegendDotItem(color = Color(0xFF6366F1), label = "Plan Changed", value = "(2 mo)")
-                LegendDotItem(color = Color(0xFFEF4444), label = "Due Now", value = "(1 mo)")
-                LegendDotItem(color = Color(0xFFF59E0B), label = "Due Soon", value = "(1 mo)")
+                LegendDotItem(color = Color(0xFF10B981), label = "Paid", value = "8m")
+                LegendDotItem(color = Color(0xFF6366F1), label = "Upgrade", value = "2m")
+                LegendDotItem(color = Color(0xFFEF4444), label = "Due Now", value = "1m")
+                LegendDotItem(color = Color(0xFFF59E0B), label = "Due Soon", value = "1m")
             }
 
             // Payment Bottom Summary Container
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White.copy(alpha = 0.92f))
-                    .border(0.8.dp, Color(0xFFFDA4AF), RoundedCornerShape(12.dp))
-                    .padding(horizontal = 8.dp, vertical = 7.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = Color.White.copy(alpha = 0.94f),
+                border = BorderStroke(1.dp, Color(0xFFFDA4AF)),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("👛", fontSize = 10.sp)
-                        Text("Total Paid", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("👛", fontSize = 13.sp)
+                            Text("Total Paid", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        }
+                        Text("₹12,600", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Last 12 mo", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
                     }
-                    Text("₹12,600", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text("Last 12 mo", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
-                }
 
-                Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
+                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
 
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("📅", fontSize = 10.sp)
-                        Text("Avg / Month", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("📅", fontSize = 13.sp)
+                            Text("Avg / Mo", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        }
+                        Text("₹1,050", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Regular", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
                     }
-                    Text("₹1,050", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text("Regular", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
-                }
 
-                Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
+                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
 
-                Column(
-                    modifier = Modifier.weight(1.15f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("🕒", fontSize = 10.sp)
-                        Text("Next Due", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFDC2626))
+                    Column(
+                        modifier = Modifier.weight(1.15f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Text("🕒", fontSize = 13.sp)
+                            Text("Next Due", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFDC2626))
+                        }
+                        Text("16 Oct 2026", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
+                        Text("Due Now", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFDC2626))
                     }
-                    Text("16 Oct 2026", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
-                    Text("Due Now", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFFDC2626))
-                }
 
-                Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
+                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
 
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Box(Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
-                        Text("On Time", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
+                            Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF10B981)))
+                            Text("On Time", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        }
+                        Text("91%", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF10B981))
+                        Text("10/11 mo", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
                     }
-                    Text("91%", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF10B981))
-                    Text("10/11 mo", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF059669))
                 }
             }
         }
@@ -1706,23 +1800,23 @@ fun MasterBodyProgressCard(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(24.dp)
+                                    .size(26.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFF8B5CF6)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = "🧘", fontSize = 12.sp)
+                                Text(text = "🧘", fontSize = 13.sp)
                             }
                             Column {
                                 Text(
                                     text = "Body Progress",
-                                    fontSize = 17.sp,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0F172A)
                                 )
                                 Text(
                                     text = "Last 12 Months",
-                                    fontSize = 11.sp,
+                                    fontSize = 13.5.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF475569)
                                 )
@@ -1740,69 +1834,105 @@ fun MasterBodyProgressCard(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Column {
                                 Text(
                                     text = "69.5 kg",
-                                    fontSize = 28.sp,
+                                    fontSize = 34.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF7C3AED)
                                 )
                                 Text(
                                     text = "Current Weight",
-                                    fontSize = 11.sp,
+                                    fontSize = 13.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF0F172A)
                                 )
                             }
 
-                            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                 Row(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(50.dp))
                                         .background(Color(0xFFDCFCE7))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                                        .padding(horizontal = 7.dp, vertical = 2.5.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
                                         text = "↓ 2.5 kg",
-                                        fontSize = 10.sp,
+                                        fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF15803D)
                                     )
                                 }
                                 Text(
                                     text = "vs Aug (-3.5%)",
-                                    fontSize = 8.5.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color(0xFF475569)
                                 )
                             }
                         }
 
-                        // Right 3 Key Numerical Breakdowns (Muscle, Body Fat, Waist)
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        // Right: BMI & Goal Status
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            horizontalAlignment = Alignment.End
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Muscle", fontSize = 8.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                                Text("57.2 kg", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
-                                Text("↑ 1.4 kg", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50.dp))
+                                    .background(Color(0xFFDCFCE7))
+                                    .padding(horizontal = 8.dp, vertical = 2.5.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("BMI 22.8", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF15803D))
                             }
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Body Fat", fontSize = 8.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                                Text("17.6 %", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFFF97316))
-                                Text("↓ 1.2 %", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF15803D))
-                            }
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Waist", fontSize = 8.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
-                                Text("81 cm", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFF8B5CF6))
-                                Text("↓ 4 cm", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF15803D))
-                            }
+                            Text(
+                                text = "Target: -3 kg",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF7C3AED)
+                            )
                         }
                     }
+                }
+            }
+
+            // Quick Info Metrics Strip (4 KPIs for Body Progress, matching Workout & Attendance style)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.92f))
+                    .border(0.8.dp, Color(0xFFDDD6FE), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 7.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Weight", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "69.5 kg", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    Text(text = "↓ 2.5 kg", fontSize = 10.5.sp, color = Color(0xFF15803D), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Muscle", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "57.2 kg", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
+                    Text(text = "↑ 1.4 kg", fontSize = 10.5.sp, color = Color(0xFF0284C7), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Body Fat", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "17.6 %", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFF97316))
+                    Text(text = "↓ 1.2 %", fontSize = 10.5.sp, color = Color(0xFF15803D), fontWeight = FontWeight.Bold)
+                }
+                Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(text = "Waist", fontSize = 11.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.Bold)
+                    Text(text = "81 cm", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF8B5CF6))
+                    Text(text = "↓ 4 cm", fontSize = 10.5.sp, color = Color(0xFF15803D), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -1827,18 +1957,19 @@ fun MasterBodyProgressCard(
                     Row(
                         modifier = Modifier
                             .weight(1f)
+                            .height(38.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(if (isSelected) chipColor else Color.White.copy(alpha = 0.8f))
                             .border(0.8.dp, if (isSelected) chipColor else Color(0xFFDDD6FE), RoundedCornerShape(8.dp))
                             .clickable { selectedMetricIndex = i }
-                            .padding(vertical = 4.dp, horizontal = 2.dp),
+                            .padding(vertical = 2.dp, horizontal = 2.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = label,
-                                fontSize = 8.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                                 color = if (isSelected) Color.White else Color(0xFF334155),
                                 maxLines = 1,
@@ -1846,7 +1977,7 @@ fun MasterBodyProgressCard(
                             )
                             Text(
                                 text = valStr,
-                                fontSize = 8.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = if (isSelected) Color.White.copy(alpha = 0.95f) else chipColor,
                                 maxLines = 1,
@@ -1875,7 +2006,7 @@ fun MasterBodyProgressCard(
                         horizontalAlignment = Alignment.End
                     ) {
                         yLabels.forEach { label ->
-                            Text(text = label, fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                            Text(text = label, fontSize = 9.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -1973,134 +2104,12 @@ fun MasterBodyProgressCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { m ->
-                        Text(text = m, fontSize = 7.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(text = m, fontSize = 9.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
-            // --- HIERARCHICAL INTEGRATED PANELS ---
-
-            // 1. TOP PRIORITY: Primary Key Metrics Integrated Strip
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White.copy(alpha = 0.92f))
-                    .border(0.8.dp, Color(0xFFDDD6FE), RoundedCornerShape(12.dp))
-                    .padding(horizontal = 8.dp, vertical = 7.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(text = "✓", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A))
-                        Text(
-                            text = "Good consistency this month",
-                            fontSize = 9.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF15803D)
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "BMI: 22.8",
-                            fontSize = 9.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF6B21A8)
-                        )
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50.dp))
-                                .background(Color(0xFFDCFCE7))
-                                .padding(horizontal = 5.dp, vertical = 1.dp)
-                        ) {
-                            Text(
-                                text = "Normal",
-                                fontSize = 8.5.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF15803D)
-                            )
-                        }
-                    }
-                }
-
-                Box(modifier = Modifier.fillMaxWidth().height(0.6.dp).background(Color(0xFFF1F5F9)))
-
-                // 4 Metric Columns (Weight, Muscle Mass, Body Fat, Waist)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("🏷️", fontSize = 9.5.sp)
-                            Text("Weight", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("69.5 kg", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("↓ 2.5 kg", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1.05f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("💪", fontSize = 9.5.sp)
-                            Text("Muscle", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("57.2 kg", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0284C7))
-                        Text("↑ 1.4 kg", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("%", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFF97316))
-                            Text("Body Fat", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("17.6 %", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("↓ 1.2 %", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
-                    }
-
-                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("📏", fontSize = 9.5.sp)
-                            Text("Waist", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        }
-                        Text("81 cm", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                        Text("↓ 4 cm", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
-                    }
-                }
-            }
-
-            // 2. MIDDLE PRIORITY: Top PR Lift & Muscle Focus Distribution Strip
+            // 1. TOP PRIORITY: Bench Press Top Lift & Muscle Focus Distribution Strip
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -2112,91 +2121,97 @@ fun MasterBodyProgressCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(text = "🏋️ Top Lift: Bench Press", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text(text = "65 ➔ 67.5 kg (+4% PR)", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
+                    Text(text = "🏋️ Top Lift: Bench Press", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    Text(text = "65 ➔ 67.5 kg (+4% PR)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
                 }
 
                 Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
 
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(text = "🎯 Current Focus:", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        Text(text = "Legs 43%", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF7C3AED))
+                        Text(text = "🎯 Current Focus:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text(text = "Legs 43%", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF7C3AED))
                     }
                     Text(
-                        text = "Arms 18% • Shoulders 12% • Back 11% • Chest 7%",
-                        fontSize = 8.sp,
+                        text = "Arms 18% • Delts 12% • Back 11% • Chest 7%",
+                        fontSize = 9.5.sp,
                         color = Color(0xFF334155),
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
             }
 
             // 3. BOTTOM PRIORITY: Conditioning, Overall Status & Goal Strip
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White.copy(alpha = 0.92f))
-                    .border(0.8.dp, Color(0xFFDDD6FE), RoundedCornerShape(10.dp))
-                    .padding(horizontal = 8.dp, vertical = 7.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = Color.White.copy(alpha = 0.94f),
+                border = BorderStroke(1.dp, Color(0xFFDDD6FE)),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "📊 Strength", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                    Text(text = "↑ 18%", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text(text = "Est. 1RM", fontSize = 8.sp, color = Color(0xFF475569), fontWeight = FontWeight.SemiBold)
-                }
-
-                Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
-
-                Column(
-                    modifier = Modifier.weight(1.05f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    Text(text = "❤️ Endurance", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                    Text(text = "↑ 22%", fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    Text(text = "Cardio Time", fontSize = 8.sp, color = Color(0xFF475569), fontWeight = FontWeight.SemiBold)
-                }
-
-                Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
-
-                Column(
-                    modifier = Modifier.weight(1.05f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Text(text = "📈 Progress", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(Color(0xFF10B981))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Text(
-                            text = "On Track",
-                            fontSize = 8.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+                        Text(text = "📊 Strength", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text(text = "↑ 18%", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text(text = "Est. 1RM", fontSize = 10.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.SemiBold)
                     }
-                }
 
-                Box(modifier = Modifier.width(1.dp).height(26.dp).background(Color(0xFFE2E8F0)))
+                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
 
-                Column(
-                    modifier = Modifier.weight(1.1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    Text(text = "🎯 Goal", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                    Text(text = "Lean Muscle", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF7C3AED))
-                    Text(text = "3 months", fontSize = 8.sp, color = Color(0xFF475569), fontWeight = FontWeight.SemiBold)
+                    Column(
+                        modifier = Modifier.weight(1.05f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(text = "❤️ Endurance", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text(text = "↑ 22%", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text(text = "Cardio Time", fontSize = 10.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.SemiBold)
+                    }
+
+                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
+
+                    Column(
+                        modifier = Modifier.weight(1.05f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(text = "📈 Progress", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color(0xFF10B981))
+                                .padding(horizontal = 7.dp, vertical = 2.5.dp)
+                        ) {
+                            Text(
+                                text = "On Track",
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+
+                    Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
+
+                    Column(
+                        modifier = Modifier.weight(1.1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(text = "🎯 Goal", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text(text = "Lean Muscle", fontSize = 14.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF7C3AED))
+                        Text(text = "3 months", fontSize = 10.5.sp, color = Color(0xFF475569), fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
         }
@@ -2246,13 +2261,13 @@ fun MasterFooterBanner(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "Consistent Steps, ",
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.White
                     )
                     Text(
                         text = "Brighter Days 彡",
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFFFACC15)
                     )
@@ -2271,13 +2286,13 @@ fun MasterFooterBanner(
             ) {
                 Text(
                     text = "Keep Going!",
-                    fontSize = 11.5.sp,
+                    fontSize = 12.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
                 Text(
                     text = "➔",
-                    fontSize = 11.5.sp,
+                    fontSize = 12.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
@@ -2297,13 +2312,13 @@ private fun TimeframeDropdownPill(text: String) {
             .clip(RoundedCornerShape(50.dp))
             .background(Color.White)
             .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(50.dp))
-            .padding(horizontal = 8.dp, vertical = 3.5.dp),
+            .padding(horizontal = 9.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Text(
             text = text,
-            fontSize = 10.sp,
+            fontSize = 11.5.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1E293B)
         )
@@ -2311,7 +2326,7 @@ private fun TimeframeDropdownPill(text: String) {
             imageVector = Icons.Default.KeyboardArrowDown,
             contentDescription = null,
             tint = Color(0xFF475569),
-            modifier = Modifier.size(11.dp)
+            modifier = Modifier.size(12.dp)
         )
     }
 }
@@ -2320,24 +2335,24 @@ private fun TimeframeDropdownPill(text: String) {
 private fun LegendDotItem(color: Color, label: String, value: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(3.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(6.dp)
+                .size(7.dp)
                 .clip(CircleShape)
                 .background(color)
         )
         Text(
             text = label,
-            fontSize = 9.sp,
+            fontSize = 11.5.sp,
             fontWeight = FontWeight.Medium,
             color = Color(0xFF475569)
         )
         if (value.isNotEmpty()) {
             Text(
                 text = value,
-                fontSize = 9.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A)
             )
@@ -2364,21 +2379,21 @@ private fun MiniStatCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = icon, fontSize = 13.sp)
+            Text(text = icon, fontSize = 14.sp)
             Column {
                 Text(
                     text = title,
-                    fontSize = 9.5.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF475569),
                     maxLines = 1
                 )
                 Text(
                     text = value,
-                    fontSize = 13.sp,
+                    fontSize = 14.5.sp,
                     fontWeight = FontWeight.Black,
                     color = valueColor,
-                    lineHeight = 14.sp
+                    lineHeight = 16.sp
                 )
             }
         }
@@ -2409,7 +2424,7 @@ private fun AttendanceStatusCircle(day: Int, status: Int) {
     ) {
         Text(
             text = "$day",
-            fontSize = 9.sp,
+            fontSize = 11.5.sp,
             fontWeight = FontWeight.Black,
             color = textColor
         )
@@ -2420,18 +2435,18 @@ private fun AttendanceStatusCircle(day: Int, status: Int) {
 private fun AttendanceLegendItem(label: String, count: String, color: Color, isHollow: Boolean = false) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.5.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(7.5.dp)
+                .size(8.dp)
                 .clip(CircleShape)
                 .background(if (isHollow) Color.Transparent else color)
                 .then(if (isHollow) Modifier.border(1.dp, color, CircleShape) else Modifier)
         )
         Text(
             text = "$label ($count)",
-            fontSize = 9.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF334155)
         )
