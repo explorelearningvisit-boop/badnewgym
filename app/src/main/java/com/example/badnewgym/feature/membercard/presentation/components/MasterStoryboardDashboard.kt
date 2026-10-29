@@ -478,9 +478,9 @@ private fun Attendance30DayTrendCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(cardShape)
-            .background(Color.White)
-            .border(1.2.dp, Color(0xFFBAE6FD), cardShape)
-            .padding(horizontal = 10.dp, vertical = 7.dp)
+            .background(Color(0xFFF8FEFA))
+            .border(1.2.dp, Color(0xFFA7F3D0), cardShape)
+            .padding(horizontal = 9.dp, vertical = 6.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -803,8 +803,10 @@ private data class MonthlyAttendanceBar(
     val month: String,
     val pctLabel: String?,
     val heightDp: Float,
+    val daysCount: String? = null,
     val isNoMember: Boolean = false,
     val isLow: Boolean = false,
+    val isBest: Boolean = false,
     val isActiveMonth: Boolean = false
 )
 
@@ -812,185 +814,252 @@ private data class MonthlyAttendanceBar(
 private fun AttendanceMonthlyTrendSection() {
     val monthlyData = remember {
         listOf(
-            MonthlyAttendanceBar("Jan", "100%", 28f),
-            MonthlyAttendanceBar("Feb", "85%", 24f),
-            MonthlyAttendanceBar("Mar", "60%", 17f, isLow = true),
+            MonthlyAttendanceBar("Jan", "100%", 32f, daysCount = "30"),
+            MonthlyAttendanceBar("Feb", "85%", 25f, daysCount = "24"),
+            MonthlyAttendanceBar("Mar", "60%", 17f, daysCount = "18", isLow = true),
             MonthlyAttendanceBar("Apr", null, 0f, isNoMember = true),
-            MonthlyAttendanceBar("May", "90%", 25f),
-            MonthlyAttendanceBar("Jun", "70%", 20f, isLow = true),
-            MonthlyAttendanceBar("Jul", "95%", 27f),
+            MonthlyAttendanceBar("May", "90%", 27f, daysCount = "27"),
+            MonthlyAttendanceBar("Jun", "70%", 20f, daysCount = "21", isLow = true),
+            MonthlyAttendanceBar("Jul", "95%", 29f, daysCount = "29"),
             MonthlyAttendanceBar("Aug", null, 0f, isNoMember = true),
-            MonthlyAttendanceBar("Sep", "80%", 22f),
-            MonthlyAttendanceBar("Oct", "90%", 25f, isActiveMonth = true),
-            MonthlyAttendanceBar("Nov", "75%", 21f, isLow = true),
-            MonthlyAttendanceBar("Dec", "100%", 28f)
+            MonthlyAttendanceBar("Sep", "80%", 23f, daysCount = "24"),
+            MonthlyAttendanceBar("Oct", "90%", 27f, daysCount = "27", isActiveMonth = true),
+            MonthlyAttendanceBar("Nov", "75%", 21f, daysCount = "23", isLow = true),
+            MonthlyAttendanceBar("Dec", "100%", 32f, daysCount = "30", isBest = true)
         )
     }
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(3.dp)
+    val trendShape = RoundedCornerShape(13.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(trendShape)
+            .background(Color(0xFFF0FDF4))
+            .border(1.2.dp, Color(0xFFA7F3D0), trendShape)
+            .padding(horizontal = 6.dp, vertical = 5.dp)
     ) {
-        // Header: Icon + Monthly Attendance Trend | 12 Months ⌵
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
+            // Header: Icon + Monthly Attendance Trend | 12 Months ⌵
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Mini 3-bar icon (emerald, violet, cyan)
                 Row(
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.spacedBy(1.5.dp),
-                    modifier = Modifier.height(13.dp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    Box(Modifier.width(3.dp).height(8.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF10B981)))
-                    Box(Modifier.width(3.dp).height(13.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF8B5CF6)))
-                    Box(Modifier.width(3.dp).height(10.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF06B6D4)))
+                    // Mini 3-bar icon (emerald, violet, cyan)
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(1.5.dp),
+                        modifier = Modifier.height(13.dp)
+                    ) {
+                        Box(Modifier.width(3.dp).height(8.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF10B981)))
+                        Box(Modifier.width(3.dp).height(13.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF8B5CF6)))
+                        Box(Modifier.width(3.dp).height(10.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF06B6D4)))
+                    }
+                    Text(
+                        text = "Monthly Attendance Trend",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF0F172A)
+                    )
                 }
-                Text(
-                    text = "Monthly Attendance Trend",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFF0F172A)
-                )
+
+                TimeframeDropdownPill(text = "12 Months")
             }
 
-            TimeframeDropdownPill(text = "12 Months")
-        }
+            Spacer(modifier = Modifier.height(1.dp))
 
-        Spacer(modifier = Modifier.height(1.dp))
-
-        // 12 Monthly Bars Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(44.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            monthlyData.forEach { item ->
-                val barBrush = if (item.isLow) {
-                    Brush.verticalGradient(listOf(Color(0xFFFCD34D), Color(0xFFF59E0B)))
-                } else {
-                    Brush.verticalGradient(listOf(Color(0xFF34D399), Color(0xFF059669)))
-                }
-
-                if (item.isActiveMonth) {
-                    // Active Month (Oct): Highlighted with green outline pill border encompassing % and bar!
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(7.dp))
-                            .border(1.2.dp, Color(0xFF059669), RoundedCornerShape(7.dp))
-                            .padding(horizontal = 1.dp, vertical = 2.dp),
-                        contentAlignment = Alignment.BottomCenter
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Bottom
-                        ) {
-                            Text(
-                                text = item.pctLabel ?: "",
-                                fontSize = 9.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF059669),
-                                maxLines = 1
-                            )
-                            Spacer(modifier = Modifier.height(1.5.dp))
-                            Box(
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(item.heightDp.dp)
-                                    .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
-                                    .background(barBrush)
-                            )
-                        }
+            // 12 Monthly Bars Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                monthlyData.forEach { item ->
+                    val barBrush = if (item.isLow) {
+                        Brush.verticalGradient(listOf(Color(0xFFFCD34D), Color(0xFFF59E0B)))
+                    } else {
+                        Brush.verticalGradient(listOf(Color(0xFF34D399), Color(0xFF059669)))
                     }
-                } else {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        if (item.pctLabel != null) {
-                            Text(
-                                text = item.pctLabel,
-                                fontSize = 9.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF475569),
-                                maxLines = 1
-                            )
-                        } else {
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
 
-                        Spacer(modifier = Modifier.height(1.5.dp))
-
-                        if (item.isNoMember) {
-                            Box(
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(22.dp)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(Color(0xFFF8FAFC))
-                                    .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
-                                contentAlignment = Alignment.Center
+                    if (item.isActiveMonth) {
+                        // Active Month (Oct): Highlighted with green outline pill border encompassing % and bar!
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(7.dp))
+                                .border(1.2.dp, Color(0xFF059669), RoundedCornerShape(7.dp))
+                                .padding(horizontal = 1.dp, vertical = 2.dp),
+                            contentAlignment = Alignment.BottomCenter
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Bottom
                             ) {
                                 Text(
-                                    text = "No\nMember",
-                                    fontSize = 7.8.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF64748B),
-                                    textAlign = TextAlign.Center,
-                                    lineHeight = 8.5.sp,
-                                    maxLines = 2,
-                                    softWrap = false
+                                    text = item.pctLabel ?: "",
+                                    fontSize = 9.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF059669),
+                                    maxLines = 1
                                 )
+                                Spacer(modifier = Modifier.height(1.5.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                        .height(item.heightDp.dp)
+                                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                                        .background(barBrush),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (item.daysCount != null) {
+                                        Text(
+                                            text = item.daysCount,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Black,
+                                            color = Color.White
+                                        )
+                                    }
+                                }
                             }
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(item.heightDp.dp)
-                                    .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
-                                    .background(barBrush)
-                            )
+                        }
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Bottom,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            // Best / Min callouts
+                            if (item.isBest) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(Color(0xFFDCFCE7))
+                                        .border(0.6.dp, Color(0xFF10B981), RoundedCornerShape(3.dp))
+                                        .padding(horizontal = 2.dp, vertical = 0.5.dp)
+                                ) {
+                                    Text(
+                                        text = "★ Best",
+                                        fontSize = 6.8.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color(0xFF047857),
+                                        maxLines = 1,
+                                        lineHeight = 7.sp
+                                    )
+                                }
+                            } else if (item.isLow && item.month == "Mar") {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(Color(0xFFFEF3C7))
+                                        .border(0.6.dp, Color(0xFFF59E0B), RoundedCornerShape(3.dp))
+                                        .padding(horizontal = 2.dp, vertical = 0.5.dp)
+                                ) {
+                                    Text(
+                                        text = "▼ Min",
+                                        fontSize = 6.8.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color(0xFFB45309),
+                                        maxLines = 1,
+                                        lineHeight = 7.sp
+                                    )
+                                }
+                            }
+
+                            if (item.pctLabel != null) {
+                                Text(
+                                    text = item.pctLabel,
+                                    fontSize = 9.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF475569),
+                                    maxLines = 1
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.height(10.dp))
+                            }
+
+                            Spacer(modifier = Modifier.height(1.5.dp))
+
+                            if (item.isNoMember) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                        .height(22.dp)
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(Color(0xFFF8FAFC))
+                                        .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "No\nMem",
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF64748B),
+                                        textAlign = TextAlign.Center,
+                                        lineHeight = 8.sp,
+                                        maxLines = 2,
+                                        softWrap = false
+                                    )
+                                }
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                        .height(item.heightDp.dp)
+                                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                                        .background(barBrush),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (item.daysCount != null) {
+                                        Text(
+                                            text = item.daysCount,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Black,
+                                            color = Color.White
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // Subtle continuous horizontal baseline
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(0.8.dp)
-                .background(Color(0xFFE2E8F0).copy(alpha = 0.7f))
-        )
+            // Subtle continuous horizontal baseline
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(0.8.dp)
+                    .background(Color(0xFFE2E8F0).copy(alpha = 0.7f))
+            )
 
-        // Month labels row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            monthlyData.forEach { item ->
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = item.month,
-                        fontSize = 10.5.sp,
-                        fontWeight = if (item.isActiveMonth) FontWeight.Black else FontWeight.Bold,
-                        color = if (item.isActiveMonth) Color(0xFF059669) else Color(0xFF64748B)
-                    )
+            // Month labels row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                monthlyData.forEach { item ->
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = item.month,
+                            fontSize = 10.5.sp,
+                            fontWeight = if (item.isActiveMonth) FontWeight.Black else FontWeight.Bold,
+                            color = if (item.isActiveMonth) Color(0xFF059669) else Color(0xFF64748B)
+                        )
+                    }
                 }
             }
         }
@@ -1009,8 +1078,8 @@ private fun AttendanceKeyInsightsCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(cardShape)
-            .background(Color.White)
-            .border(1.dp, Color(0xFFE2E8F0), cardShape)
+            .background(Color(0xFFF8FEFA))
+            .border(1.dp, Color(0xFFA7F3D0).copy(alpha = 0.8f), cardShape)
             .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
         Column(
@@ -1236,7 +1305,7 @@ private fun Workout30DayTrendCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(cardShape)
-            .background(Color.White)
+            .background(Color(0xFFF0F9FF).copy(alpha = 0.5f))
             .border(1.2.dp, Color(0xFFBAE6FD), cardShape)
             .padding(horizontal = 10.dp, vertical = 7.dp)
     ) {
@@ -1901,7 +1970,8 @@ private data class MonthlyWorkoutItem(
     val heightDp: Float,
     val isNoMembership: Boolean = false,
     val isPeak: Boolean = false,
-    val isLow: Boolean = false
+    val isLow: Boolean = false,
+    val isTop: Boolean = false
 )
 
 @Composable
@@ -1916,7 +1986,7 @@ private fun WorkoutMonthlyPatternCard() {
             MonthlyWorkoutItem("Apr", null, 0f, isNoMembership = true),
             MonthlyWorkoutItem("May", "12d", 18f),
             MonthlyWorkoutItem("Jun", "16d", 23f),
-            MonthlyWorkoutItem("Jul", "22d", 32f, isPeak = true),
+            MonthlyWorkoutItem("Jul", "22d", 32f, isPeak = true, isTop = true),
             MonthlyWorkoutItem("Aug", null, 0f, isNoMembership = true),
             MonthlyWorkoutItem("Sep", "14d", 20f),
             MonthlyWorkoutItem("Oct", "22d", 32f),
@@ -1929,8 +1999,8 @@ private fun WorkoutMonthlyPatternCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(cardShape)
-            .background(Color.White)
-            .border(1.dp, Color(0xFFE2E8F0), cardShape)
+            .background(Color(0xFFF0F9FF).copy(alpha = 0.5f))
+            .border(1.dp, Color(0xFFBAE6FD), cardShape)
             .padding(horizontal = 9.dp, vertical = 6.dp)
     ) {
         Column(
@@ -1973,7 +2043,7 @@ private fun WorkoutMonthlyPatternCard() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(44.dp),
+                    .height(48.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -1983,6 +2053,43 @@ private fun WorkoutMonthlyPatternCard() {
                         verticalArrangement = Arrangement.Bottom,
                         modifier = Modifier.weight(1f)
                     ) {
+                        // Top / Low Callout Badges
+                        if (item.isTop) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color(0xFFDCFCE7))
+                                    .border(0.6.dp, Color(0xFF10B981), RoundedCornerShape(3.dp))
+                                    .padding(horizontal = 2.dp, vertical = 0.5.dp)
+                            ) {
+                                Text(
+                                    text = "★ Top",
+                                    fontSize = 6.8.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF047857),
+                                    maxLines = 1,
+                                    lineHeight = 7.sp
+                                )
+                            }
+                        } else if (item.isLow && item.month == "Mar") {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color(0xFFFEF3C7))
+                                    .border(0.6.dp, Color(0xFFF59E0B), RoundedCornerShape(3.dp))
+                                    .padding(horizontal = 2.dp, vertical = 0.5.dp)
+                            ) {
+                                Text(
+                                    text = "▼ Low",
+                                    fontSize = 6.8.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFFB45309),
+                                    maxLines = 1,
+                                    lineHeight = 7.sp
+                                )
+                            }
+                        }
+
                         // Value label on top
                         if (item.daysLabel != null) {
                             Text(
@@ -2098,8 +2205,8 @@ fun MasterPaymentCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(cardShape)
-            .background(Color.White)
-            .border(1.2.dp, Color(0xFFFDA4AF), cardShape)
+            .background(Color(0xFFFFF1F2).copy(alpha = 0.45f))
+            .border(1.2.dp, Color(0xFFFECDD3), cardShape)
             .clickable { onClick() }
             .padding(horizontal = 9.dp, vertical = 6.dp)
     ) {
@@ -2905,7 +3012,7 @@ fun MasterBodyProgressCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(cardShape)
-            .background(Color.White)
+            .background(Color(0xFFFAF5FF).copy(alpha = 0.6f))
             .border(1.2.dp, Color(0xFFDDD6FE), cardShape)
             .clickable { onClick() }
             .padding(horizontal = 9.dp, vertical = 6.dp)
@@ -2936,12 +3043,12 @@ fun MasterBodyProgressCard(
             ) {
                 // Left Pod: Workout Distribution (6 Anatomical Figures)
                 WorkoutDistributionPod(
-                    modifier = Modifier.weight(1.22f)
+                    modifier = Modifier.weight(1.15f)
                 )
 
                 // Right Pod: Activity Type (4 Donut Rings)
                 ActivityTypePod(
-                    modifier = Modifier.weight(0.98f)
+                    modifier = Modifier.weight(1.05f)
                 )
             }
         }
@@ -3435,23 +3542,25 @@ private fun BodyProgressTrendSection(
             ) {
                 // Y-Axis labels
                 val yLabels = when (selectedMetricIndex) {
-                    0 -> listOf("76", "72", "68", "64 (kg)")
-                    1 -> listOf("60", "57", "54", "51 (kg)")
-                    2 -> listOf("22", "18", "14", "10 (%)")
+                    0 -> listOf("76", "72", "68", "64")
+                    1 -> listOf("60", "57", "54", "51")
+                    2 -> listOf("22", "18", "14", "10")
                     else -> listOf("26", "24", "22", "20")
                 }
 
                 Column(
-                    modifier = Modifier.height(29.dp),
+                    modifier = Modifier.height(38.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.End
                 ) {
                     yLabels.forEach { label ->
                         Text(
                             text = label,
-                            fontSize = 9.5.sp,
+                            fontSize = 8.8.sp,
                             color = Color(0xFF64748B),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 9.sp,
+                            maxLines = 1
                         )
                     }
                 }
@@ -3462,7 +3571,7 @@ private fun BodyProgressTrendSection(
                 Canvas(
                     modifier = Modifier
                         .weight(1f)
-                        .height(34.dp)
+                        .height(38.dp)
                 ) {
                     val count = 12
                     val step = size.width / (count - 1).toFloat()
@@ -3580,6 +3689,13 @@ private fun BodyProgressTrendSection(
 // SECTION 4: BOTTOM PODS (Workout Distribution + Activity Type)
 // -----------------------------------------------------------------------------
 
+private data class MuscleDistributionItem(
+    val name: String,
+    val pct: String,
+    val color: Color,
+    val iconRes: Int
+)
+
 @Composable
 private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
     Box(
@@ -3587,7 +3703,7 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-            .padding(horizontal = 5.dp, vertical = 4.dp)
+            .padding(horizontal = 6.dp, vertical = 5.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -3609,7 +3725,7 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                         modifier = Modifier.size(11.dp)
                     )
                     Text(
-                        text = "Workout Distribution",
+                        text = "Distribution",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A)
@@ -3627,7 +3743,7 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text = "This Month",
-                        fontSize = 9.5.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF475569)
                     )
@@ -3640,43 +3756,46 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                 }
             }
 
-            // 6 Anatomical Body Figures Row
+            // 6 Anatomical Body Figures Row with Transparent Graphics
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val distribution = listOf(
-                    Triple("Chest", "12%", Color(0xFF2563EB)),
-                    Triple("Back", "18%", Color(0xFF10B981)),
-                    Triple("Shoulder", "14%", Color(0xFFF59E0B)),
-                    Triple("Biceps", "16%", Color(0xFF8B5CF6)),
-                    Triple("Triceps", "10%", Color(0xFFEF4444)),
-                    Triple("Legs", "30%", Color(0xFF10B981))
-                )
+                val distribution = remember {
+                    listOf(
+                        MuscleDistributionItem("Chest", "12%", Color(0xFF2563EB), R.drawable.ic_muscle_chest),
+                        MuscleDistributionItem("Back", "18%", Color(0xFF10B981), R.drawable.ic_muscle_back),
+                        MuscleDistributionItem("Shoulder", "14%", Color(0xFFF59E0B), R.drawable.ic_muscle_shoulder),
+                        MuscleDistributionItem("Biceps", "16%", Color(0xFF8B5CF6), R.drawable.ic_muscle_biceps),
+                        MuscleDistributionItem("Triceps", "10%", Color(0xFFEF4444), R.drawable.ic_muscle_triceps),
+                        MuscleDistributionItem("Legs", "30%", Color(0xFF10B981), R.drawable.ic_muscle_legs)
+                    )
+                }
 
-                distribution.forEach { (name, pct, color) ->
+                distribution.forEach { item ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
-                        AnatomicalMuscleSilhouette(
-                            muscle = name,
-                            highlightColor = color,
-                            modifier = Modifier.size(width = 16.dp, height = 24.dp)
+                        Image(
+                            painter = painterResource(id = item.iconRes),
+                            contentDescription = item.name,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(width = 17.dp, height = 24.dp)
                         )
                         Text(
-                            text = name,
-                            fontSize = 9.5.sp,
+                            text = item.name,
+                            fontSize = 9.2.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF334155),
                             maxLines = 1
                         )
                         Text(
-                            text = pct,
+                            text = item.pct,
                             fontSize = 10.5.sp,
                             fontWeight = FontWeight.Black,
-                            color = color,
+                            color = item.color,
                             maxLines = 1
                         )
                         Box(
@@ -3684,155 +3803,10 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                                 .width(12.dp)
                                 .height(2.dp)
                                 .clip(RoundedCornerShape(50.dp))
-                                .background(color)
+                                .background(item.color)
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun AnatomicalMuscleSilhouette(
-    muscle: String,
-    highlightColor: Color,
-    modifier: Modifier = Modifier
-) {
-    Canvas(modifier = modifier) {
-        val w = size.width
-        val h = size.height
-        val baseColor = Color(0xFFCBD5E1)
-
-        if (muscle.equals("Legs", ignoreCase = true)) {
-            // Pelvis
-            drawRoundRect(
-                color = baseColor,
-                topLeft = Offset(w * 0.22f, h * 0.05f),
-                size = Size(w * 0.56f, h * 0.22f),
-                cornerRadius = CornerRadius(2.dp.toPx())
-            )
-            // Left Leg Quad & Calf
-            val leftLegPath = Path().apply {
-                moveTo(w * 0.25f, h * 0.26f)
-                lineTo(w * 0.46f, h * 0.26f)
-                lineTo(w * 0.44f, h * 0.95f)
-                lineTo(w * 0.22f, h * 0.95f)
-                close()
-            }
-            drawPath(path = leftLegPath, color = highlightColor)
-
-            // Right Leg Quad & Calf
-            val rightLegPath = Path().apply {
-                moveTo(w * 0.54f, h * 0.26f)
-                lineTo(w * 0.75f, h * 0.26f)
-                lineTo(w * 0.78f, h * 0.95f)
-                lineTo(w * 0.56f, h * 0.95f)
-                close()
-            }
-            drawPath(path = rightLegPath, color = highlightColor)
-            return@Canvas
-        }
-
-        // Head
-        drawOval(
-            color = baseColor,
-            topLeft = Offset(w * 0.33f, 0f),
-            size = Size(w * 0.34f, h * 0.22f)
-        )
-
-        // Torso Base
-        val torsoPath = Path().apply {
-            moveTo(w * 0.16f, h * 0.28f)
-            lineTo(w * 0.84f, h * 0.28f)
-            lineTo(w * 0.76f, h * 0.82f)
-            lineTo(w * 0.24f, h * 0.82f)
-            close()
-        }
-        drawPath(path = torsoPath, color = baseColor.copy(alpha = 0.5f))
-
-        // Left Arm Base
-        drawRoundRect(
-            color = baseColor,
-            topLeft = Offset(w * 0.05f, h * 0.32f),
-            size = Size(w * 0.14f, h * 0.52f),
-            cornerRadius = CornerRadius(2.dp.toPx())
-        )
-        // Right Arm Base
-        drawRoundRect(
-            color = baseColor,
-            topLeft = Offset(w * 0.81f, h * 0.32f),
-            size = Size(w * 0.14f, h * 0.52f),
-            cornerRadius = CornerRadius(2.dp.toPx())
-        )
-
-        // Highlight Specific Muscle Groups
-        when (muscle.lowercase()) {
-            "chest" -> {
-                drawRoundRect(
-                    color = highlightColor,
-                    topLeft = Offset(w * 0.25f, h * 0.32f),
-                    size = Size(w * 0.22f, h * 0.18f),
-                    cornerRadius = CornerRadius(2.dp.toPx())
-                )
-                drawRoundRect(
-                    color = highlightColor,
-                    topLeft = Offset(w * 0.53f, h * 0.32f),
-                    size = Size(w * 0.22f, h * 0.18f),
-                    cornerRadius = CornerRadius(2.dp.toPx())
-                )
-            }
-            "back" -> {
-                val backPath = Path().apply {
-                    moveTo(w * 0.24f, h * 0.30f)
-                    lineTo(w * 0.76f, h * 0.30f)
-                    lineTo(w * 0.68f, h * 0.72f)
-                    lineTo(w * 0.32f, h * 0.72f)
-                    close()
-                }
-                drawPath(path = backPath, color = highlightColor)
-            }
-            "shoulder" -> {
-                drawRoundRect(
-                    color = highlightColor,
-                    topLeft = Offset(w * 0.08f, h * 0.26f),
-                    size = Size(w * 0.18f, h * 0.20f),
-                    cornerRadius = CornerRadius(2.dp.toPx())
-                )
-                drawRoundRect(
-                    color = highlightColor,
-                    topLeft = Offset(w * 0.74f, h * 0.26f),
-                    size = Size(w * 0.18f, h * 0.20f),
-                    cornerRadius = CornerRadius(2.dp.toPx())
-                )
-            }
-            "biceps" -> {
-                drawRoundRect(
-                    color = highlightColor,
-                    topLeft = Offset(w * 0.05f, h * 0.38f),
-                    size = Size(w * 0.15f, h * 0.26f),
-                    cornerRadius = CornerRadius(2.dp.toPx())
-                )
-                drawRoundRect(
-                    color = highlightColor,
-                    topLeft = Offset(w * 0.80f, h * 0.38f),
-                    size = Size(w * 0.15f, h * 0.26f),
-                    cornerRadius = CornerRadius(2.dp.toPx())
-                )
-            }
-            "triceps" -> {
-                drawRoundRect(
-                    color = highlightColor,
-                    topLeft = Offset(w * 0.03f, h * 0.36f),
-                    size = Size(w * 0.14f, h * 0.28f),
-                    cornerRadius = CornerRadius(2.dp.toPx())
-                )
-                drawRoundRect(
-                    color = highlightColor,
-                    topLeft = Offset(w * 0.83f, h * 0.36f),
-                    size = Size(w * 0.14f, h * 0.28f),
-                    cornerRadius = CornerRadius(2.dp.toPx())
-                )
             }
         }
     }
@@ -3845,10 +3819,10 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-            .padding(horizontal = 5.dp, vertical = 4.dp)
+            .padding(horizontal = 7.dp, vertical = 5.dp)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(3.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             // Header Row: 🏃 Activity Type + >
             Row(
@@ -3858,17 +3832,17 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.DirectionsRun,
                         contentDescription = null,
                         tint = Color(0xFF0284C7),
-                        modifier = Modifier.size(12.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                     Text(
                         text = "Activity Type",
-                        fontSize = 12.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A)
                     )
@@ -3878,7 +3852,7 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,
                     tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(13.dp)
+                    modifier = Modifier.size(14.dp)
                 )
             }
 
@@ -3888,25 +3862,27 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val activities = listOf(
-                    ActivityData("Gym", 65, "18 Days", Color(0xFF7C3AED), Icons.Default.FitnessCenter),
-                    ActivityData("Cardio", 25, "7 Days", Color(0xFF10B981), Icons.Default.DirectionsRun),
-                    ActivityData("Running", 5, "2 Days", Color(0xFF0284C7), Icons.Default.DirectionsWalk),
-                    ActivityData("Mixed", 5, "2 Days", Color(0xFFF97316), Icons.Default.FitnessCenter)
-                )
+                val activities = remember {
+                    listOf(
+                        ActivityData("Gym", 65, "18 Days", Color(0xFF7C3AED), Icons.Default.FitnessCenter),
+                        ActivityData("Cardio", 25, "7 Days", Color(0xFF10B981), Icons.Default.DirectionsRun),
+                        ActivityData("Running", 5, "2 Days", Color(0xFF0284C7), Icons.Default.DirectionsWalk),
+                        ActivityData("Mixed", 5, "2 Days", Color(0xFFF97316), Icons.Default.FitnessCenter)
+                    )
+                }
 
                 activities.forEach { act ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.dp)
+                        verticalArrangement = Arrangement.spacedBy(1.5.dp)
                     ) {
                         // Donut Ring with Icon
                         Box(
-                            modifier = Modifier.size(25.dp),
+                            modifier = Modifier.size(28.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Canvas(modifier = Modifier.fillMaxSize()) {
-                                val strokeWidth = 2.4.dp.toPx()
+                                val strokeWidth = 2.6.dp.toPx()
                                 drawCircle(
                                     color = Color(0xFFF1F5F9),
                                     style = Stroke(width = strokeWidth)
@@ -3924,27 +3900,27 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
                                 imageVector = act.icon,
                                 contentDescription = act.name,
                                 tint = act.color,
-                                modifier = Modifier.size(11.dp)
+                                modifier = Modifier.size(13.dp)
                             )
                         }
 
                         Text(
                             text = act.name,
-                            fontSize = 9.5.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF475569),
                             maxLines = 1
                         )
                         Text(
                             text = "${act.percent}%",
-                            fontSize = 10.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             color = act.color,
                             maxLines = 1
                         )
                         Text(
                             text = act.days,
-                            fontSize = 8.5.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B),
                             maxLines = 1

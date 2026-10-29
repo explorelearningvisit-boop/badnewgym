@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -355,45 +356,60 @@ fun BadGymMemberPassCard(
             }
 
             // =========================================================================
-            // ROW 3: FULL-WIDTH DAYS LEFT CAPSULE BAR
+            // ROW 3: FULL-WIDTH DAYS LEFT DATA-DRIVEN HORIZONTAL PROGRESS BAR
             // =========================================================================
+            val progressFraction = (pass.daysLeft.toFloat() / pass.totalDays.toFloat().coerceAtLeast(1f)).coerceIn(0f, 1f)
             Surface(
                 shape = RoundedCornerShape(50.dp),
-                color = Color.Transparent,
+                color = Color(0xFF064E3B), // Deep dark green base track
+                border = BorderStroke(0.8.dp, Color(0xFF059669).copy(alpha = 0.6f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(34.dp)
+                    .clip(RoundedCornerShape(50.dp))
                     .clickable { onChevronClick() }
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(
-                                    Color(0xFF05654B),
-                                    Color(0xFF044E3B),
-                                    Color(0xFF033B2C)
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    // Active filled portion proportional to actual data (e.g., 92/180 = 51%)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(progressFraction)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(50.dp))
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color(0xFF10B981), // Vibrant Emerald Mint
+                                        Color(0xFF059669)  // Rich Emerald Green
+                                    )
                                 )
                             )
-                        )
-                        .padding(horizontal = 14.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "${pass.daysLeft} / ${pass.totalDays} Days Left",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
                     )
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
-                        tint = Color.White,
+
+                    // Text & Chevron Row across full bar
+                    Row(
                         modifier = Modifier
-                            .size(16.dp)
-                            .align(Alignment.CenterEnd)
-                    )
+                            .fillMaxSize()
+                            .padding(horizontal = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "${pass.daysLeft} / ${pass.totalDays} Days Left (${(progressFraction * 100).toInt()}%)",
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
 
