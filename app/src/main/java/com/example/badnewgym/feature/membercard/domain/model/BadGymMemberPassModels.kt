@@ -148,6 +148,30 @@ data class BadGymMemberPass(
     val isVerified: Boolean = true
 ) {
     companion object {
+        fun sampleAshwaniKumarSingh(): BadGymMemberPass = BadGymMemberPass(
+            tier = BadGymPassTier.SILVER,
+            memberId = "BG215",
+            name = "Ashwani Kumar Singh Srivastav",
+            age = 28,
+            gender = "Male",
+            quote = "Discipline Builds Freedom",
+            quoteEmoji = "",
+            startDate = "01 Aug 2026",
+            endDate = "31 Aug 2026",
+            daysLeft = 8,
+            totalDays = 30,
+            isOverdue = false,
+            height = "5'9\"",
+            weight = "74.1 kg",
+            bmi = "23.5",
+            goal = "Fat Loss",
+            avatarRes = R.drawable.avatar_ashwini,
+            planName = "Starter Plan SILVER",
+            planPrice = "30 Days Plan",
+            branchName = "Varanasi",
+            isVerified = true
+        )
+
         fun sampleRohitKumarSingh(): BadGymMemberPass = BadGymMemberPass(
             tier = BadGymPassTier.SILVER,
             memberId = "BG215",
@@ -175,7 +199,9 @@ data class BadGymMemberPass(
         fun getAll8Passes(): List<BadGymMemberPass> = getAll9Passes()
 
         fun getAll9Passes(): List<BadGymMemberPass> = listOf(
-            // 01: Canonical Master Rohit Kumar Singh (Silver 6 Months Luxury White)
+            // 01: Canonical Master Ashwani Kumar Singh Srivastav (Infographic Blueprint 1:1)
+            sampleAshwaniKumarSingh(),
+            // 02: Canonical Master Rohit Kumar Singh (Silver 6 Months Luxury White)
             sampleRohitKumarSingh(),
             // 02: Emerald Green (Saturated Glass)
             BadGymMemberPass(

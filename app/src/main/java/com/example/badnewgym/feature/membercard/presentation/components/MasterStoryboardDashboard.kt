@@ -121,6 +121,10 @@ fun MasterStoryboardDashboard(
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+    val passes = remember { BadGymMemberPass.getAll9Passes() }
+    var currentPassIndex by remember { mutableIntStateOf(0) }
+    val currentPass = passes.getOrElse(currentPassIndex) { passes.first() }
+
     val hasDues = data.paymentPlan.dueAlertAmount.isNotEmpty() || data.paymentPlan.currentDueAmount.isNotEmpty()
     val initialCardType = if (hasDues) MemberCardType.PAYMENT else MemberCardType.CHECK_IN
     val initialTabIndex = if (hasDues) 2 else 0
@@ -138,10 +142,10 @@ fun MasterStoryboardDashboard(
             } else {
                 val first = lazyListState.firstVisibleItemIndex
                 when {
-                    first <= 1 -> 0
-                    first == 2 -> 0 // Attendance
-                    first == 3 -> 1 // Workout
-                    first == 4 -> 2 // Payment
+                    first <= 4 -> 0
+                    first == 5 -> 0 // Attendance
+                    first == 6 -> 1 // Workout
+                    first == 7 -> 2 // Payment
                     else -> 3       // Body Progress
                 }
             }
@@ -154,148 +158,184 @@ fun MasterStoryboardDashboard(
         state = lazyListState,
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+            .padding(horizontal = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        // 1. TOP HERO HEADER & 8 MEMBER PASS SHOWCASE
-        item(key = "master_hero_header") {
-            Box(modifier = Modifier.padding(bottom = 5.dp)) {
-                MasterHeroHeader(
-                    data = data,
-                    cardType = currentCardType,
-                    paymentStatus = currentPaymentStatus,
-                    onCardTypeCycle = {
-                        val types = MemberCardType.entries
-                        val nextIdx = (types.indexOf(currentCardType) + 1) % types.size
-                        currentCardType = types[nextIdx]
-                        if (currentCardType == MemberCardType.PAYMENT) {
-                            selectedTabIndex = 2
-                        } else if (currentCardType == MemberCardType.CHECK_IN || currentCardType == MemberCardType.CHECK_OUT) {
-                            selectedTabIndex = 0
-                        }
-                    },
-                    onPaymentStatusCycle = {
-                        val statuses = PaymentStatus.entries
-                        val nextIdx = (statuses.indexOf(currentPaymentStatus) + 1) % statuses.size
-                        currentPaymentStatus = statuses[nextIdx]
-                    },
-                    onAvatarClick = onAvatarClick
-                )
-            }
-        }
-
-        // 2. STICKY MENU BAR (Blends color seamlessly into active widget below)
-        stickyHeader(key = "master_sticky_menu_bar") {
-            MasterStoryboardStickyMenuBar(
-                selectedTabIndex = activeIndex,
-                onTabSelected = { index ->
-                    selectedTabIndex = index
-                    currentCardType = when (index) {
-                        0 -> MemberCardType.CHECK_IN
-                        1 -> MemberCardType.MEMBER_PASS
-                        2 -> MemberCardType.PAYMENT
-                        else -> MemberCardType.TRAINER_CHECK_IN
-                    }
-                    if (isAllExpandedMode) {
-                        coroutineScope.launch {
-                            // Item 0 is hero, 1 is sticky header, items 2..5 are widgets
-                            lazyListState.animateScrollToItem(index = index + 2)
-                        }
+        // =====================================================================
+        // 1. TOP HEADER COMPONENT (Component 1 in Infographic Specification)
+        // =====================================================================
+        item(key = "infographic_component_1_header") {
+            Spacer(modifier = Modifier.height(2.dp))
+            TopHeaderComponent(
+                planTitle = currentPass.tier.title,
+                checkInTime = "Today • 08:49 AM",
+                isActive = !currentPass.isOverdue,
+                cardType = currentCardType,
+                paymentStatus = currentPaymentStatus,
+                onCheckInClick = {
+                    val types = MemberCardType.entries
+                    val nextIdx = (types.indexOf(currentCardType) + 1) % types.size
+                    currentCardType = types[nextIdx]
+                    if (currentCardType == MemberCardType.PAYMENT) {
+                        selectedTabIndex = 2
+                    } else if (currentCardType == MemberCardType.CHECK_IN || currentCardType == MemberCardType.CHECK_OUT) {
+                        selectedTabIndex = 0
+                    } else if (currentCardType == MemberCardType.TRAINER_CHECK_IN) {
+                        selectedTabIndex = 1
                     }
                 },
-                isAllExpanded = isAllExpandedMode,
-                onToggleExpandedMode = {
-                    isAllExpandedMode = !isAllExpandedMode
+                onPlanClick = {
+                    currentPassIndex = (currentPassIndex + 1) % passes.size
                 }
             )
         }
 
-        // 3. BELOW EXPANDED WIDGETS
+        // =====================================================================
+        // 2. PROFILE SECTION (Component 2 in Infographic Specification)
+        // =====================================================================
+        item(key = "infographic_component_2_profile") {
+            ProfileSection(
+                name = currentPass.name,
+                memberId = currentPass.memberId,
+                age = currentPass.age,
+                gender = currentPass.gender,
+                quote = currentPass.quote,
+                validity = "${currentPass.startDate} – ${currentPass.endDate} (${currentPass.totalDays} Days Plan)",
+                avatarRes = currentPass.avatarRes,
+                onAvatarClick = {
+                    currentPassIndex = (currentPassIndex + 1) % passes.size
+                    onAvatarClick()
+                }
+            )
+        }
+
+        // =====================================================================
+        // 3. PROGRESS & PAYMENT ROW (Component 3 in Infographic Specification)
+        // =====================================================================
+        item(key = "infographic_component_3_progress_payment") {
+            ProgressAndPaymentRow(
+                daysPassed = currentPass.totalDays - currentPass.daysLeft,
+                totalDays = currentPass.totalDays,
+                paidAmount = "₹500",
+                paidTime = "08:49 AM",
+                onProgressClick = {
+                    selectedTabIndex = 0
+                    currentCardType = MemberCardType.CHECK_IN
+                    onAttendanceClick()
+                },
+                onPaymentClick = {
+                    currentCardType = MemberCardType.PAYMENT
+                    selectedTabIndex = 2
+                    currentPaymentStatus = if (currentPaymentStatus == PaymentStatus.DONE) PaymentStatus.PENDING else PaymentStatus.DONE
+                    onPaymentClick()
+                }
+            )
+        }
+
+        // =====================================================================
+        // 4. STATS ROW (COMPACT) (Component 4 in Infographic Specification)
+        // =====================================================================
+        item(key = "infographic_component_4_stats") {
+            StatsRowCompact(
+                height = currentPass.height,
+                weight = currentPass.weight,
+                bmi = currentPass.bmi,
+                bmiCategory = "Normal",
+                goal = currentPass.goal,
+                onGoalClick = onBodyProgressClick
+            )
+        }
+
+        // =====================================================================
+        // 5. MENU ROW (4 TABS) (Component 5 in Infographic Specification)
+        // =====================================================================
+        stickyHeader(key = "infographic_component_5_menu") {
+            Surface(color = Color.Transparent, modifier = Modifier.fillMaxWidth()) {
+                MenuRow4Tabs(
+                    selectedTabIndex = activeIndex,
+                    onTabSelected = { index ->
+                        selectedTabIndex = index
+                        currentCardType = when (index) {
+                            0 -> MemberCardType.CHECK_IN
+                            1 -> MemberCardType.TRAINER_CHECK_IN
+                            2 -> MemberCardType.PAYMENT
+                            else -> MemberCardType.MEMBER_PASS
+                        }
+                        if (isAllExpandedMode) {
+                            coroutineScope.launch {
+                                lazyListState.animateScrollToItem(index = index + 5)
+                            }
+                        }
+                    },
+                    attendanceRate = "90%",
+                    workoutAvg = "70m",
+                    paymentDue = "₹800",
+                    bodyWeight = currentPass.weight
+                )
+            }
+        }
+
+        // =====================================================================
+        // 6 & 7. ACTIVE WIDGET / EXPANDED SECTIONS
+        // =====================================================================
         if (isAllExpandedMode) {
-            // ALL 4 WIDGETS EXPANDED VERTICALLY
-            item(key = "widget_attendance") {
-                Box(modifier = Modifier.padding(top = 5.dp, bottom = 3.dp)) {
-                    MasterAttendanceCard(
-                        data = data,
-                        onClick = onAttendanceClick,
-                        isBlendedWithTab = false
-                    )
-                }
+            item(key = "all_attendance") {
+                AttendanceSection(onMonthPrev = {}, onMonthNext = {})
             }
-            item(key = "widget_workout") {
-                Box(modifier = Modifier.padding(vertical = 3.dp)) {
-                    MasterWorkoutTrendCard(
-                        data = data,
-                        onClick = onWorkoutClick,
-                        isBlendedWithTab = false
-                    )
-                }
+            item(key = "all_monthly_trend") {
+                MonthlyTrendSection()
             }
-            item(key = "widget_payment") {
-                Box(modifier = Modifier.padding(vertical = 3.dp)) {
-                    MasterPaymentCard(
-                        data = data,
-                        onClick = onPaymentClick,
-                        onViewReceiptClick = onViewReceiptClick,
-                        isBlendedWithTab = false
-                    )
-                }
+            item(key = "all_workout") {
+                MasterWorkoutTrendCard(data = data, onClick = onWorkoutClick)
             }
-            item(key = "widget_body") {
-                Box(modifier = Modifier.padding(vertical = 3.dp)) {
-                    MasterBodyProgressCard(
-                        data = data,
-                        onClick = onBodyProgressClick,
-                        isBlendedWithTab = false
-                    )
-                }
+            item(key = "all_payment") {
+                MasterPaymentCard(data = data, onClick = onPaymentClick, onViewReceiptClick = onViewReceiptClick)
+            }
+            item(key = "all_body") {
+                MasterBodyProgressCard(data = data, onClick = onBodyProgressClick)
             }
         } else {
-            // FOCUSED WIDGET: CLEAN FLOATING CARD MATCHING MOBILE DESIGN
-            item(key = "widget_focused") {
-                Spacer(modifier = Modifier.height(4.dp))
-                AnimatedContent(
-                    targetState = selectedTabIndex,
-                    transitionSpec = {
-                        (fadeIn(animationSpec = tween(220, delayMillis = 40)) +
-                         slideInVertically(animationSpec = tween(260)) { it / 10 })
-                        .togetherWith(
-                            fadeOut(animationSpec = tween(180))
+            when (selectedTabIndex) {
+                0 -> {
+                    // COMPONENT 6: Attendance Section (7-Column Calendar Grid)
+                    item(key = "infographic_component_6_attendance") {
+                        AttendanceSection(
+                            percentage = "90%",
+                            daysPresentText = "27 / 30 Days",
+                            onMonthPrev = {},
+                            onMonthNext = {}
                         )
-                    },
-                    label = "WidgetBlendTransition"
-                ) { tabIndex ->
-                    when (tabIndex) {
-                        0 -> MasterAttendanceCard(
-                            data = data,
-                            onClick = onAttendanceClick,
-                            isBlendedWithTab = false
-                        )
-                        1 -> MasterWorkoutTrendCard(
-                            data = data,
-                            onClick = onWorkoutClick,
-                            isBlendedWithTab = false
-                        )
-                        2 -> MasterPaymentCard(
-                            data = data,
-                            onClick = onPaymentClick,
-                            onViewReceiptClick = onViewReceiptClick,
-                            isBlendedWithTab = false
-                        )
-                        3 -> MasterBodyProgressCard(
-                            data = data,
-                            onClick = onBodyProgressClick,
-                            isBlendedWithTab = false
-                        )
+                    }
+
+                    // COMPONENT 7: Monthly Trend Section (12-Month Bar Chart)
+                    item(key = "infographic_component_7_monthly_trend") {
+                        MonthlyTrendSection()
+                    }
+                }
+                1 -> {
+                    item(key = "tab_workout") {
+                        MasterWorkoutTrendCard(data = data, onClick = onWorkoutClick)
+                    }
+                }
+                2 -> {
+                    item(key = "tab_payment") {
+                        MasterPaymentCard(data = data, onClick = onPaymentClick, onViewReceiptClick = onViewReceiptClick)
+                    }
+                }
+                3 -> {
+                    item(key = "tab_body") {
+                        MasterBodyProgressCard(data = data, onClick = onBodyProgressClick)
                     }
                 }
             }
         }
 
-        // 4. BOTTOM FOOTER BANNER
-        item(key = "master_footer_banner") {
-            Spacer(modifier = Modifier.height(6.dp))
-            MasterFooterBanner(
+        // =====================================================================
+        // 8. BOTTOM MOTIVATION BANNER (Component 8 in Infographic Specification)
+        // =====================================================================
+        item(key = "infographic_component_8_banner") {
+            Spacer(modifier = Modifier.height(2.dp))
+            BottomMotivationBanner(
                 onKeepGoingClick = onWorkoutClick
             )
             Spacer(modifier = Modifier.height(14.dp))
