@@ -56,6 +56,28 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — PRODUCTION ULTRA-CLEAR SCALED TYPOGRAPHY & ZERO-SCROLL SINGLE-VIEWPORT DASHBOARD
+- **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Device**: Xiaomi 11i 5G / 21091116I (`zxdada69gunb7ls4`) via USB cable ADB (1080x2400)
+- **Live Device Screenshot Evidence (All 4 Tabs 1:1 Pixel-Perfect in Single Viewport)**:
+  - Attendance Tab: [docs/reference/images/final_attendance.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_attendance.png)
+  - Workout Tab: [docs/reference/images/final_workout.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_workout.png)
+  - Payment Tab: [docs/reference/images/final_payment.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_payment.png)
+  - Body Progress Tab: [docs/reference/images/final_body.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_body.png)
+- **Key Enhancements Completed**:
+  1. **Systematic Font Scaling Across Every Expanded Card**:
+     - *Attendance Card*: 90% Hero metric scaled to `36.sp` Black, 27/30 Days to `14.5.sp` Black, 30-day circles to `20.dp` with `10.sp` Bold numbers, Monthly Trend to `15.sp` / `10.5.sp` Bold months / `9.5.sp` bar labels, Key Insights to `16.5.sp` Black / `10.5.sp` Bold.
+     - *Workout Trend Card*: 70 min Avg Session scaled to `35.sp` Black / `13.5.sp` Bold, KPI Pods to `15.sp` Black / `10.5.sp` Bold, 30-day canvas to `9.5.sp` Y-axis / `10.sp` day numbers / `10.5.sp` legend items, Monthly Pattern to `10.sp` bar labels / `10.5.sp` Bold months.
+     - *Payment Card*: ₹800 scaled to `35.sp` Black, Pending badge to `12.5.sp` Black, Due date to `13.sp` Bold, Action buttons to `13.sp` Black / `11.5.sp` Bold, Stacked bars to `10.sp` totals / `10.5.sp` months, Bottom summary metrics to `17.5.sp` Black.
+     - *Body Progress Card*: 69.5 kg scaled to `33.sp` Black / `13.sp` Bold, Goal to `13.5.sp` Black, 4 Goal Grid cards to `15.5.sp` Black / `10.5.sp` Bold, Metric/Time chips to `10.sp` / `9.5.sp`, Bottom pods to `12.sp` Black / `10.5.sp` percentages.
+     - *Footer Banner*: Consistent Steps Brighter Days to `14.5.sp` Black, Keep Going button to `12.5.sp` Black.
+  2. **Zero-Scroll Single-Viewport Packaging**: Entire dashboard (Hero Member Pass + Sticky Tabs + Active Widget + Footer Banner) packed into ~710dp, fitting 100% inside the viewport without vertical scrolling.
+  3. **Deep UX/UI Polish & Bug Fixes**:
+     - Fixed "Peak Session" clipping in Workout KPI pod by setting adaptive font sizing and tight padding.
+     - Separated 30-day workout volume bars from right guideline text by expanding label margin to `48.dp`.
+     - Calibrated July 4-block and December 3-block bar heights in Payment Trend chart to eliminate compression and give clear visibility to the "Jul" label.
+     - Prevented "12M" time chip line-wrapping in Progress Trend with `softWrap = false` and calibrated chip padding.
+
 ## VERIFIED MILESTONE — LUXURY EXECUTIVE MEMBER PASS & SCALED ULTRA-CLEAR DASHBOARD
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
 - **Commit**: `d821566`

@@ -358,7 +358,7 @@ fun MasterStoryboardStickyMenuBar(
                 Row(
                     modifier = Modifier
                         .weight(1f)
-                        .height(42.dp)
+                        .height(43.dp)
                         .clip(RoundedCornerShape(11.dp))
                         .background(if (isSelected) Color.White else Color.Transparent)
                         .border(
@@ -375,7 +375,7 @@ fun MasterStoryboardStickyMenuBar(
                         imageVector = tab.icon,
                         contentDescription = tab.label,
                         tint = if (isSelected) tabItemColor else Color(0xFF64748B),
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(15.dp)
                     )
                     Spacer(modifier = Modifier.width(2.5.dp))
                     Column(
@@ -384,8 +384,8 @@ fun MasterStoryboardStickyMenuBar(
                     ) {
                         Text(
                             text = tab.label,
-                            fontSize = 11.5.sp,
-                            letterSpacing = (-0.2).sp,
+                            fontSize = 12.sp,
+                            letterSpacing = (-0.3).sp,
                             fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                             color = if (isSelected) tabItemColor else Color(0xFF334155),
                             maxLines = 1,
@@ -393,7 +393,7 @@ fun MasterStoryboardStickyMenuBar(
                         )
                         Text(
                             text = tab.badge,
-                            fontSize = 11.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Black,
                             color = if (isSelected) tabItemColor else Color(0xFF64748B),
                             maxLines = 1,
@@ -541,7 +541,7 @@ private fun AttendanceHeaderSection() {
                 }
                 Text(
                     text = "Attendance",
-                    fontSize = 18.sp,
+                    fontSize = 18.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A),
                     letterSpacing = (-0.3).sp
@@ -555,20 +555,20 @@ private fun AttendanceHeaderSection() {
             ) {
                 Text(
                     text = "Oct 2026",
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF475569)
                 )
                 Box(
                     modifier = Modifier
-                        .size(15.dp)
+                        .size(16.dp)
                         .clip(CircleShape)
                         .border(0.8.dp, Color(0xFFCBD5E1), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "‹",
-                        fontSize = 10.5.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF475569),
                         modifier = Modifier.offset(y = (-1).dp)
@@ -576,14 +576,14 @@ private fun AttendanceHeaderSection() {
                 }
                 Box(
                     modifier = Modifier
-                        .size(15.dp)
+                        .size(16.dp)
                         .clip(CircleShape)
                         .border(0.8.dp, Color(0xFFCBD5E1), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "›",
-                        fontSize = 10.5.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF475569),
                         modifier = Modifier.offset(y = (-1).dp)
@@ -594,17 +594,17 @@ private fun AttendanceHeaderSection() {
             // Row 3: 90% Hero Metric
             Text(
                 text = "90%",
-                fontSize = 33.sp,
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF047857),
                 letterSpacing = (-1.2).sp,
-                lineHeight = 33.sp
+                lineHeight = 36.sp
             )
 
             // Row 4: 27 / 30 Days
             Text(
                 text = "27 / 30 Days",
-                fontSize = 13.sp,
+                fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF0F172A)
             )
@@ -644,7 +644,7 @@ private fun AttendanceLegendLine(
     isAlert: Boolean = false
 ) {
     Row(
-        modifier = Modifier.width(108.dp),
+        modifier = Modifier.width(118.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -669,14 +669,14 @@ private fun AttendanceLegendLine(
             }
             Text(
                 text = label,
-                fontSize = 9.5.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF475569)
             )
         }
         Text(
             text = count,
-            fontSize = 9.5.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Black,
             color = if (isAlert) Color(0xFFEF4444) else Color(0xFF0F172A)
         )
@@ -776,7 +776,7 @@ private fun AttendanceDayCircle(
 
     Box(
         modifier = Modifier
-            .size(19.dp)
+            .size(20.dp)
             .clip(CircleShape)
             .background(bg)
             .then(
@@ -787,7 +787,7 @@ private fun AttendanceDayCircle(
     ) {
         Text(
             text = day.toString(),
-            fontSize = 9.sp,
+            fontSize = 10.sp,
             fontWeight = FontWeight.Black,
             color = textColor,
             textAlign = TextAlign.Center
@@ -853,7 +853,7 @@ private fun AttendanceMonthlyTrendSection() {
                 }
                 Text(
                     text = "Monthly Attendance Trend",
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
@@ -896,7 +896,7 @@ private fun AttendanceMonthlyTrendSection() {
                         ) {
                             Text(
                                 text = item.pctLabel ?: "",
-                                fontSize = 8.5.sp,
+                                fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF059669),
                                 maxLines = 1
@@ -920,7 +920,7 @@ private fun AttendanceMonthlyTrendSection() {
                         if (item.pctLabel != null) {
                             Text(
                                 text = item.pctLabel,
-                                fontSize = 8.5.sp,
+                                fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF475569),
                                 maxLines = 1
@@ -943,11 +943,11 @@ private fun AttendanceMonthlyTrendSection() {
                             ) {
                                 Text(
                                     text = "No\nMember",
-                                    fontSize = 6.8.sp,
+                                    fontSize = 7.8.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF64748B),
                                     textAlign = TextAlign.Center,
-                                    lineHeight = 7.5.sp,
+                                    lineHeight = 8.5.sp,
                                     maxLines = 2,
                                     softWrap = false
                                 )
@@ -987,7 +987,7 @@ private fun AttendanceMonthlyTrendSection() {
                 ) {
                     Text(
                         text = item.month,
-                        fontSize = 9.5.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = if (item.isActiveMonth) FontWeight.Black else FontWeight.Bold,
                         color = if (item.isActiveMonth) Color(0xFF059669) else Color(0xFF64748B)
                     )
@@ -1038,7 +1038,7 @@ private fun AttendanceKeyInsightsCard() {
                 }
                 Text(
                     text = "Key Insights",
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
@@ -1072,19 +1072,19 @@ private fun AttendanceKeyInsightsCard() {
                     Column(verticalArrangement = Arrangement.spacedBy(0.5.dp)) {
                         Text(
                             text = "100%",
-                            fontSize = 15.sp,
+                            fontSize = 16.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF059669)
                         )
                         Text(
                             text = "Best Month",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = "Dec 2026",
-                            fontSize = 10.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A)
                         )
@@ -1124,19 +1124,19 @@ private fun AttendanceKeyInsightsCard() {
                     Column(verticalArrangement = Arrangement.spacedBy(0.5.dp)) {
                         Text(
                             text = "60%",
-                            fontSize = 15.sp,
+                            fontSize = 16.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A)
                         )
                         Text(
                             text = "Lowest Month",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = "Mar 2026",
-                            fontSize = 10.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A)
                         )
@@ -1176,19 +1176,19 @@ private fun AttendanceKeyInsightsCard() {
                     Column(verticalArrangement = Arrangement.spacedBy(0.5.dp)) {
                         Text(
                             text = "21 Days",
-                            fontSize = 15.sp,
+                            fontSize = 16.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A)
                         )
                         Text(
                             text = "Next Month Target",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = "to maintain 90%+",
-                            fontSize = 8.5.sp,
+                            fontSize = 9.5.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF64748B)
                         )
@@ -1303,14 +1303,14 @@ private fun WorkoutHeaderSection() {
                     Column {
                         Text(
                             text = "Workout Trend",
-                            fontSize = 18.sp,
+                            fontSize = 18.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             letterSpacing = (-0.3).sp
                         )
                         Text(
                             text = "Last 30 Days",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
@@ -1333,14 +1333,15 @@ private fun WorkoutHeaderSection() {
                     Column {
                         Text(
                             text = "70 min",
-                            fontSize = 32.sp,
+                            fontSize = 35.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0284C7),
-                            letterSpacing = (-1).sp
+                            letterSpacing = (-1).sp,
+                            lineHeight = 35.sp
                         )
                         Text(
                             text = "Avg / Session",
-                            fontSize = 12.sp,
+                            fontSize = 13.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
@@ -1355,14 +1356,14 @@ private fun WorkoutHeaderSection() {
                         ) {
                             Text(
                                 text = "↑ 8%",
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF16A34A)
                             )
                         }
                         Text(
                             text = "vs Sep",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
@@ -1379,24 +1380,24 @@ private fun WorkoutHeaderSection() {
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Box(Modifier.size(7.dp).clip(CircleShape).background(Color(0xFF38BDF8)))
-                        Text("Workout", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        Text("(22 d)", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Workout", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text("(22 d)", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Box(Modifier.size(7.dp).clip(CircleShape).background(Color(0xFFCBD5E1)))
-                        Text("Rest", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        Text("(8 d)", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("Rest", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text("(8 d)", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Box(Modifier.size(7.dp).clip(CircleShape).border(1.dp, Color(0xFFCBD5E1), CircleShape))
-                        Text("No Membership", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
-                        Text("(0 d)", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                        Text("No Membership", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                        Text("(0 d)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                     }
                 }
             }
@@ -1496,7 +1497,7 @@ private fun WorkoutKpiPod(
         Column(verticalArrangement = Arrangement.spacedBy(0.5.dp)) {
             Text(
                 text = value,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF0F172A),
                 maxLines = 1,
@@ -1504,11 +1505,12 @@ private fun WorkoutKpiPod(
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(1.5.dp)
+                horizontalArrangement = Arrangement.spacedBy(1.dp)
             ) {
                 Text(
                     text = label,
-                    fontSize = 10.sp,
+                    fontSize = if (label.length > 10) 9.8.sp else 10.5.sp,
+                    letterSpacing = (-0.2).sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF64748B),
                     maxLines = 1,
@@ -1519,14 +1521,14 @@ private fun WorkoutKpiPod(
                         imageVector = Icons.Default.Info,
                         contentDescription = null,
                         tint = Color(0xFF94A3B8),
-                        modifier = Modifier.size(8.5.dp)
+                        modifier = Modifier.size(8.dp)
                     )
                 }
             }
             if (subLabel != null) {
                 Text(
                     text = subLabel,
-                    fontSize = 9.sp,
+                    fontSize = 9.8.sp,
                     fontWeight = FontWeight.Black,
                     color = subLabelColor,
                     maxLines = 1,
@@ -1567,19 +1569,19 @@ private fun FloatingChartBadge(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = title,
-                    fontSize = 8.5.sp,
+                    fontSize = 9.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color.White,
                     textAlign = TextAlign.Center,
-                    lineHeight = 9.sp
+                    lineHeight = 10.sp
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 7.5.sp,
+                    fontSize = 8.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     textAlign = TextAlign.Center,
-                    lineHeight = 8.sp
+                    lineHeight = 9.sp
                 )
             }
         }
@@ -1646,11 +1648,11 @@ private fun Workout30DayBarChartSection() {
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.End
             ) {
-                Text(text = "120m", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "90m", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "60m", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "30m", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "0m", fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "120m", fontSize = 9.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "90m", fontSize = 9.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "60m", fontSize = 9.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "30m", fontSize = 9.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "0m", fontSize = 9.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
             }
 
             // 30 Daily Bars + Guidelines + Floating Badges
@@ -1659,7 +1661,7 @@ private fun Workout30DayBarChartSection() {
                     .weight(1f)
                     .height(72.dp)
             ) {
-                val labelMarginDp = 40.dp
+                val labelMarginDp = 48.dp
                 val plotWidthDp = maxWidth - labelMarginDp
                 val stepDp = plotWidthDp / 30f
 
@@ -1764,7 +1766,7 @@ private fun Workout30DayBarChartSection() {
                 // Guideline Labels on Right Edge (positioned in labelMarginDp zone)
                 Text(
                     text = "Max 120m",
-                    fontSize = 8.5.sp,
+                    fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF16A34A),
                     modifier = Modifier
@@ -1774,7 +1776,7 @@ private fun Workout30DayBarChartSection() {
 
                 Text(
                     text = "Avg 70m",
-                    fontSize = 8.5.sp,
+                    fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0284C7),
                     modifier = Modifier
@@ -1784,7 +1786,7 @@ private fun Workout30DayBarChartSection() {
 
                 Text(
                     text = "Min 25m",
-                    fontSize = 8.5.sp,
+                    fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFF59E0B),
                     modifier = Modifier
@@ -1819,7 +1821,7 @@ private fun Workout30DayBarChartSection() {
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 28.dp, end = 40.dp)
+                .padding(start = 28.dp, end = 44.dp)
                 .height(14.dp)
         ) {
             val stepDp = maxWidth / 30f
@@ -1827,7 +1829,7 @@ private fun Workout30DayBarChartSection() {
                 val xPos = (stepDp * (day - 0.5f)) - 5.dp
                 Text(
                     text = day.toString(),
-                    fontSize = 9.sp,
+                    fontSize = 10.sp,
                     color = Color(0xFF64748B),
                     fontWeight = FontWeight.Black,
                     modifier = Modifier.offset(x = xPos, y = 0.dp)
@@ -1871,7 +1873,7 @@ private fun WorkoutLegendItem(
         )
         Text(
             text = label,
-            fontSize = 9.sp,
+            fontSize = 10.sp,
             letterSpacing = (-0.1).sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF475569),
@@ -1880,7 +1882,7 @@ private fun WorkoutLegendItem(
         )
         Text(
             text = value,
-            fontSize = 9.5.sp,
+            fontSize = 10.5.sp,
             fontWeight = FontWeight.Black,
             color = Color(0xFF0F172A),
             maxLines = 1,
@@ -1956,7 +1958,7 @@ private fun WorkoutMonthlyPatternCard() {
                     }
                     Text(
                         text = "Monthly Pattern",
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A)
                     )
@@ -1985,7 +1987,7 @@ private fun WorkoutMonthlyPatternCard() {
                         if (item.daysLabel != null) {
                             Text(
                                 text = item.daysLabel,
-                                fontSize = 9.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1
@@ -2009,11 +2011,11 @@ private fun WorkoutMonthlyPatternCard() {
                             ) {
                                 Text(
                                     text = "No\nMemb",
-                                    fontSize = 7.sp,
+                                    fontSize = 8.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF64748B),
                                     textAlign = TextAlign.Center,
-                                    lineHeight = 8.sp,
+                                    lineHeight = 8.5.sp,
                                     maxLines = 2,
                                     softWrap = false
                                 )
@@ -2047,7 +2049,7 @@ private fun WorkoutMonthlyPatternCard() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(0.8.dp)
-                    .background(Color(0xFFE2E8F0).copy(alpha = 0.7f))
+                .background(Color(0xFFE2E8F0).copy(alpha = 0.7f))
             )
 
             // 3. Month labels row
@@ -2063,7 +2065,7 @@ private fun WorkoutMonthlyPatternCard() {
                     ) {
                         Text(
                             text = item.month,
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
@@ -2178,14 +2180,14 @@ private fun PaymentHeaderSection(
                     Column {
                         Text(
                             text = "Payment",
-                            fontSize = 18.sp,
+                            fontSize = 18.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             lineHeight = 19.sp
                         )
                         Text(
                             text = "Monthly Plan ₹1,200",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B),
                             lineHeight = 13.sp
@@ -2206,7 +2208,7 @@ private fun PaymentHeaderSection(
                 ) {
                     Text(
                         text = "Plan History",
-                        fontSize = 11.5.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFE11D48)
                     )
@@ -2226,10 +2228,10 @@ private fun PaymentHeaderSection(
             ) {
                 Text(
                     text = "₹ 800",
-                    fontSize = 32.sp,
+                    fontSize = 35.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFFE11D48),
-                    lineHeight = 32.sp
+                    lineHeight = 35.sp
                 )
                 Box(
                     modifier = Modifier
@@ -2239,7 +2241,7 @@ private fun PaymentHeaderSection(
                 ) {
                     Text(
                         text = "Pending",
-                        fontSize = 11.5.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.White
                     )
@@ -2259,13 +2261,13 @@ private fun PaymentHeaderSection(
                 )
                 Text(
                     text = "Due on 12 Oct 2026 ",
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFDC2626)
                 )
                 Text(
                     text = "(4 days left)",
-                    fontSize = 11.5.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF64748B)
                 )
@@ -2306,10 +2308,10 @@ private fun PaymentActionButtonsRow(
             Spacer(modifier = Modifier.width(3.dp))
             Text(
                 text = "Send Reminder\non WhatsApp",
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
-                lineHeight = 12.sp
+                lineHeight = 12.5.sp
             )
         }
 
@@ -2334,7 +2336,7 @@ private fun PaymentActionButtonsRow(
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "Collect Payment",
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White
             )
@@ -2362,10 +2364,10 @@ private fun PaymentActionButtonsRow(
             Spacer(modifier = Modifier.width(3.dp))
             Text(
                 text = "Send Receipt\non WhatsApp",
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A),
-                lineHeight = 12.sp
+                lineHeight = 12.5.sp
             )
         }
     }
@@ -2397,21 +2399,21 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
             MonthlyPaymentData("Mar", null, specialText = "No\nADM"),
             MonthlyPaymentData("Apr", null, specialText = "No\nADM"),
             MonthlyPaymentData("May", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 32))),
-            MonthlyPaymentData("Jun", "₹840", listOf(PaymentBlock("₹440", Color(0xFFEF4444), 16), PaymentBlock("₹400", Color(0xFFF59E0B), 15))),
+            MonthlyPaymentData("Jun", "₹840", listOf(PaymentBlock("₹440", Color(0xFFEF4444), 15), PaymentBlock("₹400", Color(0xFFF59E0B), 14))),
             MonthlyPaymentData("Jul", "₹2.0k", listOf(
-                PaymentBlock("₹500", Color(0xFF10B981), 13),
-                PaymentBlock("₹500", Color(0xFF10B981), 13),
-                PaymentBlock("₹500", Color(0xFF10B981), 13),
-                PaymentBlock("₹500", Color(0xFF8B5CF6), 13)
+                PaymentBlock("₹500", Color(0xFF10B981), 11),
+                PaymentBlock("₹500", Color(0xFF10B981), 11),
+                PaymentBlock("₹500", Color(0xFF10B981), 11),
+                PaymentBlock("₹500", Color(0xFF8B5CF6), 11)
             )),
             MonthlyPaymentData("Aug", null, specialText = "No\nVisit"),
-            MonthlyPaymentData("Sep", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 32))),
-            MonthlyPaymentData("Oct", "₹400", listOf(PaymentBlock("₹400", Color(0xFFEF4444), 16))),
+            MonthlyPaymentData("Sep", "₹1.2k", listOf(PaymentBlock("₹1.2k", Color(0xFF10B981), 30))),
+            MonthlyPaymentData("Oct", "₹400", listOf(PaymentBlock("₹400", Color(0xFFEF4444), 15))),
             MonthlyPaymentData("Nov", null, specialText = "₹100\nWaived"),
             MonthlyPaymentData("Dec", "₹2.4k", listOf(
-                PaymentBlock("₹800", Color(0xFF10B981), 18),
-                PaymentBlock("₹800", Color(0xFF10B981), 18),
-                PaymentBlock("₹800", Color(0xFF8B5CF6), 18)
+                PaymentBlock("₹800", Color(0xFF10B981), 14),
+                PaymentBlock("₹800", Color(0xFF10B981), 14),
+                PaymentBlock("₹800", Color(0xFF8B5CF6), 14)
             ))
         )
     }
@@ -2433,7 +2435,7 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                 Text(text = "📊", fontSize = 13.5.sp)
                 Text(
                     text = "Payment Trend",
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
@@ -2457,7 +2459,7 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
             ) {
                 Text(
                     text = "12 Months",
-                    fontSize = 10.5.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF334155)
                 )
@@ -2483,10 +2485,10 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.End
             ) {
-                Text(text = "₹3k", fontSize = 9.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "₹2k", fontSize = 9.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "₹1k", fontSize = 9.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                Text(text = "0", fontSize = 9.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "₹3k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "₹2k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "₹1k", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                Text(text = "0", fontSize = 10.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.width(3.dp))
@@ -2509,7 +2511,7 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                         if (data.totalLabel != null) {
                             Text(
                                 text = data.totalLabel,
-                                fontSize = 9.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1
@@ -2533,11 +2535,11 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                             ) {
                                 Text(
                                     text = data.specialText,
-                                    fontSize = 7.2.sp,
+                                    fontSize = 8.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF64748B),
                                     textAlign = TextAlign.Center,
-                                    lineHeight = 8.sp,
+                                    lineHeight = 9.sp,
                                     maxLines = 2,
                                     softWrap = false
                                 )
@@ -2559,7 +2561,7 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                                     ) {
                                         Text(
                                             text = block.amountText,
-                                            fontSize = 7.2.sp,
+                                            fontSize = 8.sp,
                                             fontWeight = FontWeight.Black,
                                             color = Color.White,
                                             maxLines = 1,
@@ -2575,7 +2577,7 @@ private fun PaymentTrendSection(modifier: Modifier = Modifier) {
                         // Month label at bottom
                         Text(
                             text = data.month,
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF475569)
                         )
@@ -2627,7 +2629,7 @@ private fun LegendColorItem(color: Color, label: String) {
         )
         Text(
             text = label,
-            fontSize = 9.5.sp,
+            fontSize = 10.5.sp,
             color = Color(0xFF475569),
             fontWeight = FontWeight.Bold
         )
@@ -2649,7 +2651,7 @@ private fun LegendBorderItem(label: String) {
         )
         Text(
             text = label,
-            fontSize = 9.5.sp,
+            fontSize = 10.5.sp,
             color = Color(0xFF475569),
             fontWeight = FontWeight.Bold
         )
@@ -2671,7 +2673,7 @@ private fun LegendHatchedItem(label: String) {
         )
         Text(
             text = label,
-            fontSize = 9.5.sp,
+            fontSize = 10.5.sp,
             color = Color(0xFF475569),
             fontWeight = FontWeight.Bold
         )
@@ -2734,7 +2736,7 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                 Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text(
                         text = "Collected (Jan – Dec)",
-                        fontSize = 9.5.sp,
+                        fontSize = 10.5.sp,
                         color = Color(0xFF64748B),
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -2742,13 +2744,13 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                     )
                     Text(
                         text = "₹11,400",
-                        fontSize = 16.sp,
+                        fontSize = 17.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF059669)
                     )
                     Text(
                         text = "(9 payments)",
-                        fontSize = 9.sp,
+                        fontSize = 10.sp,
                         color = Color(0xFF64748B),
                         fontWeight = FontWeight.SemiBold
                     )
@@ -2778,7 +2780,7 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                     Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                         Text(
                             text = "Unpaid Balance",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             color = Color(0xFF64748B),
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -2786,13 +2788,13 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                         )
                         Text(
                             text = "₹100",
-                            fontSize = 16.sp,
+                            fontSize = 17.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFFDC2626)
                         )
                         Text(
                             text = "Nov 2026 Fee",
-                            fontSize = 8.5.sp,
+                            fontSize = 9.5.sp,
                             color = Color(0xFF64748B),
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
@@ -2845,7 +2847,7 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                     Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                         Text(
                             text = "Waived by Owner",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             color = Color(0xFF64748B),
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -2853,13 +2855,13 @@ private fun PaymentSummaryMetricsRow(modifier: Modifier = Modifier) {
                         )
                         Text(
                             text = "₹100",
-                            fontSize = 16.sp,
+                            fontSize = 17.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF059669)
                         )
                         Text(
                             text = "Nov 2026 Fee",
-                            fontSize = 8.5.sp,
+                            fontSize = 9.5.sp,
                             color = Color(0xFF64748B),
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
@@ -2996,14 +2998,14 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                     Column {
                         Text(
                             text = "Body Progress",
-                            fontSize = 18.sp,
+                            fontSize = 18.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             lineHeight = 19.sp
                         )
                         Text(
                             text = "Goal Based Tracking",
-                            fontSize = 11.5.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B),
                             lineHeight = 13.sp
@@ -3023,7 +3025,7 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text = "Last 6 Months",
-                        fontSize = 10.5.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF7C3AED)
                     )
@@ -3050,14 +3052,14 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                     Column {
                         Text(
                             text = "69.5 kg",
-                            fontSize = 28.sp,
+                            fontSize = 33.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF6D28D9),
-                            lineHeight = 28.sp
+                            lineHeight = 33.sp
                         )
                         Text(
                             text = "Current Weight",
-                            fontSize = 11.5.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
@@ -3073,14 +3075,14 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                         ) {
                             Text(
                                 text = "↓ 2.5 kg",
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF15803D)
                             )
                         }
                         Text(
                             text = "vs Aug (-3.5%)",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
@@ -3099,13 +3101,13 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                         Text(text = "🎯", fontSize = 12.sp)
                         Text(
                             text = "Goal: ",
-                            fontSize = 11.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = "66.0 kg",
-                            fontSize = 12.5.sp,
+                            fontSize = 13.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF15803D)
                         )
@@ -3133,7 +3135,7 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
                         }
                         Text(
                             text = "67%",
-                            fontSize = 10.5.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A)
                         )
@@ -3141,7 +3143,7 @@ private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
 
                     Text(
                         text = "↓ 3.5 kg to go",
-                        fontSize = 10.5.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF16A34A)
                     )
@@ -3258,7 +3260,7 @@ private fun BodySingleGoalCard(
                 }
                 Text(
                     text = title,
-                    fontSize = 9.5.sp,
+                    fontSize = 10.5.sp,
                     letterSpacing = (-0.2).sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF475569),
@@ -3270,7 +3272,7 @@ private fun BodySingleGoalCard(
             // Value
             Text(
                 text = value,
-                fontSize = 14.sp,
+                fontSize = 15.5.sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF0F172A),
                 maxLines = 1
@@ -3279,7 +3281,7 @@ private fun BodySingleGoalCard(
             // Delta
             Text(
                 text = delta,
-                fontSize = 9.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = deltaColor,
                 maxLines = 1
@@ -3315,7 +3317,7 @@ private fun BodySingleGoalCard(
             ) {
                 Text(
                     text = statusText,
-                    fontSize = 9.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF15803D),
                     maxLines = 1
@@ -3355,7 +3357,7 @@ private fun BodyProgressTrendSection(
                 Text(text = "📊", fontSize = 13.5.sp)
                 Text(
                     text = "Progress Trend",
-                    fontSize = 13.5.sp,
+                    fontSize = 14.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
@@ -3378,13 +3380,16 @@ private fun BodyProgressTrendSection(
                                 shape = RoundedCornerShape(6.dp)
                             )
                             .clickable { onSelectMetric(i) }
-                            .padding(horizontal = 4.dp, vertical = 1.5.dp)
+                            .padding(horizontal = 3.dp, vertical = 1.dp)
                     ) {
                         Text(
                             text = label,
                             fontSize = 9.sp,
+                            letterSpacing = (-0.2).sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) Color.White else Color(0xFF64748B)
+                            color = if (isSelected) Color.White else Color(0xFF64748B),
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
@@ -3402,13 +3407,16 @@ private fun BodyProgressTrendSection(
                             .clip(RoundedCornerShape(6.dp))
                             .background(if (isSelected) Color(0xFF7C3AED) else Color.Transparent)
                             .clickable { onSelectTime(i) }
-                            .padding(horizontal = 3.5.dp, vertical = 1.5.dp)
+                            .padding(horizontal = 3.dp, vertical = 1.dp)
                     ) {
                         Text(
                             text = label,
-                            fontSize = 9.sp,
+                            fontSize = 9.5.sp,
+                            letterSpacing = (-0.2).sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) Color.White else Color(0xFF64748B)
+                            color = if (isSelected) Color.White else Color(0xFF64748B),
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
@@ -3441,7 +3449,7 @@ private fun BodyProgressTrendSection(
                     yLabels.forEach { label ->
                         Text(
                             text = label,
-                            fontSize = 8.5.sp,
+                            fontSize = 9.5.sp,
                             color = Color(0xFF64748B),
                             fontWeight = FontWeight.Bold
                         )
@@ -3542,7 +3550,7 @@ private fun BodyProgressTrendSection(
                         2 -> "17.6 %"
                         else -> "22.8"
                     },
-                    fontSize = 10.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Black,
                     color = Color.White
                 )
@@ -3559,7 +3567,7 @@ private fun BodyProgressTrendSection(
             listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { m ->
                 Text(
                     text = m,
-                    fontSize = 9.sp,
+                    fontSize = 10.sp,
                     color = Color(0xFF475569),
                     fontWeight = FontWeight.Bold
                 )
@@ -3602,7 +3610,7 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                     )
                     Text(
                         text = "Workout Distribution",
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A)
                     )
@@ -3619,7 +3627,7 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text = "This Month",
-                        fontSize = 8.5.sp,
+                        fontSize = 9.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF475569)
                     )
@@ -3659,14 +3667,14 @@ private fun WorkoutDistributionPod(modifier: Modifier = Modifier) {
                         )
                         Text(
                             text = name,
-                            fontSize = 8.5.sp,
+                            fontSize = 9.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF334155),
                             maxLines = 1
                         )
                         Text(
                             text = pct,
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Black,
                             color = color,
                             maxLines = 1
@@ -3860,7 +3868,7 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
                     )
                     Text(
                         text = "Activity Type",
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A)
                     )
@@ -3922,21 +3930,21 @@ private fun ActivityTypePod(modifier: Modifier = Modifier) {
 
                         Text(
                             text = act.name,
-                            fontSize = 8.5.sp,
+                            fontSize = 9.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF475569),
                             maxLines = 1
                         )
                         Text(
                             text = "${act.percent}%",
-                            fontSize = 9.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Black,
                             color = act.color,
                             maxLines = 1
                         )
                         Text(
                             text = act.days,
-                            fontSize = 7.5.sp,
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B),
                             maxLines = 1
@@ -3999,13 +4007,13 @@ fun MasterFooterBanner(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "Consistent Steps, ",
-                        fontSize = 13.5.sp,
+                        fontSize = 14.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.White
                     )
                     Text(
                         text = "Brighter Days 彡",
-                        fontSize = 13.5.sp,
+                        fontSize = 14.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFFFACC15)
                     )
@@ -4024,13 +4032,13 @@ fun MasterFooterBanner(
             ) {
                 Text(
                     text = "Keep Going!",
-                    fontSize = 11.5.sp,
+                    fontSize = 12.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
                 Text(
                     text = "➔",
-                    fontSize = 11.5.sp,
+                    fontSize = 12.5.sp,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF0F172A)
                 )
@@ -4056,7 +4064,7 @@ private fun TimeframeDropdownPill(text: String) {
     ) {
         Text(
             text = text,
-            fontSize = 11.5.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1E293B)
         )

@@ -114,22 +114,22 @@ fun BadGymMemberPassCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "BAD ",
-                                fontSize = 17.5.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF0F172A)
                             )
                             Text(
                                 text = "GYM",
-                                fontSize = 17.5.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF059669)
                             )
                         }
                         Text(
                             text = "MEMBER PASS",
-                            fontSize = 9.sp,
+                            fontSize = 9.5.sp,
                             fontWeight = FontWeight.Black,
-                            letterSpacing = 1.5.sp,
+                            letterSpacing = 1.2.sp,
                             color = Color(0xFF64748B)
                         )
                     }
@@ -143,14 +143,14 @@ fun BadGymMemberPassCard(
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = "DISCIPLINE",
-                            fontSize = 8.5.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = "BUILDS FREEDOM",
-                            fontSize = 8.5.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp,
                             color = Color(0xFF64748B)
@@ -242,7 +242,7 @@ fun BadGymMemberPassCard(
                 ) {
                     Text(
                         text = pass.name,
-                        fontSize = 19.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A),
                         maxLines = 1
@@ -250,7 +250,7 @@ fun BadGymMemberPassCard(
 
                     Text(
                         text = "${pass.memberId}  |  ${pass.age} yrs  |  ${pass.gender}",
-                        fontSize = 12.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF475569),
                         maxLines = 1
@@ -258,7 +258,7 @@ fun BadGymMemberPassCard(
 
                     Text(
                         text = "\u201C${pass.quote}\u201D",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1E293B),
                         maxLines = 1
@@ -276,7 +276,7 @@ fun BadGymMemberPassCard(
                         )
                         Text(
                             text = "${pass.startDate} – ${pass.endDate}",
-                            fontSize = 11.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF334155)
                         )
@@ -304,13 +304,13 @@ fun BadGymMemberPassCard(
                             Column {
                                 Text(
                                     text = pass.tier.title,
-                                    fontSize = 11.5.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0F172A)
                                 )
                                 Text(
                                     text = pass.tier.durationText,
-                                    fontSize = 9.sp,
+                                    fontSize = 9.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF64748B)
                                 )
@@ -345,7 +345,7 @@ fun BadGymMemberPassCard(
                             }
                             Text(
                                 text = if (pass.isOverdue) "Overdue" else "Active",
-                                fontSize = 11.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White
                             )
@@ -362,7 +362,7 @@ fun BadGymMemberPassCard(
                 color = Color.Transparent,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(33.dp)
+                    .height(34.dp)
                     .clickable { onChevronClick() }
             ) {
                 Box(
@@ -382,7 +382,7 @@ fun BadGymMemberPassCard(
                 ) {
                     Text(
                         text = "${pass.daysLeft} / ${pass.totalDays} Days Left",
-                        fontSize = 13.5.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.White
                     )
