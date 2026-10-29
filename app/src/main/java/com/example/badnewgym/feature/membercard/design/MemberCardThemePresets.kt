@@ -35,7 +35,11 @@ enum class MemberCardTheme(
     DIAMOND_18_MONTH("05", "Diamond (18 Months)", "05 Diamond", "DIAMOND", BadGymPassTier.DIAMOND),
     PLATINUM_24_MONTH("06", "Platinum (24 Months)", "06 Platinum", "PLATINUM", BadGymPassTier.PLATINUM),
     ELITE_36_MONTH("07", "Elite (36 Months)", "07 Elite", "ELITE", BadGymPassTier.ELITE),
-    BASIC_OVERDUE("08", "Basic (1 Month - Overdue)", "08 Basic", "OVERDUE", BadGymPassTier.BASIC);
+    BASIC_OVERDUE("08", "Basic (1 Month - Overdue)", "08 Basic", "OVERDUE", BadGymPassTier.BASIC),
+    CYAN_AQUA("09", "Cyan Aqua", "09 Cyan", "CYAN", BadGymPassTier.CYAN),
+    WHITE_MINT("10", "White Mint Glass", "10 Mint", "MINT", BadGymPassTier.WHITE_MINT),
+    WHITE_OCEAN("11", "White Ocean Glass", "11 Ocean", "OCEAN", BadGymPassTier.WHITE_OCEAN),
+    WHITE_LAVENDER("12", "White Lavender Glass", "12 Lavender", "LAVENDER", BadGymPassTier.WHITE_LAVENDER);
 
     companion object {
         // Compatibility Aliases for seamless integration with existing callers:
@@ -534,6 +538,26 @@ object MemberCardThemeManager {
                     daysThisWeek = "1 Days",
                     totalVisits = "18"
                 )
+            )
+
+            // 09: Cyan Aqua
+            MemberCardTheme.CYAN_AQUA -> getPalette(MemberCardTheme.POWER_3_MONTH).copy(
+                themeAccent = Color(0xFF0D9488)
+            )
+
+            // 10: White Mint Glass
+            MemberCardTheme.WHITE_MINT -> getPalette(MemberCardTheme.SPARK_2_MONTH).copy(
+                themeAccent = Color(0xFF059669)
+            )
+
+            // 11: White Ocean Glass
+            MemberCardTheme.WHITE_OCEAN -> getPalette(MemberCardTheme.POWER_3_MONTH).copy(
+                themeAccent = Color(0xFF0284C7)
+            )
+
+            // 12: White Lavender Glass
+            MemberCardTheme.WHITE_LAVENDER -> getPalette(MemberCardTheme.PLATINUM_24_MONTH).copy(
+                themeAccent = Color(0xFF9333EA)
             )
         }
     }

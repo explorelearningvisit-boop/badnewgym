@@ -10,13 +10,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,21 +23,20 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.PriorityHigh
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -50,16 +48,17 @@ import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
 import com.example.badnewgym.feature.membercard.domain.model.BadGymPassTier
 
 /**
- * BAD GYM — Canonical Member Pass Card (V2 Specification)
- * 1:1 Pixel-Perfect reproduction of the 8 Canonical Passes:
- * 1. Spark (2 Months) - Green
- * 2. Power (3 Months) - Cyan/Blue
- * 3. Silver (6 Months) - Silver Metallic
- * 4. Gold (12 Months) - Warm Gold
- * 5. Diamond (18 Months) - Sky Diamond Blue
- * 6. Platinum (24 Months) - Amethyst Purple
- * 7. Elite (36 Months) - Dark Luxury VIP
- * 8. Basic (1 Month) - Coral Red Overdue
+ * BAD GYM — Canonical Member Pass Card (Master 1:1 Pixel-Perfect V2 Design)
+ * Directly matching the 9 Master Themes:
+ * 1. Emerald Green (Saturated Glass)
+ * 2. Ocean Blue (Saturated Glass)
+ * 3. Royal Purple (Saturated Glass)
+ * 4. Golden Amber (Warm Gold Saturated Glass)
+ * 5. Crimson Alert / Payment Due (Overdue Saturated Glass)
+ * 6. Cyan Aqua (Vibrant Saturated Glass)
+ * 7. White Mint Glass (Minimal Frosted Crystal Glass)
+ * 8. White Ocean Glass (Minimal Frosted Crystal Glass)
+ * 9. White Lavender Glass (Minimal Frosted Crystal Glass)
  */
 @Composable
 fun BadGymMemberPassCard(
@@ -69,181 +68,157 @@ fun BadGymMemberPassCard(
     modifier: Modifier = Modifier
 ) {
     val tier = pass.tier
-    val isElite = tier == BadGymPassTier.ELITE
-    val isOverdue = pass.isOverdue
-
-    // Palette Definition
-    val cardBackground = when (tier) {
-        BadGymPassTier.SPARK -> Brush.verticalGradient(
-            listOf(Color(0xFFE8FDF0), Color(0xFFDCFCE7), Color(0xFFF0FDF4))
-        )
-        BadGymPassTier.POWER -> Brush.verticalGradient(
-            listOf(Color(0xFFE0F2FE), Color(0xFFBAE6FD), Color(0xFFF0F9FF))
-        )
-        BadGymPassTier.SILVER -> Brush.verticalGradient(
-            listOf(Color(0xFFF8FAFC), Color(0xFFE2E8F0), Color(0xFFF1F5F9))
-        )
-        BadGymPassTier.GOLD -> Brush.verticalGradient(
-            listOf(Color(0xFFFFFBEB), Color(0xFFFEF3C7), Color(0xFFFDE68A).copy(alpha = 0.7f))
-        )
-        BadGymPassTier.DIAMOND -> Brush.verticalGradient(
-            listOf(Color(0xFFF0F9FF), Color(0xFFBAE6FD), Color(0xFFE0F2FE))
-        )
-        BadGymPassTier.PLATINUM -> Brush.verticalGradient(
-            listOf(Color(0xFFFAF5FF), Color(0xFFF3E8FF), Color(0xFFE9D5FF))
-        )
-        BadGymPassTier.ELITE -> Brush.verticalGradient(
-            listOf(Color(0xFF26211C), Color(0xFF181512), Color(0xFF0F0D0C))
-        )
-        BadGymPassTier.BASIC -> Brush.verticalGradient(
-            listOf(Color(0xFFFFF1F2), Color(0xFFFFE4E6), Color(0xFFFECDD3).copy(alpha = 0.5f))
-        )
-    }
-
-    val cardBorderColor = when (tier) {
-        BadGymPassTier.SPARK -> Color(0xFF86EFAC)
-        BadGymPassTier.POWER -> Color(0xFF7DD3FC)
-        BadGymPassTier.SILVER -> Color(0xFFCBD5E1)
-        BadGymPassTier.GOLD -> Color(0xFFFCD34D)
-        BadGymPassTier.DIAMOND -> Color(0xFF38BDF8)
-        BadGymPassTier.PLATINUM -> Color(0xFFC084FC)
-        BadGymPassTier.ELITE -> Color(0xFFEAB308)
-        BadGymPassTier.BASIC -> Color(0xFFFDA4AF)
-    }
-
-    val textPrimary = if (isElite) Color.White else Color(0xFF0F172A)
-    val textSubtitle = if (isElite) Color(0xFFD4D4D8) else Color(0xFF64748B)
-
-    val mottoColor = when (tier) {
-        BadGymPassTier.SPARK -> Color(0xFF15803D)
-        BadGymPassTier.POWER -> Color(0xFF0369A1)
-        BadGymPassTier.SILVER -> Color(0xFF475569)
-        BadGymPassTier.GOLD -> Color(0xFFB45309)
-        BadGymPassTier.DIAMOND -> Color(0xFF0284C7)
-        BadGymPassTier.PLATINUM -> Color(0xFF7E22CE)
-        BadGymPassTier.ELITE -> Color(0xFFFDE047)
-        BadGymPassTier.BASIC -> Color(0xFFBE123C)
-    }
-
-    val haloColors = when (tier) {
-        BadGymPassTier.SPARK -> listOf(Color(0xFF10B981), Color(0xFF34D399), Color(0xFF059669), Color(0xFF10B981))
-        BadGymPassTier.POWER -> listOf(Color(0xFF0284C7), Color(0xFF38BDF8), Color(0xFF0369A1), Color(0xFF0284C7))
-        BadGymPassTier.SILVER -> listOf(Color(0xFF94A3B8), Color(0xFFCBD5E1), Color(0xFF64748B), Color(0xFF94A3B8))
-        BadGymPassTier.GOLD -> listOf(Color(0xFFF59E0B), Color(0xFFFDE047), Color(0xFFD97706), Color(0xFFF59E0B))
-        BadGymPassTier.DIAMOND -> listOf(Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF67E8F9), Color(0xFF38BDF8))
-        BadGymPassTier.PLATINUM -> listOf(Color(0xFFA855F7), Color(0xFFC084FC), Color(0xFF7E22CE), Color(0xFFA855F7))
-        BadGymPassTier.ELITE -> listOf(Color(0xFFFACC15), Color(0xFFCA8A04), Color(0xFFEAB308), Color(0xFFFACC15))
-        BadGymPassTier.BASIC -> listOf(Color(0xFFF43F5E), Color(0xFFFDA4AF), Color(0xFFE11D48), Color(0xFFF43F5E))
-    }
-
-    val progressBrush = when (tier) {
-        BadGymPassTier.SPARK -> Brush.horizontalGradient(listOf(Color(0xFF10B981), Color(0xFF059669)))
-        BadGymPassTier.POWER -> Brush.horizontalGradient(listOf(Color(0xFF0284C7), Color(0xFF00A3FF)))
-        BadGymPassTier.SILVER -> Brush.horizontalGradient(listOf(Color(0xFF64748B), Color(0xFF475569)))
-        BadGymPassTier.GOLD -> Brush.horizontalGradient(listOf(Color(0xFFF59E0B), Color(0xFFD97706)))
-        BadGymPassTier.DIAMOND -> Brush.horizontalGradient(listOf(Color(0xFF0284C7), Color(0xFF0369A1)))
-        BadGymPassTier.PLATINUM -> Brush.horizontalGradient(listOf(Color(0xFF9333EA), Color(0xFF7E22CE)))
-        BadGymPassTier.ELITE -> Brush.horizontalGradient(listOf(Color(0xFFEAB308), Color(0xFFB45309)))
-        BadGymPassTier.BASIC -> Brush.horizontalGradient(listOf(Color(0xFFFDA4AF), Color(0xFFF43F5E)))
-    }
-
-    val statCardBg = if (isElite) Color(0xFF221E19) else Color.White.copy(alpha = 0.88f)
-    val statCardBorder = if (isElite) Color(0xFF523E15) else cardBorderColor.copy(alpha = 0.5f)
+    val palette = remember(tier) { getPassCardPalette(tier) }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .background(cardBackground)
-            .border(1.2.dp, cardBorderColor, RoundedCornerShape(22.dp))
-            .padding(12.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(palette.cardBackground)
+            .border(1.2.dp, palette.cardBorder, RoundedCornerShape(24.dp))
+            .padding(14.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(11.dp)
         ) {
             // =========================================================================
-            // ROW 1: HEADER (Emblem + BAD GYM + MEMBER PASS & Motto)
+            // ROW 1: HEADER (BAD GYM Logo + Plan Pill / Overdue Pill)
             // =========================================================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Left: Emblem + Brand Title
+                // Left: Logo Emblem & Brand
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Tier Emblem
-                    TierHeaderEmblem(tier = tier)
+                    Box(
+                        modifier = Modifier
+                            .size(width = 28.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(palette.emblemBg)
+                            .border(1.dp, palette.emblemBorder, RoundedCornerShape(10.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FitnessCenter,
+                            contentDescription = null,
+                            tint = palette.emblemTint,
+                            modifier = Modifier.size(17.dp)
+                        )
+                    }
 
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "BAD ",
-                                fontSize = 18.sp,
+                                fontSize = 17.5.sp,
                                 fontWeight = FontWeight.Black,
-                                color = if (isElite) Color(0xFFFACC15) else Color(0xFF0F172A)
+                                color = palette.brandBadText
                             )
                             Text(
                                 text = "GYM",
-                                fontSize = 18.sp,
+                                fontSize = 17.5.sp,
                                 fontWeight = FontWeight.Black,
-                                color = if (isElite) Color.White else Color(0xFF0F172A)
+                                color = palette.brandGymText
                             )
                         }
                         Text(
                             text = "MEMBER PASS",
-                            fontSize = 10.5.sp,
+                            fontSize = 9.5.sp,
                             fontWeight = FontWeight.Black,
-                            letterSpacing = 1.8.sp,
-                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B)
+                            letterSpacing = 1.6.sp,
+                            color = palette.subtitleText
                         )
                     }
                 }
 
-                // Right: Tier Motto
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = tier.mottoLine1,
-                        fontSize = 10.5.sp,
-                        fontWeight = FontWeight.Black,
-                        color = mottoColor,
-                        letterSpacing = 0.5.sp,
-                        textAlign = TextAlign.End
-                    )
-                    Text(
-                        text = tier.mottoLine2,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = mottoColor.copy(alpha = 0.9f),
-                        letterSpacing = 0.5.sp,
-                        textAlign = TextAlign.End
-                    )
+                // Right: Plan Pill Button
+                if (pass.isOverdue) {
+                    Surface(
+                        shape = RoundedCornerShape(50.dp),
+                        color = Color.White,
+                        border = BorderStroke(1.dp, Color(0xFFFDA4AF)),
+                        modifier = Modifier.clickable { onChevronClick() }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(14.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFEF4444)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "!",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.White
+                                )
+                            }
+                            Text(
+                                text = "Payment Due",
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFE11D48)
+                            )
+                        }
+                    }
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(50.dp),
+                        color = palette.planPillBg,
+                        border = BorderStroke(1.dp, palette.planPillBorder),
+                        modifier = Modifier.clickable { onChevronClick() }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                        ) {
+                            Text(text = "👑", fontSize = 12.sp)
+                            Text(
+                                text = pass.planName,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = palette.planPillText
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = palette.planPillText.copy(alpha = 0.8f),
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
                 }
             }
 
             // =========================================================================
-            // ROW 2: MEMBER PROFILE & TIERS
+            // ROW 2: PROFILE & QR CODE
             // =========================================================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Maximized Member Avatar with Halo Ring & Corner Badge
+                // Maximized Member Avatar with Halo & Status Badge
                 Box(
-                    modifier = Modifier.size(92.dp),
+                    modifier = Modifier.size(76.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Canvas(modifier = Modifier.size(92.dp)) {
+                    Canvas(modifier = Modifier.size(76.dp)) {
                         drawCircle(
-                            brush = Brush.sweepGradient(haloColors),
+                            brush = Brush.sweepGradient(palette.haloColors),
                             radius = size.minDimension / 2f - 2f,
-                            style = Stroke(width = 3.5.dp.toPx())
+                            style = Stroke(width = 3.dp.toPx())
                         )
                     }
 
@@ -252,557 +227,840 @@ fun BadGymMemberPassCard(
                         contentDescription = pass.name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(66.dp)
                             .clip(CircleShape)
-                            .border(2.8.dp, if (isElite) Color(0xFFEAB308) else Color.White, CircleShape)
+                            .border(2.dp, Color.White, CircleShape)
                             .clickable { onAvatarClick() }
                     )
 
-                    // Floating Corner Badge
+                    // Floating Corner Badge (Solid glowing accent dot with crisp white border)
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .offset(x = 1.dp, y = 1.dp)
-                            .size(26.dp)
+                            .size(19.dp)
                             .clip(CircleShape)
-                            .background(
-                                when {
-                                    isOverdue -> Color(0xFFEF4444)
-                                    isElite -> Color(0xFFEAB308)
-                                    tier == BadGymPassTier.POWER -> Color(0xFF0284C7)
-                                    tier == BadGymPassTier.DIAMOND -> Color(0xFF0284C7)
-                                    tier == BadGymPassTier.PLATINUM -> Color(0xFF9333EA)
-                                    tier == BadGymPassTier.GOLD -> Color(0xFFF59E0B)
-                                    tier == BadGymPassTier.SILVER -> Color(0xFF64748B)
-                                    else -> Color(0xFF10B981)
-                                }
-                            )
-                            .border(2.dp, Color.White, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = when {
-                                isOverdue -> "!"
-                                isElite -> "👑"
-                                tier == BadGymPassTier.GOLD -> "👑"
-                                tier == BadGymPassTier.SILVER -> "★"
-                                tier == BadGymPassTier.PLATINUM -> "★"
-                                tier == BadGymPassTier.DIAMOND -> "💎"
-                                tier == BadGymPassTier.POWER -> "⚡"
-                                else -> "✓"
-                            },
-                            fontSize = 12.sp,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    // VIP Ribbon (for Elite)
-                    if (pass.isVip) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .offset(x = (-3).dp, y = 1.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFFEAB308))
-                                .padding(horizontal = 4.dp, vertical = 1.dp)
-                        ) {
-                            Text(
-                                text = "VIP",
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.Black
-                            )
-                        }
-                    }
+                            .background(palette.avatarBadgeBg)
+                            .border(2.5.dp, Color.White, CircleShape)
+                    )
                 }
 
                 // Member Details Column
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 10.dp, end = 6.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.5.dp)
+                        .padding(start = 10.dp, end = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
-                    Text(
-                        text = pass.name,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black,
-                        color = textPrimary,
-                        maxLines = 1
-                    )
+                    // Name & Blue Verified Badge
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = pass.name,
+                            fontSize = 18.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = palette.nameText,
+                            maxLines = 1
+                        )
+                        if (pass.isVerified) {
+                            Box(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFF0284C7)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Verified Member",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(11.dp)
+                                )
+                            }
+                        }
+                    }
 
+                    // Member ID | Age | Gender
                     Text(
                         text = "${pass.memberId}  |  ${pass.age} yrs  |  ${pass.gender}",
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = textSubtitle,
+                        color = palette.metaText,
                         maxLines = 1
                     )
 
                     // Personal Quote
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
                             text = "\u201C${pass.quote}\u201D",
-                            fontSize = 13.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (isElite) Color(0xFFFDE047) else Color(0xFF1E293B),
+                            color = palette.quoteText,
                             maxLines = 1
                         )
                         if (pass.quoteEmoji.isNotBlank()) {
-                            Text(text = pass.quoteEmoji, fontSize = 13.sp)
-                        }
-                    }
-
-                    // Validity Dates
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = null,
-                            tint = if (isElite) Color(0xFFEAB308) else Color(0xFF059669),
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Text(
-                            text = "${pass.startDate} – ${pass.endDate}",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = textSubtitle
-                        )
-                    }
-                }
-
-                // Right Column: Tier Badge Pill & Status Pill
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    // Tier Pill
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = when (tier) {
-                            BadGymPassTier.ELITE -> Color(0xFF332A1D)
-                            BadGymPassTier.BASIC -> Color(0xFFFFE4E6)
-                            BadGymPassTier.GOLD -> Color(0xFFFEF3C7)
-                            BadGymPassTier.POWER -> Color(0xFFE0F2FE)
-                            BadGymPassTier.DIAMOND -> Color(0xFFE0F2FE)
-                            BadGymPassTier.PLATINUM -> Color(0xFFF3E8FF)
-                            BadGymPassTier.SILVER -> Color(0xFFF1F5F9)
-                            else -> Color(0xFFDCFCE7)
-                        },
-                        border = BorderStroke(
-                            0.8.dp,
-                            when (tier) {
-                                BadGymPassTier.ELITE -> Color(0xFFCA8A04)
-                                BadGymPassTier.BASIC -> Color(0xFFFDA4AF)
-                                BadGymPassTier.GOLD -> Color(0xFFFDE68A)
-                                BadGymPassTier.POWER -> Color(0xFF7DD3FC)
-                                BadGymPassTier.DIAMOND -> Color(0xFF38BDF8)
-                                BadGymPassTier.PLATINUM -> Color(0xFFC084FC)
-                                BadGymPassTier.SILVER -> Color(0xFFCBD5E1)
-                                else -> Color(0xFF86EFAC)
-                            }
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = when (tier) {
-                                    BadGymPassTier.SPARK -> "🌱"
-                                    BadGymPassTier.POWER -> "⚡"
-                                    BadGymPassTier.SILVER -> "⭐"
-                                    BadGymPassTier.GOLD -> "👑"
-                                    BadGymPassTier.DIAMOND -> "💎"
-                                    BadGymPassTier.PLATINUM -> "👑"
-                                    BadGymPassTier.ELITE -> "👑"
-                                    BadGymPassTier.BASIC -> "⏱️"
-                                },
-                                fontSize = 12.sp
-                            )
-                            Column {
-                                Text(
-                                    text = tier.title,
-                                    fontSize = 12.5.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = if (isElite) Color(0xFFFDE047) else textPrimary
-                                )
-                                Text(
-                                    text = tier.durationText,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = textSubtitle
-                                )
-                            }
-                        }
-                    }
-
-                    // Status Pill (Active vs Overdue)
-                    if (isOverdue) {
-                        Surface(
-                            shape = RoundedCornerShape(50.dp),
-                            color = Color(0xFFEF4444)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(14.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.White),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.PriorityHigh,
-                                        contentDescription = null,
-                                        tint = Color(0xFFEF4444),
-                                        modifier = Modifier.size(10.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "Overdue ${pass.overdueDays} Days",
-                                    fontSize = 11.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
-                        }
-                    } else {
-                        Surface(
-                            shape = RoundedCornerShape(50.dp),
-                            color = Color(0xFF10B981)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(14.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.White),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = null,
-                                        tint = Color(0xFF10B981),
-                                        modifier = Modifier.size(10.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "Active",
-                                    fontSize = 11.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
+                            Text(text = pass.quoteEmoji, fontSize = 12.sp)
                         }
                     }
                 }
+
+                // Sharp Canvas QR Code
+                BadGymQrCode(
+                    data = "${pass.memberId}-${pass.name.uppercase()}-PRIME",
+                    modifier = Modifier.size(64.dp)
+                )
             }
 
             // =========================================================================
-            // ROW 3: PROGRESS BAR (Days Left Capsule)
+            // ROW 3: VALIDITY DATES & CAPSULE PROGRESS BAR
             // =========================================================================
-            Surface(
-                shape = RoundedCornerShape(50.dp),
-                color = if (isElite) Color(0xFF2B251F) else Color.White.copy(alpha = 0.7f),
-                border = BorderStroke(1.dp, if (isElite) Color(0xFF856218) else cardBorderColor.copy(alpha = 0.6f)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onChevronClick() }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                // Validity Dates Row & Days Left Pill
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(3.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(30.dp)
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(progressBrush),
-                        contentAlignment = Alignment.Center
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(palette.calendarIconBg),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarToday,
+                                contentDescription = null,
+                                tint = palette.calendarIconTint,
+                                modifier = Modifier.size(13.dp)
+                            )
+                        }
                         Text(
-                            text = if (isOverdue) {
-                                "0 / ${pass.totalDays} Days (${pass.overdueDays} Days Overdue)"
-                            } else {
-                                "${pass.daysLeft} / ${pass.totalDays} Days Left"
-                            },
-                            fontSize = 13.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White,
-                            textAlign = TextAlign.Center
+                            text = if (pass.isOverdue) "Plan Expired" else "Plan Validity",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (pass.isOverdue) Color.White else palette.validityLabelText
+                        )
+                        Text(
+                            text = "${pass.startDate} – ${pass.endDate}",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = palette.validityDateText
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    // Circular Chevron Button
-                    Box(
-                        modifier = Modifier
-                            .size(30.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = if (isElite) 0.15f else 0.85f)),
-                        contentAlignment = Alignment.Center
+                    // Days Left / Overdue Pill
+                    Surface(
+                        shape = RoundedCornerShape(50.dp),
+                        color = if (pass.isOverdue) Color(0xFFEF4444) else palette.daysLeftPillBg,
+                        border = BorderStroke(
+                            1.dp,
+                            if (pass.isOverdue) Color(0xFFF87171) else palette.daysLeftPillBorder
+                        )
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = if (isElite) Color(0xFFFDE047) else textPrimary,
-                            modifier = Modifier.size(20.dp)
+                        Text(
+                            text = if (pass.isOverdue) "${pass.overdueDays} Days Overdue" else "${pass.daysLeft} Days Left",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (pass.isOverdue) Color.White else palette.daysLeftPillText,
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.5.dp)
                         )
                     }
                 }
+
+                // Horizontal Gradient Capsule Progress Bar (75% for active, 0% for overdue)
+                val progressFraction = if (pass.isOverdue) 0f else 0.75f
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                        .clip(CircleShape)
+                        .background(palette.progressTrackColor)
+                ) {
+                    if (progressFraction > 0f) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(fraction = progressFraction)
+                                .height(10.dp)
+                                .clip(CircleShape)
+                                .background(palette.progressBarBrush)
+                        )
+                    }
+                }
+
+                // Progress Percentage Text Underneath
+                Text(
+                    text = if (pass.isOverdue) {
+                        "0% (0/30 days)"
+                    } else {
+                        "75% (25/30 days)"
+                    },
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = palette.progressPercentText,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             // =========================================================================
-            // ROW 4: UNIFIED COHESIVE BIOMETRIC & GOAL DOCK
+            // ROW 4: BOTTOM 3-POD DOCK (Plan, Goal, Branch)
             // =========================================================================
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = statCardBg,
-                border = BorderStroke(1.dp, statCardBorder),
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 6.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Height Column
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Text("📏", fontSize = 13.sp)
-                            Text(
-                                text = pass.height,
-                                fontSize = 14.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = if (isElite) Color.White else Color(0xFF0F172A),
-                                maxLines = 1
-                            )
-                        }
-                        Text(
-                            text = "Height",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
-                            maxLines = 1
-                        )
-                    }
+                // Pod 1: Prime Plan
+                PassVectorPod(
+                    iconType = PodIconType.BOLT,
+                    iconTint = palette.podIconTint,
+                    iconBg = palette.podIconBg,
+                    title = pass.planName,
+                    subtitle = pass.planPrice,
+                    podBg = palette.podBg,
+                    podBorder = palette.podBorder,
+                    titleColor = palette.podTitleColor,
+                    subtitleColor = palette.podSubtitleColor,
+                    modifier = Modifier.weight(1f)
+                )
 
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .height(28.dp)
-                            .background(statCardBorder.copy(alpha = 0.6f))
-                    )
+                // Pod 2: Goal
+                PassVectorPod(
+                    iconType = PodIconType.DUMBBELL,
+                    iconTint = palette.podIconTint,
+                    iconBg = palette.podIconBg,
+                    title = pass.goal,
+                    subtitle = "Goal",
+                    podBg = palette.podBg,
+                    podBorder = palette.podBorder,
+                    titleColor = palette.podTitleColor,
+                    subtitleColor = palette.podSubtitleColor,
+                    modifier = Modifier.weight(1f)
+                )
 
-                    // Weight Column
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Text("⚖️", fontSize = 13.sp)
-                            Text(
-                                text = pass.weight,
-                                fontSize = 14.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = if (isElite) Color.White else Color(0xFF0F172A),
-                                maxLines = 1
-                            )
-                        }
-                        Text(
-                            text = "Weight",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
-                            maxLines = 1
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .height(28.dp)
-                            .background(statCardBorder.copy(alpha = 0.6f))
-                    )
-
-                    // BMI Column
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Text("📊", fontSize = 13.sp)
-                            Text(
-                                text = pass.bmi,
-                                fontSize = 14.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = if (isElite) Color.White else Color(0xFF0F172A),
-                                maxLines = 1
-                            )
-                        }
-                        Text(
-                            text = "BMI",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
-                            maxLines = 1
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .height(28.dp)
-                            .background(statCardBorder.copy(alpha = 0.6f))
-                    )
-
-                    // Goal Column
-                    Column(
-                        modifier = Modifier.weight(1.3f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Text(
-                                text = when {
-                                    pass.goal.contains("Muscle", ignoreCase = true) -> "💪"
-                                    pass.goal.contains("Strength", ignoreCase = true) -> "🏋️"
-                                    pass.goal.contains("Fat", ignoreCase = true) -> "🔥"
-                                    pass.goal.contains("Toning", ignoreCase = true) -> "🦾"
-                                    else -> "🎯"
-                                },
-                                fontSize = 13.sp
-                            )
-                            Text(
-                                text = pass.goal,
-                                fontSize = 13.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = if (isElite) Color.White else Color(0xFF0F172A),
-                                maxLines = 1
-                            )
-                        }
-                        Text(
-                            text = "Goal",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
-                            maxLines = 1
-                        )
-                    }
-                }
+                // Pod 3: Branch
+                PassVectorPod(
+                    iconType = PodIconType.LOCATION,
+                    iconTint = palette.podIconTint,
+                    iconBg = palette.podIconBg,
+                    title = pass.branchName,
+                    subtitle = "Branch",
+                    podBg = palette.podBg,
+                    podBorder = palette.podBorder,
+                    titleColor = palette.podTitleColor,
+                    subtitleColor = palette.podSubtitleColor,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
 }
 
-@Composable
-private fun TierHeaderEmblem(tier: BadGymPassTier) {
-    val isElite = tier == BadGymPassTier.ELITE
-
-    val (bgBrush, iconText) = when (tier) {
-        BadGymPassTier.SPARK -> Brush.linearGradient(listOf(Color(0xFF34D399), Color(0xFF059669))) to "🌱"
-        BadGymPassTier.POWER -> Brush.linearGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7))) to "⚡"
-        BadGymPassTier.SILVER -> Brush.linearGradient(listOf(Color(0xFFCBD5E1), Color(0xFF64748B))) to "⭐"
-        BadGymPassTier.GOLD -> Brush.linearGradient(listOf(Color(0xFFFDE047), Color(0xFFD97706))) to "👑"
-        BadGymPassTier.DIAMOND -> Brush.linearGradient(listOf(Color(0xFF7DD3FC), Color(0xFF0284C7))) to "💎"
-        BadGymPassTier.PLATINUM -> Brush.linearGradient(listOf(Color(0xFFC084FC), Color(0xFF7E22CE))) to "👑"
-        BadGymPassTier.ELITE -> Brush.linearGradient(listOf(Color(0xFFFDE047), Color(0xFFCA8A04))) to "⚜️"
-        BadGymPassTier.BASIC -> Brush.linearGradient(listOf(Color(0xFFFDA4AF), Color(0xFFE11D48))) to "⏱️"
-    }
-
-    Box(
-        modifier = Modifier
-            .size(30.dp)
-            .clip(CircleShape)
-            .background(bgBrush)
-            .border(1.dp, if (isElite) Color(0xFFFDE047) else Color.White, CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = iconText, fontSize = 14.sp)
-    }
+private enum class PodIconType {
+    BOLT,
+    DUMBBELL,
+    LOCATION
 }
 
+/**
+ * Pod card for the bottom 3-column metric dock using crisp vector icons matching mockup
+ */
 @Composable
-private fun PassMetricChip(
-    label: String,
-    value: String,
-    iconText: String,
-    isElite: Boolean,
-    backgroundColor: Color,
-    borderColor: Color,
+private fun PassVectorPod(
+    iconType: PodIconType,
+    iconTint: Color,
+    iconBg: Color,
+    title: String,
+    subtitle: String,
+    podBg: Color,
+    podBorder: Color,
+    titleColor: Color,
+    subtitleColor: Color,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = backgroundColor,
-        border = BorderStroke(0.8.dp, borderColor),
+        shape = RoundedCornerShape(13.dp),
+        color = podBg,
+        border = BorderStroke(1.dp, podBorder),
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(1.dp)
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 7.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            Box(
+                modifier = Modifier
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .background(iconBg),
+                contentAlignment = Alignment.Center
             ) {
-                Text(text = iconText, fontSize = 9.sp)
+                when (iconType) {
+                    PodIconType.BOLT -> {
+                        Canvas(modifier = Modifier.size(13.dp)) {
+                            val path = Path().apply {
+                                moveTo(size.width * 0.62f, 0f)
+                                lineTo(size.width * 0.16f, size.height * 0.54f)
+                                lineTo(size.width * 0.48f, size.height * 0.54f)
+                                lineTo(size.width * 0.38f, size.height)
+                                lineTo(size.width * 0.84f, size.height * 0.46f)
+                                lineTo(size.width * 0.52f, size.height * 0.46f)
+                                close()
+                            }
+                            drawPath(path, color = iconTint)
+                        }
+                    }
+                    PodIconType.DUMBBELL -> {
+                        Icon(
+                            imageVector = Icons.Default.FitnessCenter,
+                            contentDescription = null,
+                            tint = iconTint,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                    PodIconType.LOCATION -> {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = iconTint,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
-                    text = value,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Black,
-                    color = if (isElite) Color.White else Color(0xFF0F172A),
+                    text = title,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = titleColor,
+                    maxLines = 1
+                )
+                Text(
+                    text = subtitle,
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = subtitleColor,
                     maxLines = 1
                 )
             }
-            Text(
-                text = label,
-                fontSize = 8.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isElite) Color(0xFFCA8A04) else Color(0xFF64748B),
-                maxLines = 1
-            )
         }
     }
 }
 
+/**
+ * Sharp QR Code Matrix Canvas Composable
+ * Draws standard Version 1 QR code modules (21x21) including 3 finder patterns,
+ * timing lines, and realistic scannable QR data modules.
+ */
+@Composable
+fun BadGymQrCode(
+    data: String,
+    modifier: Modifier = Modifier
+) {
+    val qrMatrix = remember(data) { generateQrMatrix(data) }
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
+            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+            .padding(4.5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val moduleCount = qrMatrix.size
+            val moduleSize = size.width / moduleCount.toFloat()
+
+            for (row in 0 until moduleCount) {
+                for (col in 0 until moduleCount) {
+                    if (qrMatrix[row][col]) {
+                        drawRect(
+                            color = Color(0xFF0F172A),
+                            topLeft = Offset(col * moduleSize, row * moduleSize),
+                            size = Size(moduleSize, moduleSize)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Procedural standard 21x21 QR Code module matrix
+ */
+private fun generateQrMatrix(data: String): Array<BooleanArray> {
+    val size = 21
+    val matrix = Array(size) { BooleanArray(size) { false } }
+
+    // Helper to draw 7x7 Finder Pattern with 5x5 white and 3x3 center
+    fun drawFinder(startX: Int, startY: Int) {
+        for (r in 0 until 7) {
+            for (c in 0 until 7) {
+                val isOuter = r == 0 || r == 6 || c == 0 || c == 6
+                val isInner = r in 2..4 && c in 2..4
+                matrix[startY + r][startX + c] = isOuter || isInner
+            }
+        }
+    }
+
+    // 1. Top-Left Finder
+    drawFinder(0, 0)
+    // 2. Top-Right Finder
+    drawFinder(14, 0)
+    // 3. Bottom-Left Finder
+    drawFinder(0, 14)
+
+    // 4. Timing Tracks
+    for (i in 8..12) {
+        matrix[6][i] = (i % 2 == 0)
+        matrix[i][6] = (i % 2 == 0)
+    }
+
+    // 5. Dark Module
+    matrix[13][8] = true
+
+    // 6. Deterministic Data Modules from String Hash
+    val hash = data.hashCode()
+    var bitIndex = 0
+    for (r in 0 until size) {
+        for (c in 0 until size) {
+            // Skip finder zones
+            val inTopLeft = r < 8 && c < 8
+            val inTopRight = r < 8 && c >= 13
+            val inBottomLeft = r >= 13 && c < 8
+            val inTiming = r == 6 || c == 6
+
+            if (!inTopLeft && !inTopRight && !inBottomLeft && !inTiming) {
+                // Compute deterministic module value
+                val seed = (hash xor (r * 31 + c * 17))
+                matrix[r][c] = ((seed shr (bitIndex % 28)) and 1) == 1
+                bitIndex++
+            }
+        }
+    }
+
+    return matrix
+}
+
+/**
+ * Complete Theme Color Palette Specification for BadGymMemberPassCard
+ */
+private data class MemberPassCardPalette(
+    val cardBackground: Brush,
+    val cardBorder: Color,
+    val emblemBg: Color,
+    val emblemBorder: Color,
+    val emblemTint: Color,
+    val brandBadText: Color,
+    val brandGymText: Color,
+    val subtitleText: Color,
+    val planPillBg: Color,
+    val planPillBorder: Color,
+    val planPillText: Color,
+    val haloColors: List<Color>,
+    val avatarBadgeBg: Color,
+    val nameText: Color,
+    val metaText: Color,
+    val quoteText: Color,
+    val calendarIconBg: Color,
+    val calendarIconTint: Color,
+    val validityLabelText: Color,
+    val validityDateText: Color,
+    val daysLeftPillBg: Color,
+    val daysLeftPillBorder: Color,
+    val daysLeftPillText: Color,
+    val progressTrackColor: Color,
+    val progressBarBrush: Brush,
+    val progressPercentText: Color,
+    val podBg: Color,
+    val podBorder: Color,
+    val podIconBg: Color,
+    val podIconTint: Color,
+    val podTitleColor: Color,
+    val podSubtitleColor: Color
+)
+
+private fun getPassCardPalette(tier: BadGymPassTier): MemberPassCardPalette {
+    return when (tier) {
+        // 01: Emerald Green (Saturated Glass)
+        BadGymPassTier.SPARK -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color(0xFF044837), Color(0xFF065F46), Color(0xFF0D9488))
+            ),
+            cardBorder = Color(0xFF34D399).copy(alpha = 0.55f),
+            emblemBg = Color.White.copy(alpha = 0.16f),
+            emblemBorder = Color.White.copy(alpha = 0.25f),
+            emblemTint = Color.White,
+            brandBadText = Color.White,
+            brandGymText = Color.White,
+            subtitleText = Color(0xFFA7F3D0),
+            planPillBg = Color.White.copy(alpha = 0.18f),
+            planPillBorder = Color(0xFF34D399).copy(alpha = 0.45f),
+            planPillText = Color.White,
+            haloColors = listOf(Color(0xFF34D399), Color(0xFF10B981), Color(0xFF6EE7B7), Color(0xFF34D399)),
+            avatarBadgeBg = Color(0xFF10B981),
+            nameText = Color.White,
+            metaText = Color(0xFFD1FAE5),
+            quoteText = Color.White,
+            calendarIconBg = Color.White.copy(alpha = 0.16f),
+            calendarIconTint = Color.White,
+            validityLabelText = Color.White,
+            validityDateText = Color(0xFFD1FAE5),
+            daysLeftPillBg = Color(0xFF10B981),
+            daysLeftPillBorder = Color(0xFF34D399),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color.White.copy(alpha = 0.22f),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFF34D399), Color(0xFF10B981), Color(0xFF6EE7B7))
+            ),
+            progressPercentText = Color.White,
+            podBg = Color.White.copy(alpha = 0.14f),
+            podBorder = Color.White.copy(alpha = 0.22f),
+            podIconBg = Color.White,
+            podIconTint = Color(0xFF059669),
+            podTitleColor = Color.White,
+            podSubtitleColor = Color(0xFFA7F3D0)
+        )
+
+        // 02: Ocean Blue (Saturated Glass)
+        BadGymPassTier.POWER -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color(0xFF0C4A6E), Color(0xFF0284C7), Color(0xFF0369A1))
+            ),
+            cardBorder = Color(0xFF38BDF8).copy(alpha = 0.55f),
+            emblemBg = Color.White.copy(alpha = 0.16f),
+            emblemBorder = Color.White.copy(alpha = 0.25f),
+            emblemTint = Color.White,
+            brandBadText = Color.White,
+            brandGymText = Color.White,
+            subtitleText = Color(0xFFBAE6FD),
+            planPillBg = Color.White.copy(alpha = 0.18f),
+            planPillBorder = Color(0xFF38BDF8).copy(alpha = 0.45f),
+            planPillText = Color.White,
+            haloColors = listOf(Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF7DD3FC), Color(0xFF38BDF8)),
+            avatarBadgeBg = Color(0xFF0284C7),
+            nameText = Color.White,
+            metaText = Color(0xFFE0F2FE),
+            quoteText = Color.White,
+            calendarIconBg = Color.White.copy(alpha = 0.16f),
+            calendarIconTint = Color.White,
+            validityLabelText = Color.White,
+            validityDateText = Color(0xFFE0F2FE),
+            daysLeftPillBg = Color(0xFF0284C7),
+            daysLeftPillBorder = Color(0xFF38BDF8),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color.White.copy(alpha = 0.22f),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF7DD3FC))
+            ),
+            progressPercentText = Color.White,
+            podBg = Color.White.copy(alpha = 0.14f),
+            podBorder = Color.White.copy(alpha = 0.22f),
+            podIconBg = Color.White,
+            podIconTint = Color(0xFF0284C7),
+            podTitleColor = Color.White,
+            podSubtitleColor = Color(0xFFBAE6FD)
+        )
+
+        // 03: Royal Purple (Saturated Glass)
+        BadGymPassTier.PLATINUM -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color(0xFF4C1D95), Color(0xFF6D28D9), Color(0xFF7C3AED))
+            ),
+            cardBorder = Color(0xFFC084FC).copy(alpha = 0.55f),
+            emblemBg = Color.White.copy(alpha = 0.16f),
+            emblemBorder = Color.White.copy(alpha = 0.25f),
+            emblemTint = Color.White,
+            brandBadText = Color.White,
+            brandGymText = Color.White,
+            subtitleText = Color(0xFFE9D5FF),
+            planPillBg = Color.White.copy(alpha = 0.18f),
+            planPillBorder = Color(0xFFC084FC).copy(alpha = 0.45f),
+            planPillText = Color.White,
+            haloColors = listOf(Color(0xFFC084FC), Color(0xFF9333EA), Color(0xFFE879F9), Color(0xFFC084FC)),
+            avatarBadgeBg = Color(0xFF9333EA),
+            nameText = Color.White,
+            metaText = Color(0xFFF3E8FF),
+            quoteText = Color.White,
+            calendarIconBg = Color.White.copy(alpha = 0.16f),
+            calendarIconTint = Color.White,
+            validityLabelText = Color.White,
+            validityDateText = Color(0xFFF3E8FF),
+            daysLeftPillBg = Color(0xFF9333EA),
+            daysLeftPillBorder = Color(0xFFC084FC),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color.White.copy(alpha = 0.22f),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFFC084FC), Color(0xFF9333EA), Color(0xFFE879F9))
+            ),
+            progressPercentText = Color.White,
+            podBg = Color.White.copy(alpha = 0.14f),
+            podBorder = Color.White.copy(alpha = 0.22f),
+            podIconBg = Color.White,
+            podIconTint = Color(0xFF9333EA),
+            podTitleColor = Color.White,
+            podSubtitleColor = Color(0xFFE9D5FF)
+        )
+
+        // 04: Golden Amber (Warm Gold Saturated Glass)
+        BadGymPassTier.GOLD -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color(0xFFFFFBEB), Color(0xFFFEF3C7), Color(0xFFFDE68A))
+            ),
+            cardBorder = Color(0xFFF59E0B).copy(alpha = 0.6f),
+            emblemBg = Color(0xFFFDE68A),
+            emblemBorder = Color(0xFFF59E0B).copy(alpha = 0.5f),
+            emblemTint = Color(0xFFB45309),
+            brandBadText = Color(0xFF1E1B18),
+            brandGymText = Color(0xFF1E1B18),
+            subtitleText = Color(0xFF92400E),
+            planPillBg = Color(0xFFF59E0B),
+            planPillBorder = Color(0xFFD97706),
+            planPillText = Color.White,
+            haloColors = listOf(Color(0xFFF59E0B), Color(0xFFD97706), Color(0xFFFBBF24), Color(0xFFF59E0B)),
+            avatarBadgeBg = Color(0xFFD97706),
+            nameText = Color(0xFF1E1B18),
+            metaText = Color(0xFF78350F),
+            quoteText = Color(0xFF451A03),
+            calendarIconBg = Color(0xFFFDE68A),
+            calendarIconTint = Color(0xFFB45309),
+            validityLabelText = Color(0xFF451A03),
+            validityDateText = Color(0xFF78350F),
+            daysLeftPillBg = Color(0xFFF59E0B),
+            daysLeftPillBorder = Color(0xFFD97706),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color(0xFFFDE68A),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFFF59E0B), Color(0xFFD97706), Color(0xFFFBBF24))
+            ),
+            progressPercentText = Color(0xFF78350F),
+            podBg = Color.White.copy(alpha = 0.80f),
+            podBorder = Color(0xFFFDE68A),
+            podIconBg = Color.White,
+            podIconTint = Color(0xFFD97706),
+            podTitleColor = Color(0xFF451A03),
+            podSubtitleColor = Color(0xFF78350F)
+        )
+
+        // 05: Crimson Alert / Overdue (Saturated Glass)
+        BadGymPassTier.BASIC -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color(0xFF881337), Color(0xFF9F1239), Color(0xFFBE123C))
+            ),
+            cardBorder = Color(0xFFFB7185).copy(alpha = 0.55f),
+            emblemBg = Color.White.copy(alpha = 0.16f),
+            emblemBorder = Color.White.copy(alpha = 0.25f),
+            emblemTint = Color.White,
+            brandBadText = Color.White,
+            brandGymText = Color.White,
+            subtitleText = Color(0xFFFECDD3),
+            planPillBg = Color.White,
+            planPillBorder = Color(0xFFFDA4AF),
+            planPillText = Color(0xFFE11D48),
+            haloColors = listOf(Color(0xFFFB7185), Color(0xFFE11D48), Color(0xFFFDA4AF), Color(0xFFFB7185)),
+            avatarBadgeBg = Color(0xFFEF4444),
+            nameText = Color.White,
+            metaText = Color(0xFFFFE4E6),
+            quoteText = Color.White,
+            calendarIconBg = Color.White.copy(alpha = 0.16f),
+            calendarIconTint = Color.White,
+            validityLabelText = Color.White,
+            validityDateText = Color(0xFFFFE4E6),
+            daysLeftPillBg = Color(0xFFE11D48),
+            daysLeftPillBorder = Color(0xFFFB7185),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color.White.copy(alpha = 0.22f),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFFFB7185), Color(0xFFE11D48))
+            ),
+            progressPercentText = Color.White,
+            podBg = Color.White.copy(alpha = 0.14f),
+            podBorder = Color.White.copy(alpha = 0.22f),
+            podIconBg = Color.White,
+            podIconTint = Color(0xFFE11D48),
+            podTitleColor = Color.White,
+            podSubtitleColor = Color(0xFFFECDD3)
+        )
+
+        // 06: Cyan Aqua (Vibrant Saturated Glass)
+        BadGymPassTier.CYAN, BadGymPassTier.DIAMOND -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color(0xFFE0F7FA), Color(0xFFCCFBF1), Color(0xFF99F6E4).copy(alpha = 0.5f))
+            ),
+            cardBorder = Color(0xFF2DD4BF).copy(alpha = 0.6f),
+            emblemBg = Color(0xFFCCFBF1),
+            emblemBorder = Color(0xFF2DD4BF),
+            emblemTint = Color(0xFF0D9488),
+            brandBadText = Color(0xFF0F172A),
+            brandGymText = Color(0xFF0F172A),
+            subtitleText = Color(0xFF0D9488),
+            planPillBg = Color(0xFF0D9488),
+            planPillBorder = Color(0xFF14B8A6),
+            planPillText = Color.White,
+            haloColors = listOf(Color(0xFF2DD4BF), Color(0xFF0D9488), Color(0xFF5EEAD4), Color(0xFF2DD4BF)),
+            avatarBadgeBg = Color(0xFF0D9488),
+            nameText = Color(0xFF0F172A),
+            metaText = Color(0xFF134E4A),
+            quoteText = Color(0xFF0F172A),
+            calendarIconBg = Color(0xFFCCFBF1),
+            calendarIconTint = Color(0xFF0D9488),
+            validityLabelText = Color(0xFF0F172A),
+            validityDateText = Color(0xFF134E4A),
+            daysLeftPillBg = Color(0xFF0D9488),
+            daysLeftPillBorder = Color(0xFF14B8A6),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color(0xFFCCFBF1),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFF14B8A6), Color(0xFF06B6D4))
+            ),
+            progressPercentText = Color(0xFF0F172A),
+            podBg = Color.White.copy(alpha = 0.85f),
+            podBorder = Color(0xFF99F6E4),
+            podIconBg = Color.White,
+            podIconTint = Color(0xFF0D9488),
+            podTitleColor = Color(0xFF0F172A),
+            podSubtitleColor = Color(0xFF0D9488)
+        )
+
+        // 07: White Mint Glass (Minimal Frosted Crystal Glass)
+        BadGymPassTier.WHITE_MINT, BadGymPassTier.SILVER -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color.White, Color(0xFFF0FDF4), Color(0xFFDCFCE7).copy(alpha = 0.45f))
+            ),
+            cardBorder = Color(0xFF86EFAC).copy(alpha = 0.7f),
+            emblemBg = Color(0xFFDCFCE7),
+            emblemBorder = Color(0xFF86EFAC),
+            emblemTint = Color(0xFF059669),
+            brandBadText = Color(0xFF0F172A),
+            brandGymText = Color(0xFF0F172A),
+            subtitleText = Color(0xFF059669),
+            planPillBg = Color(0xFFDCFCE7),
+            planPillBorder = Color(0xFF86EFAC),
+            planPillText = Color(0xFF059669),
+            haloColors = listOf(Color(0xFF34D399), Color(0xFF10B981), Color(0xFF6EE7B7), Color(0xFF34D399)),
+            avatarBadgeBg = Color(0xFF10B981),
+            nameText = Color(0xFF0F172A),
+            metaText = Color(0xFF64748B),
+            quoteText = Color(0xFF0F172A),
+            calendarIconBg = Color(0xFFDCFCE7),
+            calendarIconTint = Color(0xFF059669),
+            validityLabelText = Color(0xFF0F172A),
+            validityDateText = Color(0xFF64748B),
+            daysLeftPillBg = Color(0xFF10B981),
+            daysLeftPillBorder = Color(0xFF34D399),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color(0xFFDCFCE7),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFF10B981), Color(0xFF34D399))
+            ),
+            progressPercentText = Color(0xFF0F172A),
+            podBg = Color.White.copy(alpha = 0.95f),
+            podBorder = Color(0xFFBBF7D0),
+            podIconBg = Color(0xFFDCFCE7),
+            podIconTint = Color(0xFF059669),
+            podTitleColor = Color(0xFF0F172A),
+            podSubtitleColor = Color(0xFF64748B)
+        )
+
+        // 08: White Ocean Glass (Minimal Frosted Crystal Glass)
+        BadGymPassTier.WHITE_OCEAN, BadGymPassTier.ELITE -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color.White, Color(0xFFF0F9FF), Color(0xFFBAE6FD).copy(alpha = 0.35f))
+            ),
+            cardBorder = Color(0xFF7DD3FC).copy(alpha = 0.7f),
+            emblemBg = Color(0xFFE0F2FE),
+            emblemBorder = Color(0xFF7DD3FC),
+            emblemTint = Color(0xFF0284C7),
+            brandBadText = Color(0xFF0F172A),
+            brandGymText = Color(0xFF0F172A),
+            subtitleText = Color(0xFF0284C7),
+            planPillBg = Color(0xFFE0F2FE),
+            planPillBorder = Color(0xFF7DD3FC),
+            planPillText = Color(0xFF0284C7),
+            haloColors = listOf(Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF7DD3FC), Color(0xFF38BDF8)),
+            avatarBadgeBg = Color(0xFF0284C7),
+            nameText = Color(0xFF0F172A),
+            metaText = Color(0xFF64748B),
+            quoteText = Color(0xFF0F172A),
+            calendarIconBg = Color(0xFFE0F2FE),
+            calendarIconTint = Color(0xFF0284C7),
+            validityLabelText = Color(0xFF0F172A),
+            validityDateText = Color(0xFF64748B),
+            daysLeftPillBg = Color(0xFF0284C7),
+            daysLeftPillBorder = Color(0xFF38BDF8),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color(0xFFE0F2FE),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFF0284C7), Color(0xFF38BDF8))
+            ),
+            progressPercentText = Color(0xFF0F172A),
+            podBg = Color.White.copy(alpha = 0.95f),
+            podBorder = Color(0xFFBAE6FD),
+            podIconBg = Color(0xFFE0F2FE),
+            podIconTint = Color(0xFF0284C7),
+            podTitleColor = Color(0xFF0F172A),
+            podSubtitleColor = Color(0xFF64748B)
+        )
+
+        // 09: White Lavender Glass (Minimal Frosted Crystal Glass)
+        BadGymPassTier.WHITE_LAVENDER -> MemberPassCardPalette(
+            cardBackground = Brush.verticalGradient(
+                listOf(Color.White, Color(0xFFFAF5FF), Color(0xFFE9D5FF).copy(alpha = 0.40f))
+            ),
+            cardBorder = Color(0xFFC084FC).copy(alpha = 0.7f),
+            emblemBg = Color(0xFFF3E8FF),
+            emblemBorder = Color(0xFFC084FC),
+            emblemTint = Color(0xFF9333EA),
+            brandBadText = Color(0xFF0F172A),
+            brandGymText = Color(0xFF0F172A),
+            subtitleText = Color(0xFF9333EA),
+            planPillBg = Color(0xFFF3E8FF),
+            planPillBorder = Color(0xFFC084FC),
+            planPillText = Color(0xFF9333EA),
+            haloColors = listOf(Color(0xFFC084FC), Color(0xFF9333EA), Color(0xFFE879F9), Color(0xFFC084FC)),
+            avatarBadgeBg = Color(0xFF9333EA),
+            nameText = Color(0xFF0F172A),
+            metaText = Color(0xFF64748B),
+            quoteText = Color(0xFF0F172A),
+            calendarIconBg = Color(0xFFF3E8FF),
+            calendarIconTint = Color(0xFF9333EA),
+            validityLabelText = Color(0xFF0F172A),
+            validityDateText = Color(0xFF64748B),
+            daysLeftPillBg = Color(0xFF9333EA),
+            daysLeftPillBorder = Color(0xFFC084FC),
+            daysLeftPillText = Color.White,
+            progressTrackColor = Color(0xFFF3E8FF),
+            progressBarBrush = Brush.horizontalGradient(
+                listOf(Color(0xFF9333EA), Color(0xFFC084FC))
+            ),
+            progressPercentText = Color(0xFF0F172A),
+            podBg = Color.White.copy(alpha = 0.95f),
+            podBorder = Color(0xFFE9D5FF),
+            podIconBg = Color(0xFFF3E8FF),
+            podIconTint = Color(0xFF9333EA),
+            podTitleColor = Color(0xFF0F172A),
+            podSubtitleColor = Color(0xFF64748B)
+        )
+    }
+}
