@@ -56,6 +56,31 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — 8-COMPONENT MASTER INFOGRAPHIC BLUEPRINT, DYNAMIC CARD HEADERS & ATTENDANCE BAR BASELINE
+- **Status**: VERIFIED & DEPLOYED TO DEVICE
+- **Commit**: `b38f360`
+- **Device Tested**: Xiaomi 11i 5G (`zxdada69gunb7ls4`)
+- **Key Deliverables**:
+  1. **8 Master Components Integrated**:
+     - Component 1: Top Header Component (glass gradient pill, dynamic activity badge, plan badge).
+     - Component 2: Profile Section (72dp avatar with concentric halo ring + star pin, Ashwani Kumar Singh Srivastav, 01 Aug – 31 Aug 2026, crown watermark silhouette).
+     - Component 3: Progress & Payment Row (22/30 Days Left with 73% cyan/mint bar + 8 Days Left pill, and Paid ₹500 08:49 AM card).
+     - Component 4: Stats Row Compact (4 pods: 5'9" Height, 74.1 kg Weight, 23.5 [Normal] BMI, Fat Loss Goal >).
+     - Component 5: Menu Row 4 Tabs (Attendance 90% >, Workout 70m >, Payment ₹800 >, Body 74.1 kg > with non-clipped layout).
+     - Component 6: Attendance Section (3D Calendar + 90% 27/30 Days, 7-column calendar grid Mon-Sun with 31 days circular tokens, horizontal legend chips).
+     - Component 7: Monthly Trend Section (12-month bar chart with Jan 100% at 58dp max, Oct 90% at 42dp, locked baseline alignment, ✔ Min and Best badges).
+     - Component 8: Bottom Motivation Banner (3D dumbbell, "Consistent Steps, Brighter Days ☀️", Keep Going! ➔ CTA).
+  2. **Dynamic Header & Status Switching**:
+     - Supports `CHECK-IN`, `CHECK-OUT`, `PAYMENT` (with Done, Pending, Failed statuses), `TRAINER CHECK-IN`, and `MACHINE FAULT`.
+     - When payment is due, automatically defaults to `PAYMENT` with `PAYMENT DUE` and `Pending` badge.
+     - Tapping activity badge cycles dynamically across states with matching highlight colors.
+  3. **Visual Evidence**:
+     - Verified Attendance Screen: `docs/reference/images/true_live.png`
+     - Verified Payment Screen: `docs/reference/images/badgym_fullscreen.png`
+     - Verified Check-Out Screen: `docs/reference/images/cycle_header1.png`
+     - Verified Trainer Check-In Screen: `docs/reference/images/cycle_header2.png`
+     - Verified Machine Alert Screen: `docs/reference/images/cycle_header3.png`
+
 ## VERIFIED MILESTONE — WIDGET THEMING, MONTHLY TRENDS, MUSCLE GRAPHICS & DATA-DRIVEN PROGRESS FILL
 - **Status**: VERIFIED & DEPLOYED TO DEVICE
 - **Commit**: `e38c592`
