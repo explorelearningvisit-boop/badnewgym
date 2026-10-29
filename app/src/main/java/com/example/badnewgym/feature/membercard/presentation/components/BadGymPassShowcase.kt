@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
 import com.example.badnewgym.feature.membercard.domain.model.BadGymPassTier
+import com.example.badnewgym.feature.membercard.domain.model.MemberCardType
+import com.example.badnewgym.feature.membercard.domain.model.PaymentStatus
 
 /**
  * Interactive Showcase Carousel for all 9 BAD GYM Member Passes:
@@ -43,11 +45,15 @@ fun BadGymPassShowcase(
     passes: List<BadGymMemberPass> = remember { BadGymMemberPass.getAll9Passes() },
     selectedIndex: Int = 0,
     showTierSelector: Boolean = false,
+    cardType: MemberCardType = MemberCardType.MEMBER_PASS,
+    paymentStatus: PaymentStatus? = null,
     onPassSelected: (Int) -> Unit = {},
     onAvatarClick: (BadGymMemberPass) -> Unit = {},
+    onCardTypeCycle: () -> Unit = {},
+    onPaymentStatusCycle: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var currentIndex by remember { mutableIntStateOf(selectedIndex) }
+    var currentIndex by remember(selectedIndex) { mutableIntStateOf(selectedIndex) }
     val currentPass = passes.getOrElse(currentIndex) { passes.first() }
 
     Column(
@@ -129,13 +135,17 @@ fun BadGymPassShowcase(
         // Active Member Pass Card (Luxury Crisp White Card Matching Reference)
         BadGymMemberPassCard(
             pass = currentPass,
+            cardType = cardType,
+            paymentStatus = paymentStatus,
             onAvatarClick = { onAvatarClick(currentPass) },
             onChevronClick = {
                 // Cycle to next pass
                 val nextIndex = (currentIndex + 1) % passes.size
                 currentIndex = nextIndex
                 onPassSelected(nextIndex)
-            }
+            },
+            onCardTypeCycle = onCardTypeCycle,
+            onPaymentStatusCycle = onPaymentStatusCycle
         )
     }
 }

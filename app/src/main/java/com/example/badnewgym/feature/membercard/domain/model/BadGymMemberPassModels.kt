@@ -398,3 +398,80 @@ data class BadGymMemberPass(
     }
 }
 
+enum class MemberCardType(
+    val title: String,
+    val subtitle: String,
+    val iconEmoji: String,
+    val primaryColor: Color,
+    val badgeBg: Color,
+    val badgeBorder: Color,
+    val badgeText: Color
+) {
+    CHECK_IN(
+        title = "CHECK-IN",
+        subtitle = "MEMBER CHECK-IN",
+        iconEmoji = "✓",
+        primaryColor = Color(0xFF059669),
+        badgeBg = Color(0xFFDCFCE7),
+        badgeBorder = Color(0xFF86EFAC),
+        badgeText = Color(0xFF065F46)
+    ),
+    CHECK_OUT(
+        title = "CHECK-OUT",
+        subtitle = "MEMBER CHECK-OUT",
+        iconEmoji = "➔",
+        primaryColor = Color(0xFF0284C7),
+        badgeBg = Color(0xFFE0F2FE),
+        badgeBorder = Color(0xFF7DD3FC),
+        badgeText = Color(0xFF075985)
+    ),
+    PAYMENT(
+        title = "PAYMENT",
+        subtitle = "PAYMENT & DUES",
+        iconEmoji = "₹",
+        primaryColor = Color(0xFFE11D48),
+        badgeBg = Color(0xFFFFE4E6),
+        badgeBorder = Color(0xFFFDA4AF),
+        badgeText = Color(0xFF9F1239)
+    ),
+    TRAINER_CHECK_IN(
+        title = "TRAINER",
+        subtitle = "TRAINER CHECK-IN",
+        iconEmoji = "★",
+        primaryColor = Color(0xFF7C3AED),
+        badgeBg = Color(0xFFF3E8FF),
+        badgeBorder = Color(0xFFD8B4FE),
+        badgeText = Color(0xFF5B21B6)
+    ),
+    MACHINE_FAULT(
+        title = "FAULT",
+        subtitle = "MACHINE FAULT",
+        iconEmoji = "⚠",
+        primaryColor = Color(0xFFDC2626),
+        badgeBg = Color(0xFFFEE2E2),
+        badgeBorder = Color(0xFFFCA5A5),
+        badgeText = Color(0xFF991B1B)
+    ),
+    MEMBER_PASS(
+        title = "PASS",
+        subtitle = "MEMBER PASS",
+        iconEmoji = "★",
+        primaryColor = Color(0xFF059669),
+        badgeBg = Color(0xFFF1F5F9),
+        badgeBorder = Color(0xFFCBD5E1),
+        badgeText = Color(0xFF475569)
+    )
+}
+
+enum class PaymentStatus(
+    val label: String,
+    val color: Color,
+    val bgColor: Color,
+    val borderColor: Color
+) {
+    PENDING("₹800 Pending", Color(0xFFD97706), Color(0xFFFEF3C7), Color(0xFFFCD34D)),
+    DONE("Paid", Color(0xFF059669), Color(0xFFDCFCE7), Color(0xFF86EFAC)),
+    FAILED("Failed", Color(0xFFDC2626), Color(0xFFFEE2E2), Color(0xFFFCA5A5)),
+    OVERDUE("Overdue", Color(0xFFB91C1C), Color(0xFFFEE2E2), Color(0xFFEF4444))
+}
+

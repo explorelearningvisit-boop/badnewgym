@@ -86,7 +86,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.R
+import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
+import com.example.badnewgym.feature.membercard.domain.model.MemberCardType
+import com.example.badnewgym.feature.membercard.domain.model.PaymentStatus
 import kotlinx.coroutines.launch
 
 /**
@@ -117,7 +120,14 @@ fun MasterStoryboardDashboard(
 ) {
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+    val hasDues = data.paymentPlan.dueAlertAmount.isNotEmpty() || data.paymentPlan.currentDueAmount.isNotEmpty()
+    val initialCardType = if (hasDues) MemberCardType.PAYMENT else MemberCardType.CHECK_IN
+    val initialTabIndex = if (hasDues) 2 else 0
+
+    var currentCardType by remember { mutableStateOf(initialCardType) }
+    var currentPaymentStatus by remember { mutableStateOf(if (hasDues) PaymentStatus.PENDING else PaymentStatus.DONE) }
+    var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     var isAllExpandedMode by remember { mutableStateOf(false) }
 
     // In All-Expanded mode, automatically detect which widget is visible on screen
@@ -152,6 +162,23 @@ fun MasterStoryboardDashboard(
             Box(modifier = Modifier.padding(bottom = 5.dp)) {
                 MasterHeroHeader(
                     data = data,
+                    cardType = currentCardType,
+                    paymentStatus = currentPaymentStatus,
+                    onCardTypeCycle = {
+                        val types = MemberCardType.entries
+                        val nextIdx = (types.indexOf(currentCardType) + 1) % types.size
+                        currentCardType = types[nextIdx]
+                        if (currentCardType == MemberCardType.PAYMENT) {
+                            selectedTabIndex = 2
+                        } else if (currentCardType == MemberCardType.CHECK_IN || currentCardType == MemberCardType.CHECK_OUT) {
+                            selectedTabIndex = 0
+                        }
+                    },
+                    onPaymentStatusCycle = {
+                        val statuses = PaymentStatus.entries
+                        val nextIdx = (statuses.indexOf(currentPaymentStatus) + 1) % statuses.size
+                        currentPaymentStatus = statuses[nextIdx]
+                    },
                     onAvatarClick = onAvatarClick
                 )
             }
@@ -163,6 +190,12 @@ fun MasterStoryboardDashboard(
                 selectedTabIndex = activeIndex,
                 onTabSelected = { index ->
                     selectedTabIndex = index
+                    currentCardType = when (index) {
+                        0 -> MemberCardType.CHECK_IN
+                        1 -> MemberCardType.MEMBER_PASS
+                        2 -> MemberCardType.PAYMENT
+                        else -> MemberCardType.TRAINER_CHECK_IN
+                    }
                     if (isAllExpandedMode) {
                         coroutineScope.launch {
                             // Item 0 is hero, 1 is sticky header, items 2..5 are widgets
@@ -425,18 +458,34 @@ fun MasterStoryboardStickyMenuBar(
 @Composable
 fun MasterHeroHeader(
     data: MemberCardData,
+    cardType: MemberCardType = MemberCardType.MEMBER_PASS,
+    paymentStatus: PaymentStatus? = null,
+    onCardTypeCycle: () -> Unit = {},
+    onPaymentStatusCycle: () -> Unit = {},
     onAvatarClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val passes = remember { BadGymMemberPass.getAll9Passes() }
+    val currentTier = com.example.badnewgym.feature.membercard.design.MemberCardThemeManager.activeTheme.tier
+    val activePassIndex = remember(currentTier) {
+        val idx = passes.indexOfFirst { it.tier == currentTier }
+        if (idx >= 0) idx else 0
+    }
+
     BadGymPassShowcase(
-        selectedIndex = com.example.badnewgym.feature.membercard.design.MemberCardTheme.entries.indexOf(
-            com.example.badnewgym.feature.membercard.design.MemberCardThemeManager.activeTheme
-        ).coerceAtLeast(0),
+        passes = passes,
+        selectedIndex = activePassIndex,
+        cardType = cardType,
+        paymentStatus = paymentStatus,
         onPassSelected = { index ->
-            com.example.badnewgym.feature.membercard.design.MemberCardThemeManager.activeTheme =
-                com.example.badnewgym.feature.membercard.design.MemberCardTheme.entries[index]
+            val pass = passes.getOrNull(index) ?: passes.first()
+            val theme = com.example.badnewgym.feature.membercard.design.MemberCardTheme.entries.firstOrNull { it.tier == pass.tier }
+                ?: com.example.badnewgym.feature.membercard.design.MemberCardTheme.SILVER_6_MONTH
+            com.example.badnewgym.feature.membercard.design.MemberCardThemeManager.activeTheme = theme
         },
-        onAvatarClick = { onAvatarClick() },
+        onCardTypeCycle = onCardTypeCycle,
+        onPaymentStatusCycle = onPaymentStatusCycle,
+        onAvatarClick = { _ -> onAvatarClick() },
         modifier = modifier
     )
 }
@@ -814,18 +863,18 @@ private data class MonthlyAttendanceBar(
 private fun AttendanceMonthlyTrendSection() {
     val monthlyData = remember {
         listOf(
-            MonthlyAttendanceBar("Jan", "100%", 32f, daysCount = "30"),
+            MonthlyAttendanceBar("Jan", "100%", 36f, daysCount = "30"),
             MonthlyAttendanceBar("Feb", "85%", 25f, daysCount = "24"),
-            MonthlyAttendanceBar("Mar", "60%", 17f, daysCount = "18", isLow = true),
+            MonthlyAttendanceBar("Mar", "60%", 15f, daysCount = "18", isLow = true),
             MonthlyAttendanceBar("Apr", null, 0f, isNoMember = true),
-            MonthlyAttendanceBar("May", "90%", 27f, daysCount = "27"),
-            MonthlyAttendanceBar("Jun", "70%", 20f, daysCount = "21", isLow = true),
-            MonthlyAttendanceBar("Jul", "95%", 29f, daysCount = "29"),
+            MonthlyAttendanceBar("May", "90%", 28f, daysCount = "27"),
+            MonthlyAttendanceBar("Jun", "70%", 18f, daysCount = "21", isLow = true),
+            MonthlyAttendanceBar("Jul", "95%", 33f, daysCount = "29"),
             MonthlyAttendanceBar("Aug", null, 0f, isNoMember = true),
             MonthlyAttendanceBar("Sep", "80%", 23f, daysCount = "24"),
-            MonthlyAttendanceBar("Oct", "90%", 27f, daysCount = "27", isActiveMonth = true),
-            MonthlyAttendanceBar("Nov", "75%", 21f, daysCount = "23", isLow = true),
-            MonthlyAttendanceBar("Dec", "100%", 32f, daysCount = "30", isBest = true)
+            MonthlyAttendanceBar("Oct", "90%", 28f, daysCount = "27", isActiveMonth = true),
+            MonthlyAttendanceBar("Nov", "75%", 20f, daysCount = "23", isLow = true),
+            MonthlyAttendanceBar("Dec", "100%", 36f, daysCount = "30", isBest = true)
         )
     }
 
@@ -879,7 +928,7 @@ private fun AttendanceMonthlyTrendSection() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(52.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -890,143 +939,104 @@ private fun AttendanceMonthlyTrendSection() {
                         Brush.verticalGradient(listOf(Color(0xFF34D399), Color(0xFF059669)))
                     }
 
-                    if (item.isActiveMonth) {
-                        // Active Month (Oct): Highlighted with green outline pill border encompassing % and bar!
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(7.dp))
-                                .border(1.2.dp, Color(0xFF059669), RoundedCornerShape(7.dp))
-                                .padding(horizontal = 1.dp, vertical = 2.dp),
-                            contentAlignment = Alignment.BottomCenter
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Bottom
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        // Best / Min callouts
+                        if (item.isBest) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color(0xFFDCFCE7))
+                                    .border(0.6.dp, Color(0xFF10B981), RoundedCornerShape(3.dp))
+                                    .padding(horizontal = 2.dp, vertical = 0.5.dp)
                             ) {
                                 Text(
-                                    text = item.pctLabel ?: "",
-                                    fontSize = 9.5.sp,
+                                    text = "★ Best",
+                                    fontSize = 6.8.sp,
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFF059669),
-                                    maxLines = 1
+                                    color = Color(0xFF047857),
+                                    maxLines = 1,
+                                    lineHeight = 7.sp
                                 )
-                                Spacer(modifier = Modifier.height(1.5.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .width(20.dp)
-                                        .height(item.heightDp.dp)
-                                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
-                                        .background(barBrush),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (item.daysCount != null) {
-                                        Text(
-                                            text = item.daysCount,
-                                            fontSize = 8.5.sp,
-                                            fontWeight = FontWeight.Black,
-                                            color = Color.White
-                                        )
-                                    }
-                                }
+                            }
+                        } else if (item.isLow && item.month == "Mar") {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color(0xFFFEF3C7))
+                                    .border(0.6.dp, Color(0xFFF59E0B), RoundedCornerShape(3.dp))
+                                    .padding(horizontal = 2.dp, vertical = 0.5.dp)
+                            ) {
+                                Text(
+                                    text = "▼ Min",
+                                    fontSize = 6.8.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFFB45309),
+                                    maxLines = 1,
+                                    lineHeight = 7.sp
+                                )
                             }
                         }
-                    } else {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Bottom,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            // Best / Min callouts
-                            if (item.isBest) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(3.dp))
-                                        .background(Color(0xFFDCFCE7))
-                                        .border(0.6.dp, Color(0xFF10B981), RoundedCornerShape(3.dp))
-                                        .padding(horizontal = 2.dp, vertical = 0.5.dp)
-                                ) {
-                                    Text(
-                                        text = "★ Best",
-                                        fontSize = 6.8.sp,
-                                        fontWeight = FontWeight.Black,
-                                        color = Color(0xFF047857),
-                                        maxLines = 1,
-                                        lineHeight = 7.sp
-                                    )
-                                }
-                            } else if (item.isLow && item.month == "Mar") {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(3.dp))
-                                        .background(Color(0xFFFEF3C7))
-                                        .border(0.6.dp, Color(0xFFF59E0B), RoundedCornerShape(3.dp))
-                                        .padding(horizontal = 2.dp, vertical = 0.5.dp)
-                                ) {
-                                    Text(
-                                        text = "▼ Min",
-                                        fontSize = 6.8.sp,
-                                        fontWeight = FontWeight.Black,
-                                        color = Color(0xFFB45309),
-                                        maxLines = 1,
-                                        lineHeight = 7.sp
-                                    )
-                                }
-                            }
 
-                            if (item.pctLabel != null) {
+                        if (item.pctLabel != null) {
+                            Text(
+                                text = item.pctLabel,
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = if (item.isActiveMonth) Color(0xFF059669) else Color(0xFF475569),
+                                maxLines = 1
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+
+                        Spacer(modifier = Modifier.height(1.5.dp))
+
+                        if (item.isNoMember) {
+                            Box(
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(22.dp)
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color(0xFFF8FAFC))
+                                    .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Text(
-                                    text = item.pctLabel,
-                                    fontSize = 9.5.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF475569),
-                                    maxLines = 1
+                                    text = "No\nMem",
+                                    fontSize = 7.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF64748B),
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 8.sp,
+                                    maxLines = 2,
+                                    softWrap = false
                                 )
-                            } else {
-                                Spacer(modifier = Modifier.height(10.dp))
                             }
-
-                            Spacer(modifier = Modifier.height(1.5.dp))
-
-                            if (item.isNoMember) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(20.dp)
-                                        .height(22.dp)
-                                        .clip(RoundedCornerShape(3.dp))
-                                        .background(Color(0xFFF8FAFC))
-                                        .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(3.dp)),
-                                    contentAlignment = Alignment.Center
-                                ) {
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(item.heightDp.dp)
+                                    .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                                    .background(barBrush)
+                                    .then(
+                                        if (item.isActiveMonth) {
+                                            Modifier.border(1.2.dp, Color(0xFF047857), RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                                        } else Modifier
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (item.daysCount != null) {
                                     Text(
-                                        text = "No\nMem",
-                                        fontSize = 7.5.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF64748B),
-                                        textAlign = TextAlign.Center,
-                                        lineHeight = 8.sp,
-                                        maxLines = 2,
-                                        softWrap = false
+                                        text = item.daysCount,
+                                        fontSize = 8.5.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color.White
                                     )
-                                }
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .width(20.dp)
-                                        .height(item.heightDp.dp)
-                                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
-                                        .background(barBrush),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (item.daysCount != null) {
-                                        Text(
-                                            text = item.daysCount,
-                                            fontSize = 8.5.sp,
-                                            fontWeight = FontWeight.Black,
-                                            color = Color.White
-                                        )
-                                    }
                                 }
                             }
                         }
@@ -1050,7 +1060,17 @@ private fun AttendanceMonthlyTrendSection() {
             ) {
                 monthlyData.forEach { item ->
                     Box(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(
+                                if (item.isActiveMonth) {
+                                    Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Color(0xFFDCFCE7))
+                                        .border(0.8.dp, Color(0xFF059669), RoundedCornerShape(4.dp))
+                                        .padding(vertical = 1.dp)
+                                } else Modifier
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(

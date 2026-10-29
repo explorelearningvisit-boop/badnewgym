@@ -111,7 +111,7 @@ object MemberCardThemeManager {
      * Globally reactive active theme for the Member Intelligence Card.
      * Recomposes all observers immediately when modified.
      */
-    var activeTheme: MemberCardTheme by mutableStateOf(MemberCardTheme.SPARK_2_MONTH)
+    var activeTheme: MemberCardTheme by mutableStateOf(MemberCardTheme.SILVER_6_MONTH)
 
     fun getPalette(theme: MemberCardTheme = activeTheme): ThemeColorPalette {
         return when (theme) {

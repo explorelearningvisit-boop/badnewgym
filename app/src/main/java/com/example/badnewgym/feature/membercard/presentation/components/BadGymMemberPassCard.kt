@@ -21,12 +21,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,12 +38,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
 import com.example.badnewgym.feature.membercard.domain.model.BadGymPassTier
+import com.example.badnewgym.feature.membercard.domain.model.MemberCardType
+import com.example.badnewgym.feature.membercard.domain.model.PaymentStatus
 
 /**
  * BAD GYM — Canonical Member Pass Card (Master 1:1 Pixel-Perfect V2 Design)
@@ -66,8 +74,12 @@ import com.example.badnewgym.feature.membercard.domain.model.BadGymPassTier
 @Composable
 fun BadGymMemberPassCard(
     pass: BadGymMemberPass,
+    cardType: MemberCardType = MemberCardType.PAYMENT,
+    paymentStatus: PaymentStatus? = PaymentStatus.PENDING,
     onAvatarClick: () -> Unit = {},
     onChevronClick: () -> Unit = {},
+    onCardTypeCycle: () -> Unit = {},
+    onPaymentStatusCycle: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -90,7 +102,7 @@ fun BadGymMemberPassCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Left: Logo Emblem & Brand
+                // Left: Logo Emblem & Brand & Dynamic Contextual Card Type Badge
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(7.dp)
@@ -99,39 +111,98 @@ fun BadGymMemberPassCard(
                         modifier = Modifier
                             .size(30.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF044837))
-                            .border(1.dp, Color(0xFF065F46), CircleShape),
+                            .background(
+                                if (cardType == MemberCardType.MEMBER_PASS) Color(0xFF134E4A)
+                                else cardType.primaryColor
+                            )
+                            .border(
+                                1.dp,
+                                if (cardType == MemberCardType.MEMBER_PASS) Color(0xFF059669).copy(alpha = 0.5f)
+                                else cardType.badgeBorder,
+                                CircleShape
+                            )
+                            .clickable { onCardTypeCycle() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.FitnessCenter,
+                            imageVector = when (cardType) {
+                                MemberCardType.CHECK_IN, MemberCardType.CHECK_OUT -> Icons.Default.Check
+                                MemberCardType.PAYMENT -> Icons.Default.AccountBalanceWallet
+                                MemberCardType.TRAINER_CHECK_IN -> Icons.Default.Person
+                                MemberCardType.MACHINE_FAULT -> Icons.Default.Warning
+                                else -> Icons.Default.FitnessCenter
+                            },
                             contentDescription = null,
-                            tint = Color(0xFFFBBF24),
-                            modifier = Modifier.size(15.dp)
+                            tint = if (cardType == MemberCardType.MEMBER_PASS) Color(0xFFFBBF24) else Color.White,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
 
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "BAD ",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF0F172A)
-                            )
-                            Text(
-                                text = "GYM",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF059669)
-                            )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "BAD ",
+                                    fontSize = 17.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF0F172A)
+                                )
+                                Text(
+                                    text = "GYM",
+                                    fontSize = 17.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = if (cardType == MemberCardType.MEMBER_PASS) Color(0xFF059669) else cardType.primaryColor
+                                )
+                            }
+
+                            // Dynamic Highlighted Badge according to card type (Check In, Payment, etc.)
+                            if (cardType != MemberCardType.MEMBER_PASS) {
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = cardType.badgeBg,
+                                    border = BorderStroke(0.8.dp, cardType.badgeBorder),
+                                    modifier = Modifier.clickable { onCardTypeCycle() }
+                                ) {
+                                    Text(
+                                        text = cardType.title,
+                                        fontSize = 8.5.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = cardType.badgeText,
+                                        letterSpacing = 0.4.sp,
+                                        modifier = Modifier.padding(horizontal = 4.5.dp, vertical = 1.dp)
+                                    )
+                                }
+                            }
+
+                            // If PAYMENT or has payment status: show payment status pill (Pending, Done, Failed)
+                            if (cardType == MemberCardType.PAYMENT || (paymentStatus != null && cardType != MemberCardType.MEMBER_PASS)) {
+                                val status = paymentStatus ?: PaymentStatus.PENDING
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = status.bgColor,
+                                    border = BorderStroke(0.8.dp, status.borderColor),
+                                    modifier = Modifier.clickable { onPaymentStatusCycle() }
+                                ) {
+                                    Text(
+                                        text = status.label,
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = status.color,
+                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                    )
+                                }
+                            }
                         }
+
                         Text(
-                            text = "MEMBER PASS",
-                            fontSize = 9.5.sp,
+                            text = if (cardType == MemberCardType.MEMBER_PASS) "MEMBER PASS" else cardType.subtitle,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Black,
-                            letterSpacing = 1.2.sp,
-                            color = Color(0xFF64748B)
+                            letterSpacing = 1.sp,
+                            color = if (cardType == MemberCardType.MEMBER_PASS) Color(0xFF64748B) else cardType.badgeText.copy(alpha = 0.9f)
                         )
                     }
                 }
@@ -139,19 +210,19 @@ fun BadGymMemberPassCard(
                 // Right: Motto & 3-Dots Menu
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = "DISCIPLINE",
-                            fontSize = 9.sp,
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = "BUILDS FREEDOM",
-                            fontSize = 9.sp,
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp,
                             color = Color(0xFF64748B)
@@ -161,7 +232,7 @@ fun BadGymMemberPassCard(
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .clickable { onChevronClick() },
+                            .clickable { onCardTypeCycle() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -361,11 +432,11 @@ fun BadGymMemberPassCard(
             val progressFraction = (pass.daysLeft.toFloat() / pass.totalDays.toFloat().coerceAtLeast(1f)).coerceIn(0f, 1f)
             Surface(
                 shape = RoundedCornerShape(50.dp),
-                color = Color(0xFF064E3B), // Deep dark green base track
-                border = BorderStroke(0.8.dp, Color(0xFF059669).copy(alpha = 0.6f)),
+                color = Color(0xFF134E4A), // Deep dark teal/emerald base track matching Image 3
+                border = BorderStroke(0.8.dp, Color(0xFF059669).copy(alpha = 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(34.dp)
+                    .height(33.dp)
                     .clip(RoundedCornerShape(50.dp))
                     .clickable { onChevronClick() }
             ) {
@@ -383,38 +454,37 @@ fun BadGymMemberPassCard(
                                 Brush.horizontalGradient(
                                     listOf(
                                         Color(0xFF10B981), // Vibrant Emerald Mint
-                                        Color(0xFF059669)  // Rich Emerald Green
+                                        Color(0xFF059669), // Rich Emerald Green
+                                        Color(0xFF047857)  // Forest Emerald
                                     )
                                 )
                             )
                     )
 
-                    // Text & Chevron Row across full bar
-                    Row(
+                    // Text horizontally centered across the full bar (Pixel-perfect match to Image 3)
+                    Text(
+                        text = "${pass.daysLeft} / ${pass.totalDays} Days Left",
+                        fontSize = 13.5.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+
+                    // Right Chevron Icon (Pixel-perfect match to Image 3)
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Next Pass",
+                        tint = Color.White,
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "${pass.daysLeft} / ${pass.totalDays} Days Left (${(progressFraction * 100).toInt()}%)",
-                            fontSize = 13.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ChevronRight,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 12.dp)
+                            .size(18.dp)
+                    )
                 }
             }
 
             // =========================================================================
-            // ROW 4: 4 BIOMETRIC KPI PODS DOCK
+            // ROW 4: 4 BIOMETRIC KPI PODS DOCK (1:1 Match to Image 3)
             // =========================================================================
             Surface(
                 shape = RoundedCornerShape(13.dp),
@@ -425,53 +495,49 @@ fun BadGymMemberPassCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 5.dp, horizontal = 2.dp),
+                        .padding(vertical = 5.dp, horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    // Pod 1: Height
+                    // Pod 1: Height (3D Cyan Ruler)
                     BiometricPodItem(
-                        emoji = "📐",
+                        icon = { BiometricRulerIcon(modifier = Modifier.size(20.dp)) },
                         value = pass.height,
                         label = "Height",
-                        iconBg = Color(0xFFE0F7FA),
                         modifier = Modifier.weight(1f)
                     )
 
                     // Divider
                     Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
 
-                    // Pod 2: Weight
+                    // Pod 2: Weight (3D Blue Scale)
                     BiometricPodItem(
-                        emoji = "⚖️",
+                        icon = { BiometricScaleIcon(modifier = Modifier.size(20.dp)) },
                         value = pass.weight,
                         label = "Weight",
-                        iconBg = Color(0xFFE0F2FE),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1.05f)
                     )
 
                     // Divider
                     Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
 
-                    // Pod 3: BMI
+                    // Pod 3: BMI (3D Bar Chart)
                     BiometricPodItem(
-                        emoji = "📊",
+                        icon = { BiometricChartIcon(modifier = Modifier.size(20.dp)) },
                         value = pass.bmi,
                         label = "BMI",
-                        iconBg = Color(0xFFF1F5F9),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(0.95f)
                     )
 
                     // Divider
                     Box(modifier = Modifier.width(1.dp).height(24.dp).background(Color(0xFFE2E8F0)))
 
-                    // Pod 4: Goal
+                    // Pod 4: Goal (3D Flame)
                     BiometricPodItem(
-                        emoji = "🔥",
+                        icon = { BiometricFlameIcon(modifier = Modifier.size(20.dp)) },
                         value = pass.goal,
                         label = "Goal",
-                        iconBg = Color(0xFFFFF7ED),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1.1f)
                     )
                 }
             }
@@ -481,30 +547,21 @@ fun BadGymMemberPassCard(
 
 @Composable
 private fun BiometricPodItem(
-    emoji: String,
+    icon: @Composable () -> Unit,
     value: String,
     label: String,
-    iconBg: Color,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.padding(horizontal = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .size(25.dp)
-                .clip(RoundedCornerShape(7.dp))
-                .background(iconBg),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = emoji, fontSize = 13.sp)
-        }
-        Column {
+        icon()
+        Column(verticalArrangement = Arrangement.Center) {
             Text(
                 text = value,
-                fontSize = if (value.length > 7) 12.sp else 13.5.sp,
+                fontSize = if (value.length > 7) 11.sp else 12.5.sp,
                 letterSpacing = (-0.2).sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF0F172A),
@@ -513,12 +570,189 @@ private fun BiometricPodItem(
             )
             Text(
                 text = label,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 9.5.sp,
+                fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF64748B),
                 maxLines = 1
             )
         }
+    }
+}
+
+@Composable
+fun BiometricRulerIcon(modifier: Modifier = Modifier.size(20.dp)) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        rotate(-45f, pivot = center) {
+            val rulerWidth = w * 0.42f
+            val rulerHeight = h * 0.95f
+            val left = (w - rulerWidth) / 2f
+            val top = (h - rulerHeight) / 2f
+
+            drawRoundRect(
+                brush = Brush.verticalGradient(
+                    listOf(Color(0xFF22D3EE), Color(0xFF06B6D4), Color(0xFF0891B2))
+                ),
+                topLeft = Offset(left, top),
+                size = Size(rulerWidth, rulerHeight),
+                cornerRadius = CornerRadius(2.5.dp.toPx(), 2.5.dp.toPx())
+            )
+
+            drawRoundRect(
+                color = Color(0xFF67E8F9),
+                topLeft = Offset(left, top),
+                size = Size(rulerWidth, rulerHeight),
+                cornerRadius = CornerRadius(2.5.dp.toPx(), 2.5.dp.toPx()),
+                style = Stroke(width = 0.8.dp.toPx())
+            )
+
+            val ticks = 4
+            val step = rulerHeight / (ticks + 1)
+            for (i in 1..ticks) {
+                val y = top + i * step
+                val tickLen = if (i % 2 == 0) rulerWidth * 0.45f else rulerWidth * 0.3f
+                drawLine(
+                    color = Color.White.copy(alpha = 0.9f),
+                    start = Offset(left + rulerWidth, y),
+                    end = Offset(left + rulerWidth - tickLen, y),
+                    strokeWidth = 1.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BiometricScaleIcon(modifier: Modifier = Modifier.size(20.dp)) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val scaleSize = minOf(w, h) * 0.92f
+        val left = (w - scaleSize) / 2f
+        val top = (h - scaleSize) / 2f
+
+        // Base platform (Sky Blue gradient)
+        drawRoundRect(
+            brush = Brush.verticalGradient(
+                listOf(Color(0xFF60A5FA), Color(0xFF3B82F6), Color(0xFF1D4ED8))
+            ),
+            topLeft = Offset(left, top),
+            size = Size(scaleSize, scaleSize),
+            cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx())
+        )
+
+        drawRoundRect(
+            color = Color(0xFF93C5FD),
+            topLeft = Offset(left, top),
+            size = Size(scaleSize, scaleSize),
+            cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx()),
+            style = Stroke(width = 0.8.dp.toPx())
+        )
+
+        // Top Dial Display (White rounded box)
+        val dialW = scaleSize * 0.52f
+        val dialH = scaleSize * 0.32f
+        val dialLeft = left + (scaleSize - dialW) / 2f
+        val dialTop = top + scaleSize * 0.12f
+
+        drawRoundRect(
+            color = Color.White,
+            topLeft = Offset(dialLeft, dialTop),
+            size = Size(dialW, dialH),
+            cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+        )
+
+        // Red needle
+        drawLine(
+            color = Color(0xFFEF4444),
+            start = Offset(dialLeft + dialW / 2f, dialTop + dialH * 0.8f),
+            end = Offset(dialLeft + dialW / 2f, dialTop + dialH * 0.2f),
+            strokeWidth = 1.2.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+
+        // Center line
+        drawLine(
+            color = Color.White.copy(alpha = 0.35f),
+            start = Offset(left + scaleSize * 0.5f, top + scaleSize * 0.56f),
+            end = Offset(left + scaleSize * 0.5f, top + scaleSize * 0.88f),
+            strokeWidth = 1.dp.toPx()
+        )
+    }
+}
+
+@Composable
+fun BiometricChartIcon(modifier: Modifier = Modifier.size(20.dp)) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+
+        val cardW = w * 0.9f
+        val cardH = h * 0.9f
+        val left = (w - cardW) / 2f
+        val top = (h - cardH) / 2f
+
+        drawRoundRect(
+            brush = Brush.verticalGradient(listOf(Color(0xFFF8FAFC), Color(0xFFF1F5F9))),
+            topLeft = Offset(left, top),
+            size = Size(cardW, cardH),
+            cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx())
+        )
+        drawRoundRect(
+            color = Color(0xFFCBD5E1),
+            topLeft = Offset(left, top),
+            size = Size(cardW, cardH),
+            cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx()),
+            style = Stroke(width = 0.8.dp.toPx())
+        )
+
+        val barW = cardW * 0.18f
+        val bottomY = top + cardH * 0.82f
+
+        // Bar 1: Green
+        val b1H = cardH * 0.42f
+        val b1X = left + cardW * 0.15f
+        drawRoundRect(
+            brush = Brush.verticalGradient(listOf(Color(0xFF34D399), Color(0xFF10B981))),
+            topLeft = Offset(b1X, bottomY - b1H),
+            size = Size(barW, b1H),
+            cornerRadius = CornerRadius(1.dp.toPx(), 1.dp.toPx())
+        )
+
+        // Bar 2: Cyan
+        val b2H = cardH * 0.68f
+        val b2X = left + cardW * 0.42f
+        drawRoundRect(
+            brush = Brush.verticalGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7))),
+            topLeft = Offset(b2X, bottomY - b2H),
+            size = Size(barW, b2H),
+            cornerRadius = CornerRadius(1.dp.toPx(), 1.dp.toPx())
+        )
+
+        // Bar 3: Amber
+        val b3H = cardH * 0.52f
+        val b3X = left + cardW * 0.69f
+        drawRoundRect(
+            brush = Brush.verticalGradient(listOf(Color(0xFFFBBF24), Color(0xFFF59E0B))),
+            topLeft = Offset(b3X, bottomY - b3H),
+            size = Size(barW, b3H),
+            cornerRadius = CornerRadius(1.dp.toPx(), 1.dp.toPx())
+        )
+    }
+}
+
+@Composable
+fun BiometricFlameIcon(modifier: Modifier = Modifier.size(20.dp)) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "🔥",
+            fontSize = 16.sp
+        )
     }
 }
 
