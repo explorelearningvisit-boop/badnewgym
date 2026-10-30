@@ -56,6 +56,32 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — PINNED MEMBER CARD ARCHITECTURE, STADIUM PILL 4-TABS (IMAGE 4) & ZERO DRIFT VERIFICATION
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Commit**: `8426e54`
+- **Device Tested**: Physical Xiaomi 11i 5G (`zxdada69gunb7ls4`, 1080×2400)
+- **Live Device Screenshot Evidence**:
+  - Pinned Top Member Card & Menu Row: [docs/reference/images/device_screen_pinned_perfect.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_pinned_perfect.png)
+  - Scrolled Lower Content: [docs/reference/images/device_screen_pinned_scrolled.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_pinned_scrolled.png)
+  - Tab 1 Workout: [docs/reference/images/device_screen_verified_tab1_workout.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_verified_tab1_workout.png)
+  - Tab 2 Payment: [docs/reference/images/device_screen_verified_tab2_payment.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_verified_tab2_payment.png)
+  - Tab 3 Body: [docs/reference/images/device_screen_verified_tab3_body.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_verified_tab3_body.png)
+- **Key Deliverables Implemented & Verified**:
+  1. **Pinned Member Card & 4-Tab Dock Architecture**:
+     - `UnifiedBadGymMemberCard` and `MenuRow4Tabs` are locked stationary at the top of the dashboard inside a non-scrolling parent container.
+     - Only the expanded active widget data inside `LazyColumn(modifier = Modifier.weight(1f))` scrolls.
+     - Verified with automated pixel-by-pixel differential test: **Exactly 0 pixels drift** on the member card and tabs during scrolling, while 10,417 sample pixels actively scrolled in the lower viewport.
+  2. **Menu Row 4-Tab Stadium Pills (`media_1793300075801_5ac48325.jpg` Clone)**:
+     - 52dp stadium capsule geometry (`RoundedCornerShape(50.dp)`).
+     - Compact 3-element stack per tab: 26dp 3D spherical icon, Title (`10.5sp Bold`) with alert badge `!`, Value (`12.5sp Black`) + `›` chevron, and 3.5dp mini horizontal progress bar.
+     - No clipped text or awkward wrapping across all tabs.
+     - Signature active theme glows: Orange glow with exclamation badge `!` for Payment, Emerald for Attendance, Purple for Workout, and Sky Blue for Body.
+  3. **Sponsored Advertisement Section**:
+     - `BadGymSponsoredPromoCard` for Bad Nutrition Labs 100% Whey Gold (27g Isolate, code: `BADPUMP`) with 3D dumbbell badge, 25% OFF pill, and `Claim ➔` CTA button placed in scrollable area before motivation banner.
+  4. **Payment & Body Progress Polish**:
+     - Paid badge `Paid ₹500` formatted on a single line with `maxLines = 1, softWrap = false`.
+     - Unit tests pass with `BUILD SUCCESSFUL`.
+
 ## VERIFIED MILESTONE — 1:1 DITTO CLONE FINAL MASTER DASHBOARD SPECIFICATION
 - **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
 - **Commit**: `4089160`
