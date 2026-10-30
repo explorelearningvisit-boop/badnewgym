@@ -357,7 +357,7 @@ fun MasterStoryboardDashboard(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .background(InfographicTokens.MainBg)
+            .background(InfographicTokens.CanvasBrush)
             .padding(horizontal = 8.dp)
     ) {
         // =====================================================================

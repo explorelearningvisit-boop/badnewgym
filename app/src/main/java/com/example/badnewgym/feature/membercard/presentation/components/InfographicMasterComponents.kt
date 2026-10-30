@@ -97,6 +97,14 @@ object InfographicTokens {
     val Muted = Color(0xFF687487)           // Cool Grey Secondary Text
     val Hairline = Color(0xFFE2E8F0)        // Subtle Card Border
 
+    // Multi-stop Ambient Canvas Brush (Warm Cream -> Peach Glow -> Cool Periwinkle Air)
+    val CanvasBrush = Brush.verticalGradient(
+        0.0f to Color(0xFFFFF9F2),
+        0.25f to Color(0xFFFFF6ED),
+        0.65f to Color(0xFFF8F9FE),
+        1.0f to Color(0xFFF9F6FE)
+    )
+
     // Multi-color Accents
     val Purple = Color(0xFF7428E8)
     val Magenta = Color(0xFFD92BAF)
@@ -325,7 +333,7 @@ fun TopHeaderComponent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                     ) {
-                        // Green Leather Wallet with embossed white Rupee symbol
+                        // Green Leather Wallet with embossed white Rupee symbol + Caustic dot
                         Box(
                             modifier = Modifier
                                 .size(22.dp)
@@ -337,6 +345,15 @@ fun TopHeaderComponent(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
+                            // Caustic pinpoint reflection dot
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .offset(x = 3.dp, y = 2.dp)
+                                    .size(4.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White.copy(alpha = 0.7f))
+                            )
                             Text(
                                 text = "₹",
                                 fontSize = 12.sp,
@@ -408,10 +425,10 @@ fun ProfileSection(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(18.dp),
         color = InfographicTokens.Surface,
-        border = BorderStroke(1.5.dp, InfographicTokens.BorderGradient),
-        shadowElevation = 0.5.dp,
+        border = BorderStroke(1.dp, InfographicTokens.Hairline),
+        shadowElevation = 0.dp,
         modifier = modifier.fillMaxWidth()
     ) {
         Row(
@@ -1481,10 +1498,10 @@ fun AttendanceSection(
     val weeks = cells.chunked(7)
 
     Surface(
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(24.dp),
         color = Color.White,
         border = BorderStroke(1.5.dp, InfographicTokens.BorderGradient),
-        shadowElevation = 1.dp,
+        shadowElevation = 2.5.dp,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -1493,7 +1510,7 @@ fun AttendanceSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(46.dp)
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                    .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
                     .background(
                         Brush.horizontalGradient(
                             listOf(
@@ -1892,10 +1909,10 @@ fun MonthlyTrendSection(
     }
 
     Surface(
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(24.dp),
         color = Color.White,
         border = BorderStroke(1.5.dp, InfographicTokens.BorderGradient),
-        shadowElevation = 1.dp,
+        shadowElevation = 2.5.dp,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -1904,7 +1921,7 @@ fun MonthlyTrendSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(44.dp)
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                    .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
                     .background(
                         Brush.horizontalGradient(
                             listOf(
