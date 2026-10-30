@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -355,15 +356,8 @@ fun MasterStoryboardDashboard(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        InfographicTokens.PageTop,
-                        InfographicTokens.PageMid,
-                        InfographicTokens.PageBottom
-                    )
-                )
-            )
+            .statusBarsPadding()
+            .background(InfographicTokens.MainBg)
             .padding(horizontal = 8.dp)
     ) {
         // =====================================================================
@@ -492,14 +486,14 @@ fun MasterStoryboardDashboard(
                 }
             }
 
-            // =================================================================
-            // 4. MOTIVATION BOTTOM BANNER
-            // =================================================================
-            item(key = "infographic_component_8_banner") {
-                BottomMotivationBanner(
-                    isAchievement = false,
-                    onKeepGoingClick = onWorkoutClick
-                )
+            // Motivation banner shown only in tabs 1 and 2
+            if (selectedTabIndex == 1 || selectedTabIndex == 2) {
+                item(key = "infographic_component_8_banner") {
+                    BottomMotivationBanner(
+                        isAchievement = false,
+                        onKeepGoingClick = onWorkoutClick
+                    )
+                }
             }
 
             item(key = "bottom_spacer") {
