@@ -56,6 +56,46 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — THREE-SECTION REFERENCE-DRIVEN MEMBER INTELLIGENCE (`media_1793376151174_5cd06942.jpg`)
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Architecture**: Exactly Three Sections:
+  1. **Section 01: Member Intelligence Pass**:
+     - 135° Linear Gradient Header (`#7428E8` $\to$ `#D92BAF` $\to$ `#F34B9A` $\to$ `#FF963C`)
+     - Left: 3D Gold Crown 👑, "BAD" (White) + "GYM" (Yellow `#FFD45C`), "MEMBER INTELLIGENCE", "DISCIPLINE BUILDS FREEDOM"
+     - Middle: Translucent glowing stadium capsule (`CHECK-IN Today • 08:49 AM`) with fingerprint icon
+     - Right: White stadium capsule with green leather wallet (`₹2,800` in bold red, `03 Nov 2026`, blue chevron `›`)
+     - Member Profile: Ashwani Kumar Singh Srivastav, BG215 • 28 yrs • Male, "Discipline Builds Freedom", `[• Active]`, 09 Oct 2026 – 07 Nov 2026 (30 Days Plan), 3-dots action menu
+     - 4 Metric Pods: Height (5'9" with cyan ruler), Weight (69.5 kg $\downarrow 2.5\text{ kg}$ with purple scale), BMI (22.8 Normal with amber chart), Goal (Fat Loss with orange flame)
+     - Membership Progress: Ultra-thin 5dp gradient progress bar (`#FF9D32` $\to$ `#EF36A8`), 22/30 days used, 8 days left, 73% completion
+     - Outer Card Border: 1.5dp multi-color gradient border (`#E84BAF`, `#8B54F5`, `#45C9F5`, `#FFC45B`)
+  2. **Section 02: Quick Navigation**:
+     - 4 equal-width 50dp stadium capsules with spherical icons, chevron indicators, and mini 3.5dp progress bars:
+       - Attendance (81%) — Emerald theme
+       - Workout (67m) — Purple theme
+       - Payment (₹2,800 with red `!` alert circle) — Orange theme
+       - Body (69.5 kg) — Blue theme
+  3. **Section 03: Attendance Intelligence**:
+     - **Module A (Calendar Grid)**:
+       - Header: Calendar icon, "Attendance", "Daily check-ins • Mon – Sun", compact sponsored slot (`Stay Fit with MYPROTEIN [AD]`), month selector (`‹ Oct 2026 ›`)
+       - Left: 81% Attendance Rate circular donut gauge, 25/31 days, 4 holidays, status breakdown (Present 23, Late 2, Absent 2, Holiday 4)
+       - Right: 7-column calendar grid with round status circles (Present `#078A69`, Late `#EAA12E`, Absent `#E53945`, Holiday `#E9EEF0`)
+     - **Module B (12-Month Attendance Trend)**:
+       - Header: Trend icon, "Attendance trend", "Attendance rate by month", compact sponsored slot (`blinkit Healthy Snacks [AD]`), `12 months ⌵`
+       - 12-month vertical bars with values on top
+       - 3 Dynamic Dashed Reference Lines drawn across canvas:
+         - **Max 97%** (Green dashed line)
+         - **Avg 81%** (Amber dashed line)
+         - **Min 58%** (Red dashed line)
+       - Compact legend below chart: `--- Max 97%   --- Avg 81%   --- Min 58%`
+- **Verification Evidence**:
+  - Full screenshot: `docs/reference/images/reference_v3_live_verified.png`
+  - Section 1 crop: `docs/reference/images/live_sec1_member_pass.png`
+  - Section 2 crop: `docs/reference/images/live_sec2_quick_nav.png`
+  - Section 3A crop: `docs/reference/images/live_sec3a_calendar.png`
+  - Section 3B crop: `docs/reference/images/live_sec3b_trend.png`
+  - Build & Test: `BUILD SUCCESSFUL in 8m 34s (unit tests)` & `BUILD SUCCESSFUL in 7m 50s (assembleDebug)`
+  - Physical Device: Xiaomi 11i 5G (`zxdada69gunb7ls4`) live installation successful.
+
 ## VERIFIED MILESTONE — 1:1 DITTO CLONE OF TOP HEADER COMPONENT (`media_1793346029417_a6bb6f74.png`)
 - **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
 - **Commit**: `c6e9dea`

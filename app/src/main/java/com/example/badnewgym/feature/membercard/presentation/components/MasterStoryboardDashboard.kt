@@ -1,5 +1,7 @@
 package com.example.badnewgym.feature.membercard.presentation.components
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -88,6 +90,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -100,6 +103,10 @@ import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardType
 import com.example.badnewgym.feature.membercard.domain.model.PaymentStatus
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 /**
  * BAD GYM — Master Storyboard Dashboard V2
@@ -111,11 +118,49 @@ import kotlinx.coroutines.launch
  *    - All Expanded View: Full vertical layout of all 4 widgets with scroll-tracking tab illumination.
  * 4. High-Contrast Typography, Unified 44dp Touch Targets & Advanced Data Presentation Techniques:
  *    - Attendance: 30-Day Calendar Strip with filled status tokens & weekly consistency metrics
- *    - Workout: 62dp Volume Bars Canvas with dashed 70m average guideline & intensity hierarchy
+ *    - Workout: 62dp Volume Bars Canvas with a derived average guideline & intensity hierarchy
  *    - Payment: 12-Month Capsule Bar Chart with status tracks & prominent ₹2,800 due trigger
  *    - Body Progress: Interactive Metric Selector (Weight, Muscle, Fat, Waist) with calibrated Y-axes
  */
 @OptIn(ExperimentalFoundationApi::class)
+private fun dashboardDate(offsetDays: Int): Date {
+    return Calendar.getInstance().apply {
+        add(Calendar.DAY_OF_YEAR, offsetDays)
+    }.time
+}
+
+private fun dashboardDateLabel(offsetDays: Int): String =
+    SimpleDateFormat("dd MMM yyyy", Locale.US).format(dashboardDate(offsetDays))
+
+private fun displayDueAmount(data: MemberCardData): String =
+    data.paymentPlan.currentDueAmount
+        .takeIf { it.isNotBlank() && it != "--" }
+        ?: data.paymentPlan.dueAlertAmount.takeIf { it.isNotBlank() && it != "--" }
+        ?: "₹0"
+
+private fun sharePaymentMessage(context: Context, message: String) {
+    context.startActivity(
+        Intent.createChooser(
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, message)
+            },
+            "Share payment message"
+        )
+    )
+}
+
+private fun dashboardValidity(totalDays: Int, daysLeft: Int): String {
+    val elapsed = (totalDays - daysLeft).coerceIn(0, totalDays - 1)
+    val start = dashboardDate(-elapsed + 1)
+    val end = Calendar.getInstance().apply {
+        time = start
+        add(Calendar.DAY_OF_YEAR, totalDays - 1)
+    }.time
+    val fmt = SimpleDateFormat("dd MMM yyyy", Locale.US)
+    return "${fmt.format(start)} – ${fmt.format(end)} ($totalDays Days Plan)"
+}
+
 // =============================================================================
 // BAD GYM SPONSORED PROMO AD CARD
 // =============================================================================
@@ -269,7 +314,9 @@ fun BadGymSponsoredPromoCard(
 fun MasterStoryboardDashboard(
     data: MemberCardData,
     onAvatarClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
     onAttendanceClick: () -> Unit = {},
+    onAttendanceDayClick: (com.example.badnewgym.feature.membercard.domain.model.CalendarDay) -> Unit = {},
     onWorkoutClick: () -> Unit = {},
     onPaymentClick: () -> Unit = {},
     onViewReceiptClick: () -> Unit = {},
@@ -279,9 +326,9 @@ fun MasterStoryboardDashboard(
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val passes = remember { BadGymMemberPass.getAll9Passes() }
-    var currentPassIndex by remember { mutableIntStateOf(0) }
-    val currentPass = passes.getOrElse(currentPassIndex) { passes.first() }
+    // A member has one pass. The old screen let the avatar cycle through nine
+    // demo identities, which silently changed the person shown on screen.
+    val currentPass = remember { BadGymMemberPass.getAll9Passes().first() }
 
     val hasDues = data.paymentPlan.dueAlertAmount.isNotEmpty() || data.paymentPlan.currentDueAmount.isNotEmpty()
     val initialCardType = MemberCardType.CHECK_IN
@@ -318,14 +365,13 @@ fun MasterStoryboardDashboard(
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        Color(0xFFF0FDF9),
-                        Color(0xFFF8FAFC),
-                        Color(0xFFF0F9FF),
-                        Color(0xFFFAF5FF)
+                        InfographicTokens.PageTop,
+                        InfographicTokens.PageMid,
+                        InfographicTokens.PageBottom
                     )
                 )
             )
-            .padding(horizontal = 6.dp)
+            .padding(horizontal = 8.dp)
     ) {
         // =====================================================================
         // 1. PINNED MEMBER CARD (Always in the same place! Never scrolls away!)
@@ -339,34 +385,27 @@ fun MasterStoryboardDashboard(
             isActive = !currentPass.isOverdue,
             cardType = currentCardType,
             paymentStatus = currentPaymentStatus,
-            paidAmount = if (currentPaymentStatus == PaymentStatus.PENDING || hasDues) "₹800" else "₹500",
-            paidDate = "12 Oct 2026",
+             paidAmount = if (currentPaymentStatus == PaymentStatus.PENDING || hasDues) displayDueAmount(data) else "₹0",
+            paidDate = dashboardDateLabel(4),
             name = currentPass.name,
             memberId = currentPass.memberId,
             age = currentPass.age,
             gender = currentPass.gender,
             quote = currentPass.quote,
-            validity = "${currentPass.startDate} – ${currentPass.endDate} (${currentPass.totalDays} Days Plan)",
+            validity = dashboardValidity(currentPass.totalDays, currentPass.daysLeft),
             avatarRes = currentPass.avatarRes,
             height = currentPass.height,
-            weight = currentPass.weight,
-            bmi = currentPass.bmi,
+            weight = "69.5 kg",
+            bmi = "22.8",
             bmiCategory = "Normal",
             goal = currentPass.goal,
             daysPassed = daysPassed,
             totalDays = currentPass.totalDays,
             percentage = pct,
             onCheckInClick = {
-                val types = MemberCardType.entries
-                val nextIdx = (types.indexOf(currentCardType) + 1) % types.size
-                currentCardType = types[nextIdx]
-                if (currentCardType == MemberCardType.PAYMENT) {
-                    selectedTabIndex = 2
-                } else if (currentCardType == MemberCardType.CHECK_IN || currentCardType == MemberCardType.CHECK_OUT) {
-                    selectedTabIndex = 0
-                } else if (currentCardType == MemberCardType.TRAINER_CHECK_IN) {
-                    selectedTabIndex = 1
-                }
+                selectedTabIndex = 0
+                currentCardType = MemberCardType.CHECK_IN
+                onAttendanceClick()
             },
             onPaymentHeaderClick = {
                 currentCardType = MemberCardType.PAYMENT
@@ -374,12 +413,11 @@ fun MasterStoryboardDashboard(
                 onPaymentClick()
             },
             onPlanClick = {
-                currentPassIndex = (currentPassIndex + 1) % passes.size
+                selectedTabIndex = 2
+                currentCardType = MemberCardType.PAYMENT
             },
-            onAvatarClick = {
-                currentPassIndex = (currentPassIndex + 1) % passes.size
-                onAvatarClick()
-            },
+            onAvatarClick = onMenuClick,
+            onMenuClick = onMenuClick,
             onGoalClick = onBodyProgressClick,
             onProgressClick = {
                 selectedTabIndex = 0
@@ -407,10 +445,10 @@ fun MasterStoryboardDashboard(
                     lazyListState.scrollToItem(0)
                 }
             },
-            attendanceRate = "90%",
-            workoutAvg = "70m",
-            paymentDue = "₹800",
-            bodyWeight = "74.1 kg"
+            attendanceRate = "${data.attendance.percent}%",
+            workoutAvg = "${workoutAvgMinutes()}m",
+             paymentDue = displayDueAmount(data),
+            bodyWeight = "69.5 kg"
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -430,16 +468,18 @@ fun MasterStoryboardDashboard(
                     // COMPONENT 6: Attendance Section (7-Column Calendar Grid)
                     item(key = "infographic_component_6_attendance") {
                         AttendanceSection(
-                            percentage = "90%",
-                            daysPresentText = "27 / 30 Days",
-                            onMonthPrev = {},
-                            onMonthNext = {}
+                            attendance = data.attendance,
+                            onAttendanceClick = onAttendanceClick,
+                            onDayClick = onAttendanceDayClick
                         )
                     }
 
                     // COMPONENT 7: Monthly Trend Section (12-Month Bar Chart)
                     item(key = "infographic_component_7_monthly_trend") {
-                        MonthlyTrendSection()
+                        MonthlyTrendSection(
+                            currentPercent = data.attendance.percent,
+                            monthLabel = data.attendance.monthLabel
+                        )
                     }
                 }
                 1 -> {
@@ -460,16 +500,7 @@ fun MasterStoryboardDashboard(
             }
 
             // =================================================================
-            // 4. BAD GYM SPONSORED PROMOTIONAL ADVERTISEMENT SECTION
-            // =================================================================
-            item(key = "bad_gym_promo_ad") {
-                BadGymSponsoredPromoCard(
-                    onClaimClick = onPaymentClick
-                )
-            }
-
-            // =================================================================
-            // 5. MOTIVATION BOTTOM BANNER
+            // 4. MOTIVATION BOTTOM BANNER
             // =================================================================
             item(key = "infographic_component_8_banner") {
                 BottomMotivationBanner(
@@ -539,8 +570,8 @@ fun MasterStoryboardStickyMenuBar(
     val tabs = remember {
         listOf(
             DashboardTabItem(Icons.Default.CalendarToday, "Attendance", "90%"),
-            DashboardTabItem(Icons.Default.FitnessCenter, "Workout", "70m"),
-            DashboardTabItem(Icons.Default.AccountBalanceWallet, "Payment", "₹800"),
+            DashboardTabItem(Icons.Default.FitnessCenter, "Workout", "${workoutAvgMinutes()}m"),
+            DashboardTabItem(Icons.Default.AccountBalanceWallet, "Payment", "₹2,800"),
             DashboardTabItem(Icons.Default.Person, "Body", "69.5kg")
         )
     }
@@ -1101,7 +1132,7 @@ private fun AttendanceMonthlyTrendSection() {
                     )
                 }
 
-                TimeframeDropdownPill(text = "12 Months")
+                TimeframeDropdownPill(text = "12 Months") // Attendance has a real 6/12 selector
             }
 
             Spacer(modifier = Modifier.height(1.dp))
@@ -1591,7 +1622,7 @@ private fun WorkoutHeaderSection() {
                 TimeframeDropdownPill(text = "Oct 2026")
             }
 
-            // Row 2: Hero Metric (70 min, Avg/Session, ↑8% vs Sep) on left | Legend on right
+            // Row 2: Hero metric derived from the same 30 daily bars as the chart.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1603,7 +1634,7 @@ private fun WorkoutHeaderSection() {
                 ) {
                     Column {
                         Text(
-                            text = "70 min",
+                            text = "${workoutAvgMinutes()} min",
                             fontSize = 35.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0284C7),
@@ -1626,14 +1657,14 @@ private fun WorkoutHeaderSection() {
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "↑ 8%",
+                                text = "${workoutActiveDays() * 100 / workoutBars.size}%",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF16A34A)
                             )
                         }
                         Text(
-                            text = "vs Sep",
+                            text = "active days",
                             fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
@@ -1687,11 +1718,16 @@ private fun WorkoutQuickKpiRow() {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val totalMinutes = workoutBars.sumOf { it.minutes }
+        val activeDays = workoutActiveDays()
+        val activePct = activeDays * 100 / workoutBars.size
+        val peakDay = workoutBars.maxByOrNull { it.minutes }?.day ?: 0
+
         // Pod 1: Total Time
         WorkoutKpiPod(
             icon = Icons.Default.Timer,
             iconTint = Color(0xFF10B981),
-            value = "823 min",
+            value = "$totalMinutes min",
             label = "Total Time",
             subLabel = null,
             subLabelColor = Color.Transparent,
@@ -1703,9 +1739,9 @@ private fun WorkoutQuickKpiRow() {
         WorkoutKpiPod(
             icon = Icons.Default.DateRange,
             iconTint = Color(0xFF0284C7),
-            value = "22 Days",
+            value = "$activeDays Days",
             label = "Active Days",
-            subLabel = "73% active",
+            subLabel = "$activePct% active",
             subLabelColor = Color(0xFF16A34A),
             showInfoIcon = false,
             modifier = Modifier.weight(1f)
@@ -1715,9 +1751,9 @@ private fun WorkoutQuickKpiRow() {
         WorkoutKpiPod(
             icon = Icons.Default.EmojiEvents,
             iconTint = Color(0xFFD97706),
-            value = "123 min",
+            value = "${workoutPeakMinutes()} min",
             label = "Peak Session",
-            subLabel = "15 Oct",
+            subLabel = "$peakDay Oct",
             subLabelColor = Color(0xFF0284C7),
             showInfoIcon = false,
             modifier = Modifier.weight(1f)
@@ -1819,6 +1855,48 @@ private data class DailyWorkoutBar(
     val minutes: Int
 )
 
+private val workoutBars: List<DailyWorkoutBar> = listOf(
+    DailyWorkoutBar(1, 55),
+    DailyWorkoutBar(2, 0),
+    DailyWorkoutBar(3, 32),
+    DailyWorkoutBar(4, 60),
+    DailyWorkoutBar(5, 25),
+    DailyWorkoutBar(6, 22),
+    DailyWorkoutBar(7, 0),
+    DailyWorkoutBar(8, 48),
+    DailyWorkoutBar(9, 58),
+    DailyWorkoutBar(10, 92),
+    DailyWorkoutBar(11, 0),
+    DailyWorkoutBar(12, 52),
+    DailyWorkoutBar(13, 60),
+    DailyWorkoutBar(14, 50),
+    DailyWorkoutBar(15, 120),
+    DailyWorkoutBar(16, 65),
+    DailyWorkoutBar(17, 0),
+    DailyWorkoutBar(18, 50),
+    DailyWorkoutBar(19, 60),
+    DailyWorkoutBar(20, 0),
+    DailyWorkoutBar(21, 0),
+    DailyWorkoutBar(22, 95),
+    DailyWorkoutBar(23, 90),
+    DailyWorkoutBar(24, 92),
+    DailyWorkoutBar(25, 98),
+    DailyWorkoutBar(26, 95),
+    DailyWorkoutBar(27, 0),
+    DailyWorkoutBar(28, 90),
+    DailyWorkoutBar(29, 0),
+    DailyWorkoutBar(30, 62)
+)
+
+private fun workoutActiveDays(): Int = workoutBars.count { it.minutes > 0 }
+
+private fun workoutAvgMinutes(): Int {
+    val active = workoutActiveDays().coerceAtLeast(1)
+    return Math.round(workoutBars.sumOf { it.minutes }.toFloat() / active)
+}
+
+private fun workoutPeakMinutes(): Int = workoutBars.maxOf { it.minutes }
+
 @Composable
 private fun FloatingChartBadge(
     title: String,
@@ -1869,41 +1947,8 @@ private fun FloatingChartBadge(
 
 @Composable
 private fun Workout30DayBarChartSection() {
-    // 30 days matching target: 8 High (≥90m), 12 Medium (30-89m), 2 Low (<30m), 8 Rest (0m)
-    val dailyData = remember {
-        listOf(
-            DailyWorkoutBar(1, 55),
-            DailyWorkoutBar(2, 0),
-            DailyWorkoutBar(3, 32),
-            DailyWorkoutBar(4, 60),
-            DailyWorkoutBar(5, 25), // Min (5 Oct) -> Red Bar & Red Badge
-            DailyWorkoutBar(6, 22), // Low (<30m) -> Amber Bar
-            DailyWorkoutBar(7, 0),
-            DailyWorkoutBar(8, 48),
-            DailyWorkoutBar(9, 58),
-            DailyWorkoutBar(10, 92), // High (≥90m)
-            DailyWorkoutBar(11, 0),
-            DailyWorkoutBar(12, 52),
-            DailyWorkoutBar(13, 60),
-            DailyWorkoutBar(14, 50),
-            DailyWorkoutBar(15, 120), // Peak (15 Oct) -> Green Gradient Bar & Green Badge
-            DailyWorkoutBar(16, 65),
-            DailyWorkoutBar(17, 0),
-            DailyWorkoutBar(18, 50),
-            DailyWorkoutBar(19, 60),
-            DailyWorkoutBar(20, 0),
-            DailyWorkoutBar(21, 0),
-            DailyWorkoutBar(22, 95), // High (≥90m)
-            DailyWorkoutBar(23, 90), // High (≥90m)
-            DailyWorkoutBar(24, 92), // High (≥90m)
-            DailyWorkoutBar(25, 98), // High (≥90m)
-            DailyWorkoutBar(26, 95), // High (≥90m)
-            DailyWorkoutBar(27, 0),
-            DailyWorkoutBar(28, 90), // High (≥90m)
-            DailyWorkoutBar(29, 0),
-            DailyWorkoutBar(30, 62)
-        )
-    }
+    // 8 high, 12 medium, 2 low and 8 rest days in the 30-day window.
+    val dailyData = workoutBars
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -1964,12 +2009,12 @@ private fun Workout30DayBarChartSection() {
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
                     )
 
-                    // 2. Avg Guideline (70m) - Blue dashed line (across full width)
-                    val avg70Y = size.height * (1f - (70f / 125f))
+                    // 2. Average guideline, derived from the daily bars.
+                    val avgY = size.height * (1f - (workoutAvgMinutes().toFloat() / 125f))
                     drawLine(
                         color = Color(0xFF0284C7).copy(alpha = 0.55f),
-                        start = Offset(0f, avg70Y),
-                        end = Offset(size.width, avg70Y),
+                        start = Offset(0f, avgY),
+                        end = Offset(size.width, avgY),
                         strokeWidth = 1.dp.toPx(),
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
                     )
@@ -2046,7 +2091,7 @@ private fun Workout30DayBarChartSection() {
                 )
 
                 Text(
-                    text = "Avg 70m",
+                    text = "Avg ${workoutAvgMinutes()}m",
                     fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0284C7),
@@ -2191,9 +2236,7 @@ private fun WorkoutMonthlyPatternCard() {
             MonthlyWorkoutItem("Jul", "22d", 32f, isPeak = true, isTop = true),
             MonthlyWorkoutItem("Aug", null, 0f, isNoMembership = true),
             MonthlyWorkoutItem("Sep", "14d", 20f),
-            MonthlyWorkoutItem("Oct", "22d", 32f),
-            MonthlyWorkoutItem("Nov", "8d", 12f, isLow = true),
-            MonthlyWorkoutItem("Dec", "20d", 28f)
+            MonthlyWorkoutItem("Oct", "22d", 32f)
         )
     }
 
@@ -2236,12 +2279,12 @@ private fun WorkoutMonthlyPatternCard() {
                     )
                 }
 
-                TimeframeDropdownPill(text = "12 Months")
+                TimeframeDropdownPill(text = "This year")
             }
 
             Spacer(modifier = Modifier.height(1.dp))
 
-            // 1. 12 Monthly Bars Row
+            // 1. Monthly Bars Row (Jan – Oct 2026)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -2397,6 +2440,7 @@ fun MasterPaymentCard(
     isBlendedWithTab: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val cardShape = if (isBlendedWithTab) {
         RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 20.dp, bottomEnd = 20.dp)
     } else {
@@ -2420,26 +2464,36 @@ fun MasterPaymentCard(
         ) {
             // 1. TOP HEADER & DUE AMOUNT HERO CARD
             PaymentHeaderHeroSection(
-                onPlanHistoryClick = onClick
+                 dueAmount = displayDueAmount(data),
+                 planName = data.paymentPlan.planName,
+                 onPlanHistoryClick = onClick
             )
 
-            // 2. 5 ACTION BUTTONS (Collect Payment, WhatsApp Reminder, Message, Send Receipt, More)
+            // 2. Primary payment actions. Every visible action has a destination.
             PaymentActionButtonsRow(
-                onCollectPayment = onClick,
-                onWhatsAppReminder = { /* WhatsApp */ },
-                onMessage = { /* Message */ },
+                onCollectPayment = onViewReceiptClick,
+                onWhatsAppReminder = {
+                    sharePaymentMessage(
+                        context,
+                        "BAD GYM payment reminder: your membership balance is ${displayDueAmount(data)}. Please contact the gym to complete payment."
+                    )
+                },
+                onMessage = {
+                    sharePaymentMessage(
+                        context,
+                        "BAD GYM membership update: your current balance is ${displayDueAmount(data)}."
+                    )
+                },
                 onSendReceipt = onViewReceiptClick,
-                onMore = { /* More */ }
+                onMore = onClick
             )
 
-            // 3. 6 QUICK ACTION CAPSULES (Add Payment, Split Payment, Payment Link, Mark Waived, Adjust Amount, Add Note)
-            PaymentQuickActionsRow()
-
-            // 4. PAYMENT TREND (Stacked 12-Month Bar Chart & Legend)
+            // 3. PAYMENT TREND (model-aligned history)
             PaymentTrendSection()
 
             // 5. BOTTOM 3 SUMMARY METRIC CARDS (Total Paid, Unpaid Balance, Waived by Owner)
             PaymentSummaryMetricsRow(
+                 data = data,
                 onTotalPaidClick = onClick,
                 onUnpaidBalanceClick = onClick,
                 onWaivedClick = onClick
@@ -2454,6 +2508,8 @@ fun MasterPaymentCard(
 
 @Composable
 private fun PaymentHeaderHeroSection(
+    dueAmount: String,
+    planName: String,
     onPlanHistoryClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -2496,7 +2552,7 @@ private fun PaymentHeaderHeroSection(
                         lineHeight = 18.sp
                     )
                     Text(
-                        text = "Monthly Plan ₹1,200",
+                         text = planName.ifBlank { "Membership plan" },
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF64748B),
@@ -2573,7 +2629,7 @@ private fun PaymentHeaderHeroSection(
                         color = Color(0xFFDC2626)
                     )
                     Text(
-                        text = "₹800",
+                         text = dueAmount,
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFFDC2626),
@@ -2617,7 +2673,7 @@ private fun PaymentHeaderHeroSection(
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Due on 12 Oct 2026 >
+                    // Due date is derived from the current dashboard date.
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(3.dp)
@@ -2637,7 +2693,7 @@ private fun PaymentHeaderHeroSection(
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = "12 Oct 2026",
+                                    text = dashboardDateLabel(4),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFFDC2626)
@@ -2714,7 +2770,7 @@ private fun PaymentActionButtonsRow(
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Collect Payment",
+                text = "View Due",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White,
@@ -2760,7 +2816,7 @@ private fun PaymentActionButtonsRow(
                     }
                 }
                 Text(
-                    text = "Reminder",
+                    text = "Due Details",
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF16A34A),
@@ -2793,7 +2849,7 @@ private fun PaymentActionButtonsRow(
                 )
                 Spacer(modifier = Modifier.height(1.dp))
                 Text(
-                    text = "Message",
+                    text = "Contact",
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0284C7),
@@ -2859,7 +2915,7 @@ private fun PaymentActionButtonsRow(
                 )
                 Spacer(modifier = Modifier.height(1.dp))
                 Text(
-                    text = "More",
+                    text = "History",
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF64748B),
@@ -3002,165 +3058,154 @@ private data class MonthlyPaymentData(
 
 @Composable
 private fun PaymentTrendSection(modifier: Modifier = Modifier) {
-    val monthsData = remember {
-        listOf(
-            MonthlyPaymentData("Jan", "₹600", Color(0xFF10B981), 22),
-            MonthlyPaymentData("Feb", "₹600", Color(0xFF10B981), 22),
-            MonthlyPaymentData("Mar", "-", Color(0xFFE2E8F0), 10, isDashed = true),
-            MonthlyPaymentData("Apr", "-", Color(0xFFE2E8F0), 10, isDashed = true),
-            MonthlyPaymentData("May", "₹1.2k", Color(0xFF10B981), 32),
-            MonthlyPaymentData("Jun", "₹840", Color(0xFFF59E0B), 27),
-            MonthlyPaymentData("Jul", "₹2.0k", Color(0xFF10B981), 44),
-            MonthlyPaymentData("Aug", "-", Color(0xFFE2E8F0), 10, isDashed = true),
-            MonthlyPaymentData("Sep", "₹1.2k", Color(0xFF10B981), 32),
-            MonthlyPaymentData("Oct", "₹400", Color(0xFFEF4444), 16),
-            MonthlyPaymentData("Nov", "₹100", Color(0xFF94A3B8), 12),
-            MonthlyPaymentData("Dec", "₹2.4k", Color(0xFF10B981), 48)
-        )
-    }
-
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // Header Row: 📊 Payment Trend ℹ️ + 12 Months ⌵
+        PaymentTrendHeader()
+        PaymentTrendChart()
+        PaymentTrendLegend()
+    }
+}
+
+@Composable
+private fun PaymentTrendHeader() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(text = "📊", fontSize = 13.5.sp)
-                Text(
-                    text = "Payment Trend",
-                    fontSize = 14.5.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFF0F172A)
-                )
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = Color(0xFF94A3B8),
-                    modifier = Modifier.size(13.dp)
-                )
-            }
-
-            // Dropdown Pill
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(Color(0xFFF8FAFC))
-                    .border(0.7.dp, Color(0xFFCBD5E1), RoundedCornerShape(50.dp))
-                    .padding(horizontal = 8.dp, vertical = 2.5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = "12 Months",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF334155)
-                )
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = null,
-                    tint = Color(0xFF334155),
-                    modifier = Modifier.size(12.dp)
-                )
-            }
+            Text(text = "📊", fontSize = 13.5.sp)
+            Text(
+                text = "Payment Trend",
+                fontSize = 14.5.sp,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFF0F172A)
+            )
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "Payment trend information",
+                tint = Color(0xFF94A3B8),
+                modifier = Modifier.size(13.dp)
+            )
         }
-
-        // Chart Container with Y-Axis and 12 Columns
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.White)
-                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-                .padding(horizontal = 6.dp, vertical = 6.dp)
+        Surface(
+            shape = RoundedCornerShape(50.dp),
+            color = Color(0xFFF8FAFC),
+            border = BorderStroke(0.7.dp, Color(0xFFCBD5E1))
         ) {
+            Text(
+                text = "Jan–Oct 2026",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF334155),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+            )
+        }
+    }
+}
+
+private fun paymentTrendData(): List<MonthlyPaymentData> = listOf(
+    MonthlyPaymentData("Jan", "₹600", Color(0xFF10B981), 22),
+    MonthlyPaymentData("Feb", "₹600", Color(0xFF10B981), 22),
+    MonthlyPaymentData("Mar", "-", Color(0xFFE2E8F0), 10, isDashed = true),
+    MonthlyPaymentData("Apr", "-", Color(0xFFE2E8F0), 10, isDashed = true),
+    MonthlyPaymentData("May", "₹1.2k", Color(0xFF10B981), 32),
+    MonthlyPaymentData("Jun", "₹840", Color(0xFFF59E0B), 27),
+    MonthlyPaymentData("Jul", "₹2.0k", Color(0xFF10B981), 44),
+    MonthlyPaymentData("Aug", "-", Color(0xFFE2E8F0), 10, isDashed = true),
+    MonthlyPaymentData("Sep", "₹1.2k", Color(0xFF10B981), 32),
+    MonthlyPaymentData("Oct", "₹400", Color(0xFFEF4444), 16)
+)
+
+@Composable
+private fun PaymentTrendChart() {
+    val monthsData = remember { paymentTrendData() }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
+            .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+            .padding(horizontal = 6.dp, vertical = 6.dp)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            PaymentTrendAxis()
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
-                // Left Y-Axis Labels
-                Column(
-                    modifier = Modifier
-                        .height(72.dp)
-                        .padding(end = 4.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(text = "₹3k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
-                    Text(text = "₹2k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
-                    Text(text = "₹1k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
-                    Text(text = "0", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
-                }
-
-                // 12 Months Columns
-                Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    monthsData.forEach { item ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Bottom,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            // Top Amount Label
-                            Text(
-                                text = item.totalLabel ?: "-",
-                                fontSize = 7.sp,
-                                fontWeight = FontWeight.Black,
-                                color = if (item.isDashed) Color(0xFF94A3B8) else Color(0xFF0F172A),
-                                maxLines = 1,
-                                softWrap = false
-                            )
-
-                            Spacer(modifier = Modifier.height(2.dp))
-
-                            // Bar
-                            Box(
-                                modifier = Modifier
-                                    .width(13.dp)
-                                    .height(item.heightDp.dp)
-                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                    .background(item.barColor)
-                            )
-
-                            Spacer(modifier = Modifier.height(2.dp))
-
-                            // Month Label
-                            Text(
-                                text = item.month,
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF64748B)
-                            )
-                        }
-                    }
+                monthsData.forEach { item ->
+                    PaymentTrendBar(item, Modifier.weight(1f))
                 }
             }
         }
+    }
+}
 
-        // Multi-Color Legend Row (Image 2)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            PaymentLegendItem(color = Color(0xFF10B981), label = "On Time")
-            PaymentLegendItem(color = Color(0xFFF59E0B), label = "Partial")
-            PaymentLegendItem(color = Color(0xFFEF4444), label = "Late")
-            PaymentLegendItem(color = Color(0xFFE2E8F0), label = "No Payment")
-            PaymentLegendItem(color = Color(0xFF8B5CF6), label = "Extra")
-            PaymentLegendItem(color = Color(0xFF0284C7), label = "Waived")
-        }
+@Composable
+private fun PaymentTrendAxis() {
+    Column(
+        modifier = Modifier.height(72.dp).padding(end = 4.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.End
+    ) {
+        Text(text = "₹3k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+        Text(text = "₹2k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+        Text(text = "₹1k", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+        Text(text = "0", fontSize = 8.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun PaymentTrendBar(item: MonthlyPaymentData, modifier: Modifier = Modifier) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom,
+        modifier = modifier
+    ) {
+        Text(
+            text = item.totalLabel ?: "-",
+            fontSize = 7.sp,
+            fontWeight = FontWeight.Black,
+            color = if (item.isDashed) Color(0xFF94A3B8) else Color(0xFF0F172A),
+            maxLines = 1,
+            softWrap = false
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Box(
+            modifier = Modifier
+                .width(13.dp)
+                .height(item.heightDp.dp)
+                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                .background(item.barColor)
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = item.month,
+            fontSize = 8.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF64748B)
+        )
+    }
+}
+
+@Composable
+private fun PaymentTrendLegend() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PaymentLegendItem(color = Color(0xFF10B981), label = "On Time")
+        PaymentLegendItem(color = Color(0xFFF59E0B), label = "Partial")
+        PaymentLegendItem(color = Color(0xFFEF4444), label = "Late")
+        PaymentLegendItem(color = Color(0xFFE2E8F0), label = "No Payment")
     }
 }
 
@@ -3191,6 +3236,7 @@ private fun PaymentLegendItem(color: Color, label: String) {
 
 @Composable
 private fun PaymentSummaryMetricsRow(
+    data: MemberCardData,
     onTotalPaidClick: () -> Unit = {},
     onUnpaidBalanceClick: () -> Unit = {},
     onWaivedClick: () -> Unit = {},
@@ -3263,7 +3309,7 @@ private fun PaymentSummaryMetricsRow(
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "₹11,400",
+                            text = data.paymentPlan.amountPaid,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF059669)
@@ -3276,7 +3322,7 @@ private fun PaymentSummaryMetricsRow(
                         )
                     }
                     Text(
-                        text = "📅 9 Payments",
+                        text = "📅 Payment history",
                         fontSize = 8.5.sp,
                         color = Color(0xFF64748B),
                         fontWeight = FontWeight.SemiBold
@@ -3321,7 +3367,7 @@ private fun PaymentSummaryMetricsRow(
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "₹800",
+                            text = displayDueAmount(data),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFFDC2626)
@@ -3334,7 +3380,7 @@ private fun PaymentSummaryMetricsRow(
                         )
                     }
                     Text(
-                        text = "📅 1 Month Due",
+                        text = "📅 Current balance",
                         fontSize = 8.5.sp,
                         color = Color(0xFFDC2626),
                         fontWeight = FontWeight.Bold
@@ -3343,7 +3389,7 @@ private fun PaymentSummaryMetricsRow(
             }
         }
 
-        // Card 3: Waived by Owner
+        // Card 3: Last recorded payment
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -3375,7 +3421,7 @@ private fun PaymentSummaryMetricsRow(
 
                 Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text(
-                        text = "Waived by Owner",
+                        text = "Last Payment",
                         fontSize = 10.sp,
                         color = Color(0xFF64748B),
                         fontWeight = FontWeight.Bold,
@@ -3384,7 +3430,7 @@ private fun PaymentSummaryMetricsRow(
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "₹100",
+                            text = data.paymentPlan.lastPaymentAmount,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0284C7)
@@ -3397,7 +3443,7 @@ private fun PaymentSummaryMetricsRow(
                         )
                     }
                     Text(
-                        text = "📅 1 Payment",
+                        text = data.paymentPlan.lastPaymentDate,
                         fontSize = 8.5.sp,
                         color = Color(0xFF64748B),
                         fontWeight = FontWeight.SemiBold
@@ -3432,8 +3478,8 @@ fun MasterBodyProgressCard(
 
     Surface(
         shape = cardShape,
-        color = Color(0xFFFAFAFE),
-        border = BorderStroke(1.2.dp, Color(0xFFDDD6FE).copy(alpha = 0.85f)),
+        color = Color.White,
+        border = BorderStroke(1.2.dp, InfographicTokens.Hairline),
         shadowElevation = 1.dp,
         modifier = modifier.fillMaxWidth()
     ) {
@@ -3446,12 +3492,10 @@ fun MasterBodyProgressCard(
             // PRIORITY 1: CURIOUS MILESTONE SPOTLIGHT (🏆 New Personal Best at Top of Body View)
             BodyAchievementSpotlightCard()
 
-            // PRIORITY 2: HEADER ROW (💪 Body Progress + Track Your Transformation + Last 6 Months)
-            BodyProgressHeaderSection(
-                onTimeframeClick = onClick
-            )
+            // PRIORITY 2: HEADER ROW (Body Progress + Track Your Transformation + timeframe)
+             BodyProgressHeaderSection()
 
-            // PRIORITY 3: HERO TRANSFORMATION CARD (Mannequin + 69.5 kg + Radial Goal Arc 67% + Plan Progress 73%)
+            // PRIORITY 3: HERO TRANSFORMATION CARD (Mannequin + current weight + goal progress + plan progress)
             BodyHeroTransformationCard()
 
             // PRIORITY 4: COLLECTIVE MULTI-LINE PROGRESS TREND CHART (All 5 Lines Shown Collectively by Default)
@@ -3600,10 +3644,7 @@ private fun BodyAchievementSpotlightCard(
 // -----------------------------------------------------------------------------
 
 @Composable
-private fun BodyProgressHeaderSection(
-    onTimeframeClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun BodyProgressHeaderSection(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -3617,7 +3658,7 @@ private fun BodyProgressHeaderSection(
                 modifier = Modifier
                     .size(34.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFFEDE9FE)),
+                    .background(InfographicTokens.BrandSoft),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "💪", fontSize = 18.sp)
@@ -3627,7 +3668,7 @@ private fun BodyProgressHeaderSection(
                     text = "Body Progress",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Black,
-                    color = Color(0xFF1E1B4B)
+                    color = InfographicTokens.Ink
                 )
                 Text(
                     text = "Track Your Transformation",
@@ -3638,32 +3679,12 @@ private fun BodyProgressHeaderSection(
             }
         }
 
-        // Timeframe Pill (Last 6 Months ⌵)
-        Surface(
-            shape = RoundedCornerShape(50.dp),
-            color = Color.White,
-            border = BorderStroke(0.9.dp, Color(0xFFDDD6FE)),
-            modifier = Modifier.clickable { onTimeframeClick() }
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                Text(
-                    text = "Last 6 Months",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF6D28D9)
-                )
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = null,
-                    tint = Color(0xFF6D28D9),
-                    modifier = Modifier.size(13.dp)
-                )
-            }
-        }
+        Text(
+            text = "Last 6 months",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = InfographicTokens.Muted
+        )
     }
 }
 
@@ -3785,13 +3806,13 @@ private fun BodyHeroTransformationCard(modifier: Modifier = Modifier) {
                             style = Stroke(width = stroke, cap = StrokeCap.Round)
                         )
 
-                        // Progress arc (67% of 180 = 120.6f)
+                        // Goal progress: 2.5 kg lost from 72 kg toward a 66 kg goal.
                         drawArc(
                             brush = Brush.horizontalGradient(
                                 listOf(Color(0xFF22C55E), Color(0xFF3B82F6), Color(0xFF8B5CF6))
                             ),
                             startAngle = 180f,
-                            sweepAngle = 120.6f,
+                             sweepAngle = 75.6f,
                             useCenter = false,
                             topLeft = topLeft,
                             size = arcSize,
@@ -3799,7 +3820,7 @@ private fun BodyHeroTransformationCard(modifier: Modifier = Modifier) {
                         )
                     }
                     Text(
-                        text = "67%",
+                        text = "42%",
                         fontSize = 16.5.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A),
@@ -4952,20 +4973,13 @@ private fun TimeframeDropdownPill(text: String) {
             .background(Color.White)
             .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(50.dp))
             .padding(horizontal = 9.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = text,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1E293B)
-        )
-        Icon(
-            imageVector = Icons.Default.KeyboardArrowDown,
-            contentDescription = null,
-            tint = Color(0xFF475569),
-            modifier = Modifier.size(12.dp)
         )
     }
 }
