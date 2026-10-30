@@ -228,77 +228,71 @@ fun TopHeaderComponent(
     }
 
     Surface(
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(22.dp),
         color = Color.Transparent,
-        border = BorderStroke(1.2.dp, Color(0xFFBAE6FD).copy(alpha = 0.8f)),
+        border = BorderStroke(1.dp, Color(0xFFBAE6FD).copy(alpha = 0.8f)),
         modifier = modifier
             .fillMaxWidth()
-            .height(54.dp)
-            .background(InfographicTokens.HeaderGradient, RoundedCornerShape(28.dp))
+            .height(50.dp)
+            .background(InfographicTokens.HeaderGradient, RoundedCornerShape(22.dp))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 9.dp),
+                .padding(horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Left: Sparkles ✨ + Logo + Dynamic Tagline
+            // Left: Sparkles ✨ + Crown 👑 + Logo
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                Text(text = "✨", fontSize = 13.sp)
-                Text(text = "👑", fontSize = 15.sp)
+                Text(text = "👑", fontSize = 14.sp)
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "BAD ",
-                            fontSize = 15.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A)
                         )
                         Text(
                             text = "GYM",
-                            fontSize = 15.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF059669)
                         )
                     }
                     Text(
                         text = headerSubtext,
-                        fontSize = 7.5.sp,
+                        fontSize = 7.sp,
                         fontWeight = FontWeight.Black,
                         color = headerSubtextColor,
-                        letterSpacing = 0.3.sp
-                    )
-                    Text(
-                        text = "DISCIPLINE BUILDS FREEDOM",
-                        fontSize = 6.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF64748B)
+                        letterSpacing = 0.2.sp,
+                        maxLines = 1
                     )
                 }
             }
 
-            // Middle: Dynamic Activity Pill with Electric Gradient
+            // Middle: Dynamic Activity Pill
             Surface(
                 shape = RoundedCornerShape(50.dp),
                 color = Color.Transparent,
-                border = BorderStroke(1.dp, pillBorderColor),
+                border = BorderStroke(0.8.dp, pillBorderColor),
                 modifier = Modifier
                     .clip(RoundedCornerShape(50.dp))
                     .background(Brush.horizontalGradient(badgeIconGradient))
                     .clickable { onCheckInClick() }
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(20.dp)
                             .clip(CircleShape)
                             .background(Color.White.copy(alpha = 0.25f)),
                         contentAlignment = Alignment.Center
@@ -307,60 +301,62 @@ fun TopHeaderComponent(
                             imageVector = badgeIcon,
                             contentDescription = badgeTitle,
                             tint = Color.White,
-                            modifier = Modifier.size(15.dp)
+                            modifier = Modifier.size(12.dp)
                         )
                     }
 
                     Column {
                         Text(
                             text = badgeTitle,
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White,
-                            letterSpacing = 0.3.sp
+                            letterSpacing = 0.2.sp,
+                            maxLines = 1
                         )
                         Text(
                             text = badgeSubtitle,
-                            fontSize = 7.5.sp,
+                            fontSize = 7.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFE0F2FE)
+                            color = Color(0xFFE0F2FE),
+                            maxLines = 1
                         )
                     }
 
-                    // Status Pill
                     Surface(
                         shape = RoundedCornerShape(50.dp),
                         color = statusPillColor
                     ) {
                         Text(
                             text = statusPillText,
-                            fontSize = 7.5.sp,
+                            fontSize = 7.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White,
-                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                            maxLines = 1
                         )
                     }
                 }
             }
 
-            // Right: Paid Status Badge (Matching Final Master Specification)
+            // Right: Paid Status Badge (Guaranteed Width so Paid ₹500 Never Wraps!)
             Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White.copy(alpha = 0.9f),
-                border = BorderStroke(1.dp, Color(0xFFBAE6FD).copy(alpha = 0.8f)),
+                shape = RoundedCornerShape(10.dp),
+                color = Color.White.copy(alpha = 0.95f),
+                border = BorderStroke(0.8.dp, Color(0xFFBAE6FD).copy(alpha = 0.8f)),
                 modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(10.dp))
                     .clickable { onPaymentHeaderClick() }
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(26.dp)
-                            .clip(RoundedCornerShape(7.dp))
+                            .size(22.dp)
+                            .clip(RoundedCornerShape(6.dp))
                             .background(Color(0xFF10B981)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -368,7 +364,7 @@ fun TopHeaderComponent(
                             imageVector = Icons.Default.AccountBalanceWallet,
                             contentDescription = "Paid",
                             tint = Color.White,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(12.dp)
                         )
                     }
                     Column(verticalArrangement = Arrangement.Center) {
@@ -378,13 +374,13 @@ fun TopHeaderComponent(
                         ) {
                             Text(
                                 text = "Paid",
-                                fontSize = 10.sp,
+                                fontSize = 9.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF065F46)
                             )
                             Box(
                                 modifier = Modifier
-                                    .size(10.dp)
+                                    .size(8.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFF10B981)),
                                 contentAlignment = Alignment.Center
@@ -393,37 +389,30 @@ fun TopHeaderComponent(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = null,
                                     tint = Color.White,
-                                    modifier = Modifier.size(7.dp)
+                                    modifier = Modifier.size(5.dp)
                                 )
                             }
                         }
                         Text(
                             text = paidAmount,
-                            fontSize = 12.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
-                            lineHeight = 12.sp
-                        )
-                        Text(
-                            text = paidDate,
-                            fontSize = 7.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF64748B),
-                            lineHeight = 7.sp
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
                         tint = Color(0xFF94A3B8),
-                        modifier = Modifier.size(12.dp)
+                        modifier = Modifier.size(11.dp)
                     )
                 }
             }
         }
     }
 }
-
 // =============================================================================
 // COMPONENT 2: PROFILE SECTION (24dp Card with Watermark Silhouette)
 // =============================================================================
@@ -441,9 +430,9 @@ fun ProfileSection(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(24.dp),
-        color = Color.White.copy(alpha = 0.95f),
-        border = BorderStroke(1.2.dp, Color(0xFFBAE6FD).copy(alpha = 0.8f)),
+        shape = RoundedCornerShape(18.dp),
+        color = Color.White.copy(alpha = 0.92f),
+        border = BorderStroke(0.8.dp, Color(0xFFE2E8F0)),
         modifier = modifier.fillMaxWidth()
     ) {
         Box(
@@ -863,13 +852,13 @@ fun FullWidthDaysProgressCard(
 ) {
     val progressFraction = (daysPassed.toFloat() / totalDays.toFloat()).coerceIn(0f, 1f)
     Surface(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(14.dp),
         color = Color.Transparent,
-        border = BorderStroke(1.2.dp, Color(0xFF38BDF8)),
+        border = BorderStroke(0.8.dp, Color(0xFF38BDF8).copy(alpha = 0.8f)),
         modifier = modifier
             .fillMaxWidth()
-            .height(48.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .height(44.dp)
+            .clip(RoundedCornerShape(14.dp))
             .background(InfographicTokens.DaysCardGradient)
             .clickable { onClick() }
     ) {
@@ -952,12 +941,12 @@ fun StatsRowCompact(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.98f),
-        border = BorderStroke(1.2.dp, Color(0xFFCBD5E1)),
+        shape = RoundedCornerShape(14.dp),
+        color = Color.White.copy(alpha = 0.95f),
+        border = BorderStroke(0.8.dp, Color(0xFFE2E8F0)),
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp)
+            .height(50.dp)
     ) {
         Row(
             modifier = Modifier
@@ -1201,20 +1190,19 @@ fun MenuRow4Tabs(
     attendanceRate: String = "90%",
     workoutAvg: String = "70m",
     paymentDue: String = "₹800",
-    bodyWeight: String = "69.5 kg",
+    bodyWeight: String = "74.1 kg",
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.5.dp)
+            .height(52.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // Tab 0: Attendance (Emerald Green with Mini Progress Bar)
+        // Tab 0: Attendance (Emerald Green Stadium Pill with Mini Progress Bar)
         NewMenuTabItem(
             title = "Attendance",
             value = attendanceRate,
-            subtitle = "27 / 30 days",
             icon = Icons.Default.CalendarToday,
             iconBg = Brush.radialGradient(listOf(Color(0xFF22C55E), Color(0xFF059669))),
             textColor = Color(0xFF059669),
@@ -1222,15 +1210,15 @@ fun MenuRow4Tabs(
             progress = 0.90f,
             isSelected = selectedTabIndex == 0,
             hasAlert = false,
+            activeTheme = 0,
             onClick = { onTabSelected(0) },
             modifier = Modifier.weight(1f)
         )
 
-        // Tab 1: Workout (Purple Neon with Mini Progress Bar)
+        // Tab 1: Workout (Purple Neon Stadium Pill with Mini Progress Bar)
         NewMenuTabItem(
             title = "Workout",
             value = workoutAvg,
-            subtitle = "Avg. per day",
             icon = Icons.Default.FitnessCenter,
             iconBg = Brush.radialGradient(listOf(Color(0xFFA855F7), Color(0xFF7C3AED))),
             textColor = Color(0xFF7C3AED),
@@ -1238,40 +1226,39 @@ fun MenuRow4Tabs(
             progress = 0.70f,
             isSelected = selectedTabIndex == 1,
             hasAlert = false,
+            activeTheme = 1,
             onClick = { onTabSelected(1) },
             modifier = Modifier.weight(1f)
         )
 
-        // Tab 2: Payment (Orange Glowing with Red ! Alert & Mini Progress Bar)
+        // Tab 2: Payment (Glowing Orange Stadium Pill with Red ! Alert & Mini Progress Bar)
         NewMenuTabItem(
             title = "Payment",
             value = paymentDue,
-            subtitle = "3 days left",
             icon = Icons.Default.AccountBalanceWallet,
             iconBg = Brush.radialGradient(listOf(Color(0xFFFB923C), Color(0xFFEA580C))),
             textColor = if (selectedTabIndex == 2) Color.White else Color(0xFFEA580C),
-            barGradient = Brush.horizontalGradient(listOf(Color(0xFFFBBF24), Color(0xFFEA580C))),
+            barGradient = Brush.horizontalGradient(listOf(Color(0xFFFDE047), Color(0xFFEA580C))),
             progress = 0.65f,
             isSelected = selectedTabIndex == 2,
             hasAlert = true,
-            isOrangeGlow = true,
+            activeTheme = 2,
             onClick = { onTabSelected(2) },
             modifier = Modifier.weight(1f)
         )
 
-        // Tab 3: Body (Sky Blue Glowing with Mini Progress Bar)
+        // Tab 3: Body (Sky Blue Stadium Pill with Mini Progress Bar)
         NewMenuTabItem(
             title = "Body",
             value = bodyWeight,
-            subtitle = "On Track",
             icon = Icons.Default.Person,
             iconBg = Brush.radialGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7))),
-            textColor = if (selectedTabIndex == 3) Color(0xFF0369A1) else Color(0xFF0284C7),
+            textColor = if (selectedTabIndex == 3) Color.White else Color(0xFF0284C7),
             barGradient = Brush.horizontalGradient(listOf(Color(0xFF38BDF8), Color(0xFF0369A1))),
             progress = 0.74f,
             isSelected = selectedTabIndex == 3,
             hasAlert = false,
-            isCyanGlow = true,
+            activeTheme = 3,
             onClick = { onTabSelected(3) },
             modifier = Modifier.weight(1f)
         )
@@ -1282,7 +1269,6 @@ fun MenuRow4Tabs(
 private fun NewMenuTabItem(
     title: String,
     value: String,
-    subtitle: String? = null,
     icon: ImageVector,
     iconBg: Brush,
     textColor: Color,
@@ -1290,54 +1276,79 @@ private fun NewMenuTabItem(
     progress: Float,
     isSelected: Boolean,
     hasAlert: Boolean = false,
-    isOrangeGlow: Boolean = false,
-    isCyanGlow: Boolean = false,
+    activeTheme: Int = 0,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Exact matching for Image 4 (media_1793300075801_5ac48325.jpg)
+    val isOrangeGlow = (activeTheme == 2) && isSelected
+    val isPurpleGlow = (activeTheme == 1) && isSelected
+    val isBlueGlow = (activeTheme == 3) && isSelected
+    val isGreenGlow = (activeTheme == 0) && isSelected
+
     val tabBg = when {
-        isSelected && isOrangeGlow -> Brush.horizontalGradient(
+        isOrangeGlow -> Brush.horizontalGradient(
             listOf(Color(0xFFEA580C), Color(0xFFF97316), Color(0xFFFB923C))
         )
-        isSelected && isCyanGlow -> Brush.horizontalGradient(
-            listOf(Color(0xFFE0F2FE), Color(0xFFBAE6FD), Color(0xFFE0F2FE))
+        isPurpleGlow -> Brush.horizontalGradient(
+            listOf(Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFA855F7))
         )
-        isSelected -> Brush.horizontalGradient(
-            listOf(Color(0xFFF0FDF4), Color(0xFFDCFCE7))
+        isBlueGlow -> Brush.horizontalGradient(
+            listOf(Color(0xFF0284C7), Color(0xFF0EA5E9), Color(0xFF38BDF8))
+        )
+        isGreenGlow -> Brush.horizontalGradient(
+            listOf(Color(0xFF059669), Color(0xFF10B981), Color(0xFF34D399))
+        )
+        // Soft frosted translucent backgrounds with gentle color tint
+        activeTheme == 0 -> Brush.horizontalGradient(
+            listOf(Color(0xFFF0FDF4).copy(alpha = 0.92f), Color.White.copy(alpha = 0.96f))
+        )
+        activeTheme == 1 -> Brush.horizontalGradient(
+            listOf(Color(0xFFFAF5FF).copy(alpha = 0.92f), Color.White.copy(alpha = 0.96f))
+        )
+        activeTheme == 2 -> Brush.horizontalGradient(
+            listOf(Color(0xFFFFF7ED).copy(alpha = 0.92f), Color.White.copy(alpha = 0.96f))
         )
         else -> Brush.horizontalGradient(
-            listOf(Color.White.copy(alpha = 0.95f), Color(0xFFF8FAFC).copy(alpha = 0.95f))
+            listOf(Color(0xFFF0F9FF).copy(alpha = 0.92f), Color.White.copy(alpha = 0.96f))
         )
     }
 
     val borderColor = when {
-        isSelected && isOrangeGlow -> Color(0xFFFDBA74)
-        isSelected && isCyanGlow -> Color(0xFF38BDF8)
-        isSelected -> Color(0xFF10B981)
-        else -> Color(0xFFE2E8F0)
+        isOrangeGlow -> Color(0xFFFDBA74)
+        isPurpleGlow -> Color(0xFFDDD6FE)
+        isBlueGlow -> Color(0xFFBAE6FD)
+        isGreenGlow -> Color(0xFFA7F3D0)
+        activeTheme == 0 -> Color(0xFFA7F3D0).copy(alpha = 0.8f)
+        activeTheme == 1 -> Color(0xFFDDD6FE).copy(alpha = 0.8f)
+        activeTheme == 2 -> Color(0xFFFED7AA).copy(alpha = 0.8f)
+        else -> Color(0xFFBAE6FD).copy(alpha = 0.8f)
     }
 
+    val isFullColoredBg = isSelected
+
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(50.dp),
         color = Color.Transparent,
         border = BorderStroke(if (isSelected) 1.5.dp else 1.dp, borderColor),
+        shadowElevation = if (isSelected) 2.dp else 0.5.dp,
         modifier = modifier
             .fillMaxHeight()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(50.dp))
             .background(tabBg)
             .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 4.5.dp, vertical = 2.5.dp),
+                .padding(horizontal = 4.5.dp, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
         ) {
             // 3D Spherical Icon Badge
             Box(
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(26.dp)
                     .clip(CircleShape)
                     .background(iconBg),
                 contentAlignment = Alignment.Center
@@ -1346,11 +1357,11 @@ private fun NewMenuTabItem(
                     imageVector = icon,
                     contentDescription = title,
                     tint = Color.White,
-                    modifier = Modifier.size(15.dp)
+                    modifier = Modifier.size(14.dp)
                 )
             }
 
-            // Details Column: Title (+ alert), Value + chevron, Subtitle, Mini Progress Bar
+            // Details Column: Title (+ alert), Value + chevron, Mini Progress Bar
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.weight(1f)
@@ -1362,25 +1373,26 @@ private fun NewMenuTabItem(
                 ) {
                     Text(
                         text = title,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isSelected && isOrangeGlow) Color.White.copy(alpha = 0.9f) else Color(0xFF64748B),
-                        maxLines = 1
+                        fontSize = 9.8.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = if (isFullColoredBg) Color.White.copy(alpha = 0.95f) else Color(0xFF0F172A),
+                        maxLines = 1,
+                        letterSpacing = (-0.2).sp
                     )
                     if (hasAlert) {
                         Box(
                             modifier = Modifier
-                                .size(11.dp)
+                                .size(10.5.dp)
                                 .clip(CircleShape)
                                 .background(Color(0xFFEF4444)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "!",
-                                fontSize = 8.sp,
+                                fontSize = 7.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White,
-                                lineHeight = 8.sp
+                                lineHeight = 7.5.sp
                             )
                         }
                     }
@@ -1393,44 +1405,29 @@ private fun NewMenuTabItem(
                 ) {
                     Text(
                         text = value,
-                        fontSize = 14.5.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Black,
-                        color = if (isSelected && isOrangeGlow) Color.White else textColor,
+                        color = if (isFullColoredBg) Color.White else textColor,
                         maxLines = 1
                     )
                     Text(
                         text = "›",
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Black,
-                        color = if (isSelected && isOrangeGlow) Color.White else textColor
-                    )
-                }
-
-                // Subtitle (e.g. On Track, 27/30 days, 3 days left, Avg per day)
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = when {
-                            isSelected && isOrangeGlow -> Color.White.copy(alpha = 0.85f)
-                            isSelected && isCyanGlow -> Color(0xFF0369A1)
-                            else -> Color(0xFF64748B)
-                        },
-                        maxLines = 1
+                        color = if (isFullColoredBg) Color.White else textColor
                     )
                 }
 
                 Spacer(modifier = Modifier.height(1.dp))
 
-                // Bottom: Mini Horizontal Progress Bar
+                // Bottom: Mini Horizontal Progress Bar (Image 4 exact)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(4.dp)
+                        .height(3.5.dp)
                         .clip(RoundedCornerShape(50.dp))
                         .background(
-                            if (isSelected && isOrangeGlow) Color.White.copy(alpha = 0.35f)
+                            if (isFullColoredBg) Color.White.copy(alpha = 0.35f)
                             else Color(0xFFE2E8F0)
                         )
                 ) {
@@ -1440,7 +1437,7 @@ private fun NewMenuTabItem(
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(50.dp))
                             .background(
-                                if (isSelected && isOrangeGlow) Brush.horizontalGradient(listOf(Color(0xFFFDE047), Color.White))
+                                if (isFullColoredBg) Brush.horizontalGradient(listOf(Color.White.copy(alpha = 0.8f), Color.White))
                                 else barGradient
                             )
                     )
@@ -1449,6 +1446,7 @@ private fun NewMenuTabItem(
         }
     }
 }
+
 
 // =============================================================================
 // COMPONENT 6: ATTENDANCE SECTION (7-Column Calendar Grid View)

@@ -116,6 +116,155 @@ import kotlinx.coroutines.launch
  *    - Body Progress: Interactive Metric Selector (Weight, Muscle, Fat, Waist) with calibrated Y-axes
  */
 @OptIn(ExperimentalFoundationApi::class)
+// =============================================================================
+// BAD GYM SPONSORED PROMO AD CARD
+// =============================================================================
+
+@Composable
+fun BadGymSponsoredPromoCard(
+    onClaimClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shape = RoundedCornerShape(18.dp),
+        color = Color(0xFFFAFAFE),
+        border = BorderStroke(
+            1.2.dp,
+            Brush.horizontalGradient(
+                listOf(
+                    Color(0xFFF59E0B).copy(alpha = 0.8f),
+                    Color(0xFFA855F7).copy(alpha = 0.8f),
+                    Color(0xFF10B981).copy(alpha = 0.8f)
+                )
+            )
+        ),
+        shadowElevation = 2.dp,
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .clickable { onClaimClick() }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            Color(0xFFFFFBEB).copy(alpha = 0.95f),
+                            Color(0xFFFAF5FF).copy(alpha = 0.95f),
+                            Color(0xFFF0FDF4).copy(alpha = 0.95f)
+                        )
+                    )
+                )
+                .padding(horizontal = 10.dp, vertical = 8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    // Left 3D Dumbbell / Supplement Badge
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(CircleShape)
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(Color(0xFFFEF3C7), Color(0xFFFDE68A))
+                                )
+                            )
+                            .border(1.dp, Color(0xFFF59E0B).copy(alpha = 0.5f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.illustration_3d_dumbbell_mini),
+                            contentDescription = "Nutrition Promo",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(1.5.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = Color(0xFFFEF3C7),
+                                border = BorderStroke(0.6.dp, Color(0xFFF59E0B))
+                            ) {
+                                Text(
+                                    text = "SPONSORED",
+                                    fontSize = 8.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFFB45309),
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 0.5.dp)
+                                )
+                            }
+                            Text(
+                                text = "•  MEMBER EXCLUSIVE 25% OFF",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF7C3AED)
+                            )
+                        }
+
+                        Text(
+                            text = "Bad Nutrition Labs — 100% Whey Gold",
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A),
+                            maxLines = 1
+                        )
+                        Text(
+                            text = "27g Isolate Protein • BCAA & Creatine • Code: BADPUMP",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF475569),
+                            maxLines = 1
+                        )
+                    }
+                }
+
+                // Right Claim Offer Button
+                Surface(
+                    shape = RoundedCornerShape(50.dp),
+                    color = Color(0xFFFACC15),
+                    shadowElevation = 1.dp,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .clickable { onClaimClick() }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = "Claim",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A)
+                        )
+                        Text(
+                            text = "➔",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun MasterStoryboardDashboard(
     data: MemberCardData,
@@ -163,8 +312,7 @@ fun MasterStoryboardDashboard(
 
     val activeIndex = if (isAllExpandedMode) visibleTabIndex else selectedTabIndex
 
-    LazyColumn(
-        state = lazyListState,
+    Column(
         modifier = modifier
             .fillMaxSize()
             .background(
@@ -177,127 +325,106 @@ fun MasterStoryboardDashboard(
                     )
                 )
             )
-            .padding(horizontal = 6.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .padding(horizontal = 6.dp)
     ) {
         // =====================================================================
-        // UNIFIED MEMBER CARD (Packs Header, Profile, Stats & Progress in 1 Card)
+        // 1. PINNED MEMBER CARD (Always in the same place! Never scrolls away!)
         // =====================================================================
-        item(key = "unified_badgym_member_card") {
-            Spacer(modifier = Modifier.height(2.dp))
-            val daysPassed = currentPass.totalDays - currentPass.daysLeft
-            val pct = ((daysPassed.toFloat() / currentPass.totalDays.toFloat()) * 100).toInt()
-            UnifiedBadGymMemberCard(
-                planTitle = currentPass.tier.title,
-                checkInTime = "Today • 08:49 AM",
-                isActive = !currentPass.isOverdue,
-                cardType = currentCardType,
-                paymentStatus = currentPaymentStatus,
-                paidAmount = "₹500",
-                paidDate = "12 Oct 2026",
-                name = currentPass.name,
-                memberId = currentPass.memberId,
-                age = currentPass.age,
-                gender = currentPass.gender,
-                quote = currentPass.quote,
-                validity = "${currentPass.startDate} – ${currentPass.endDate} (${currentPass.totalDays} Days Plan)",
-                avatarRes = currentPass.avatarRes,
-                height = currentPass.height,
-                weight = currentPass.weight,
-                bmi = currentPass.bmi,
-                bmiCategory = "Normal",
-                goal = currentPass.goal,
-                daysPassed = daysPassed,
-                totalDays = currentPass.totalDays,
-                percentage = pct,
-                onCheckInClick = {
-                    val types = MemberCardType.entries
-                    val nextIdx = (types.indexOf(currentCardType) + 1) % types.size
-                    currentCardType = types[nextIdx]
-                    if (currentCardType == MemberCardType.PAYMENT) {
-                        selectedTabIndex = 2
-                    } else if (currentCardType == MemberCardType.CHECK_IN || currentCardType == MemberCardType.CHECK_OUT) {
-                        selectedTabIndex = 0
-                    } else if (currentCardType == MemberCardType.TRAINER_CHECK_IN) {
-                        selectedTabIndex = 1
-                    }
-                },
-                onPaymentHeaderClick = {
-                    currentCardType = MemberCardType.PAYMENT
+        Spacer(modifier = Modifier.height(2.dp))
+        val daysPassed = currentPass.totalDays - currentPass.daysLeft
+        val pct = ((daysPassed.toFloat() / currentPass.totalDays.toFloat()) * 100).toInt()
+        UnifiedBadGymMemberCard(
+            planTitle = currentPass.tier.title,
+            checkInTime = "Today • 08:49 AM",
+            isActive = !currentPass.isOverdue,
+            cardType = currentCardType,
+            paymentStatus = currentPaymentStatus,
+            paidAmount = "₹500",
+            paidDate = "12 Oct 2026",
+            name = currentPass.name,
+            memberId = currentPass.memberId,
+            age = currentPass.age,
+            gender = currentPass.gender,
+            quote = currentPass.quote,
+            validity = "${currentPass.startDate} – ${currentPass.endDate} (${currentPass.totalDays} Days Plan)",
+            avatarRes = currentPass.avatarRes,
+            height = currentPass.height,
+            weight = currentPass.weight,
+            bmi = currentPass.bmi,
+            bmiCategory = "Normal",
+            goal = currentPass.goal,
+            daysPassed = daysPassed,
+            totalDays = currentPass.totalDays,
+            percentage = pct,
+            onCheckInClick = {
+                val types = MemberCardType.entries
+                val nextIdx = (types.indexOf(currentCardType) + 1) % types.size
+                currentCardType = types[nextIdx]
+                if (currentCardType == MemberCardType.PAYMENT) {
                     selectedTabIndex = 2
-                    onPaymentClick()
-                },
-                onPlanClick = {
-                    currentPassIndex = (currentPassIndex + 1) % passes.size
-                },
-                onAvatarClick = {
-                    currentPassIndex = (currentPassIndex + 1) % passes.size
-                    onAvatarClick()
-                },
-                onGoalClick = onBodyProgressClick,
-                onProgressClick = {
+                } else if (currentCardType == MemberCardType.CHECK_IN || currentCardType == MemberCardType.CHECK_OUT) {
                     selectedTabIndex = 0
-                    currentCardType = MemberCardType.CHECK_IN
-                    onAttendanceClick()
+                } else if (currentCardType == MemberCardType.TRAINER_CHECK_IN) {
+                    selectedTabIndex = 1
                 }
-            )
-        }
+            },
+            onPaymentHeaderClick = {
+                currentCardType = MemberCardType.PAYMENT
+                selectedTabIndex = 2
+                onPaymentClick()
+            },
+            onPlanClick = {
+                currentPassIndex = (currentPassIndex + 1) % passes.size
+            },
+            onAvatarClick = {
+                currentPassIndex = (currentPassIndex + 1) % passes.size
+                onAvatarClick()
+            },
+            onGoalClick = onBodyProgressClick,
+            onProgressClick = {
+                selectedTabIndex = 0
+                currentCardType = MemberCardType.CHECK_IN
+                onAttendanceClick()
+            }
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         // =====================================================================
-        // 5. MENU ROW (4 TABS) (Component 5 in Infographic Specification)
+        // 2. PINNED 4 TABS MENU ROW (Always stationary below card!)
         // =====================================================================
-        stickyHeader(key = "infographic_component_5_menu") {
-            Surface(color = Color.Transparent, modifier = Modifier.fillMaxWidth()) {
-                MenuRow4Tabs(
-                    selectedTabIndex = activeIndex,
-                    onTabSelected = { index ->
-                        selectedTabIndex = index
-                        currentCardType = when (index) {
-                            0 -> MemberCardType.CHECK_IN
-                            1 -> MemberCardType.TRAINER_CHECK_IN
-                            2 -> MemberCardType.PAYMENT
-                            else -> MemberCardType.MEMBER_PASS
-                        }
-                        if (isAllExpandedMode) {
-                            coroutineScope.launch {
-                                val target = when (index) {
-                                    0 -> 2
-                                    1 -> 4
-                                    2 -> 5
-                                    else -> 6
-                                }
-                                lazyListState.animateScrollToItem(index = target)
-                            }
-                        }
-                    },
-                    attendanceRate = "90%",
-                    workoutAvg = "70m",
-                    paymentDue = "₹800",
-                    bodyWeight = "69.5 kg"
-                )
-            }
-        }
+        MenuRow4Tabs(
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = { index ->
+                selectedTabIndex = index
+                currentCardType = when (index) {
+                    0 -> MemberCardType.CHECK_IN
+                    1 -> MemberCardType.TRAINER_CHECK_IN
+                    2 -> MemberCardType.PAYMENT
+                    else -> MemberCardType.MEMBER_PASS
+                }
+                coroutineScope.launch {
+                    lazyListState.scrollToItem(0)
+                }
+            },
+            attendanceRate = "90%",
+            workoutAvg = "70m",
+            paymentDue = "₹800",
+            bodyWeight = "74.1 kg"
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         // =====================================================================
-        // 6 & 7. ACTIVE WIDGET / EXPANDED SECTIONS
+        // 3. SCROLLABLE EXPANDED WIDGET DATA (Only this scrolls smoothly below!)
         // =====================================================================
-        if (isAllExpandedMode) {
-            item(key = "all_attendance") {
-                AttendanceSection(onMonthPrev = {}, onMonthNext = {})
-            }
-            item(key = "all_monthly_trend") {
-                MonthlyTrendSection()
-            }
-            item(key = "all_workout") {
-                MasterWorkoutTrendCard(data = data, onClick = onWorkoutClick)
-            }
-            item(key = "all_payment") {
-                MasterPaymentCard(data = data, onClick = onPaymentClick, onViewReceiptClick = onViewReceiptClick)
-            }
-            item(key = "all_body") {
-                MasterBodyProgressCard(data = data, onClick = onBodyProgressClick)
-            }
-        } else {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
             when (selectedTabIndex) {
                 0 -> {
                     // COMPONENT 6: Attendance Section (7-Column Calendar Grid)
@@ -331,18 +458,29 @@ fun MasterStoryboardDashboard(
                     }
                 }
             }
-        }
 
-        // =====================================================================
-        // 8. BOTTOM MOTIVATION BANNER (Component 8 in Infographic Specification)
-        // =====================================================================
-        item(key = "infographic_component_8_banner") {
-            Spacer(modifier = Modifier.height(2.dp))
-            BottomMotivationBanner(
-                isAchievement = false,
-                onKeepGoingClick = onWorkoutClick
-            )
-            Spacer(modifier = Modifier.height(14.dp))
+            // =================================================================
+            // 4. BAD GYM SPONSORED PROMOTIONAL ADVERTISEMENT SECTION
+            // =================================================================
+            item(key = "bad_gym_promo_ad") {
+                BadGymSponsoredPromoCard(
+                    onClaimClick = onPaymentClick
+                )
+            }
+
+            // =================================================================
+            // 5. MOTIVATION BOTTOM BANNER
+            // =================================================================
+            item(key = "infographic_component_8_banner") {
+                BottomMotivationBanner(
+                    isAchievement = false,
+                    onKeepGoingClick = onWorkoutClick
+                )
+            }
+
+            item(key = "bottom_spacer") {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
