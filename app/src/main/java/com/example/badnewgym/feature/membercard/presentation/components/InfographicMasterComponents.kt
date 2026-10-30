@@ -950,9 +950,10 @@ fun StatsRowCompact(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = Color.White.copy(alpha = 0.95f),
-        border = BorderStroke(0.8.dp, Color(0xFFE2E8F0)),
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFFFBFDFF),
+        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+        shadowElevation = 0.5.dp,
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
@@ -1129,10 +1130,10 @@ fun UnifiedBadGymMemberCard(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(24.dp),
         color = Color.White.copy(alpha = 0.98f),
         border = BorderStroke(1.5.dp, InfographicTokens.BorderGradient),
-        shadowElevation = 2.dp,
+        shadowElevation = 3.dp,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(
@@ -1314,35 +1315,61 @@ private fun NewMenuTabItem(
         shape = RoundedCornerShape(16.dp),
         color = Color.Transparent,
         border = BorderStroke(if (isSelected) 2.dp else 1.dp, borderColor),
-        shadowElevation = if (isSelected) 3.dp else 1.dp,
+        shadowElevation = if (isSelected) 4.dp else 1.5.dp,
         modifier = modifier
             .fillMaxHeight()
             .clip(RoundedCornerShape(16.dp))
             .background(tabBg)
             .clickable { onClick() }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 4.5.dp, vertical = 2.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
-        ) {
-            // 3D Spherical Icon Badge
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Specular Top Rim Highlight (Image 1 & Image 2 glass sheen)
             Box(
                 modifier = Modifier
-                    .size(26.dp)
-                    .clip(CircleShape)
-                    .background(iconBg),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(
+                                Color.White.copy(alpha = 0.15f),
+                                Color.White.copy(alpha = 0.55f),
+                                Color.White.copy(alpha = 0.15f)
+                            )
+                        )
+                    )
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 4.5.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.5.dp)
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = title,
-                    tint = Color.White,
-                    modifier = Modifier.size(14.dp)
-                )
-            }
+                // 3D Spherical Droplet Icon Badge with Specular Caustic Highlight (Image 2)
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .clip(CircleShape)
+                        .background(iconBg),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Top-left light reflection dot
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .offset(x = 4.dp, y = 3.dp)
+                            .size(5.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.65f))
+                    )
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = title,
+                        tint = Color.White,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
 
             // Details Column: Title (+ alert), Value + chevron, Mini Progress Bar
             Column(
@@ -1420,6 +1447,7 @@ private fun NewMenuTabItem(
                     )
                 }
             }
+        }
         }
     }
 }
