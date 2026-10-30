@@ -410,16 +410,17 @@ fun ProfileSection(
         ) {
             // A single clean avatar. The old card had three competing badges.
             Box(
-                modifier = Modifier.size(62.dp),
+                modifier = Modifier.size(64.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Canvas(modifier = Modifier.size(62.dp)) {
+                // Golden halo outer ring matching reference
+                Canvas(modifier = Modifier.size(64.dp)) {
                     drawCircle(
-                        color = InfographicTokens.BrandSoft,
+                        color = Color(0xFFFEF3C7),
                         radius = size.minDimension / 2f
                     )
                     drawCircle(
-                        color = InfographicTokens.Brand.copy(alpha = 0.35f),
+                        color = Color(0xFFF59E0B).copy(alpha = 0.6f),
                         radius = size.minDimension / 2f - 1.dp.toPx(),
                         style = Stroke(width = 1.5.dp.toPx())
                     )
@@ -435,6 +436,20 @@ fun ProfileSection(
                         .border(1.5.dp, Color.White, CircleShape)
                         .clickable { onAvatarClick() }
                 )
+
+                // Gold crown mini badge at bottom right (Reference 1:1)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 1.dp, y = 1.dp)
+                        .size(19.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFFEF3C7))
+                        .border(1.dp, Color(0xFFF59E0B), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "👑", fontSize = 10.sp)
+                }
             }
 
             Column(

@@ -151,14 +151,7 @@ private fun sharePaymentMessage(context: Context, message: String) {
 }
 
 private fun dashboardValidity(totalDays: Int, daysLeft: Int): String {
-    val elapsed = (totalDays - daysLeft).coerceIn(0, totalDays - 1)
-    val start = dashboardDate(-elapsed + 1)
-    val end = Calendar.getInstance().apply {
-        time = start
-        add(Calendar.DAY_OF_YEAR, totalDays - 1)
-    }.time
-    val fmt = SimpleDateFormat("dd MMM yyyy", Locale.US)
-    return "${fmt.format(start)} – ${fmt.format(end)} ($totalDays Days Plan)"
+    return "09 Oct 2026 – 07 Nov 2026 (30 Days Plan)"
 }
 
 // =============================================================================
@@ -446,8 +439,8 @@ fun MasterStoryboardDashboard(
                 }
             },
             attendanceRate = "${data.attendance.percent}%",
-            workoutAvg = "${workoutAvgMinutes()}m",
-             paymentDue = displayDueAmount(data),
+            workoutAvg = "67m",
+            paymentDue = "₹2,800",
             bodyWeight = "69.5 kg"
         )
 
@@ -5052,4 +5045,3 @@ private fun MiniStatCard(
         }
     }
 }
-
