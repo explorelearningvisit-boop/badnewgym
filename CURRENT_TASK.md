@@ -505,3 +505,42 @@ Completion requires the new UI, widget editor architecture, admin command center
   - Screenshots:
     - \`docs/reference/images/body_progress_live_verified.png\` (Full Body Progress View)
     - \`docs/reference/images/body_progress_bottom_live_verified.png\` (Scrolled Bottom with Achievement Banner)
+
+
+## VERIFIED MILESTONE — COLLECTIVE MULTI-LINE PROGRESS TREND & PRIORITY-FIRST 2X REDESIGN
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Key Enhancements**:
+  1. **Collective Multi-Line Progress Trend Chart**:
+     - Added `[All]` chip option, active by default.
+     - Collectively displays all 5 key metrics on a single high-contrast 95dp canvas:
+       - 🟣 **Weight**: `#7C3AED` (curves from 74.5kg down to 69.5kg)
+       - 🟡 **Muscle**: `#F59E0B` (curves up from 54.8kg to 57.2kg)
+       - 🔴 **Body Fat**: `#EF4444` (curves down from 22.0% to 17.6%)
+       - 🔵 **BMI**: `#0284C7` (curves down from 24.8 to 22.8)
+       - 🟢 **Chest / Tape**: `#10B981` (curves up from 38.8" to 40.0")
+     - Interactive Bottom Legend with 5 colored pods and live values:
+       - 🟣 Weight 69.5kg | 🟡 Muscle 57.2kg | 🔴 Fat 17.6% | 🔵 BMI 22.8 | 🟢 Chest 40.0"
+     - Interactive Individual Metric Focusing:
+       - Tapping `[Weight]`, `[Muscle]`, `[Body Fat]`, `[BMI]`, or `[Chest]` boldly highlights that specific curve with gradient area underfill, switches the Y-axis to that metric's real scale, and updates the floating tooltip callout (e.g. `[ 57.2 kg ]` in amber).
+       - Tapping `[All]` instantly restores all 5 curves simultaneously.
+     - Dynamic Time Filtering: `[1M]`, `[3M]`, `[6M]`, `[1Y]` updates timeline density and X-axis labels.
+  2. **Priority-First Information Architecture (Curiosity & Motivation Upfront)**:
+     - **Priority 1 (Curious Milestone Spotlight)**: 🏆 "Latest Achievement — ✨ New Personal Best! 🎉 Bench Press • 80 kg (+20 kg)" with `✓ Verified by Trainer` badge and `20 Oct 2026` positioned right at the top of the Body view.
+     - **Priority 2 (Hero Transformation)**: 3D Torso Mannequin silhouette + Bold 35sp Current Weight **69.5 kg** on one single clean line + Semicircular Goal Arc (67% to 66.0 kg goal) + Plan Progress bar (73%, 22/30 Days).
+     - **Priority 3 (Collective Trend Chart)**: 95dp canvas with all 5 curves and real metrics legend.
+     - **Priority 4 (4 Key Metric Pods)**: Muscle Mass (57.2 kg), Body Fat (17.6%), BMI (22.8), BMR (1,620 kcal) with sparklines and clear status badges.
+     - **Priority 5 (Heavy Strength Lifts)**: Bench Press 80 kg (+20 kg), Squat 100 kg (+30 kg), Deadlift 140 kg (+40 kg).
+     - **Priority 6 (Body Measurements & Muscle Distribution)**: 6 tape measurements + Torso muscle group breakdown.
+     - **Priority 7 (Activity Performance)**: Gym (65%), Cardio (25%), Running (5%), Mixed (5%).
+     - **Priority 8 (Motivation CTA)**: "Consistent Steps, Brighter Days ☀️ Keep Going! ➔".
+  3. **2x Legibility Scale Across Entire Dashboard**:
+     - Scaled up font sizes and touch paddings across all cards (Attendance day cells to 26dp with 12.5sp bold numbers, Monthly trend KPIs to 13–15sp, pod values to 16.5sp, labels to 11–13sp).
+     - Resolved all text clipping and wrapped lines.
+- **Physical Device & Verification Evidence**:
+  - Target Device: Physical Xiaomi 11i 5G (`zxdada69gunb7ls4`, 1080×2400)
+  - Unit Tests: `./gradlew testDebugUnitTest --no-daemon` PASSED (1m 3s)
+  - Build: `./gradlew assembleDebug --no-daemon` PASSED (2m 7s)
+  - Live Screenshots:
+    - `docs/reference/images/device_screen_body_perfect_live.png` (Default `[All]` collective 5-line view + Spotlight Win + Hero)
+    - `docs/reference/images/device_screen_body_muscle_focused.png` (Interactive `[Muscle]` focused curve + Y-scale + Tooltip)
+    - `docs/reference/images/device_screen_body_all_again.png` (Switched back to collective 5-line view)

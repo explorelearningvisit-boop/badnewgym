@@ -865,25 +865,25 @@ fun FullWidthDaysProgressCard(
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = Color.Transparent,
-        border = BorderStroke(1.dp, Color(0xFF38BDF8).copy(alpha = 0.8f)),
+        border = BorderStroke(1.2.dp, Color(0xFF38BDF8)),
         modifier = modifier
             .fillMaxWidth()
-            .height(40.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .height(48.dp)
+            .clip(RoundedCornerShape(16.dp))
             .background(InfographicTokens.DaysCardGradient)
             .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 9.dp, vertical = 4.dp),
+                .padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // White translucent calendar icon box
+            // Calendar icon
             Box(
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(30.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color.White.copy(alpha = 0.25f)),
                 contentAlignment = Alignment.Center
@@ -892,67 +892,46 @@ fun FullWidthDaysProgressCard(
                     imageVector = Icons.Default.CalendarToday,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(15.dp)
+                    modifier = Modifier.size(17.dp)
                 )
             }
 
-            // "22 / 30 Days Left"
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                Text(
-                    text = "$daysPassed / $totalDays",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White
-                )
-                Text(
-                    text = "Days Left",
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFE0F2FE)
-                )
-            }
+            // Days Left text (2x larger)
+            Text(
+                text = "$daysPassed / $totalDays Days Left",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White
+            )
 
-            // Progress bar track with lime neon fill
+            // Neon cyan/lime capsule track
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .height(9.dp)
+                    .height(11.dp)
                     .clip(RoundedCornerShape(50.dp))
-                    .background(Color.White.copy(alpha = 0.3f))
+                    .background(Color.White.copy(alpha = 0.25f))
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(progressFraction)
                         .fillMaxHeight()
+                        .fillMaxWidth(progressFraction)
                         .clip(RoundedCornerShape(50.dp))
                         .background(
                             Brush.horizontalGradient(
-                                listOf(
-                                    Color(0xFF22C55E),
-                                    Color(0xFF10B981),
-                                    Color(0xFF00E7FF)
-                                )
+                                listOf(Color(0xFF3CF7B5), Color(0xFF00E7FF), Color(0xFF6C88FF))
                             )
                         )
                 )
             }
 
-            // "73%" pill on right
-            Surface(
-                shape = RoundedCornerShape(50.dp),
-                color = Color.White.copy(alpha = 0.25f)
-            ) {
-                Text(
-                    text = "$percentage%",
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
-                )
-            }
+            // Percentage (2x larger)
+            Text(
+                text = "$percentage%",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White
+            )
         }
     }
 }
@@ -974,134 +953,121 @@ fun StatsRowCompact(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.95f),
-        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+        color = Color.White.copy(alpha = 0.98f),
+        border = BorderStroke(1.2.dp, Color(0xFFCBD5E1)),
         modifier = modifier
             .fillMaxWidth()
-            .height(44.dp)
+            .height(52.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 4.dp, vertical = 3.dp),
+                .padding(horizontal = 6.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             // Pod 1: Height
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.5.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                BiometricRulerIcon(modifier = Modifier.size(20.dp))
+                BiometricRulerIcon(modifier = Modifier.size(22.dp))
                 Column(verticalArrangement = Arrangement.Center) {
                     Text(
                         text = height,
-                        fontSize = 12.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A),
                         maxLines = 1
                     )
                     Text(
                         text = "Height",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
                         color = Color(0xFF64748B),
                         maxLines = 1
                     )
                 }
             }
 
-            Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
+            Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
 
             // Pod 2: Weight
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.5.dp),
-                modifier = Modifier.weight(1.05f)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.weight(1.1f)
             ) {
-                BiometricScaleIcon(modifier = Modifier.size(20.dp))
+                BiometricScaleIcon(modifier = Modifier.size(22.dp))
                 Column(verticalArrangement = Arrangement.Center) {
                     Text(
                         text = weight,
-                        fontSize = 12.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0F172A),
                         maxLines = 1
                     )
                     Text(
                         text = weightDelta ?: "Weight",
-                        fontSize = if (weightDelta != null) 8.5.sp else 9.sp,
-                        fontWeight = if (weightDelta != null) FontWeight.Bold else FontWeight.SemiBold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black,
                         color = if (weightDelta != null) Color(0xFF16A34A) else Color(0xFF64748B),
                         maxLines = 1
                     )
                 }
             }
 
-            Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
+            Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
 
-            // Pod 3: BMI with [Normal] green pill
+            // Pod 3: BMI
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.5.dp),
-                modifier = Modifier.weight(1.1f)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.weight(1f)
             ) {
-                BiometricChartIcon(modifier = Modifier.size(20.dp))
+                BiometricChartIcon(modifier = Modifier.size(22.dp))
                 Column(verticalArrangement = Arrangement.Center) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.5.dp)
-                    ) {
-                        Text(
-                            text = bmi,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF0F172A),
-                            maxLines = 1
-                        )
-                        Surface(
-                            shape = RoundedCornerShape(50.dp),
-                            color = Color(0xFF10B981)
-                        ) {
-                            Text(
-                                text = bmiCategory,
-                                fontSize = 7.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 3.5.dp, vertical = 1.dp)
-                            )
-                        }
-                    }
                     Text(
-                        text = "BMI",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF64748B),
+                        text = bmi,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF0F172A),
                         maxLines = 1
                     )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50.dp))
+                            .background(Color(0xFFDCFCE7))
+                            .padding(horizontal = 6.dp, vertical = 1.dp)
+                    ) {
+                        Text(
+                            text = bmiCategory,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF15803D),
+                            maxLines = 1
+                        )
+                    }
                 }
             }
 
-            Box(modifier = Modifier.width(1.dp).height(22.dp).background(Color(0xFFE2E8F0)))
+            Box(modifier = Modifier.width(1.dp).height(28.dp).background(Color(0xFFE2E8F0)))
 
-            // Pod 4: Goal with chevron
+            // Pod 4: Goal
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.5.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
-                    .weight(1.15f)
+                    .weight(1.1f)
                     .clickable { onGoalClick() }
             ) {
-                BiometricFlameIcon(modifier = Modifier.size(20.dp))
+                BiometricFlameIcon(modifier = Modifier.size(22.dp))
                 Column(verticalArrangement = Arrangement.Center) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(1.dp)
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = goal,
-                            fontSize = 11.sp,
+                            fontSize = 14.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1
@@ -1109,14 +1075,14 @@ fun StatsRowCompact(
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
                             contentDescription = null,
-                            tint = Color(0xFF94A3B8),
-                            modifier = Modifier.size(11.dp)
+                            tint = Color(0xFF64748B),
+                            modifier = Modifier.size(13.dp)
                         )
                     }
                     Text(
                         text = "Goal",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
                         color = Color(0xFF64748B),
                         maxLines = 1
                     )
@@ -1125,7 +1091,6 @@ fun StatsRowCompact(
         }
     }
 }
-
 
 // =============================================================================
 // UNIFIED MASTER MEMBER CARD WIDGET (Packs Header, Profile, Stats & Progress)
@@ -1242,7 +1207,7 @@ fun MenuRow4Tabs(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(54.dp),
+            .height(60.dp),
         horizontalArrangement = Arrangement.spacedBy(4.5.dp)
     ) {
         // Tab 0: Attendance (Emerald Green with Mini Progress Bar)
@@ -1397,7 +1362,7 @@ private fun NewMenuTabItem(
                 ) {
                     Text(
                         text = title,
-                        fontSize = 8.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isSelected && isOrangeGlow) Color.White.copy(alpha = 0.9f) else Color(0xFF64748B),
                         maxLines = 1
@@ -1428,14 +1393,14 @@ private fun NewMenuTabItem(
                 ) {
                     Text(
                         text = value,
-                        fontSize = 10.5.sp,
+                        fontSize = 14.5.sp,
                         fontWeight = FontWeight.Black,
                         color = if (isSelected && isOrangeGlow) Color.White else textColor,
                         maxLines = 1
                     )
                     Text(
                         text = "›",
-                        fontSize = 9.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Black,
                         color = if (isSelected && isOrangeGlow) Color.White else textColor
                     )
@@ -1445,7 +1410,7 @@ private fun NewMenuTabItem(
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
-                        fontSize = 7.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = when {
                             isSelected && isOrangeGlow -> Color.White.copy(alpha = 0.85f)
@@ -1462,7 +1427,7 @@ private fun NewMenuTabItem(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(3.dp)
+                        .height(4.dp)
                         .clip(RoundedCornerShape(50.dp))
                         .background(
                             if (isSelected && isOrangeGlow) Color.White.copy(alpha = 0.35f)
@@ -1671,7 +1636,7 @@ fun AttendanceSection(
                         )
                         Text(
                             text = percentage,
-                            fontSize = 32.sp,
+                            fontSize = 38.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF047857),
                             letterSpacing = (-1).sp,
@@ -1679,7 +1644,7 @@ fun AttendanceSection(
                         )
                         Text(
                             text = daysPresentText,
-                            fontSize = 12.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
@@ -1747,7 +1712,7 @@ fun AttendanceSection(
                                             ) {
                                                 Text(
                                                     text = dateNum.toString(),
-                                                    fontSize = 9.sp,
+                                                    fontSize = 12.5.sp,
                                                     fontWeight = FontWeight.Black,
                                                     color = textColor
                                                 )
@@ -1776,32 +1741,32 @@ private fun AttendanceTopLegendChip(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(10.dp),
         color = bgColor,
-        border = BorderStroke(0.7.dp, borderColor),
+        border = BorderStroke(0.9.dp, borderColor),
         modifier = modifier
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 2.dp, vertical = 3.dp),
+            modifier = Modifier.padding(horizontal = 3.dp, vertical = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(1.dp)
+            verticalArrangement = Arrangement.spacedBy(1.5.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.5.dp)
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(6.dp)
+                        .size(7.dp)
                         .clip(CircleShape)
                         .then(
-                            if (isOutline) Modifier.border(0.8.dp, dotColor, CircleShape)
+                            if (isOutline) Modifier.border(0.9.dp, dotColor, CircleShape)
                             else Modifier.background(dotColor)
                         )
                 )
                 Text(
                     text = label,
-                    fontSize = 7.5.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor,
                     maxLines = 1
@@ -1809,7 +1774,7 @@ private fun AttendanceTopLegendChip(
             }
             Text(
                 text = count,
-                fontSize = 8.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF0F172A),
                 maxLines = 1
@@ -1975,13 +1940,13 @@ fun MonthlyTrendSection(
                                 Column {
                                     Text(
                                         text = "Best Day",
-                                        fontSize = 7.5.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF64748B)
                                     )
                                     Text(
                                         text = "29d (Jul)",
-                                        fontSize = 8.5.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = FontWeight.Black,
                                         color = Color(0xFF0F172A)
                                     )
@@ -2030,13 +1995,13 @@ fun MonthlyTrendSection(
                                 Column {
                                     Text(
                                         text = "Average",
-                                        fontSize = 7.5.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF64748B)
                                     )
                                     Text(
                                         text = "24.6d",
-                                        fontSize = 8.5.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = FontWeight.Black,
                                         color = Color(0xFF0F172A)
                                     )
@@ -2085,13 +2050,13 @@ fun MonthlyTrendSection(
                                 Column {
                                     Text(
                                         text = "Min Day",
-                                        fontSize = 7.5.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF64748B)
                                     )
                                     Text(
                                         text = "18d (Mar)",
-                                        fontSize = 8.5.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = FontWeight.Black,
                                         color = Color(0xFF0F172A)
                                     )
@@ -2338,7 +2303,7 @@ fun MonthlyTrendSection(
                                             ) {
                                                 Text(
                                                     text = month,
-                                                    fontSize = 7.5.sp,
+                                                    fontSize = 11.sp,
                                                     fontWeight = FontWeight.Black,
                                                     color = Color(0xFF047857),
                                                     modifier = Modifier.padding(horizontal = 3.dp, vertical = 0.5.dp)
@@ -2347,7 +2312,7 @@ fun MonthlyTrendSection(
                                         } else {
                                             Text(
                                                 text = month,
-                                                fontSize = 7.5.sp,
+                                                fontSize = 11.sp,
                                                 fontWeight = FontWeight.SemiBold,
                                                 color = Color(0xFF64748B)
                                             )
@@ -2370,7 +2335,7 @@ fun MonthlyTrendSection(
                     // Days Present (%)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
                         Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
-                        Text(text = "Days Present (%)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text(text = "Days Present (%)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                     }
                     // Average (82%)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
@@ -2383,7 +2348,7 @@ fun MonthlyTrendSection(
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 3f))
                             )
                         }
-                        Text(text = "Average (82%)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text(text = "Average (82%)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                     }
                     // Min (60%)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
@@ -2396,7 +2361,7 @@ fun MonthlyTrendSection(
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 3f))
                             )
                         }
-                        Text(text = "Min (60%)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text(text = "Min (60%)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                     }
                     // Max (95%)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.5.dp)) {
@@ -2409,7 +2374,7 @@ fun MonthlyTrendSection(
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 3f))
                             )
                         }
-                        Text(text = "Max (95%)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
+                        Text(text = "Max (95%)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
                     }
                 }
             }
@@ -2433,7 +2398,7 @@ fun BottomMotivationBanner(
         border = BorderStroke(1.2.dp, Color(0xFFA855F7).copy(alpha = 0.5f)),
         modifier = modifier
             .fillMaxWidth()
-            .height(54.dp)
+            .height(60.dp)
             .clip(RoundedCornerShape(22.dp))
             .background(InfographicTokens.BottomBannerGradient)
             .clickable { onKeepGoingClick() }
@@ -2523,7 +2488,7 @@ fun BottomMotivationBanner(
                     Column {
                         Text(
                             text = "DISCIPLINE TODAY",
-                            fontSize = 9.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White.copy(alpha = 0.8f),
                             letterSpacing = 1.sp
@@ -2534,13 +2499,13 @@ fun BottomMotivationBanner(
                         ) {
                             Text(
                                 text = "Consistent Steps,",
-                                fontSize = 12.5.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White
                             )
                             Text(
                                 text = "Brighter Days ☀️",
-                                fontSize = 12.5.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFFFDE047)
                             )
