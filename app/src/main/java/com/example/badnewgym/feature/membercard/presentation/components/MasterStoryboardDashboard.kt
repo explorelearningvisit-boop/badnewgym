@@ -339,7 +339,7 @@ fun MasterStoryboardDashboard(
             isActive = !currentPass.isOverdue,
             cardType = currentCardType,
             paymentStatus = currentPaymentStatus,
-            paidAmount = "₹500",
+            paidAmount = if (currentPaymentStatus == PaymentStatus.PENDING || hasDues) "₹800" else "₹500",
             paidDate = "12 Oct 2026",
             name = currentPass.name,
             memberId = currentPass.memberId,

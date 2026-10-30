@@ -132,7 +132,7 @@ object InfographicTokens {
 }
 
 // =============================================================================
-// COMPONENT 1: TOP HEADER COMPONENT (56-64dp, Glass Gradient)
+// COMPONENT 1: TOP HEADER COMPONENT (Pixel-Perfect Clone of media_1793346029417_a6bb6f74.png)
 // =============================================================================
 
 @Composable
@@ -142,99 +142,23 @@ fun TopHeaderComponent(
     isActive: Boolean = true,
     cardType: MemberCardType = MemberCardType.CHECK_IN,
     paymentStatus: PaymentStatus? = null,
-    paidAmount: String = "₹500",
+    paidAmount: String = "₹800",
     paidDate: String = "12 Oct 2026",
     onCheckInClick: () -> Unit = {},
     onPaymentHeaderClick: () -> Unit = {},
     onPlanClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    // Dynamic sub-header and color according to card type
-    val (headerSubtext, headerSubtextColor) = when (cardType) {
-        MemberCardType.CHECK_IN -> Pair("MEMBER INTELLIGENCE", Color(0xFF2563EB))
-        MemberCardType.CHECK_OUT -> Pair("CHECK-OUT ACTIVE", Color(0xFF0284C7))
-        MemberCardType.PAYMENT -> {
-            if (paymentStatus == PaymentStatus.PENDING) Pair("PAYMENT DUE", Color(0xFFD97706))
-            else Pair("PAYMENT VERIFIED", Color(0xFF059669))
-        }
-        MemberCardType.TRAINER_CHECK_IN -> Pair("TRAINER ASSIGNED", Color(0xFF7C3AED))
-        MemberCardType.MACHINE_FAULT -> Pair("EQUIPMENT ALERT", Color(0xFFDC2626))
-        MemberCardType.MEMBER_PASS -> Pair("MEMBER INTELLIGENCE", Color(0xFF2563EB))
-    }
-
-    // Dynamic icon and background gradient for activity pill
-    val (badgeIcon, badgeIconGradient) = when (cardType) {
-        MemberCardType.CHECK_IN -> Pair(
-            Icons.Default.Fingerprint,
-            listOf(Color(0xFF22C55E), Color(0xFF10B981), Color(0xFF00E7FF), Color(0xFF06B6D4))
-        )
-        MemberCardType.CHECK_OUT -> Pair(
-            Icons.Default.ExitToApp,
-            listOf(Color(0xFF0284C7), Color(0xFF0EA5E9))
-        )
-        MemberCardType.PAYMENT -> Pair(
-            Icons.Default.AccountBalanceWallet,
-            if (paymentStatus == PaymentStatus.PENDING) listOf(Color(0xFFFBBF24), Color(0xFFD97706))
-            else listOf(Color(0xFF34D399), Color(0xFF059669))
-        )
-        MemberCardType.TRAINER_CHECK_IN -> Pair(
-            Icons.Default.FitnessCenter,
-            listOf(Color(0xFFA78BFA), Color(0xFF7C3AED))
-        )
-        MemberCardType.MACHINE_FAULT -> Pair(
-            Icons.Default.Warning,
-            listOf(Color(0xFFF87171), Color(0xFFDC2626))
-        )
-        MemberCardType.MEMBER_PASS -> Pair(
-            Icons.Default.Verified,
-            listOf(Color(0xFF00E7FF), Color(0xFF10B981))
-        )
-    }
-
-    // Dynamic title and subtitle
-    val (badgeTitle, badgeSubtitle) = when (cardType) {
-        MemberCardType.CHECK_IN -> Pair("CHECK-IN", checkInTime)
-        MemberCardType.CHECK_OUT -> Pair("CHECK-OUT", "Today • 10:15 AM")
-        MemberCardType.PAYMENT -> {
-            if (paymentStatus == PaymentStatus.PENDING) Pair("PAYMENT", "₹800 Due")
-            else Pair("PAYMENT", "₹500 • 08:49 AM")
-        }
-        MemberCardType.TRAINER_CHECK_IN -> Pair("TRAINER", "Coach Vikram")
-        MemberCardType.MACHINE_FAULT -> Pair("FAULT", "Treadmill #3")
-        MemberCardType.MEMBER_PASS -> Pair("MEMBER PASS", "30 Days Plan")
-    }
-
-    // Dynamic status badge text and color
-    val (statusPillText, statusPillColor) = when (cardType) {
-        MemberCardType.CHECK_IN -> Pair(if (isActive) "Active" else "Inactive", Color(0xFF10B981))
-        MemberCardType.CHECK_OUT -> Pair("Out", Color(0xFF0284C7))
-        MemberCardType.PAYMENT -> when (paymentStatus) {
-            PaymentStatus.PENDING -> Pair("Pending", Color(0xFFF59E0B))
-            PaymentStatus.FAILED -> Pair("Failed", Color(0xFFEF4444))
-            else -> Pair("Paid ✓", Color(0xFF10B981))
-        }
-        MemberCardType.TRAINER_CHECK_IN -> Pair("Active", Color(0xFF8B5CF6))
-        MemberCardType.MACHINE_FAULT -> Pair("Reported", Color(0xFFEF4444))
-        MemberCardType.MEMBER_PASS -> Pair("Verified", Color(0xFF10B981))
-    }
-
-    val pillBorderColor = when (cardType) {
-        MemberCardType.CHECK_IN -> Color(0xFF00E7FF).copy(alpha = 0.6f)
-        MemberCardType.CHECK_OUT -> Color(0xFF0284C7).copy(alpha = 0.6f)
-        MemberCardType.PAYMENT -> if (paymentStatus == PaymentStatus.PENDING) Color(0xFFFCD34D) else Color(0xFFA7F3D0)
-        MemberCardType.TRAINER_CHECK_IN -> Color(0xFFD8B4FE).copy(alpha = 0.8f)
-        MemberCardType.MACHINE_FAULT -> Color(0xFFFCA5A5)
-        MemberCardType.MEMBER_PASS -> Color(0xFFBAE6FD).copy(alpha = 0.8f)
-    }
+    val isDue = paymentStatus == PaymentStatus.PENDING || cardType == MemberCardType.PAYMENT || paidAmount == "₹800"
 
     Surface(
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(26.dp),
         color = Color.Transparent,
-        border = BorderStroke(1.dp, Color(0xFFBAE6FD).copy(alpha = 0.8f)),
+        border = BorderStroke(1.dp, Color(0xFFBAE6FD).copy(alpha = 0.85f)),
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .background(InfographicTokens.HeaderGradient, RoundedCornerShape(22.dp))
+            .height(48.dp)
+            .background(InfographicTokens.HeaderGradient, RoundedCornerShape(26.dp))
     ) {
         Row(
             modifier = Modifier
@@ -243,176 +167,210 @@ fun TopHeaderComponent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Left: Sparkles ✨ + Crown 👑 + Logo
+            // =================================================================
+            // LEFT: 3D Crown 👑 + Logo & 3-Line Brand Typography
+            // =================================================================
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = "👑", fontSize = 14.sp)
-                Column {
+                Text(text = "👑", fontSize = 17.sp)
+                Column(verticalArrangement = Arrangement.Center) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "BAD ",
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF0F172A)
+                            color = Color(0xFF0F172A),
+                            lineHeight = 13.sp
                         )
                         Text(
                             text = "GYM",
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF059669)
+                            color = Color(0xFF059669),
+                            lineHeight = 13.sp
                         )
                     }
                     Text(
-                        text = headerSubtext,
-                        fontSize = 7.sp,
+                        text = "MEMBER INTELLIGENCE",
+                        fontSize = 7.2.sp,
                         fontWeight = FontWeight.Black,
-                        color = headerSubtextColor,
+                        color = Color(0xFF2563EB),
                         letterSpacing = 0.2.sp,
+                        lineHeight = 8.sp,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = "DISCIPLINE BUILDS FREEDOM",
+                        fontSize = 6.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF64748B),
+                        letterSpacing = 0.1.sp,
+                        lineHeight = 7.sp,
                         maxLines = 1
                     )
                 }
             }
 
-            // Middle: Dynamic Activity Pill
+            // =================================================================
+            // MIDDLE: Deep Emerald Green Stadium Pill (CHECK-IN Active)
+            // =================================================================
             Surface(
                 shape = RoundedCornerShape(50.dp),
                 color = Color.Transparent,
-                border = BorderStroke(0.8.dp, pillBorderColor),
+                border = BorderStroke(0.8.dp, Color(0xFF34D399).copy(alpha = 0.7f)),
                 modifier = Modifier
                     .clip(RoundedCornerShape(50.dp))
-                    .background(Brush.horizontalGradient(badgeIconGradient))
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(Color(0xFF059669), Color(0xFF047857), Color(0xFF065F46))
+                        )
+                    )
                     .clickable { onCheckInClick() }
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp),
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.5.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(20.dp)
+                            .size(23.dp)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.25f)),
+                            .background(Color.White.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = badgeIcon,
-                            contentDescription = badgeTitle,
-                            tint = Color.White,
-                            modifier = Modifier.size(12.dp)
+                            imageVector = Icons.Default.Fingerprint,
+                            contentDescription = "CHECK-IN",
+                            tint = Color(0xFF34D399),
+                            modifier = Modifier.size(16.dp)
                         )
                     }
 
-                    Column {
+                    Column(verticalArrangement = Arrangement.Center) {
                         Text(
-                            text = badgeTitle,
-                            fontSize = 9.sp,
+                            text = "CHECK-IN",
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White,
-                            letterSpacing = 0.2.sp,
+                            letterSpacing = 0.3.sp,
+                            lineHeight = 11.sp,
                             maxLines = 1
                         )
-                        Text(
-                            text = badgeSubtitle,
-                            fontSize = 7.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFE0F2FE),
-                            maxLines = 1
-                        )
-                    }
-
-                    Surface(
-                        shape = RoundedCornerShape(50.dp),
-                        color = statusPillColor
-                    ) {
-                        Text(
-                            text = statusPillText,
-                            fontSize = 7.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
-                            maxLines = 1
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(
+                                text = "Today • 08:49 AM",
+                                fontSize = 7.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White.copy(alpha = 0.9f),
+                                lineHeight = 8.sp,
+                                maxLines = 1
+                            )
+                            Surface(
+                                shape = RoundedCornerShape(50.dp),
+                                color = Color(0xFF10B981)
+                            ) {
+                                Text(
+                                    text = "Active",
+                                    fontSize = 7.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 3.5.dp, vertical = 0.5.dp),
+                                    lineHeight = 7.sp,
+                                    maxLines = 1
+                                )
+                            }
+                        }
                     }
                 }
             }
 
-            // Right: Paid Status Badge (Guaranteed Width so Paid ₹500 Never Wraps!)
+            // =================================================================
+            // RIGHT: White Stadium Capsule (Payment Due ₹800 with Green Wallet)
+            // =================================================================
             Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = Color.White.copy(alpha = 0.95f),
-                border = BorderStroke(0.8.dp, Color(0xFFBAE6FD).copy(alpha = 0.8f)),
+                shape = RoundedCornerShape(50.dp),
+                color = Color.White.copy(alpha = 0.98f),
+                border = BorderStroke(0.9.dp, Color(0xFFBAE6FD)),
+                shadowElevation = 0.5.dp,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(50.dp))
                     .clickable { onPaymentHeaderClick() }
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp),
+                    modifier = Modifier.padding(start = 3.5.dp, end = 5.dp, top = 2.dp, bottom = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                 ) {
+                    // Green Leather Wallet with embossed white Rupee symbol
                     Box(
                         modifier = Modifier
-                            .size(22.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(Color(0xFF10B981)),
+                            .size(24.dp)
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(Color(0xFF10B981), Color(0xFF059669))
+                                )
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.AccountBalanceWallet,
-                            contentDescription = "Paid",
-                            tint = Color.White,
-                            modifier = Modifier.size(12.dp)
+                        Text(
+                            text = "₹",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            lineHeight = 13.sp
                         )
                     }
+
+                    // Column: Payment Due, ₹800 (Bold Red), 12 Oct 2026
                     Column(verticalArrangement = Arrangement.Center) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Text(
-                                text = "Paid",
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF065F46)
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF10B981)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(5.dp)
-                                )
-                            }
-                        }
+                        Text(
+                            text = if (isDue) "Payment Due" else "Paid",
+                            fontSize = 7.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF64748B),
+                            lineHeight = 7.sp,
+                            maxLines = 1
+                        )
                         Text(
                             text = paidAmount,
-                            fontSize = 11.5.sp,
+                            fontSize = 13.5.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF0F172A),
+                            color = if (isDue) Color(0xFFDC2626) else Color(0xFF059669),
+                            lineHeight = 13.5.sp,
                             maxLines = 1,
                             softWrap = false
                         )
+                        Text(
+                            text = paidDate,
+                            fontSize = 7.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF64748B),
+                            lineHeight = 7.sp,
+                            maxLines = 1
+                        )
                     }
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
-                        tint = Color(0xFF94A3B8),
-                        modifier = Modifier.size(11.dp)
+
+                    // Royal Blue Chevron ›
+                    Text(
+                        text = "›",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF2563EB),
+                        lineHeight = 15.sp
                     )
                 }
             }
         }
     }
 }
+
 // =============================================================================
 // COMPONENT 2: PROFILE SECTION (24dp Card with Watermark Silhouette)
 // =============================================================================
