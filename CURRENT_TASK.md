@@ -56,6 +56,33 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — 1:1 DITTO CLONE OF TOP HEADER COMPONENT (`media_1793346029417_a6bb6f74.png`)
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Commit**: `c6e9dea`
+- **Device Tested**: Physical Xiaomi 11i 5G (`zxdada69gunb7ls4`, 1080×2400)
+- **Live Device Screenshot Evidence**:
+  - Full Live Screen: [docs/reference/images/device_screen_header_ditto_live.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/device_screen_header_ditto_live.png)
+  - Crop Top Header: [docs/reference/images/crop_header_ditto_live.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/crop_header_ditto_live.png)
+- **Key Deliverables Implemented & Verified**:
+  1. **Left Branding Section**:
+     - 3D Gold Crown 👑 with royal blue gems.
+     - Line 1: `BAD ` in black/navy `#0F172A` + `GYM` in emerald green `#059669`.
+     - Line 2: `MEMBER INTELLIGENCE` in vibrant royal blue `#2563EB`.
+     - Line 3: `DISCIPLINE BUILDS FREEDOM` in slate/grey `#64748B`.
+  2. **Middle Capsule (CHECK-IN Active)**:
+     - Stadium pill shape (`RoundedCornerShape(50.dp)`) with rich emerald green gradient (`#059669` $\to$ `#047857` $\to$ `#065F46`).
+     - Circular mint fingerprint badge with `Icons.Default.Fingerprint`.
+     - `CHECK-IN` in bold white typography (`11sp Black`).
+     - `Today • 08:49 AM` + neon green `[Active]` pill badge right next to it.
+  3. **Right Capsule (Payment Due ₹800)**:
+     - Pure white stadium capsule (`RoundedCornerShape(50.dp)`) with soft sky-blue border `#BAE6FD`.
+     - Green leather wallet rounded badge with embossed white Rupee symbol `₹`.
+     - 3-line column: `Payment Due` (slate), **`₹800` in BOLD RED `#DC2626`**, and `12 Oct 2026` (slate).
+     - Royal blue chevron `›` in `#2563EB`.
+  4. **Build & Test**:
+     - Unit tests pass with `BUILD SUCCESSFUL`.
+     - Verified visually on physical device.
+
 ## VERIFIED MILESTONE — PINNED MEMBER CARD ARCHITECTURE, STADIUM PILL 4-TABS (IMAGE 4) & ZERO DRIFT VERIFICATION
 - **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
 - **Commit**: `8426e54`
