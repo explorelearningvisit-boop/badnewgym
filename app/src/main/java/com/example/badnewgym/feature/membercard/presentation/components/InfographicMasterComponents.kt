@@ -964,8 +964,9 @@ fun FullWidthDaysProgressCard(
 @Composable
 fun StatsRowCompact(
     height: String = "5'9\"",
-    weight: String = "74.1 kg",
-    bmi: String = "23.5",
+    weight: String = "69.5 kg",
+    weightDelta: String? = "↓ 2.5 kg",
+    bmi: String = "22.8",
     bmiCategory: String = "Normal",
     goal: String = "Fat Loss",
     onGoalClick: () -> Unit = {},
@@ -1029,10 +1030,10 @@ fun StatsRowCompact(
                         maxLines = 1
                     )
                     Text(
-                        text = "Weight",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF64748B),
+                        text = weightDelta ?: "Weight",
+                        fontSize = if (weightDelta != null) 8.5.sp else 9.sp,
+                        fontWeight = if (weightDelta != null) FontWeight.Bold else FontWeight.SemiBold,
+                        color = if (weightDelta != null) Color(0xFF16A34A) else Color(0xFF64748B),
                         maxLines = 1
                     )
                 }
@@ -1147,8 +1148,9 @@ fun UnifiedBadGymMemberCard(
     validity: String = "01 Aug 2026 – 31 Aug 2026 (30 Days Plan)",
     avatarRes: Int = R.drawable.avatar_ashwini,
     height: String = "5'9\"",
-    weight: String = "74.1 kg",
-    bmi: String = "23.5",
+    weight: String = "69.5 kg",
+    weightDelta: String? = "↓ 2.5 kg",
+    bmi: String = "22.8",
     bmiCategory: String = "Normal",
     goal: String = "Fat Loss",
     daysPassed: Int = 22,
@@ -1205,6 +1207,7 @@ fun UnifiedBadGymMemberCard(
             StatsRowCompact(
                 height = height,
                 weight = weight,
+                weightDelta = weightDelta,
                 bmi = bmi,
                 bmiCategory = bmiCategory,
                 goal = goal,
@@ -1233,19 +1236,20 @@ fun MenuRow4Tabs(
     attendanceRate: String = "90%",
     workoutAvg: String = "70m",
     paymentDue: String = "₹800",
-    bodyWeight: String = "74.1 kg",
+    bodyWeight: String = "69.5 kg",
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
+            .height(54.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.5.dp)
     ) {
         // Tab 0: Attendance (Emerald Green with Mini Progress Bar)
         NewMenuTabItem(
             title = "Attendance",
             value = attendanceRate,
+            subtitle = "27 / 30 days",
             icon = Icons.Default.CalendarToday,
             iconBg = Brush.radialGradient(listOf(Color(0xFF22C55E), Color(0xFF059669))),
             textColor = Color(0xFF059669),
@@ -1261,6 +1265,7 @@ fun MenuRow4Tabs(
         NewMenuTabItem(
             title = "Workout",
             value = workoutAvg,
+            subtitle = "Avg. per day",
             icon = Icons.Default.FitnessCenter,
             iconBg = Brush.radialGradient(listOf(Color(0xFFA855F7), Color(0xFF7C3AED))),
             textColor = Color(0xFF7C3AED),
@@ -1276,6 +1281,7 @@ fun MenuRow4Tabs(
         NewMenuTabItem(
             title = "Payment",
             value = paymentDue,
+            subtitle = "3 days left",
             icon = Icons.Default.AccountBalanceWallet,
             iconBg = Brush.radialGradient(listOf(Color(0xFFFB923C), Color(0xFFEA580C))),
             textColor = if (selectedTabIndex == 2) Color.White else Color(0xFFEA580C),
@@ -1288,17 +1294,19 @@ fun MenuRow4Tabs(
             modifier = Modifier.weight(1f)
         )
 
-        // Tab 3: Body (Sky Blue with Mini Progress Bar)
+        // Tab 3: Body (Sky Blue Glowing with Mini Progress Bar)
         NewMenuTabItem(
             title = "Body",
             value = bodyWeight,
+            subtitle = "On Track",
             icon = Icons.Default.Person,
             iconBg = Brush.radialGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7))),
-            textColor = Color(0xFF0284C7),
+            textColor = if (selectedTabIndex == 3) Color(0xFF0369A1) else Color(0xFF0284C7),
             barGradient = Brush.horizontalGradient(listOf(Color(0xFF38BDF8), Color(0xFF0369A1))),
             progress = 0.74f,
             isSelected = selectedTabIndex == 3,
             hasAlert = false,
+            isCyanGlow = true,
             onClick = { onTabSelected(3) },
             modifier = Modifier.weight(1f)
         )
@@ -1309,6 +1317,7 @@ fun MenuRow4Tabs(
 private fun NewMenuTabItem(
     title: String,
     value: String,
+    subtitle: String? = null,
     icon: ImageVector,
     iconBg: Brush,
     textColor: Color,
@@ -1317,12 +1326,16 @@ private fun NewMenuTabItem(
     isSelected: Boolean,
     hasAlert: Boolean = false,
     isOrangeGlow: Boolean = false,
+    isCyanGlow: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val tabBg = when {
         isSelected && isOrangeGlow -> Brush.horizontalGradient(
             listOf(Color(0xFFEA580C), Color(0xFFF97316), Color(0xFFFB923C))
+        )
+        isSelected && isCyanGlow -> Brush.horizontalGradient(
+            listOf(Color(0xFFE0F2FE), Color(0xFFBAE6FD), Color(0xFFE0F2FE))
         )
         isSelected -> Brush.horizontalGradient(
             listOf(Color(0xFFF0FDF4), Color(0xFFDCFCE7))
@@ -1334,6 +1347,7 @@ private fun NewMenuTabItem(
 
     val borderColor = when {
         isSelected && isOrangeGlow -> Color(0xFFFDBA74)
+        isSelected && isCyanGlow -> Color(0xFF38BDF8)
         isSelected -> Color(0xFF10B981)
         else -> Color(0xFFE2E8F0)
     }
@@ -1351,7 +1365,7 @@ private fun NewMenuTabItem(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 4.5.dp, vertical = 3.dp),
+                .padding(horizontal = 4.5.dp, vertical = 2.5.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -1371,7 +1385,7 @@ private fun NewMenuTabItem(
                 )
             }
 
-            // Details Column: Title (+ alert), Value + chevron, Mini Progress Bar
+            // Details Column: Title (+ alert), Value + chevron, Subtitle, Mini Progress Bar
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.weight(1f)
@@ -1383,7 +1397,7 @@ private fun NewMenuTabItem(
                 ) {
                     Text(
                         text = title,
-                        fontSize = 8.5.sp,
+                        fontSize = 8.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isSelected && isOrangeGlow) Color.White.copy(alpha = 0.9f) else Color(0xFF64748B),
                         maxLines = 1
@@ -1414,26 +1428,41 @@ private fun NewMenuTabItem(
                 ) {
                     Text(
                         text = value,
-                        fontSize = 11.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Black,
                         color = if (isSelected && isOrangeGlow) Color.White else textColor,
                         maxLines = 1
                     )
                     Text(
                         text = "›",
-                        fontSize = 10.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Black,
                         color = if (isSelected && isOrangeGlow) Color.White else textColor
                     )
                 }
 
-                Spacer(modifier = Modifier.height(1.5.dp))
+                // Subtitle (e.g. On Track, 27/30 days, 3 days left, Avg per day)
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        fontSize = 7.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = when {
+                            isSelected && isOrangeGlow -> Color.White.copy(alpha = 0.85f)
+                            isSelected && isCyanGlow -> Color(0xFF0369A1)
+                            else -> Color(0xFF64748B)
+                        },
+                        maxLines = 1
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(1.dp))
 
                 // Bottom: Mini Horizontal Progress Bar
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(3.5.dp)
+                        .height(3.dp)
                         .clip(RoundedCornerShape(50.dp))
                         .background(
                             if (isSelected && isOrangeGlow) Color.White.copy(alpha = 0.35f)
@@ -2394,6 +2423,7 @@ fun MonthlyTrendSection(
 
 @Composable
 fun BottomMotivationBanner(
+    isAchievement: Boolean = false,
     onKeepGoingClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -2403,7 +2433,7 @@ fun BottomMotivationBanner(
         border = BorderStroke(1.2.dp, Color(0xFFA855F7).copy(alpha = 0.5f)),
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(54.dp)
             .clip(RoundedCornerShape(22.dp))
             .background(InfographicTokens.BottomBannerGradient)
             .clickable { onKeepGoingClick() }
@@ -2411,77 +2441,136 @@ fun BottomMotivationBanner(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = 10.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Left: Purple Dumbbell
-            Image(
-                painter = painterResource(id = R.drawable.illustration_3d_footer_dumbbell),
-                contentDescription = "Workout Dumbbell",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(36.dp)
-            )
-
-            // Middle: Motto
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "DISCIPLINE TODAY",
-                    fontSize = 8.5.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFF93C5FD),
-                    letterSpacing = 0.8.sp
-                )
+            if (isAchievement) {
+                // Achievement Mode (Matches Body Progress Screen in media_1793338088611_f0e49ddf.jpg)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Text(
-                        text = "Consistent Steps, ",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
+                    // Trophy in gold circular badge
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.18f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "🏆", fontSize = 19.sp)
+                    }
+
+                    Column(verticalArrangement = Arrangement.Center) {
+                        Text(
+                            text = "Latest Achievement",
+                            fontSize = 8.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFDE047)
+                        )
+                        Text(
+                            text = "✨ New Personal Best! 🎉",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            lineHeight = 12.sp
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "Bench Press • 80 kg",
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50.dp))
+                                    .background(Color(0xFF22C55E).copy(alpha = 0.9f))
+                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                            ) {
+                                Text(
+                                    text = "✓ Verified by Trainer",
+                                    fontSize = 7.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+                            Text(
+                                text = "20 Oct 2026",
+                                fontSize = 8.sp,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                }
+            } else {
+                // Normal Motivation Banner
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.illustration_3d_footer_dumbbell),
+                        contentDescription = "Workout Dumbbell",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(34.dp)
                     )
-                    Text(
-                        text = "Brighter Days ☀️",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFFFDE047)
-                    )
+                    Column {
+                        Text(
+                            text = "DISCIPLINE TODAY",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White.copy(alpha = 0.8f),
+                            letterSpacing = 1.sp
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(
+                                text = "Consistent Steps,",
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Brighter Days ☀️",
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFFFDE047)
+                            )
+                        }
+                    }
                 }
             }
 
-            // Right: Yellow CTA Button "Keep Going! ->"
-            Surface(
-                shape = RoundedCornerShape(50.dp),
-                color = Color(0xFFFDE047),
-                modifier = Modifier.clip(RoundedCornerShape(50.dp))
+            // Right: Neon Yellow CTA Pill Button
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color(0xFFFACC15))
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    Text(
-                        text = "Keep Going!",
-                        fontSize = 11.5.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF0F172A)
-                    )
-                    Text(
-                        text = "➔",
-                        fontSize = 11.5.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF0F172A)
-                    )
-                }
+                Text(
+                    text = "Keep Going!",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFF0F172A)
+                )
+                Text(
+                    text = "➔",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFF0F172A)
+                )
             }
         }
     }
 }
-
