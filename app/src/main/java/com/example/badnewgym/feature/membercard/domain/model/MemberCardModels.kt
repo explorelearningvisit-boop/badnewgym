@@ -1,6 +1,7 @@
 package com.example.badnewgym.feature.membercard.domain.model
 
 import androidx.compose.ui.graphics.Color
+import com.example.badnewgym.R
 
 enum class MemberTier(
     val title: String,
@@ -417,7 +418,7 @@ data class MemberCardData(
                 CalendarDay(27, 2, DayAttendanceStatus.PRESENT, "T"),
                 CalendarDay(28, 3, DayAttendanceStatus.LATE, "W"),
                 CalendarDay(29, 4, DayAttendanceStatus.PRESENT, "T"),
-                CalendarDay(30, 5, DayAttendanceStatus.ABSENT, "F"),
+                CalendarDay(30, 5, DayAttendanceStatus.PRESENT, "F"),
                 CalendarDay(31, 6, DayAttendanceStatus.PRESENT, "S")
             )
 
@@ -558,13 +559,13 @@ data class MemberCardData(
                 ),
                 attendance = AttendanceSectionData(
                     monthLabel = "Oct 2026",
-                    percent = 77,
-                    attendedDays = 24,
+                    percent = 81,
+                    attendedDays = 25,
                     totalDays = 31,
-                    presentCount = 24,
-                    absentCount = 4,
+                    presentCount = 23,
+                    absentCount = 2,
                     lateCount = 2,
-                    holidayCount = 1,
+                    holidayCount = 4,
                     calendarDays = calendar
                 ),
                 workoutTrend = WorkoutTrendData(

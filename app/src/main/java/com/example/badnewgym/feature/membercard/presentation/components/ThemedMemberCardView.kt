@@ -80,18 +80,20 @@ fun ThemedMemberIntelligenceCard(
     initialTheme: MemberCardTheme = MemberCardTheme.EMERALD_GLASS_MODERN,
     onMenuClick: () -> Unit = {},
     onCardClick: (String) -> Unit = {},
+    onAttendanceDayClick: (com.example.badnewgym.feature.membercard.domain.model.CalendarDay) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var showThemePicker by remember { mutableStateOf(false) }
     var showAttendanceDetails by remember { mutableStateOf(false) }
 
     MasterStoryboardDashboard(
         data = data,
-        onAvatarClick = { showThemePicker = true },
+        onAvatarClick = onMenuClick,
+        onMenuClick = onMenuClick,
         onAttendanceClick = {
             showAttendanceDetails = true
             onCardClick("Attendance")
         },
+        onAttendanceDayClick = onAttendanceDayClick,
         onWorkoutClick = { onCardClick("Workout") },
         onPaymentClick = { onCardClick("Payment") },
         onViewReceiptClick = { onCardClick("Receipt") },
@@ -103,17 +105,6 @@ fun ThemedMemberIntelligenceCard(
         AttendanceDetailsDialog(
             data = data,
             onDismiss = { showAttendanceDetails = false }
-        )
-    }
-
-    if (showThemePicker) {
-        ThemePickerDialog(
-            currentTheme = MemberCardThemeManager.activeTheme,
-            onThemeSelected = { newTheme ->
-                MemberCardThemeManager.activeTheme = newTheme
-                showThemePicker = false
-            },
-            onDismiss = { showThemePicker = false }
         )
     }
 }

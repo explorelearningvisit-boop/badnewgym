@@ -84,45 +84,48 @@ import java.util.Locale
  * Extracted directly from official Infographic Specification media_1793290011933_8ef34b93.jpg
  */
 object InfographicTokens {
-    // ---- BAD GYM Reference Palette (media_1793376151174_5cd06942.jpg) ----
-    val MainBg = Color(0xFFFFF9F2)          // Warm Cream Main Canvas
-    val PageTop = MainBg
-    val PageMid = Color(0xFFFFF7ED)
-    val PageBottom = MainBg
+    // ---- BAD GYM Master Luxury Porcelain Canvas (Image 1, 2, 4 & 5) ----
+    val MainBg = Color(0xFFFFFFFF)
+    val PageTop = Color(0xFF1E0A38)
+    val PageMid = Color(0xFFF4F7FB)
+    val PageBottom = Color(0xFFFFFFFF)
     val SurfaceMint = Color(0xFFF0FDF4)
-    val Surface = Color(0xFFFFFFFF)         // Pure White Card Surface
-    val SurfaceSoft = Color(0xFFFFF5E9)     // Soft Ivory Tint
-    val Ink = Color(0xFF18243B)             // High-Contrast Deep Navy Text
+    val Surface = Color(0xFFFFFFFF)         // Pure Porcelain White Card Surface
+    val SurfaceSoft = Color(0xFFF8FAFC)     // Frosted Arctic Slate Tint
+    val Ink = Color(0xFF0F172A)             // Deep Obsidian Slate Black Text (High Contrast)
     val InkSoft = Color(0xFF334155)         // Slate Navy
-    val Muted = Color(0xFF687487)           // Cool Grey Secondary Text
-    val Hairline = Color(0xFFE2E8F0)        // Subtle Card Border
+    val Muted = Color(0xFF64748B)           // Cool Grey Secondary Text
+    val Hairline = Color(0xFFE2E8F0)        // Subtle Crisp Border
 
-    // Multi-stop Ambient Canvas Brush (Warm Cream -> Peach Glow -> Cool Periwinkle Air)
+    // Multi-stop Ambient Canvas Brush:
+    // Cosmic Galaxy Dusk Top -> Pearlescent Sky Mist -> Crisp Arctic Porcelain White
     val CanvasBrush = Brush.verticalGradient(
-        0.0f to Color(0xFFFFF9F2),
-        0.25f to Color(0xFFFFF6ED),
-        0.65f to Color(0xFFF8F9FE),
-        1.0f to Color(0xFFF9F6FE)
+        0.00f to Color(0xFF1E0A38), // Cosmic Galaxy Purple Top
+        0.10f to Color(0xFF3B0764), // Deep Royal Velvet
+        0.22f to Color(0xFF5A0E72), // Cosmic Magenta
+        0.38f to Color(0xFFF1F5F9), // Ice Pearl Mist
+        0.60f to Color(0xFFF8FAFC), // Pure Arctic White
+        1.00f to Color(0xFFFFFFFF)  // Clean Canvas
     )
 
     // Multi-color Accents
-    val Purple = Color(0xFF7428E8)
+    val Purple = Color(0xFF7C3AED)
     val Magenta = Color(0xFFD92BAF)
-    val Pink = Color(0xFFF34B9A)
+    val Pink = Color(0xFFF43F5E)
     val Orange = Color(0xFFFF963C)
     val Yellow = Color(0xFFFFD45C)
-    val Cyan = Color(0xFF35C9F5)
-    val Blue = Color(0xFF438DFF)
-    val Emerald = Color(0xFF078A69)
-    val Amber = Color(0xFFEAA12E)
-    val RedAlert = Color(0xFFE53945)
-    val HolidayGray = Color(0xFFE9EEF0)
+    val Cyan = Color(0xFF38BDF8)
+    val Blue = Color(0xFF0284C7) // Bond Scanner Electric Royal Cobalt Blue
+    val Emerald = Color(0xFF059669)
+    val Amber = Color(0xFFF59E0B)
+    val RedAlert = Color(0xFFEF4444)
+    val HolidayGray = Color(0xFFF1F5F9)
 
     // Semantic colors
     val Brand = Emerald
-    val BrandDeep = Color(0xFF056149)
-    val BrandSoft = Color(0xFFE6F5F0)
-    val Gold = Amber
+    val BrandDeep = Color(0xFF047857)
+    val BrandSoft = Color(0xFFDCFCE7)
+    val Gold = Color(0xFFFFD700)
     val GoldSoft = Color(0xFFFEF3C7)
     val Danger = RedAlert
     val DangerSoft = Color(0xFFFEE2E2)
@@ -144,36 +147,44 @@ object InfographicTokens {
     // Gradients from Reference Sheet (Sections 2 & 9)
     val HeaderGradient = Brush.horizontalGradient(
         listOf(
-            Color(0xFF7428E8), // Purple
-            Color(0xFFD92BAF), // Magenta
-            Color(0xFFF34B9A), // Pink
-            Color(0xFFFF963C)  // Orange
+            Color(0xFF021C13), // Deep Forest Night
+            Color(0xFF042F22), // Pine
+            Color(0xFF065F46), // Emerald
+            Color(0xFF047857), // Deep Green
+            Color(0xFF0E7A4E)  // Fresh Leaf
         )
     )
 
-    val BorderGradient = Brush.horizontalGradient(
+    val BorderGradient = Brush.linearGradient(
         listOf(
-            Color(0xFFE84BAF), // Magenta/Pink
-            Color(0xFF8B54F5), // Purple
-            Color(0xFF45C9F5), // Cyan
-            Color(0xFFFFC45B)  // Yellow/Gold
+            Color(0xFFFFD700), // 24K Radiant Gold
+            Color(0xFFFF2A85), // Rose Neon
+            Color(0xFF38BDF8), // Electric Cyan
+            Color(0xFF00F59B)  // Laser Emerald
         )
     )
 
     val ThinProgressGradient = Brush.horizontalGradient(
         listOf(
-            Color(0xFFFF9D32), // Warm Orange
-            Color(0xFFEF36A8)  // Vibrant Magenta
+            Color(0xFFFF7A00), // Warm Orange
+            Color(0xFFFF2A85), // Vibrant Magenta
+            Color(0xFF8B5CF6)  // Electric Violet
         )
     )
 
     val AuroraWaveGradient = HeaderGradient
-    val TrendWaveGradient = Brush.horizontalGradient(listOf(Color(0xFF35C9F5), Color(0xFF438DFF), Color(0xFF7428E8)))
-    val DaysCardGradient = ThinProgressGradient
-    val AttendanceGradient = Brush.horizontalGradient(listOf(Color(0xFF078A69), Color(0xFF10B981)))
-    val WorkoutGradient = Brush.horizontalGradient(listOf(Color(0xFF7428E8), Color(0xFF9333EA)))
-    val PaymentGradient = Brush.horizontalGradient(listOf(Color(0xFFFF963C), Color(0xFFF97316)))
-    val BodyGradient = Brush.horizontalGradient(listOf(Color(0xFF35C9F5), Color(0xFF0284C7)))
+    val TrendWaveGradient = HeaderGradient
+    val DaysCardGradient = Brush.horizontalGradient(
+        listOf(
+            Color(0xFF065F46),
+            Color(0xFF047857),
+            Color(0xFF10B981)
+        )
+    )
+    val AttendanceGradient = Brush.horizontalGradient(listOf(Color(0xFF047857), Color(0xFF059669), Color(0xFF10B981)))
+    val WorkoutGradient = Brush.horizontalGradient(listOf(Color(0xFF6B21A8), Color(0xFF7C3AED), Color(0xFF9333EA)))
+    val PaymentGradient = Brush.horizontalGradient(listOf(Color(0xFFC2410C), Color(0xFFEA580C), Color(0xFFF97316)))
+    val BodyGradient = Brush.horizontalGradient(listOf(Color(0xFF1D4ED8), Color(0xFF0284C7), Color(0xFF38BDF8)))
     val BottomBannerGradient = HeaderGradient
 }
 
@@ -203,7 +214,7 @@ fun TopHeaderComponent(
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.35f)),
         modifier = modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .height(54.dp)
             .background(InfographicTokens.HeaderGradient, RoundedCornerShape(24.dp))
     ) {
         Row(
@@ -220,40 +231,40 @@ fun TopHeaderComponent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = "👑", fontSize = 16.sp)
+                Text(text = "👑", fontSize = 18.sp)
                 Column(verticalArrangement = Arrangement.Center) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "BAD ",
-                            fontSize = 12.5.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White,
-                            lineHeight = 12.5.sp
+                            lineHeight = 15.sp
                         )
                         Text(
                             text = "GYM",
-                            fontSize = 12.5.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFFFFD45C), // Vibrant Yellow/Gold
-                            lineHeight = 12.5.sp
+                            color = Color(0xFFB9F227), // Electric Lime
+                            lineHeight = 15.sp
                         )
                     }
                     Text(
                         text = "MEMBER INTELLIGENCE",
-                        fontSize = 6.8.sp,
+                        fontSize = 7.4.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White.copy(alpha = 0.95f),
                         letterSpacing = 0.2.sp,
-                        lineHeight = 7.5.sp,
+                        lineHeight = 8.sp,
                         maxLines = 1
                     )
                     Text(
                         text = "DISCIPLINE BUILDS FREEDOM",
-                        fontSize = 6.sp,
+                        fontSize = 6.4.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.82f),
                         letterSpacing = 0.1.sp,
-                        lineHeight = 6.8.sp,
+                        lineHeight = 7.2.sp,
                         maxLines = 1
                     )
                 }
@@ -264,40 +275,40 @@ fun TopHeaderComponent(
             // =================================================================
             Surface(
                 shape = RoundedCornerShape(50.dp),
-                color = Color(0xFFEF36A8).copy(alpha = 0.45f),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.45f)),
+                color = Color(0xFF0B7A4B),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .clip(RoundedCornerShape(50.dp))
                     .clickable { onCheckInClick() }
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(22.dp)
+                            .size(24.dp)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.25f)),
+                            .background(Color.White.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Fingerprint,
                             contentDescription = "CHECK-IN",
                             tint = Color.White,
-                            modifier = Modifier.size(15.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
 
                     Column(verticalArrangement = Arrangement.Center) {
                         Text(
                             text = "CHECK-IN",
-                            fontSize = 10.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White,
                             letterSpacing = 0.3.sp,
-                            lineHeight = 10.5.sp,
+                            lineHeight = 11.sp,
                             maxLines = 1
                         )
                         Text(
@@ -313,95 +324,82 @@ fun TopHeaderComponent(
             }
 
             // =================================================================
-            // RIGHT: White Stadium Capsule (₹2,800 Payment Due / 03 Nov 2026) + Flex Character
+            // RIGHT: White Stadium Capsule (₹2,800 Payment Due / 03 Nov 2026)
             // =================================================================
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            Surface(
+                shape = RoundedCornerShape(50.dp),
+                color = Color.White,
+                border = BorderStroke(1.dp, InfographicTokens.Hairline),
+                shadowElevation = 1.dp,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50.dp))
+                    .clickable { onPaymentHeaderClick() }
             ) {
-                Surface(
-                    shape = RoundedCornerShape(50.dp),
-                    color = Color.White,
-                    border = BorderStroke(1.dp, InfographicTokens.Hairline),
-                    shadowElevation = 1.dp,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50.dp))
-                        .clickable { onPaymentHeaderClick() }
+                Row(
+                    modifier = Modifier.padding(start = 3.5.dp, end = 5.dp, top = 2.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(start = 3.5.dp, end = 5.dp, top = 2.dp, bottom = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                    // Green Leather Wallet with embossed white Rupee symbol + Caustic dot
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(Color(0xFF10B981), Color(0xFF078A69))
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
-                        // Green Leather Wallet with embossed white Rupee symbol + Caustic dot
+                        // Caustic pinpoint reflection dot
                         Box(
                             modifier = Modifier
-                                .size(22.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(
-                                    Brush.verticalGradient(
-                                        listOf(Color(0xFF10B981), Color(0xFF078A69))
-                                    )
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            // Caustic pinpoint reflection dot
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .offset(x = 3.dp, y = 2.dp)
-                                    .size(4.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White.copy(alpha = 0.7f))
-                            )
-                            Text(
-                                text = "₹",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White,
-                                lineHeight = 12.sp
-                            )
-                        }
-
-                        // Column: ₹2,800 (Bold Red) + 03 Nov 2026
-                        Column(verticalArrangement = Arrangement.Center) {
-                            Text(
-                                text = paidAmount,
-                                fontSize = 12.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFFE53945),
-                                lineHeight = 12.5.sp,
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                            Text(
-                                text = paidDate,
-                                fontSize = 6.8.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = InfographicTokens.Muted,
-                                lineHeight = 7.sp,
-                                maxLines = 1
-                            )
-                        }
-
-                        // Royal Blue Chevron ›
+                                .align(Alignment.TopStart)
+                                .offset(x = 3.dp, y = 2.dp)
+                                .size(4.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.7f))
+                        )
                         Text(
-                            text = "›",
-                            fontSize = 13.sp,
+                            text = "₹",
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF438DFF),
-                            lineHeight = 13.sp
+                            color = Color.White,
+                            lineHeight = 12.sp
                         )
                     }
-                }
 
-                // 3D Bodybuilder graphic matching reference top right
-                Image(
-                    painter = painterResource(id = R.drawable.illustration_character_flex),
-                    contentDescription = "Fitness Silhouette",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(34.dp)
-                )
+                    // Column: ₹2,800 (Bold Red) + 03 Nov 2026
+                    Column(verticalArrangement = Arrangement.Center) {
+                        Text(
+                            text = paidAmount,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFFE53945),
+                            lineHeight = 12.5.sp,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                        Text(
+                            text = paidDate,
+                            fontSize = 6.8.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = InfographicTokens.Muted,
+                            lineHeight = 7.sp,
+                            maxLines = 1
+                        )
+                    }
+
+                    // Royal Blue Chevron ›
+                    Text(
+                        text = "›",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF438DFF),
+                        lineHeight = 13.sp
+                    )
+                }
             }
         }
     }
@@ -438,21 +436,20 @@ fun ProfileSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // A single clean avatar. The old card had three competing badges.
+            // A single clean avatar with the reference green halo and live dot.
             Box(
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.size(72.dp),
                 contentAlignment = Alignment.Center
             ) {
-                // Golden halo outer ring matching reference
-                Canvas(modifier = Modifier.size(64.dp)) {
+                Canvas(modifier = Modifier.size(72.dp)) {
                     drawCircle(
-                        color = Color(0xFFFEF3C7),
+                        color = Color(0xFFDCFCE7),
                         radius = size.minDimension / 2f
                     )
                     drawCircle(
-                        color = Color(0xFFF59E0B).copy(alpha = 0.6f),
+                        color = Color(0xFF22C55E),
                         radius = size.minDimension / 2f - 1.dp.toPx(),
-                        style = Stroke(width = 1.5.dp.toPx())
+                        style = Stroke(width = 2.dp.toPx())
                     )
                 }
 
@@ -461,25 +458,22 @@ fun ProfileSection(
                     contentDescription = name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(54.dp)
+                        .size(62.dp)
                         .clip(CircleShape)
-                        .border(1.5.dp, Color.White, CircleShape)
+                        .border(2.dp, Color.White, CircleShape)
                         .clickable { onAvatarClick() }
                 )
 
-                // Gold crown mini badge at bottom right (Reference 1:1)
+                // Live green status dot at bottom right.
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .offset(x = 1.dp, y = 1.dp)
-                        .size(19.dp)
+                        .size(16.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFFEF3C7))
-                        .border(1.dp, Color(0xFFF59E0B), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "👑", fontSize = 10.sp)
-                }
+                        .background(Color(0xFF22C55E))
+                        .border(2.dp, Color.White, CircleShape)
+                )
             }
 
             Column(
@@ -492,12 +486,12 @@ fun ProfileSection(
                 ) {
                     Text(
                         text = name,
-                        fontSize = 15.sp,
+                        fontSize = 16.5.sp,
                         fontWeight = FontWeight.Black,
                         color = InfographicTokens.Ink,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        letterSpacing = (-0.3).sp,
+                        letterSpacing = (-0.4).sp,
                         modifier = Modifier.weight(1f)
                     )
                     Box(
@@ -519,7 +513,7 @@ fun ProfileSection(
 
                 Text(
                     text = "$memberId  •  $age yrs  •  $gender",
-                    fontSize = 10.5.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = InfographicTokens.Muted,
                     maxLines = 1
@@ -532,7 +526,7 @@ fun ProfileSection(
                 ) {
                     Text(
                         text = "\u201C$quote\u201D",
-                        fontSize = 10.5.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = InfographicTokens.InkSoft,
                         maxLines = 1,
@@ -576,7 +570,7 @@ fun ProfileSection(
                     )
                     Text(
                         text = validity,
-                        fontSize = 9.5.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Medium,
                         color = InfographicTokens.InkSoft,
                         maxLines = 1,
@@ -829,13 +823,14 @@ fun FullWidthDaysProgressCard(
 
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, InfographicTokens.Hairline),
-        shadowElevation = 0.5.dp,
+        color = Color.Transparent,
+        border = BorderStroke(1.dp, Color(0xFF34D399).copy(alpha = 0.7f)),
+        shadowElevation = 1.dp,
         modifier = modifier
             .fillMaxWidth()
-            .height(46.dp)
+            .height(48.dp)
             .clip(RoundedCornerShape(14.dp))
+            .background(InfographicTokens.DaysCardGradient)
             .clickable { onClick() }
     ) {
         Row(
@@ -845,19 +840,19 @@ fun FullWidthDaysProgressCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Solid green circle badge matching reference
+            // Translucent calendar badge on the deep green bar.
             Box(
                 modifier = Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF078A69)),
+                    .size(30.dp)
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(Color.White.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.CalendarToday,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(14.dp)
+                    modifier = Modifier.size(15.dp)
                 )
             }
 
@@ -873,26 +868,25 @@ fun FullWidthDaysProgressCard(
                         text = "$used / $safeTotal",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Black,
-                        color = InfographicTokens.Ink
+                        color = Color.White
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = "days used",
                         fontSize = 8.5.sp,
                         fontWeight = FontWeight.Medium,
-                        color = InfographicTokens.Muted
+                        color = Color.White.copy(alpha = 0.85f)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(3.dp))
 
-                // Progress bar track with orange to magenta gradient
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(5.dp)
                         .clip(RoundedCornerShape(50.dp))
-                        .background(Color(0xFFF1F5F9))
+                        .background(Color.White.copy(alpha = 0.25f))
                 ) {
                     Box(
                         modifier = Modifier
@@ -902,9 +896,8 @@ fun FullWidthDaysProgressCard(
                             .background(
                                 Brush.horizontalGradient(
                                     listOf(
-                                        Color(0xFFFF9D32),
-                                        Color(0xFFEF36A8),
-                                        Color(0xFF8B54F5)
+                                        Color(0xFFB9F227),
+                                        Color(0xFF86EFAC)
                                     )
                                 )
                             )
@@ -912,7 +905,7 @@ fun FullWidthDaysProgressCard(
                 }
             }
 
-            // Right side: "8 days left", "73%", circular chevron button
+            // Right side: days left, percentage, circular chevron button.
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -922,13 +915,13 @@ fun FullWidthDaysProgressCard(
                         text = "$daysLeft days left",
                         fontSize = 8.5.sp,
                         fontWeight = FontWeight.Bold,
-                        color = InfographicTokens.Muted
+                        color = Color.White.copy(alpha = 0.8f)
                     )
                     Text(
                         text = "$percentage%",
                         fontSize = 13.5.sp,
                         fontWeight = FontWeight.Black,
-                        color = InfographicTokens.Ink
+                        color = Color.White
                     )
                 }
 
@@ -936,13 +929,13 @@ fun FullWidthDaysProgressCard(
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFF1F5F9)),
+                        .background(Color.White.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
-                        tint = InfographicTokens.Ink,
+                        tint = Color.White,
                         modifier = Modifier.size(15.dp)
                     )
                 }
@@ -959,7 +952,7 @@ fun FullWidthDaysProgressCard(
 fun StatsRowCompact(
     height: String = "5'9\"",
     weight: String = "69.5 kg",
-    weightDelta: String? = "↓ 2.5 kg",
+    weightDelta: String? = "↓ 2.5",
     bmi: String = "22.8",
     bmiCategory: String = "Normal",
     goal: String = "Fat Loss",
@@ -1130,7 +1123,7 @@ fun UnifiedBadGymMemberCard(
     avatarRes: Int = R.drawable.avatar_ashwini,
     height: String = "5'9\"",
     weight: String = "69.5 kg",
-    weightDelta: String? = "↓ 2.5 kg",
+    weightDelta: String? = "↓ 2.5",
     bmi: String = "22.8",
     bmiCategory: String = "Normal",
     goal: String = "Fat Loss",
@@ -1218,14 +1211,19 @@ fun MenuRow4Tabs(
     onTabSelected: (Int) -> Unit,
     attendanceRate: String = "90%",
     workoutAvg: String = "70m",
-    paymentDue: String = "₹800",
+    paymentDue: String = "₹2,800",
     bodyWeight: String = "69.5 kg",
+    attendanceProgress: Float = 0.90f,
+    workoutProgress: Float = 0.70f,
+    paymentProgress: Float = 0.65f,
+    bodyProgress: Float = 0.74f,
+    paymentHasAlert: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .height(56.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // Tab 0: Attendance (Emerald Green Stadium Pill with Mini Progress Bar)
@@ -1236,7 +1234,7 @@ fun MenuRow4Tabs(
             iconBg = Brush.radialGradient(listOf(Color(0xFF22C55E), Color(0xFF059669))),
             textColor = Color(0xFF059669),
             barGradient = Brush.horizontalGradient(listOf(Color(0xFF22C55E), Color(0xFF059669))),
-            progress = 0.90f,
+            progress = attendanceProgress,
             isSelected = selectedTabIndex == 0,
             hasAlert = false,
             activeTheme = 0,
@@ -1252,7 +1250,7 @@ fun MenuRow4Tabs(
             iconBg = Brush.radialGradient(listOf(Color(0xFFA855F7), Color(0xFF7C3AED))),
             textColor = Color(0xFF7C3AED),
             barGradient = Brush.horizontalGradient(listOf(Color(0xFFA855F7), Color(0xFF6D28D9))),
-            progress = 0.70f,
+            progress = workoutProgress,
             isSelected = selectedTabIndex == 1,
             hasAlert = false,
             activeTheme = 1,
@@ -1268,9 +1266,9 @@ fun MenuRow4Tabs(
             iconBg = Brush.radialGradient(listOf(Color(0xFFFB923C), Color(0xFFEA580C))),
             textColor = if (selectedTabIndex == 2) Color.White else Color(0xFFEA580C),
             barGradient = Brush.horizontalGradient(listOf(Color(0xFFFDE047), Color(0xFFEA580C))),
-            progress = 0.65f,
+            progress = paymentProgress,
             isSelected = selectedTabIndex == 2,
-            hasAlert = true,
+            hasAlert = paymentHasAlert,
             activeTheme = 2,
             onClick = { onTabSelected(2) },
             modifier = Modifier.weight(1f)
@@ -1284,7 +1282,7 @@ fun MenuRow4Tabs(
             iconBg = Brush.radialGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7))),
             textColor = if (selectedTabIndex == 3) Color.White else Color(0xFF0284C7),
             barGradient = Brush.horizontalGradient(listOf(Color(0xFF38BDF8), Color(0xFF0369A1))),
-            progress = 0.74f,
+            progress = bodyProgress,
             isSelected = selectedTabIndex == 3,
             hasAlert = false,
             activeTheme = 3,
@@ -1309,48 +1307,48 @@ private fun NewMenuTabItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Reference 1:1 Section 8 - ALL 4 TABS ARE FULLY COLORED WITH GLOSSY GRADIENTS
+    // Reference 1:1 Section 8 + Bond Scanner + Liquid Glassmorphism Sheen
     val tabBg = when (activeTheme) {
-        0 -> Brush.horizontalGradient(listOf(Color(0xFF065F46), Color(0xFF047857), Color(0xFF059669))) // Attendance Emerald
-        1 -> Brush.horizontalGradient(listOf(Color(0xFF581C87), Color(0xFF6B21A8), Color(0xFF7C3AED))) // Workout Purple
-        2 -> Brush.horizontalGradient(listOf(Color(0xFF9A3412), Color(0xFFC2410C), Color(0xFFEA580C))) // Payment Orange
-        else -> Brush.horizontalGradient(listOf(Color(0xFF0369A1), Color(0xFF0284C7), Color(0xFF0EA5E9))) // Body Cyan/Blue
+        0 -> Brush.horizontalGradient(listOf(Color(0xFF047857), Color(0xFF059669), Color(0xFF10B981))) // Attendance Emerald
+        1 -> Brush.horizontalGradient(listOf(Color(0xFF6B21A8), Color(0xFF7C3AED), Color(0xFF9333EA))) // Workout Purple
+        2 -> Brush.horizontalGradient(listOf(Color(0xFFC2410C), Color(0xFFEA580C), Color(0xFFF97316))) // Payment Orange
+        else -> Brush.horizontalGradient(listOf(Color(0xFF1D4ED8), Color(0xFF2563EB), Color(0xFF38BDF8))) // Body Cobalt (Bond Scanner)
     }
 
     val borderColor = if (isSelected) {
         Color.White.copy(alpha = 0.95f)
     } else {
         when (activeTheme) {
-            0 -> Color(0xFF34D399).copy(alpha = 0.45f)
-            1 -> Color(0xFFC084FC).copy(alpha = 0.45f)
-            2 -> Color(0xFFFB923C).copy(alpha = 0.45f)
-            else -> Color(0xFF38BDF8).copy(alpha = 0.45f)
+            0 -> Color(0xFF34D399).copy(alpha = 0.50f)
+            1 -> Color(0xFFC084FC).copy(alpha = 0.50f)
+            2 -> Color(0xFFFB923C).copy(alpha = 0.50f)
+            else -> Color(0xFF38BDF8).copy(alpha = 0.50f)
         }
     }
 
     Surface(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(18.dp),
         color = Color.Transparent,
-        border = BorderStroke(if (isSelected) 2.dp else 1.dp, borderColor),
-        shadowElevation = if (isSelected) 4.dp else 1.5.dp,
+        border = BorderStroke(if (isSelected) 2.dp else 1.2.dp, borderColor),
+        shadowElevation = if (isSelected) 5.dp else 2.5.dp,
         modifier = modifier
             .fillMaxHeight()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(18.dp))
             .background(tabBg)
             .clickable { onClick() }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Specular Top Rim Highlight (Image 1 & Image 2 glass sheen)
+            // Specular Top Rim Highlight (Image 1 & Bond Scanner bevel sheen)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(2.dp)
+                    .height(2.5.dp)
                     .background(
                         Brush.horizontalGradient(
                             listOf(
-                                Color.White.copy(alpha = 0.15f),
-                                Color.White.copy(alpha = 0.55f),
-                                Color.White.copy(alpha = 0.15f)
+                                Color.White.copy(alpha = 0.20f),
+                                Color.White.copy(alpha = 0.75f),
+                                Color.White.copy(alpha = 0.20f)
                             )
                         )
                     )
@@ -1359,14 +1357,14 @@ private fun NewMenuTabItem(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 4.5.dp, vertical = 2.dp),
+                    .padding(start = 5.dp, end = 5.dp, top = 2.dp, bottom = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 // 3D Spherical Droplet Icon Badge with Specular Caustic Highlight (Image 2)
                 Box(
                     modifier = Modifier
-                        .size(26.dp)
+                        .size(28.dp)
                         .clip(CircleShape)
                         .background(iconBg),
                     contentAlignment = Alignment.Center
@@ -1378,93 +1376,93 @@ private fun NewMenuTabItem(
                             .offset(x = 4.dp, y = 3.dp)
                             .size(5.dp)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.65f))
+                            .background(Color.White.copy(alpha = 0.70f))
                     )
                     Icon(
                         imageVector = icon,
                         contentDescription = title,
                         tint = Color.White,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(15.dp)
                     )
                 }
 
-            // Details Column: Title (+ alert), Value + chevron, Mini Progress Bar
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.weight(1f)
-            ) {
-                // Top: Title (+ Red ! Alert if Payment)
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                // Details Column: Title (+ alert), Value + chevron
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Text(
-                        text = title,
-                        fontSize = 9.8.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.White.copy(alpha = 0.95f),
-                        maxLines = 1,
-                        letterSpacing = (-0.2).sp
-                    )
-                    if (hasAlert) {
-                        Box(
-                            modifier = Modifier
-                                .size(10.5.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFEF4444)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "!",
-                                fontSize = 7.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White,
-                                lineHeight = 7.5.sp
-                            )
+                    // Top: Title (+ Red ! Alert if Payment)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = title,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White.copy(alpha = 0.95f),
+                            maxLines = 1,
+                            letterSpacing = (-0.2).sp
+                        )
+                        if (hasAlert) {
+                            Box(
+                                modifier = Modifier
+                                    .size(11.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFEF4444)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "!",
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.White,
+                                    lineHeight = 8.sp
+                                )
+                            }
                         }
                     }
-                }
 
-                // Middle: Value + Chevron
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    Text(
-                        text = value,
-                        fontSize = 12.5.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = "›",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(1.dp))
-
-                // Bottom: Mini Horizontal Progress Bar
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(3.5.dp)
-                        .clip(RoundedCornerShape(50.dp))
-                        .background(Color.White.copy(alpha = 0.25f))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(progress.coerceIn(0f, 1f))
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(barGradient)
-                    )
+                    // Bottom: Value + Chevron
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(1.dp)
+                    ) {
+                        Text(
+                            text = value,
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = "›",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White.copy(alpha = 0.90f)
+                        )
+                    }
                 }
             }
-        }
+
+            // Slim data-driven progress bar at the foot of the tab.
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                    .height(2.5.dp)
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color.White.copy(alpha = 0.22f))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(progress.coerceIn(0f, 1f))
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(barGradient)
+                )
+            }
         }
     }
 }
@@ -1489,7 +1487,22 @@ fun AttendanceSection(
     val total = days.size.coerceAtLeast(attendance.totalDays)
     val rate = attendance.percent.coerceIn(0, 100)
 
-    val leadingBlanks = days.firstOrNull()?.let { (it.dayOfWeekIndex + 6) % 7 } ?: 3 // Oct 2026 starts on Thu (3 blanks: Mon, Tue, Wed)
+    val now = Calendar.getInstance()
+    val thisMonth = SimpleDateFormat("MMMM yyyy", Locale.US).format(now.time)
+    val todayDay = if (thisMonth.equals(attendance.monthLabel, ignoreCase = true)) {
+        now.get(Calendar.DAY_OF_MONTH)
+    } else {
+        -1
+    }
+    val monthShort = attendance.monthLabel
+        .split(" ")
+        .let { parts ->
+            val month = parts.firstOrNull()?.take(3).orEmpty()
+            val year = parts.getOrNull(1).orEmpty()
+            listOf(month, year).filter { it.isNotBlank() }.joinToString(" ")
+        }
+
+    val leadingBlanks = days.firstOrNull()?.let { (it.dayOfWeekIndex + 6) % 7 } ?: 0
     val cells: List<CalendarDay?> = buildList {
         repeat(leadingBlanks) { add(null) }
         addAll(days)
@@ -1499,168 +1512,159 @@ fun AttendanceSection(
 
     Surface(
         shape = RoundedCornerShape(24.dp),
-        color = Color.White,
-        border = BorderStroke(1.5.dp, InfographicTokens.BorderGradient),
-        shadowElevation = 2.5.dp,
+        color = Color(0xFFFFFBF4),
+        border = BorderStroke(1.2.dp, Color(0xFFFBCFE8)),
+        shadowElevation = 2.dp,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // 1. TOP HEADER BANNER (Vibrant Magenta/Orange Wave Gradient)
+            // 1. VIBRANT HEADER
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(46.dp)
-                    .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                    .height(54.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 24.dp,
+                            topEnd = 24.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 0.dp
+                        )
+                    )
                     .background(
                         Brush.horizontalGradient(
                             listOf(
-                                Color(0xFFD92BAF),
-                                Color(0xFFF34B9A),
-                                Color(0xFFFF963C)
+                                Color(0xFFF43F5E),
+                                Color(0xFFFB7185),
+                                Color(0xFFFF9A5A)
                             )
                         )
                     )
-                    .padding(horizontal = 8.dp),
+                    .padding(horizontal = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left: White rounded box with red calendar icon & checkmark
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    Surface(
+                        shape = RoundedCornerShape(9.dp),
+                        color = Color.White,
+                        modifier = Modifier.size(30.dp)
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarToday,
+                                contentDescription = null,
+                                tint = Color(0xFFE11D48),
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(7.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Attendance",
+                            fontSize = 15.5.sp,
+                            fontWeight = FontWeight.Black,
                             color = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = null,
-                                    tint = Color(0xFFE53945),
-                                    modifier = Modifier.size(15.dp)
-                                )
-                            }
-                        }
-                        Column(verticalArrangement = Arrangement.Center) {
-                            Text(
-                                text = "Attendance",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White,
-                                lineHeight = 15.sp
-                            )
-                            Text(
-                                text = "Daily check-ins • Mon – Sun",
-                                fontSize = 7.8.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.White.copy(alpha = 0.90f),
-                                lineHeight = 8.sp
-                            )
-                        }
+                            lineHeight = 16.sp
+                        )
+                        Text(
+                            text = "Daily check-ins \u2022 Mon \u2013 Sun",
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White.copy(alpha = 0.92f),
+                            lineHeight = 9.sp
+                        )
                     }
-
-                    // Middle: Sponsored ad pill ("Stay Fit with MYPROTEIN [AD]")
                     Surface(
                         shape = RoundedCornerShape(50.dp),
                         color = Color.White,
-                        border = BorderStroke(0.8.dp, Color(0xFFE2E8F0))
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.5.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            // Dark blue trapezoid logo mark
-                            Box(
-                                modifier = Modifier
-                                    .size(width = 11.dp, height = 12.dp)
-                                    .clip(RoundedCornerShape(1.dp))
-                                    .background(Color(0xFF0369A1))
+                            Icon(
+                                imageVector = Icons.Default.CalendarToday,
+                                contentDescription = null,
+                                tint = Color(0xFFE11D48),
+                                modifier = Modifier.size(10.dp)
                             )
-                            Column(verticalArrangement = Arrangement.Center) {
-                                Text(
-                                    text = "Stay Fit with",
-                                    fontSize = 6.8.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF64748B),
-                                    lineHeight = 7.sp
-                                )
-                                Text(
-                                    text = "MYPROTEIN",
-                                    fontSize = 7.8.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0F172A),
-                                    lineHeight = 8.sp
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(Color(0xFFF59E0B))
-                                    .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
-                            ) {
-                                Text(
-                                    text = "AD",
-                                    fontSize = 6.5.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color.White
-                                )
-                            }
-                        }
-                    }
-
-                    // Right: Month Selector "‹ Oct 2026 ›"
-                    Surface(
-                        shape = RoundedCornerShape(50.dp),
-                        color = Color.White,
-                        border = BorderStroke(0.8.dp, Color(0xFFE2E8F0))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
-                        ) {
-                            Text(text = "‹", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                             Text(
-                                text = attendance.monthLabel,
+                                text = monthShort,
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Black,
-                                color = Color(0xFF0F172A)
+                                color = Color(0xFF0F172A),
+                                maxLines = 1
                             )
-                            Text(text = "›", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                         }
                     }
                 }
             }
 
-            // 2. CARD CONTENT: Left (Donut Gauge + Legend) & Right (7-Column Calendar)
+            // 2. HORIZONTAL LEGEND BAR
+            Surface(
+                shape = RoundedCornerShape(50.dp),
+                color = Color(0xFFFFF7EC),
+                border = BorderStroke(1.dp, Color(0xFFFDE68A)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 7.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 7.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AttendanceLegendChip(
+                        color = Color(0xFF047857),
+                        label = "Present",
+                        count = present,
+                        modifier = Modifier.weight(1f)
+                    )
+                    AttendanceLegendChip(
+                        color = Color(0xFFF59E0B),
+                        label = "Late",
+                        count = late,
+                        modifier = Modifier.weight(1f)
+                    )
+                    AttendanceLegendChip(
+                        color = Color(0xFFEF4444),
+                        label = "Absent",
+                        count = absent,
+                        modifier = Modifier.weight(1f)
+                    )
+                    AttendanceLegendChip(
+                        color = Color(0xFF94A3B8),
+                        label = "Holiday",
+                        count = holiday,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // 3. DONUT + CALENDAR
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                // LEFT COLUMN: Donut Gauge + 25/31 days + Vertical Legend
                 Column(
-                    modifier = Modifier.width(96.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    modifier = Modifier.width(108.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Donut gauge with green gradient and yellow tip
                     Box(
-                        modifier = Modifier.size(64.dp),
+                        modifier = Modifier.size(92.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Canvas(modifier = Modifier.fillMaxSize()) {
-                            val stroke = 5.5.dp.toPx()
-                            // Background track
+                            val stroke = 8.dp.toPx()
                             drawArc(
                                 color = Color(0xFFF1F5F9),
                                 startAngle = -90f,
@@ -1668,7 +1672,6 @@ fun AttendanceSection(
                                 useCenter = false,
                                 style = Stroke(width = stroke, cap = StrokeCap.Round)
                             )
-                            // Filled arc: green with yellow start
                             drawArc(
                                 brush = Brush.sweepGradient(
                                     listOf(
@@ -1684,73 +1687,51 @@ fun AttendanceSection(
                                 style = Stroke(width = stroke, cap = StrokeCap.Round)
                             )
                         }
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CalendarToday,
-                                contentDescription = null,
-                                tint = Color(0xFF059669),
-                                modifier = Modifier.size(12.dp)
-                            )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "$rate%",
-                                fontSize = 16.5.sp,
+                                fontSize = 23.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF0F172A),
-                                lineHeight = 17.sp
+                                lineHeight = 24.sp
                             )
                             Text(
-                                text = "Attendance Rate",
-                                fontSize = 6.2.sp,
+                                text = "rate",
+                                fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF64748B),
-                                lineHeight = 7.sp
+                                lineHeight = 10.sp
                             )
                         }
                     }
-
-                    // 25 / 31 days
+                    Spacer(modifier = Modifier.height(3.dp))
                     Text(
-                        text = "25 / 31 days",
+                        text = "$attended / $total days",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Black,
-                        color = Color(0xFF0F172A)
+                        color = Color(0xFF0F172A),
+                        maxLines = 1
                     )
                     Text(
-                        text = "4 holidays",
-                        fontSize = 8.sp,
+                        text = if (holiday == 1) "1 holiday" else "$holiday holidays",
+                        fontSize = 8.5.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF64748B)
+                        color = Color(0xFF64748B),
+                        maxLines = 1
                     )
-
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    // Vertical Legend Box matching reference
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        AttendanceVerticalLegendItem(color = Color(0xFF059669), label = "Present", count = "23")
-                        AttendanceVerticalLegendItem(color = Color(0xFFF59E0B), label = "Late", count = "2")
-                        AttendanceVerticalLegendItem(color = Color(0xFFEF4444), label = "Absent", count = "2")
-                        AttendanceVerticalLegendItem(color = Color(0xFF94A3B8), label = "Holiday", count = "4")
-                    }
                 }
 
-                // RIGHT COLUMN: 7-Column Calendar Grid
+                Spacer(modifier = Modifier.width(6.dp))
+
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    // Mon Tue Wed Thu Fri Sat Sun
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").forEach { d ->
+                        listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").forEach { label ->
                             Text(
-                                text = d,
-                                fontSize = 8.5.sp,
+                                text = label,
+                                fontSize = 8.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF64748B),
                                 textAlign = TextAlign.Center,
@@ -1759,7 +1740,6 @@ fun AttendanceSection(
                         }
                     }
 
-                    // Calendar Weeks
                     weeks.forEach { week ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -1769,59 +1749,45 @@ fun AttendanceSection(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(26.dp),
+                                        .height(28.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (day != null) {
-                                        val dayNum = day.dayOfMonth
-                                        // Specific status mapping matching reference 1:1
-                                        val isAbsent = dayNum == 17 || dayNum == 24
-                                        val isLate = dayNum == 22 || dayNum == 28
-                                        val isSunday = dayNum == 4 || dayNum == 11 || dayNum == 18 || dayNum == 25
-                                        val isToday = dayNum == 30
-
-                                        val (bg, fg) = when {
-                                            isAbsent -> Color(0xFFEF4444) to Color.White
-                                            isLate -> Color(0xFFF59E0B) to Color.White
-                                            isSunday -> Color(0xFFF1F5F9) to Color(0xFF0F172A)
-                                            else -> Color(0xFF059669) to Color.White
+                                        val isToday = day.dayOfMonth == todayDay
+                                        val (background, foreground) = when (day.status) {
+                                            DayAttendanceStatus.PRESENT ->
+                                                Color(0xFF047857) to Color.White
+                                            DayAttendanceStatus.LATE ->
+                                                Color(0xFFF59E0B) to Color.White
+                                            DayAttendanceStatus.ABSENT ->
+                                                Color(0xFFEF4444) to Color.White
+                                            DayAttendanceStatus.HOLIDAY ->
+                                                Color(0xFFF1F5F9) to Color(0xFF334155)
                                         }
 
                                         Box(
                                             modifier = Modifier
-                                                .size(22.dp)
+                                                .size(26.dp)
                                                 .clip(CircleShape)
-                                                .background(bg)
+                                                .background(background)
                                                 .then(
                                                     if (isToday) {
-                                                        Modifier.border(1.5.dp, Color(0xFF047857), CircleShape)
-                                                    } else Modifier
+                                                        Modifier.border(1.8.dp, Color.White, CircleShape)
+                                                    } else {
+                                                        Modifier
+                                                    }
                                                 )
                                                 .clickable { onDayClick(day) },
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            if (isToday) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(17.dp)
-                                                        .border(1.dp, Color.White, CircleShape)
-                                                )
-                                            }
                                             Text(
-                                                text = dayNum.toString(),
+                                                text = day.dayOfMonth.toString(),
                                                 fontSize = 9.5.sp,
                                                 fontWeight = FontWeight.Black,
-                                                color = fg
+                                                color = foreground,
+                                                maxLines = 1
                                             )
                                         }
-                                    } else {
-                                        Text(
-                                            text = "-",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFFCBD5E1),
-                                            textAlign = TextAlign.Center
-                                        )
                                     }
                                 }
                             }
@@ -1829,46 +1795,88 @@ fun AttendanceSection(
                     }
                 }
             }
+
+            // 4. FOOTER
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 9.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "\u261D Tap a date for that day\u2019s record",
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF64748B),
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1
+                )
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .clickable { onAttendanceClick() }
+                        .padding(horizontal = 6.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(1.dp)
+                ) {
+                    Text(
+                        text = "Details",
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF334155)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Attendance details",
+                        tint = Color(0xFF334155),
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun AttendanceVerticalLegendItem(
+private fun AttendanceLegendChip(
     color: Color,
     label: String,
-    count: String
+    count: Int,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.Center
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(6.dp)
-                    .clip(CircleShape)
-                    .background(color)
-            )
-            Text(
-                text = label,
-                fontSize = 8.5.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF475569)
-            )
-        }
+        Box(
+            modifier = Modifier
+                .size(7.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(3.dp))
         Text(
-            text = count,
+            text = label,
+            fontSize = 8.5.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF475569),
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.width(3.dp))
+        Text(
+            text = "$count",
             fontSize = 9.5.sp,
             fontWeight = FontWeight.Black,
-            color = Color(0xFF0F172A)
+            color = Color(0xFF0F172A),
+            maxLines = 1
         )
     }
 }
+
+// =============================================================================
+// COMPONENT 7: ATTENDANCE TREND SECTION
+// =============================================================================
 
 // =============================================================================
 // COMPONENT 7: MONTHLY TREND SECTION (Pixel-Perfect 1:1 Matching Reference Section 8)
@@ -1891,7 +1899,7 @@ fun MonthlyTrendSection(
     var rangeMonths by remember { mutableIntStateOf(12) }
     var dropdownOpen by remember { mutableStateOf(false) }
 
-    val allMonths = remember {
+    val allMonths = remember(currentPercent) {
         listOf(
             AttendanceTrendPoint("Nov", "Nov 2025", null),
             AttendanceTrendPoint("Dec", "Dec 2025", null),
@@ -1904,183 +1912,178 @@ fun MonthlyTrendSection(
             AttendanceTrendPoint("Jul", "Jul 2026", 94, 29, 31),
             AttendanceTrendPoint("Aug", "Aug 2026", null),
             AttendanceTrendPoint("Sep", "Sep 2026", 80, 24, 30),
-            AttendanceTrendPoint("Oct", "Oct 2026", 81, 25, 31)
+            AttendanceTrendPoint("Oct", "Oct 2026", currentPercent, 25, 31)
         )
+    }
+
+    val visibleMonths = remember(rangeMonths, allMonths) {
+        allMonths.takeLast(rangeMonths.coerceAtMost(allMonths.size))
+    }
+    val activeMonths = visibleMonths.filter { it.percent != null }
+    val bestMonth = activeMonths.maxByOrNull { it.percent ?: 0 }
+    val lowestMonth = activeMonths.minByOrNull { it.percent ?: 0 }
+    val averagePercent = if (activeMonths.isEmpty()) {
+        0
+    } else {
+        activeMonths.sumOf { it.percent ?: 0 } / activeMonths.size
     }
 
     Surface(
         shape = RoundedCornerShape(24.dp),
-        color = Color.White,
-        border = BorderStroke(1.5.dp, InfographicTokens.BorderGradient),
-        shadowElevation = 2.5.dp,
+        color = Color(0xFFFFFBF4),
+        border = BorderStroke(1.2.dp, Color(0xFFFBCFE8)),
+        shadowElevation = 2.dp,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // 1. TOP HEADER BANNER (Soft Pastel Aurora Gradient)
+            // 1. HEADER
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(44.dp)
-                    .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                    .height(56.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 24.dp,
+                            topEnd = 24.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 0.dp
+                        )
+                    )
                     .background(
                         Brush.horizontalGradient(
                             listOf(
-                                Color(0xFFFCE7F3),
-                                Color(0xFFE0F2FE),
-                                Color(0xFFFFFBEB)
+                                Color(0xFF0EA5E9),
+                                Color(0xFF06B6D4),
+                                Color(0xFF10B981)
                             )
                         )
                     )
-                    .padding(horizontal = 8.dp),
+                    .padding(horizontal = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left: Green 3-Bar Chart Icon + Title
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color.White,
-                            modifier = Modifier.size(26.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                // 3 mini bars
-                                Row(
-                                    verticalAlignment = Alignment.Bottom,
-                                    horizontalArrangement = Arrangement.spacedBy(1.5.dp),
-                                    modifier = Modifier.height(13.dp)
-                                ) {
-                                    Box(Modifier.width(2.5.dp).height(8.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF059669)))
-                                    Box(Modifier.width(2.5.dp).height(13.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF059669)))
-                                    Box(Modifier.width(2.5.dp).height(10.dp).clip(RoundedCornerShape(1.dp)).background(Color(0xFF059669)))
-                                }
-                            }
-                        }
-                        Column(verticalArrangement = Arrangement.Center) {
-                            Text(
-                                text = "Attendance trend",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF0F172A),
-                                lineHeight = 14.sp
-                            )
-                            Text(
-                                text = "Attendance rate by month",
-                                fontSize = 7.8.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color(0xFF64748B),
-                                lineHeight = 8.sp
-                            )
-                        }
-                    }
-
-                    // Middle: Sponsored ad pill ("blinkit Healthy Snacks [AD]")
                     Surface(
-                        shape = RoundedCornerShape(50.dp),
-                        color = Color(0xFFFFFBEB),
-                        border = BorderStroke(0.8.dp, Color(0xFFFDE68A))
+                        shape = RoundedCornerShape(9.dp),
+                        color = Color.White,
+                        modifier = Modifier.size(30.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.5.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFFFACC15))
-                                    .padding(horizontal = 3.dp, vertical = 1.dp)
+                        Box(contentAlignment = Alignment.Center) {
+                            Row(
+                                verticalAlignment = Alignment.Bottom,
+                                horizontalArrangement = Arrangement.spacedBy(1.5.dp),
+                                modifier = Modifier.height(14.dp)
                             ) {
-                                Text(
-                                    text = "blinkit",
-                                    fontSize = 7.5.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0F172A)
+                                Box(
+                                    Modifier
+                                        .width(2.5.dp)
+                                        .height(8.dp)
+                                        .clip(RoundedCornerShape(1.dp))
+                                        .background(Color(0xFF059669))
+                                )
+                                Box(
+                                    Modifier
+                                        .width(2.5.dp)
+                                        .height(14.dp)
+                                        .clip(RoundedCornerShape(1.dp))
+                                        .background(Color(0xFF059669))
+                                )
+                                Box(
+                                    Modifier
+                                        .width(2.5.dp)
+                                        .height(11.dp)
+                                        .clip(RoundedCornerShape(1.dp))
+                                        .background(Color(0xFF059669))
                                 )
                             }
-                            Column(verticalArrangement = Arrangement.Center) {
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(7.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Attendance trend",
+                            fontSize = 15.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            lineHeight = 16.sp
+                        )
+                        Text(
+                            text = "Attendance rate by month",
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White.copy(alpha = 0.92f),
+                            lineHeight = 9.sp
+                        )
+                    }
+
+                    Box {
+                        Surface(
+                            shape = RoundedCornerShape(50.dp),
+                            color = Color.White,
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)),
+                            modifier = Modifier.clickable { dropdownOpen = true }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
                                 Text(
-                                    text = "Healthy Snacks",
-                                    fontSize = 7.5.sp,
+                                    text = "$rangeMonths months",
+                                    fontSize = 9.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0F172A),
-                                    lineHeight = 7.5.sp
+                                    maxLines = 1
                                 )
-                                Text(
-                                    text = "For Better Workouts",
-                                    fontSize = 6.2.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF64748B),
-                                    lineHeight = 6.5.sp
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(Color(0xFFF59E0B))
-                                    .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
-                            ) {
-                                Text(
-                                    text = "AD",
-                                    fontSize = 6.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color.White
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = "Change trend range",
+                                    tint = Color(0xFF64748B),
+                                    modifier = Modifier.size(12.dp)
                                 )
                             }
                         }
-                    }
-
-                    // Right: 12 months dropdown pill
-                    Surface(
-                        shape = RoundedCornerShape(50.dp),
-                        color = Color.White,
-                        border = BorderStroke(0.8.dp, Color(0xFFCBD5E1))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        DropdownMenu(
+                            expanded = dropdownOpen,
+                            onDismissRequest = { dropdownOpen = false }
                         ) {
-                            Text(
-                                text = "12 months",
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                            DropdownMenuItem(
+                                text = { Text("6 months", fontSize = 12.sp) },
+                                onClick = {
+                                    rangeMonths = 6
+                                    dropdownOpen = false
+                                }
                             )
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = null,
-                                tint = Color(0xFF64748B),
-                                modifier = Modifier.size(11.dp)
+                            DropdownMenuItem(
+                                text = { Text("12 months", fontSize = 12.sp) },
+                                onClick = {
+                                    rangeMonths = 12
+                                    dropdownOpen = false
+                                }
                             )
                         }
                     }
                 }
             }
 
-            // 2. CHART AREA DIRECTLY BELOW HEADER (No bulky KPI pods!)
+            // 2. CHART
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                    .padding(horizontal = 10.dp, vertical = 9.dp)
             ) {
-                // Chart Row: Y-Axis (100, 50, 0) + Bars & Reference Lines
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(126.dp),
                     verticalAlignment = Alignment.Top
                 ) {
-                    // Left Y-Axis labels
                     Column(
                         modifier = Modifier
-                            .width(22.dp)
-                            .height(68.dp),
+                            .width(24.dp)
+                            .height(100.dp),
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.End
                     ) {
@@ -2091,58 +2094,43 @@ fun MonthlyTrendSection(
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    // Chart Box with Dashed Lines + 12 Monthly Bars
                     Column(modifier = Modifier.weight(1f)) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(68.dp)
+                                .height(100.dp)
                         ) {
-                            // 3 Dynamic Dashed Reference Lines (Max 97%, Avg 81%, Min 58%)
                             Canvas(modifier = Modifier.fillMaxSize()) {
-                                val h = size.height
-                                val maxLineY = h - (h * (97f / 100f) * 0.82f)
-                                val avgLineY = h - (h * (81f / 100f) * 0.82f)
-                                val minLineY = h - (h * (58f / 100f) * 0.82f)
-
-                                val dashEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f), 0f)
-
-                                // Max Line (Green)
-                                drawLine(
-                                    color = Color(0xFF078A69).copy(alpha = 0.8f),
-                                    start = Offset(0f, maxLineY),
-                                    end = Offset(size.width, maxLineY),
-                                    strokeWidth = 1.2.dp.toPx(),
-                                    pathEffect = dashEffect
-                                )
-
-                                // Avg Line (Amber/Gold)
-                                drawLine(
-                                    color = Color(0xFFEAA12E).copy(alpha = 0.8f),
-                                    start = Offset(0f, avgLineY),
-                                    end = Offset(size.width, avgLineY),
-                                    strokeWidth = 1.2.dp.toPx(),
-                                    pathEffect = dashEffect
-                                )
-
-                                // Min Line (Coral/Red)
-                                drawLine(
-                                    color = Color(0xFFE53945).copy(alpha = 0.8f),
-                                    start = Offset(0f, minLineY),
-                                    end = Offset(size.width, minLineY),
-                                    strokeWidth = 1.2.dp.toPx(),
-                                    pathEffect = dashEffect
-                                )
+                                val height = size.height
+                                listOf(0f, 0.5f, 1f).forEach { fraction ->
+                                    val y = height - height * fraction
+                                    drawLine(
+                                        color = Color(0xFFE2E8F0),
+                                        start = Offset(0f, y),
+                                        end = Offset(size.width, y),
+                                        strokeWidth = 0.7.dp.toPx()
+                                    )
+                                }
                             }
 
-                            // 12 Monthly Bars
                             Row(
                                 modifier = Modifier.fillMaxSize(),
                                 verticalAlignment = Alignment.Bottom
                             ) {
-                                allMonths.forEach { point ->
-                                    val isOct = point.label == "Oct"
+                                visibleMonths.forEach { point ->
+                                    val isCurrent = point.label == "Oct"
                                     val hasValue = point.percent != null
+                                    val barColor = when {
+                                        !hasValue -> Brush.verticalGradient(
+                                            listOf(Color(0xFFF1F5F9), Color(0xFFE2E8F0))
+                                        )
+                                        isCurrent -> Brush.verticalGradient(
+                                            listOf(Color(0xFF047857), Color(0xFF065F46))
+                                        )
+                                        else -> Brush.verticalGradient(
+                                            listOf(Color(0xFF6EE7B7), Color(0xFF10B981))
+                                        )
+                                    }
 
                                     Column(
                                         modifier = Modifier.weight(1f),
@@ -2150,42 +2138,26 @@ fun MonthlyTrendSection(
                                         verticalArrangement = Arrangement.Bottom
                                     ) {
                                         Text(
-                                            text = if (hasValue) "${point.percent}" else "-",
+                                            text = point.percent?.toString() ?: "-",
                                             fontSize = 7.5.sp,
-                                            fontWeight = if (isOct) FontWeight.Black else FontWeight.Bold,
-                                            color = if (isOct) Color(0xFF047857) else Color(0xFF64748B),
+                                            fontWeight = if (isCurrent) FontWeight.Black else FontWeight.Bold,
+                                            color = if (isCurrent) Color(0xFF047857) else Color(0xFF64748B),
                                             maxLines = 1
                                         )
-
-                                        Spacer(modifier = Modifier.height(1.5.dp))
-
+                                        Spacer(modifier = Modifier.height(2.dp))
                                         Box(
                                             modifier = Modifier
-                                                .width(if (isOct) 14.dp else 11.dp)
+                                                .width(if (rangeMonths == 12) 11.dp else 18.dp)
                                                 .height(
                                                     if (hasValue) {
-                                                        (48.dp * ((point.percent ?: 0) / 100f)).coerceAtLeast(6.dp)
+                                                        (78.dp * ((point.percent ?: 0) / 100f))
+                                                            .coerceAtLeast(6.dp)
                                                     } else {
-                                                        8.dp
+                                                        7.dp
                                                     }
                                                 )
                                                 .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                                .background(
-                                                    when {
-                                                        !hasValue -> Brush.verticalGradient(
-                                                            listOf(Color(0xFFF1F5F9), Color(0xFFE2E8F0))
-                                                        )
-                                                        isOct -> Brush.verticalGradient(
-                                                            listOf(Color(0xFF047857), Color(0xFF065F46))
-                                                        )
-                                                        else -> Brush.verticalGradient(
-                                                            listOf(
-                                                                Color(0xFF34D399).copy(alpha = 0.85f),
-                                                                Color(0xFF059669).copy(alpha = 0.55f)
-                                                            )
-                                                        )
-                                                    }
-                                                )
+                                                .background(barColor)
                                         )
                                     }
                                 }
@@ -2193,30 +2165,25 @@ fun MonthlyTrendSection(
                         }
 
                         Spacer(modifier = Modifier.height(2.dp))
-
-                        // Baseline
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(0.8.dp)
                                 .background(Color(0xFFCBD5E1))
                         )
-
                         Spacer(modifier = Modifier.height(2.dp))
-
-                        // Month Labels Row
                         Row(modifier = Modifier.fillMaxWidth()) {
-                            allMonths.forEach { point ->
-                                val isOct = point.label == "Oct"
+                            visibleMonths.forEach { point ->
+                                val isCurrent = point.label == "Oct"
                                 Box(
                                     modifier = Modifier.weight(1f),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = point.label,
-                                        fontSize = 8.sp,
-                                        fontWeight = if (isOct) FontWeight.Black else FontWeight.Bold,
-                                        color = if (isOct) Color(0xFF047857) else Color(0xFF64748B),
+                                        fontSize = 7.5.sp,
+                                        fontWeight = if (isCurrent) FontWeight.Black else FontWeight.Bold,
+                                        color = if (isCurrent) Color(0xFF047857) else Color(0xFF64748B),
                                         maxLines = 1
                                     )
                                 }
@@ -2225,86 +2192,126 @@ fun MonthlyTrendSection(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(7.dp))
 
-                // 3. LEGEND WITH 3 REFERENCE VALUES MATCHING REFERENCE
+                // 3. KPI CARDS
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    TrendKpiCard(
+                        emoji = "\uD83D\uDC51",
+                        label = "Best month",
+                        value = "${bestMonth?.percent ?: 0}%",
+                        detail = bestMonth?.label ?: "--",
+                        background = Color(0xFFECFDF5),
+                        border = Color(0xFFBBF7D0),
+                        accent = Color(0xFF047857),
+                        modifier = Modifier.weight(1f)
+                    )
+                    TrendKpiCard(
+                        emoji = "\u2197",
+                        label = "Average",
+                        value = "$averagePercent%",
+                        detail = "${activeMonths.size} active months",
+                        background = Color(0xFFFFFBEB),
+                        border = Color(0xFFFDE68A),
+                        accent = Color(0xFFB45309),
+                        modifier = Modifier.weight(1.15f)
+                    )
+                    TrendKpiCard(
+                        emoji = "\u2198",
+                        label = "Lowest",
+                        value = "${lowestMonth?.percent ?: 0}%",
+                        detail = lowestMonth?.label ?: "--",
+                        background = Color(0xFFFEF2F2),
+                        border = Color(0xFFFECACA),
+                        accent = Color(0xFFDC2626),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(1.dp, Color(0xFFE2E8F0), CircleShape)
+                            .clickable {
+                                rangeMonths = if (rangeMonths == 12) 6 else 12
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        // Max 97%
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Canvas(modifier = Modifier.width(14.dp).height(2.dp)) {
-                                drawLine(
-                                    color = Color(0xFF078A69),
-                                    start = Offset.Zero,
-                                    end = Offset(size.width, 0f),
-                                    strokeWidth = 2.dp.toPx(),
-                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 3f))
-                                )
-                            }
-                            Text(
-                                text = "Max 97%",
-                                fontSize = 8.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF078A69)
-                            )
-                        }
-
-                        // Avg 81%
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Canvas(modifier = Modifier.width(14.dp).height(2.dp)) {
-                                drawLine(
-                                    color = Color(0xFFEAA12E),
-                                    start = Offset.Zero,
-                                    end = Offset(size.width, 0f),
-                                    strokeWidth = 2.dp.toPx(),
-                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 3f))
-                                )
-                            }
-                            Text(
-                                text = "Avg 81%",
-                                fontSize = 8.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFFEAA12E)
-                            )
-                        }
-
-                        // Min 58%
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Canvas(modifier = Modifier.width(14.dp).height(2.dp)) {
-                                drawLine(
-                                    color = Color(0xFFE53945),
-                                    start = Offset.Zero,
-                                    end = Offset(size.width, 0f),
-                                    strokeWidth = 2.dp.toPx(),
-                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 3f))
-                                )
-                            }
-                            Text(
-                                text = "Min 58%",
-                                fontSize = 8.5.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFFE53945)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "Switch trend range",
+                            tint = Color(0xFF475569),
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun TrendKpiCard(
+    emoji: String,
+    label: String,
+    value: String,
+    detail: String,
+    background: Color,
+    border: Color,
+    accent: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shape = RoundedCornerShape(13.dp),
+        color = background,
+        border = BorderStroke(1.dp, border),
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 6.dp, vertical = 6.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.85f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = emoji, fontSize = 9.sp)
+                }
+                Text(
+                    text = label,
+                    fontSize = 7.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF64748B),
+                    maxLines = 1
+                )
+            }
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = value,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Black,
+                color = accent,
+                maxLines = 1
+            )
+            Text(
+                text = detail,
+                fontSize = 7.5.sp,
+                fontWeight = FontWeight.Bold,
+                color = accent.copy(alpha = 0.85f),
+                maxLines = 1
+            )
         }
     }
 }

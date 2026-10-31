@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -103,6 +104,7 @@ import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardType
 import com.example.badnewgym.feature.membercard.domain.model.PaymentStatus
+import com.example.badnewgym.feature.membercard.domain.model.WorkoutTrendBar
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -320,59 +322,55 @@ fun MasterStoryboardDashboard(
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    // A member has one pass. The old screen let the avatar cycle through nine
-    // demo identities, which silently changed the person shown on screen.
+    // The member dashboard always renders the one signed-in pass. It no longer
+    // cycles through demo identities when the avatar is tapped.
     val currentPass = remember { BadGymMemberPass.getAll9Passes().first() }
 
-    val hasDues = data.paymentPlan.dueAlertAmount.isNotEmpty() || data.paymentPlan.currentDueAmount.isNotEmpty()
-    val initialCardType = MemberCardType.CHECK_IN
-    val initialTabIndex = 0
+    val hasDues = data.paymentPlan.dueAlertAmount.isNotEmpty() ||
+        data.paymentPlan.currentDueAmount.isNotEmpty()
 
-    var currentCardType by remember { mutableStateOf(initialCardType) }
-    var currentPaymentStatus by remember { mutableStateOf(if (hasDues) PaymentStatus.PENDING else PaymentStatus.DONE) }
-    var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
-    var isAllExpandedMode by remember { mutableStateOf(false) }
-
-    // In All-Expanded mode, automatically detect which widget is visible on screen
-    val visibleTabIndex by remember {
-        derivedStateOf {
-            if (!isAllExpandedMode) {
-                selectedTabIndex
-            } else {
-                val first = lazyListState.firstVisibleItemIndex
-                when {
-                    first <= 4 -> 0
-                    first == 5 -> 0 // Attendance
-                    first == 6 -> 1 // Workout
-                    first == 7 -> 2 // Payment
-                    else -> 3       // Body Progress
-                }
-            }
-        }
+    var currentCardType by remember { mutableStateOf(MemberCardType.CHECK_IN) }
+    var currentPaymentStatus by remember {
+        mutableStateOf(if (hasDues) PaymentStatus.PENDING else PaymentStatus.DONE)
     }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
-    val activeIndex = if (isAllExpandedMode) visibleTabIndex else selectedTabIndex
+    val daysPassed = currentPass.totalDays - currentPass.daysLeft
+    val pct = ((daysPassed.toFloat() / currentPass.totalDays.toFloat()) * 100).toInt()
 
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFFFF8ED),
+                        Color(0xFFFFFDF8),
+                        Color(0xFFF3FBF6),
+                        Color(0xFFFFFCF6)
+                    )
+                )
+            )
             .statusBarsPadding()
-            .background(InfographicTokens.CanvasBrush)
-            .padding(horizontal = 8.dp)
+            .navigationBarsPadding()
+            .padding(horizontal = 10.dp)
     ) {
+        Spacer(modifier = Modifier.height(4.dp))
+
         // =====================================================================
-        // 1. PINNED MEMBER CARD (Always in the same place! Never scrolls away!)
+        // 1. PINNED MEMBER CARD (identity, stats, plan progress)
         // =====================================================================
-        Spacer(modifier = Modifier.height(2.dp))
-        val daysPassed = currentPass.totalDays - currentPass.daysLeft
-        val pct = ((daysPassed.toFloat() / currentPass.totalDays.toFloat()) * 100).toInt()
         UnifiedBadGymMemberCard(
             planTitle = currentPass.tier.title,
-            checkInTime = "Today • 08:49 AM",
+            checkInTime = "Today \u2022 08:49 AM",
             isActive = !currentPass.isOverdue,
             cardType = currentCardType,
             paymentStatus = currentPaymentStatus,
-             paidAmount = if (currentPaymentStatus == PaymentStatus.PENDING || hasDues) displayDueAmount(data) else "₹0",
+            paidAmount = if (currentPaymentStatus == PaymentStatus.PENDING || hasDues) {
+                displayDueAmount(data)
+            } else {
+                "\u20B90"
+            },
             paidDate = dashboardDateLabel(4),
             name = currentPass.name,
             memberId = currentPass.memberId,
@@ -413,10 +411,10 @@ fun MasterStoryboardDashboard(
             }
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         // =====================================================================
-        // 2. PINNED 4 TABS MENU ROW (Always stationary below card!)
+        // 2. PINNED 4-TAB COLOR DOCK
         // =====================================================================
         MenuRow4Tabs(
             selectedTabIndex = selectedTabIndex,
@@ -433,36 +431,40 @@ fun MasterStoryboardDashboard(
                 }
             },
             attendanceRate = "${data.attendance.percent}%",
-            workoutAvg = "67m",
-            paymentDue = "₹2,800",
-            bodyWeight = "69.5 kg"
+            workoutAvg = "${workoutAvgMinutes(data.workoutTrend.bars)}m",
+            paymentDue = displayDueAmount(data),
+            bodyWeight = "69.5 kg",
+            attendanceProgress = data.attendance.percent / 100f,
+            workoutProgress = workoutActiveDays(data.workoutTrend.bars).toFloat() /
+                data.workoutTrend.bars.size.coerceAtLeast(1),
+            paymentProgress = data.paymentPlan.planDaysUsed.toFloat() /
+                data.paymentPlan.planTotalDays.coerceAtLeast(1),
+            bodyProgress = 0.74f,
+            paymentHasAlert = hasDues
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         // =====================================================================
-        // 3. SCROLLABLE EXPANDED WIDGET DATA (Only this scrolls smoothly below!)
+        // 3. SCROLLABLE SECTION CONTENT
         // =====================================================================
         LazyColumn(
             state = lazyListState,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             when (selectedTabIndex) {
                 0 -> {
-                    // COMPONENT 6: Attendance Section (7-Column Calendar Grid)
-                    item(key = "infographic_component_6_attendance") {
+                    item(key = "tab_attendance_calendar") {
                         AttendanceSection(
                             attendance = data.attendance,
                             onAttendanceClick = onAttendanceClick,
                             onDayClick = onAttendanceDayClick
                         )
                     }
-
-                    // COMPONENT 7: Monthly Trend Section (12-Month Bar Chart)
-                    item(key = "infographic_component_7_monthly_trend") {
+                    item(key = "tab_attendance_trend") {
                         MonthlyTrendSection(
                             currentPercent = data.attendance.percent,
                             monthLabel = data.attendance.monthLabel
@@ -476,7 +478,11 @@ fun MasterStoryboardDashboard(
                 }
                 2 -> {
                     item(key = "tab_payment") {
-                        MasterPaymentCard(data = data, onClick = onPaymentClick, onViewReceiptClick = onViewReceiptClick)
+                        MasterPaymentCard(
+                            data = data,
+                            onClick = onPaymentClick,
+                            onViewReceiptClick = onViewReceiptClick
+                        )
                     }
                 }
                 3 -> {
@@ -486,170 +492,16 @@ fun MasterStoryboardDashboard(
                 }
             }
 
-            // Motivation banner shown only in tabs 1 and 2
-            if (selectedTabIndex == 1 || selectedTabIndex == 2) {
-                item(key = "infographic_component_8_banner") {
-                    BottomMotivationBanner(
-                        isAchievement = false,
-                        onKeepGoingClick = onWorkoutClick
-                    )
-                }
-            }
-
             item(key = "bottom_spacer") {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
 }
 
 // =============================================================================
-// STICKY STORYBOARD MENU BAR WITH DYNAMIC COLOR BLENDING
+// HERO PASS HEADER
 // =============================================================================
-
-private data class DashboardTabItem(
-    val icon: ImageVector,
-    val label: String,
-    val badge: String
-)
-
-@Composable
-fun MasterStoryboardStickyMenuBar(
-    selectedTabIndex: Int,
-    onTabSelected: (Int) -> Unit,
-    isAllExpanded: Boolean = false,
-    onToggleExpandedMode: () -> Unit = {},
-    modifier: Modifier = Modifier
-) {
-    val activeColor = when (selectedTabIndex) {
-        0 -> Color(0xFF059669) // Mint Emerald
-        1 -> Color(0xFF0284C7) // Sky Blue
-        2 -> Color(0xFF059669) // Emerald Green (matching reference design!)
-        else -> Color(0xFF7C3AED) // Amethyst Purple
-    }
-
-    val activeTabBg = when (selectedTabIndex) {
-        0 -> Color(0xFFDCFCE7)
-        1 -> Color(0xFFE0F2FE)
-        2 -> Color(0xFFDCFCE7)
-        else -> Color(0xFFF3E8FF)
-    }
-
-    val activeSurfaceBg = when (selectedTabIndex) {
-        0 -> Color(0xFFEFFEF2)
-        1 -> Color(0xFFE5F1FB)
-        2 -> Color(0xFFEFFEF2)
-        else -> Color(0xFFF3E8FF)
-    }
-
-    val activeBorderColor = when (selectedTabIndex) {
-        0 -> Color(0xFF86EFAC)
-        1 -> Color(0xFF7DD3FC)
-        2 -> Color(0xFF86EFAC)
-        else -> Color(0xFFD8B4FE)
-    }
-
-    val animatedColor by animateColorAsState(activeColor, tween(300), label = "tabColor")
-    val animatedTabBg by animateColorAsState(activeTabBg, tween(300), label = "tabBg")
-    val animatedSurfaceBg by animateColorAsState(activeSurfaceBg, tween(300), label = "surfaceBg")
-    val animatedBorderColor by animateColorAsState(activeBorderColor, tween(300), label = "borderColor")
-
-    val tabs = remember {
-        listOf(
-            DashboardTabItem(Icons.Default.CalendarToday, "Attendance", "90%"),
-            DashboardTabItem(Icons.Default.FitnessCenter, "Workout", "${workoutAvgMinutes()}m"),
-            DashboardTabItem(Icons.Default.AccountBalanceWallet, "Payment", "₹2,800"),
-            DashboardTabItem(Icons.Default.Person, "Body", "69.5kg")
-        )
-    }
-
-    val menuShape = RoundedCornerShape(16.dp)
-
-    // Top Header Dock
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(menuShape)
-            .background(animatedSurfaceBg)
-            .border(1.2.dp, animatedBorderColor, menuShape)
-            .padding(horizontal = 5.dp, vertical = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            tabs.forEachIndexed { index, tab ->
-                val isSelected = selectedTabIndex == index
-                val tabItemColor = when (index) {
-                    0 -> Color(0xFF059669)
-                    1 -> Color(0xFF0284C7)
-                    2 -> Color(0xFF059669)
-                    else -> Color(0xFF7C3AED)
-                }
-
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(43.dp)
-                        .clip(RoundedCornerShape(11.dp))
-                        .background(if (isSelected) Color.White else Color.Transparent)
-                        .border(
-                            width = if (isSelected) 1.2.dp else 0.dp,
-                            color = if (isSelected) tabItemColor.copy(alpha = 0.8f) else Color.Transparent,
-                            shape = RoundedCornerShape(11.dp)
-                        )
-                        .clickable { onTabSelected(index) }
-                        .padding(horizontal = 1.dp, vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = tab.icon,
-                        contentDescription = tab.label,
-                        tint = if (isSelected) tabItemColor else Color(0xFF64748B),
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(modifier = Modifier.width(2.5.dp))
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = tab.label,
-                            fontSize = 12.sp,
-                            letterSpacing = (-0.3).sp,
-                            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
-                            color = if (isSelected) tabItemColor else Color(0xFF334155),
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                        Text(
-                            text = tab.badge,
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = if (isSelected) tabItemColor else Color(0xFF64748B),
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                    }
-                }
-            }
-
-            // Target Icon Pill on far right of tabs dock
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFCBD5E1), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "🎯", fontSize = 13.sp)
-            }
-        }
-    }
-}
 
 // =============================================================================
 // HERO PASS HEADER
@@ -1506,7 +1358,7 @@ fun MasterWorkoutTrendCard(
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         // CARD 1: 30-Day Workout Trend Card
-        Workout30DayTrendCard()
+        Workout30DayTrendCard(monthLabel = data.workoutTrend.monthLabel, bars = data.workoutTrend.bars)
 
         // CARD 2: Monthly Pattern Card
         WorkoutMonthlyPatternCard()
@@ -1518,7 +1370,7 @@ fun MasterWorkoutTrendCard(
 // -----------------------------------------------------------------------------
 
 @Composable
-private fun Workout30DayTrendCard() {
+private fun Workout30DayTrendCard(monthLabel: String, bars: List<WorkoutTrendBar>) {
     val cardShape = RoundedCornerShape(20.dp)
 
     Box(
@@ -1534,19 +1386,19 @@ private fun Workout30DayTrendCard() {
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             // 1. Header & Hero Metric Section
-            WorkoutHeaderSection()
+            WorkoutHeaderSection(monthLabel, bars)
 
-            // 2. 4 Quick KPI Pods Row
-            WorkoutQuickKpiRow()
+            // 2. Quick KPI Pods Row
+            WorkoutQuickKpiRow(monthLabel, bars)
 
             // 3. 30-Day Daily Bar Chart Section
-            Workout30DayBarChartSection()
+            Workout30DayBarChartSection(bars)
         }
     }
 }
 
 @Composable
-private fun WorkoutHeaderSection() {
+private fun WorkoutHeaderSection(monthLabel: String, bars: List<WorkoutTrendBar>) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
@@ -1606,10 +1458,10 @@ private fun WorkoutHeaderSection() {
                     }
                 }
 
-                TimeframeDropdownPill(text = "Oct 2026")
+                TimeframeDropdownPill(text = monthLabel)
             }
 
-            // Row 2: Hero metric derived from the same 30 daily bars as the chart.
+            // Row 2: Hero metric derived from the same 31 daily bars as the chart.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1621,7 +1473,7 @@ private fun WorkoutHeaderSection() {
                 ) {
                     Column {
                         Text(
-                            text = "${workoutAvgMinutes()} min",
+                            text = "${workoutAvgMinutes(bars)} min",
                             fontSize = 35.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0284C7),
@@ -1644,7 +1496,7 @@ private fun WorkoutHeaderSection() {
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "${workoutActiveDays() * 100 / workoutBars.size}%",
+                                text = "${workoutActiveDays(bars) * 100 / bars.size}%",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFF16A34A)
@@ -1670,7 +1522,7 @@ private fun WorkoutHeaderSection() {
                     ) {
                         Box(Modifier.size(7.dp).clip(CircleShape).background(Color(0xFF38BDF8)))
                         Text("Workout", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        Text("(22 d)", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                        Text("(${workoutActiveDays(bars)} d)", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -1678,15 +1530,7 @@ private fun WorkoutHeaderSection() {
                     ) {
                         Box(Modifier.size(7.dp).clip(CircleShape).background(Color(0xFFCBD5E1)))
                         Text("Rest", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF475569))
-                        Text("(8 d)", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Box(Modifier.size(7.dp).clip(CircleShape).border(1.dp, Color(0xFFCBD5E1), CircleShape))
-                        Text("No Membership", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
-                        Text("(0 d)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                        Text("(${bars.size - workoutActiveDays(bars)} d)", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
                     }
                 }
             }
@@ -1699,16 +1543,17 @@ private fun WorkoutHeaderSection() {
 // -----------------------------------------------------------------------------
 
 @Composable
-private fun WorkoutQuickKpiRow() {
+private fun WorkoutQuickKpiRow(monthLabel: String, bars: List<WorkoutTrendBar>) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val totalMinutes = workoutBars.sumOf { it.minutes }
-        val activeDays = workoutActiveDays()
-        val activePct = activeDays * 100 / workoutBars.size
-        val peakDay = workoutBars.maxByOrNull { it.minutes }?.day ?: 0
+        val totalMinutes = bars.sumOf { it.minutes }
+        val activeDays = workoutActiveDays(bars)
+        val activePct = if (bars.isNotEmpty()) activeDays * 100 / bars.size else 0
+        val peakDay = bars.maxByOrNull { it.minutes }?.dayNumber ?: 0
+        val monthShort = monthLabel.split(" ").firstOrNull()?.take(3) ?: "Oct"
 
         // Pod 1: Total Time
         WorkoutKpiPod(
@@ -1738,23 +1583,11 @@ private fun WorkoutQuickKpiRow() {
         WorkoutKpiPod(
             icon = Icons.Default.EmojiEvents,
             iconTint = Color(0xFFD97706),
-            value = "${workoutPeakMinutes()} min",
+            value = "${workoutPeakMinutes(bars)} min",
             label = "Peak Session",
-            subLabel = "$peakDay Oct",
+            subLabel = "$peakDay $monthShort",
             subLabelColor = Color(0xFF0284C7),
             showInfoIcon = false,
-            modifier = Modifier.weight(1f)
-        )
-
-        // Pod 4: Energy Burn
-        WorkoutKpiPod(
-            icon = Icons.Default.LocalFireDepartment,
-            iconTint = Color(0xFFEA580C),
-            value = "~14.5k",
-            label = "Energy Burn",
-            subLabel = null,
-            subLabelColor = Color.Transparent,
-            showInfoIcon = true,
             modifier = Modifier.weight(1f)
         )
     }
@@ -1875,14 +1708,14 @@ private val workoutBars: List<DailyWorkoutBar> = listOf(
     DailyWorkoutBar(30, 62)
 )
 
-private fun workoutActiveDays(): Int = workoutBars.count { it.minutes > 0 }
+private fun workoutActiveDays(bars: List<WorkoutTrendBar>): Int = bars.count { it.minutes > 0 }
 
-private fun workoutAvgMinutes(): Int {
-    val active = workoutActiveDays().coerceAtLeast(1)
-    return Math.round(workoutBars.sumOf { it.minutes }.toFloat() / active)
+private fun workoutAvgMinutes(bars: List<WorkoutTrendBar>): Int {
+    val active = workoutActiveDays(bars).coerceAtLeast(1)
+    return Math.round(bars.sumOf { it.minutes }.toFloat() / active)
 }
 
-private fun workoutPeakMinutes(): Int = workoutBars.maxOf { it.minutes }
+private fun workoutPeakMinutes(bars: List<WorkoutTrendBar>): Int = bars.maxOfOrNull { it.minutes } ?: 0
 
 @Composable
 private fun FloatingChartBadge(
@@ -1933,9 +1766,9 @@ private fun FloatingChartBadge(
 }
 
 @Composable
-private fun Workout30DayBarChartSection() {
+private fun Workout30DayBarChartSection(bars: List<WorkoutTrendBar>) {
     // 8 high, 12 medium, 2 low and 8 rest days in the 30-day window.
-    val dailyData = workoutBars
+    val dailyData = bars
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -1966,7 +1799,7 @@ private fun Workout30DayBarChartSection() {
             ) {
                 val labelMarginDp = 48.dp
                 val plotWidthDp = maxWidth - labelMarginDp
-                val stepDp = plotWidthDp / 30f
+                val stepDp = plotWidthDp / bars.size.toFloat()
 
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val labelMarginPx = labelMarginDp.toPx()
@@ -1997,7 +1830,7 @@ private fun Workout30DayBarChartSection() {
                     )
 
                     // 2. Average guideline, derived from the daily bars.
-                    val avgY = size.height * (1f - (workoutAvgMinutes().toFloat() / 125f))
+                    val avgY = size.height * (1f - (workoutAvgMinutes(bars).toFloat() / 125f))
                     drawLine(
                         color = Color(0xFF0284C7).copy(alpha = 0.55f),
                         start = Offset(0f, avgY),
@@ -2078,7 +1911,7 @@ private fun Workout30DayBarChartSection() {
                 )
 
                 Text(
-                    text = "Avg ${workoutAvgMinutes()}m",
+                    text = "Avg ${workoutAvgMinutes(bars)}m",
                     fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0284C7),

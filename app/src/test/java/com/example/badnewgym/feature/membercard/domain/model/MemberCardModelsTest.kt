@@ -121,7 +121,7 @@ class MemberCardModelsTest {
         assertEquals("22.8", sample.bodyStats[3].value)
 
         assertEquals("Oct 2026", sample.attendance.monthLabel)
-        assertEquals(77, sample.attendance.percent)
+        assertEquals(81, sample.attendance.percent)
 
         assertEquals("Oct 2026", sample.workoutTrend.monthLabel)
         assertEquals(48, sample.workoutTrend.avgPerDayMinutes)
