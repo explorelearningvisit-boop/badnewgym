@@ -136,7 +136,7 @@ private fun SparklineStatCard(
             Text(
                 text = item.value,
                 color = MemberCardTokens.DarkNavy,
-                fontSize = 12.5.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1
             )
@@ -146,7 +146,7 @@ private fun SparklineStatCard(
             Text(
                 text = item.delta,
                 color = deltaColor,
-                fontSize = 10.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1
             )
@@ -210,7 +210,7 @@ private fun SparklineStatCard(
             Text(
                 text = item.label,
                 color = MemberCardTokens.SlateMuted,
-                fontSize = 8.5.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1
             )
@@ -264,7 +264,7 @@ private fun StatIconBadge(type: BodyStatType) {
                     .background(Color(0xFFEF4444)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "%", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Black)
+                Text(text = "%", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Black)
             }
         }
         BodyStatType.BMI -> {
@@ -275,7 +275,7 @@ private fun StatIconBadge(type: BodyStatType) {
                     .background(Color(0xFF2563EB)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "BMI", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black)
+                Text(text = "BMI", color = Color.White, fontSize = 10.5.sp, fontWeight = FontWeight.Black)
             }
         }
     }

@@ -98,7 +98,7 @@ fun WorkoutTrendDetailedSection(
                     Text(
                         text = data.monthLabel,
                         color = Color(0xFF2563EB),
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.width(2.dp))
@@ -126,9 +126,9 @@ fun WorkoutTrendDetailedSection(
                     modifier = Modifier.matchParentSize(),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "60m", color = MemberCardTokens.SlateMuted, fontSize = 8.5.sp, fontWeight = FontWeight.Medium)
-                    Text(text = "30m", color = MemberCardTokens.SlateMuted, fontSize = 8.5.sp, fontWeight = FontWeight.Medium)
-                    Text(text = "0m", color = MemberCardTokens.SlateMuted, fontSize = 8.5.sp, fontWeight = FontWeight.Medium)
+                    Text(text = "60m", color = MemberCardTokens.SlateMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    Text(text = "30m", color = MemberCardTokens.SlateMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    Text(text = "0m", color = MemberCardTokens.SlateMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                 }
 
                 // Chart Canvas
@@ -184,7 +184,7 @@ fun WorkoutTrendDetailedSection(
                     Text(
                         text = tick,
                         color = MemberCardTokens.SlateMuted,
-                        fontSize = 8.5.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -222,8 +222,8 @@ fun WorkoutTrendDetailedSection(
                         }
                         Spacer(modifier = Modifier.width(6.dp))
                         Column {
-                            Text(text = "${data.avgPerDayMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "Avg / Day", color = MemberCardTokens.SlateMuted, fontSize = 8.5.sp, fontWeight = FontWeight.Medium)
+                            Text(text = "${data.avgPerDayMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "Avg / Day", color = MemberCardTokens.SlateMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -255,8 +255,8 @@ fun WorkoutTrendDetailedSection(
                         }
                         Spacer(modifier = Modifier.width(6.dp))
                         Column {
-                            Text(text = "${data.peakMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "Peak (${data.peakDate})", color = MemberCardTokens.SlateMuted, fontSize = 8.5.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+                            Text(text = "${data.peakMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "Peak (${data.peakDate})", color = MemberCardTokens.SlateMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium, maxLines = 1)
                         }
                     }
                 }
@@ -296,8 +296,8 @@ fun WorkoutTrendDetailedSection(
                         }
                         Spacer(modifier = Modifier.width(6.dp))
                         Column {
-                            Text(text = "${data.lowestMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "Lowest (${data.lowestDate})", color = MemberCardTokens.SlateMuted, fontSize = 8.5.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+                            Text(text = "${data.lowestMinutes}m", color = MemberCardTokens.DarkNavy, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "Lowest (${data.lowestDate})", color = MemberCardTokens.SlateMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium, maxLines = 1)
                         }
                     }
                 }

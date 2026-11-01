@@ -124,11 +124,11 @@ class MemberCardModelsTest {
         assertEquals(81, sample.attendance.percent)
 
         assertEquals("Oct 2026", sample.workoutTrend.monthLabel)
-        assertEquals(48, sample.workoutTrend.avgPerDayMinutes)
-        assertEquals(52, sample.workoutTrend.peakMinutes)
-        assertEquals(12, sample.workoutTrend.lowestMinutes)
+        assertEquals(58, sample.workoutTrend.avgPerDayMinutes)
+        assertEquals(88, sample.workoutTrend.peakMinutes)
+        assertEquals(32, sample.workoutTrend.lowestMinutes)
 
-        assertEquals("₹800", sample.paymentPlan.lastPaymentAmount)
+        assertEquals("₹1,200", sample.paymentPlan.lastPaymentAmount)
         assertEquals("31 Oct 2026", sample.paymentPlan.nextDueDate)
         assertEquals(9, sample.paymentPlan.daysLeft)
     }

@@ -18,10 +18,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
+import com.example.badnewgym.feature.membercard.domain.model.CalendarDay
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
+import com.example.badnewgym.feature.membercard.presentation.components.AttendanceDayBottomSheet
+import com.example.badnewgym.feature.membercard.presentation.components.DetailedAnalyticsBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.MasterStoryboardDashboard
 import com.example.badnewgym.feature.membercard.presentation.components.MemberQuickActionsSheet
+import com.example.badnewgym.feature.membercard.presentation.components.NotificationsBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.ReceiptBottomSheet
+import com.example.badnewgym.feature.membercard.presentation.components.SearchBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +39,26 @@ fun MemberDashboardV2Screen(
 ) {
     var showQuickActions by remember { mutableStateOf(false) }
     var showReceipt by remember { mutableStateOf(initialSheet == "receipt") }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showAnalytics by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
+    var showNotifications by remember { mutableStateOf(false) }
+    var selectedDay by remember { mutableStateOf<CalendarDay?>(null) }
+
+    val receiptSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val analyticsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val daySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val searchSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val notificationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    // The header renders the signed-in pass, so every sheet prints the same identity.
+    val signedInPass = remember { BadGymMemberPass.getAll9Passes().first() }
+    val duesPending = remember(data) {
+        data.paymentPlan.currentDueAmount.any { it in '1'..'9' }
+    }
+    val receiptInvoice = remember(data, signedInPass) {
+        val stamp = data.paymentPlan.lastPaymentDate.filter { it.isDigit() }
+        "INV-${signedInPass.memberId}-$stamp"
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         MasterStoryboardDashboard(
@@ -42,15 +67,26 @@ fun MemberDashboardV2Screen(
                 showQuickActions = true
                 onMenuClick()
             },
+            // Every card affordance lands on a real destination.
+            onAttendanceClick = { showAnalytics = true },
+            onAttendanceDayClick = { day -> selectedDay = day },
+            onWorkoutClick = { showAnalytics = true },
+            onPaymentClick = { showReceipt = true },
             onViewReceiptClick = { showReceipt = true },
-            onPaymentClick = { /* Payment tab provides the collection and reminder actions. */ }
+            onBodyProgressClick = { showAnalytics = true }
         )
 
         if (showQuickActions) {
             MemberQuickActionsSheet(
                 onDismissRequest = { showQuickActions = false },
-                onSearch = { showQuickActions = false },
-                onNotifications = { showQuickActions = false },
+                onSearch = {
+                    showQuickActions = false
+                    showSearch = true
+                },
+                onNotifications = {
+                    showQuickActions = false
+                    showNotifications = true
+                },
                 onReceipt = {
                     showQuickActions = false
                     showReceipt = true
@@ -58,15 +94,49 @@ fun MemberDashboardV2Screen(
             )
         }
 
+        if (showSearch) {
+            SearchBottomSheet(
+                sheetState = searchSheetState,
+                onDismissRequest = { showSearch = false }
+            )
+        }
+
+        if (showNotifications) {
+            NotificationsBottomSheet(
+                sheetState = notificationsSheetState,
+                onDismissRequest = { showNotifications = false }
+            )
+        }
+
         if (showReceipt) {
             ReceiptBottomSheet(
-                sheetState = sheetState,
+                sheetState = receiptSheetState,
                 onDismissRequest = { showReceipt = false },
+                invoiceNumber = receiptInvoice,
                 amountPaid = data.paymentPlan.lastPaymentAmount,
                 planName = data.paymentPlan.planName,
-                memberName = data.profile.name,
-                memberId = data.profile.memberCode,
-                date = data.paymentPlan.lastPaymentDate
+                memberName = signedInPass.name,
+                memberId = signedInPass.memberId,
+                date = data.paymentPlan.lastPaymentDate,
+                isSettled = !duesPending
+            )
+        }
+
+        if (showAnalytics) {
+            DetailedAnalyticsBottomSheet(
+                sheetState = analyticsSheetState,
+                onDismissRequest = { showAnalytics = false },
+                memberName = signedInPass.name,
+                consistencyPercent = data.attendance.percent
+            )
+        }
+
+        selectedDay?.let { day ->
+            AttendanceDayBottomSheet(
+                day = day,
+                sheetState = daySheetState,
+                onDismissRequest = { selectedDay = null },
+                monthLabel = data.attendance.monthLabel
             )
         }
     }

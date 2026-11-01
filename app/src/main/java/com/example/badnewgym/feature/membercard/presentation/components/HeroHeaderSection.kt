@@ -132,7 +132,7 @@ fun HeroHeaderSection(
                         Text(
                             text = "MEMBER INTELLIGENCE",
                             color = Color(0xFFBAE6FD),
-                            fontSize = 8.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.5.sp,
                             modifier = Modifier.offset(y = (-2).dp)
@@ -197,7 +197,7 @@ fun HeroHeaderSection(
                                 Text(
                                     text = profile.unreadNotifications.toString(),
                                     color = Color.White,
-                                    fontSize = 9.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -291,7 +291,7 @@ fun HeroHeaderSection(
                     Text(
                         text = profile.greeting,
                         color = Color(0xFFBAE6FD),
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
 
@@ -306,7 +306,7 @@ fun HeroHeaderSection(
                     Text(
                         text = "${profile.memberCode}  |  ${profile.age} yrs  |  ${profile.gender}",
                         color = Color(0xFF93C5FD),
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
 
@@ -338,7 +338,7 @@ fun HeroHeaderSection(
                             Text(
                                 text = "Prime Plan",
                                 color = Color(0xFF92400E),
-                                fontSize = 10.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -363,7 +363,7 @@ fun HeroHeaderSection(
                             Text(
                                 text = "Active",
                                 color = Color.White,
-                                fontSize = 10.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -416,7 +416,7 @@ fun HeroHeaderSection(
                         Text(
                             text = "${profile.daysLeft} Days Left",
                             color = Color(0xFFBAE6FD),
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -448,13 +448,13 @@ fun HeroHeaderSection(
                         Text(
                             text = "Joined",
                             color = Color(0xFF93C5FD),
-                            fontSize = 8.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = profile.joinedDate,
                             color = Color.White,
-                            fontSize = 10.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -471,13 +471,13 @@ fun HeroHeaderSection(
                         Text(
                             text = "Goal",
                             color = Color(0xFF93C5FD),
-                            fontSize = 8.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = profile.goal,
                             color = Color.White,
-                            fontSize = 10.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -504,13 +504,13 @@ fun HeroHeaderSection(
                         Text(
                             text = "Branch",
                             color = Color(0xFF93C5FD),
-                            fontSize = 8.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = profile.branch,
                             color = Color.White,
-                            fontSize = 10.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -585,7 +585,7 @@ fun HeroHeaderSection(
                         Text(
                             text = title,
                             color = Color.White,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }

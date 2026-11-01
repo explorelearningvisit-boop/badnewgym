@@ -176,7 +176,7 @@ fun HeroProfileCard(
                             .clickable { onAvatarClick() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "\uD83D\uDC51", fontSize = 11.sp)
+                        Text(text = "\uD83D\uDC51", fontSize = 12.sp)
                     }
                 }
 
@@ -198,7 +198,7 @@ fun HeroProfileCard(
 
                     Text(
                         text = "BG305 | 23 yrs | Male",
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF64748B),
                         maxLines = 1,
@@ -228,7 +228,7 @@ fun HeroProfileCard(
                             )
                             Text(
                                 text = "Active Member",
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF059669),
                                 maxLines = 1,
@@ -246,10 +246,10 @@ fun HeroProfileCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Text(text = "\uD83D\uDC51", fontSize = 8.5.sp)
+                            Text(text = "\uD83D\uDC51", fontSize = 11.sp)
                             Text(
                                 text = "Prime Plan",
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFD97706),
                                 maxLines = 1,
@@ -274,7 +274,7 @@ fun HeroProfileCard(
                         Column {
                             Text(
                                 text = "\u201CBetter",
-                                fontSize = 10.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1E293B),
                                 maxLines = 1,
@@ -282,7 +282,7 @@ fun HeroProfileCard(
                             )
                             Text(
                                 text = "Than",
-                                fontSize = 10.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1E293B),
                                 maxLines = 1,
@@ -290,7 +290,7 @@ fun HeroProfileCard(
                             )
                             Text(
                                 text = "Yesterday\u201D",
-                                fontSize = 10.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1E293B),
                                 maxLines = 1,
@@ -313,13 +313,13 @@ fun HeroProfileCard(
                 ) {
                     Text(
                         text = "25 Days Left",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
                     Text(
                         text = " (4 Aug 2026 \u2013 12 Nov 2026)",
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF64748B)
                     )
@@ -351,7 +351,7 @@ fun HeroProfileCard(
                     }
                     Text(
                         text = "75%",
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF1E293B)
                     )
@@ -392,8 +392,8 @@ fun HeroProfileCard(
                             )
                         }
                         Column {
-                            Text(text = "Height", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                            Text(text = "178 cm", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                            Text(text = "Height", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                            Text(text = "178 cm", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                         }
                     }
 
@@ -412,15 +412,15 @@ fun HeroProfileCard(
                                 .background(Color(0xFFDCFCE7)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "\uD83C\uDFF7\uFE0F", fontSize = 11.sp)
+                            Text(text = "\uD83C\uDFF7\uFE0F", fontSize = 12.sp)
                         }
                         Column {
-                            Text(text = "Weight", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                            Text(text = "Weight", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Text(text = "69.5 kg", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                                Text(text = "69.5 kg", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                                 Column {
-                                    Text(text = "\u2193 2.5 kg", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
-                                    Text(text = "(vs last month)", fontSize = 5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                                    Text(text = "\u2193 2.5 kg", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                                    Text(text = "(vs last month)", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                                 }
                             }
                         }
@@ -441,19 +441,19 @@ fun HeroProfileCard(
                                 .background(Color(0xFFE0F2FE)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "\u2696\uFE0F", fontSize = 11.sp)
+                            Text(text = "\u2696\uFE0F", fontSize = 12.sp)
                         }
                         Column {
-                            Text(text = "BMI", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                            Text(text = "BMI", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Text(text = "21.9", fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                                Text(text = "21.9", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(50.dp))
                                         .background(Color(0xFFDCFCE7))
                                         .padding(horizontal = 4.dp, vertical = 1.dp)
                                 ) {
-                                    Text(text = "Normal", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF166534), maxLines = 1, softWrap = false)
+                                    Text(text = "Normal", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF166534), maxLines = 1, softWrap = false)
                                 }
                             }
                         }
@@ -474,11 +474,11 @@ fun HeroProfileCard(
                                 .background(Color(0xFFFFE4E6)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "\uD83C\uDFAF", fontSize = 11.sp)
+                            Text(text = "\uD83C\uDFAF", fontSize = 12.sp)
                         }
                         Column {
-                            Text(text = "Goal", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                            Text(text = "Lean Muscle", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                            Text(text = "Goal", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                            Text(text = "Lean Muscle", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                         }
                     }
                 }
@@ -504,7 +504,7 @@ private fun BentoTimeframeDropdownPill(text: String) {
     ) {
         Text(
             text = text,
-            fontSize = 7.5.sp,
+            fontSize = 10.5.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF334155),
             maxLines = 1,
@@ -574,7 +574,7 @@ fun AttendanceBentoCard(
                     Column {
                         Text(
                             text = "Attendance",
-                            fontSize = 12.5.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1,
@@ -582,7 +582,7 @@ fun AttendanceBentoCard(
                         )
                         Text(
                             text = "Oct 2026",
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B),
                             maxLines = 1,
@@ -601,16 +601,16 @@ fun AttendanceBentoCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    Text(text = "\u2039", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Text(text = "\u2039", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                     Text(
                         text = "Oct 2026",
-                        fontSize = 7.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF334155),
                         maxLines = 1,
                         softWrap = false
                     )
-                    Text(text = "\u203A", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Text(text = "\u203A", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                 }
             }
 
@@ -670,7 +670,7 @@ fun AttendanceBentoCard(
                     ) {
                         Text(
                             text = "85%",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1,
@@ -678,11 +678,11 @@ fun AttendanceBentoCard(
                         )
                         Text(
                             text = "Attendance\nRate",
-                            fontSize = 5.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B),
                             textAlign = TextAlign.Center,
-                            lineHeight = 6.5.sp,
+                            lineHeight = 10.sp,
                             maxLines = 2,
                             softWrap = false
                         )
@@ -718,7 +718,7 @@ fun AttendanceBentoCard(
                         Spacer(modifier = Modifier.height(1.dp))
                         Text(
                             text = "18",
-                            fontSize = 14.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1,
@@ -726,7 +726,7 @@ fun AttendanceBentoCard(
                         )
                         Text(
                             text = "Present",
-                            fontSize = 7.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF15803D),
                             maxLines = 1,
@@ -755,7 +755,7 @@ fun AttendanceBentoCard(
                         listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa").forEach { day ->
                             Text(
                                 text = day,
-                                fontSize = 6.5.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF64748B),
                                 modifier = Modifier.weight(1f),
@@ -827,7 +827,7 @@ fun AttendanceBentoCard(
                                         ) {
                                             Text(
                                                 text = "$dayNum",
-                                                fontSize = 6.5.sp,
+                                                fontSize = 10.sp,
                                                 fontWeight = if (status == 1 || status == 2) FontWeight.Black else FontWeight.Bold,
                                                 color = textColor,
                                                 maxLines = 1,
@@ -851,20 +851,20 @@ fun AttendanceBentoCard(
                 // Present
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
-                    Text(text = "Present ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "18", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981), maxLines = 1, softWrap = false)
+                    Text(text = "Present ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "18", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981), maxLines = 1, softWrap = false)
                 }
                 // Absent
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFEF4444)))
-                    Text(text = "Absent ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "1", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
+                    Text(text = "Absent ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "1", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
                 }
                 // Gym Off
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF94A3B8)))
-                    Text(text = "Off ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "5", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "Off ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "5", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
             }
 
@@ -877,17 +877,17 @@ fun AttendanceBentoCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(text = "\uD83D\uDD25", fontSize = 11.sp)
+                    Text(text = "\uD83D\uDD25", fontSize = 12.sp)
                     Column {
-                        Text(text = "Current Streak", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "6 Days", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "Current Streak", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "6 Days", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(text = "\uD83C\uDFC6", fontSize = 11.sp)
+                    Text(text = "\uD83C\uDFC6", fontSize = 12.sp)
                     Column {
-                        Text(text = "Best Streak", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "12 Days", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "Best Streak", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "12 Days", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
             }
@@ -945,7 +945,7 @@ fun WorkoutTrendBentoCard(
                     Column {
                         Text(
                             text = "Workout Trend",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1,
@@ -953,7 +953,7 @@ fun WorkoutTrendBentoCard(
                         )
                         Text(
                             text = "Last 30 Days",
-                            fontSize = 9.5.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B),
                             maxLines = 1,
@@ -980,7 +980,7 @@ fun WorkoutTrendBentoCard(
                     Column {
                         Text(
                             text = "\u2191 8%",
-                            fontSize = 10.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF16A34A),
                             maxLines = 1,
@@ -988,7 +988,7 @@ fun WorkoutTrendBentoCard(
                         )
                         Text(
                             text = "(vs previous 30 days)",
-                            fontSize = 7.sp,
+                            fontSize = 10.sp,
                             color = Color(0xFF64748B),
                             maxLines = 1,
                             softWrap = false
@@ -997,7 +997,7 @@ fun WorkoutTrendBentoCard(
                 }
                 Text(
                     text = "Avg per session",
-                    fontSize = 10.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF64748B),
                     maxLines = 1,
@@ -1014,9 +1014,9 @@ fun WorkoutTrendBentoCard(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.End
                     ) {
-                        Text(text = "90m", fontSize = 7.sp, color = Color(0xFF94A3B8))
-                        Text(text = "45m", fontSize = 7.sp, color = Color(0xFF94A3B8))
-                        Text(text = "0", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "90m", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                        Text(text = "45m", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                        Text(text = "0", fontSize = 10.sp, color = Color(0xFF94A3B8))
                     }
 
                     Spacer(modifier = Modifier.width(3.dp))
@@ -1078,7 +1078,7 @@ fun WorkoutTrendBentoCard(
                     listOf("1", "5", "10", "15", "20", "25", "30").forEach { mark ->
                         Text(
                             text = mark,
-                            fontSize = 6.5.sp,
+                            fontSize = 10.sp,
                             color = Color(0xFF94A3B8)
                         )
                     }
@@ -1094,14 +1094,14 @@ fun WorkoutTrendBentoCard(
                 // Workout
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF0284C7)))
-                    Text(text = "Workout ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "24 days", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7), maxLines = 1, softWrap = false)
+                    Text(text = "Workout ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "24 days", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7), maxLines = 1, softWrap = false)
                 }
                 // No Workout
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFCBD5E1)))
-                    Text(text = "No Workout ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "6 days", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "No Workout ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "6 days", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
             }
 
@@ -1115,26 +1115,26 @@ fun WorkoutTrendBentoCard(
             ) {
                 // 1. Total Workouts
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = "\u23F1\uFE0F", fontSize = 11.sp)
+                    Text(text = "\u23F1\uFE0F", fontSize = 12.sp)
                     Column {
-                        Text(text = "Total Workouts", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "24", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "Total Workouts", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "24", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
                 // 2. Best Session
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = "\uD83C\uDFC6", fontSize = 11.sp)
+                    Text(text = "\uD83C\uDFC6", fontSize = 12.sp)
                     Column {
-                        Text(text = "Best Session", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "92 min", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "Best Session", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "92 min", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
                 // 3. Current Streak
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = "\uD83D\uDD25", fontSize = 11.sp)
+                    Text(text = "\uD83D\uDD25", fontSize = 12.sp)
                     Column {
-                        Text(text = "Current Streak", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "8 Days", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "Current Streak", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "8 Days", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
             }
@@ -1193,7 +1193,7 @@ fun PaymentBentoCard(
                     Column {
                         Text(
                             text = "Payment",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1,
@@ -1201,7 +1201,7 @@ fun PaymentBentoCard(
                         )
                         Text(
                             text = "Last 12 Months",
-                            fontSize = 9.5.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B),
                             maxLines = 1,
@@ -1239,8 +1239,8 @@ fun PaymentBentoCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Text(text = "!", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color.White)
-                            Text(text = "Due", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(text = "!", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            Text(text = "Due", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
 
@@ -1263,7 +1263,7 @@ fun PaymentBentoCard(
                         )
                         Text(
                             text = "View Receipt",
-                            fontSize = 7.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2563EB),
                             maxLines = 1,
@@ -1274,7 +1274,7 @@ fun PaymentBentoCard(
 
                 Text(
                     text = "Next Due Date: 12 Nov 2026",
-                    fontSize = 9.5.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF64748B),
                     maxLines = 1,
@@ -1291,9 +1291,9 @@ fun PaymentBentoCard(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.End
                     ) {
-                        Text(text = "\u20B93k", fontSize = 7.sp, color = Color(0xFF94A3B8))
-                        Text(text = "\u20B91.5k", fontSize = 7.sp, color = Color(0xFF94A3B8))
-                        Text(text = "0", fontSize = 7.sp, color = Color(0xFF94A3B8))
+                        Text(text = "\u20B93k", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                        Text(text = "\u20B91.5k", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                        Text(text = "0", fontSize = 10.sp, color = Color(0xFF94A3B8))
                     }
 
                     Spacer(modifier = Modifier.width(4.dp))
@@ -1375,7 +1375,7 @@ fun PaymentBentoCard(
                     listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { lbl ->
                         Text(
                             text = lbl,
-                            fontSize = 6.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B),
                             modifier = Modifier.weight(1f),
@@ -1396,26 +1396,26 @@ fun PaymentBentoCard(
                 // Paid
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
-                    Text(text = "Paid ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "8 mo", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981), maxLines = 1, softWrap = false)
+                    Text(text = "Paid ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "8 mo", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981), maxLines = 1, softWrap = false)
                 }
                 // Partial
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFF59E0B)))
-                    Text(text = "Partial ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "2 mo", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF59E0B), maxLines = 1, softWrap = false)
+                    Text(text = "Partial ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "2 mo", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF59E0B), maxLines = 1, softWrap = false)
                 }
                 // Due
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFEF4444)))
-                    Text(text = "Due ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "2 mo", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
+                    Text(text = "Due ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "2 mo", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
                 }
                 // No Data
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF94A3B8)))
-                    Text(text = "No Data ", fontSize = 6.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                    Text(text = "-", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "No Data ", fontSize = 10.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "-", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
             }
 
@@ -1429,10 +1429,10 @@ fun PaymentBentoCard(
             ) {
                 // 1. Total Paid
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = "\uD83D\uDCB3", fontSize = 11.sp)
+                    Text(text = "\uD83D\uDCB3", fontSize = 12.sp)
                     Column {
-                        Text(text = "Total Paid", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "\u20B912,600", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "Total Paid", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "\u20B912,600", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
                 // 2. Avg / Month
@@ -1444,18 +1444,18 @@ fun PaymentBentoCard(
                         modifier = Modifier.size(10.dp)
                     )
                     Column {
-                        Text(text = "Avg / Month", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "\u20B91,050", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "Avg / Month", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "\u20B91,050", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
                 }
                 // 3. Next Due
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = "\uD83D\uDD52", fontSize = 11.sp)
+                    Text(text = "\uD83D\uDD52", fontSize = 12.sp)
                     Column {
-                        Text(text = "Next Due", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "Next Due", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text(text = "12 Nov", fontSize = 8.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
-                            Text(text = "(25d left)", fontSize = 6.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
+                            Text(text = "12 Nov", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                            Text(text = "(25d left)", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444), maxLines = 1, softWrap = false)
                         }
                     }
                 }
@@ -1514,7 +1514,7 @@ fun BodyProgressBentoCard(
                     Column {
                         Text(
                             text = "Body Progress",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1,
@@ -1522,7 +1522,7 @@ fun BodyProgressBentoCard(
                         )
                         Text(
                             text = "Last 12 Months",
-                            fontSize = 9.5.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B),
                             maxLines = 1,
@@ -1549,11 +1549,11 @@ fun BodyProgressBentoCard(
                         .padding(horizontal = 2.dp, vertical = 2.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
-                        Text(text = "\uD83D\uDCE6", fontSize = 6.5.sp)
-                        Text(text = "69.5 kg", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "\uD83D\uDCE6", fontSize = 10.sp)
+                        Text(text = "69.5 kg", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
-                    Text(text = "\u2193 2.5 kg", fontSize = 5.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
-                    Text(text = "Weight", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "\u2193 2.5 kg", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                    Text(text = "Weight", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
 
                 // 2. Muscle
@@ -1566,11 +1566,11 @@ fun BodyProgressBentoCard(
                         .padding(horizontal = 2.dp, vertical = 2.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
-                        Text(text = "\uD83D\uDCAA", fontSize = 6.5.sp)
-                        Text(text = "57.2 kg", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "\uD83D\uDCAA", fontSize = 10.sp)
+                        Text(text = "57.2 kg", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
-                    Text(text = "\u2191 1.4 kg", fontSize = 5.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
-                    Text(text = "Muscle Mass", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "\u2191 1.4 kg", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                    Text(text = "Muscle Mass", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
 
                 // 3. Body Fat
@@ -1583,11 +1583,11 @@ fun BodyProgressBentoCard(
                         .padding(horizontal = 2.dp, vertical = 2.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
-                        Text(text = "\uD83D\uDD25", fontSize = 6.5.sp)
-                        Text(text = "17.6 %", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "\uD83D\uDD25", fontSize = 10.sp)
+                        Text(text = "17.6 %", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
-                    Text(text = "\u2193 1.2 %", fontSize = 5.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
-                    Text(text = "Body Fat", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "\u2193 1.2 %", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                    Text(text = "Body Fat", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
 
                 // 4. Waist
@@ -1600,11 +1600,11 @@ fun BodyProgressBentoCard(
                         .padding(horizontal = 2.dp, vertical = 2.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
-                        Text(text = "\uD83E\uDE90", fontSize = 6.5.sp)
-                        Text(text = "81 cm", fontSize = 7.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
+                        Text(text = "\uD83E\uDE90", fontSize = 10.sp)
+                        Text(text = "81 cm", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), maxLines = 1, softWrap = false)
                     }
-                    Text(text = "\u2193 4 cm", fontSize = 5.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
-                    Text(text = "Waist", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "\u2193 4 cm", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                    Text(text = "Waist", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
             }
 
@@ -1617,10 +1617,10 @@ fun BodyProgressBentoCard(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.End
                     ) {
-                        Text(text = "90kg", fontSize = 6.5.sp, color = Color(0xFF94A3B8))
-                        Text(text = "60kg", fontSize = 6.5.sp, color = Color(0xFF94A3B8))
-                        Text(text = "30kg", fontSize = 6.5.sp, color = Color(0xFF94A3B8))
-                        Text(text = "0", fontSize = 6.5.sp, color = Color(0xFF94A3B8))
+                        Text(text = "90kg", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                        Text(text = "60kg", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                        Text(text = "30kg", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                        Text(text = "0", fontSize = 10.sp, color = Color(0xFF94A3B8))
                     }
 
                     Spacer(modifier = Modifier.width(3.dp))
@@ -1711,10 +1711,10 @@ fun BodyProgressBentoCard(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.Start
                     ) {
-                        Text(text = "30%", fontSize = 6.5.sp, color = Color(0xFFEF4444))
-                        Text(text = "20%", fontSize = 6.5.sp, color = Color(0xFFEF4444))
-                        Text(text = "10%", fontSize = 6.5.sp, color = Color(0xFFEF4444))
-                        Text(text = "0%", fontSize = 6.5.sp, color = Color(0xFFEF4444))
+                        Text(text = "30%", fontSize = 10.sp, color = Color(0xFFEF4444))
+                        Text(text = "20%", fontSize = 10.sp, color = Color(0xFFEF4444))
+                        Text(text = "10%", fontSize = 10.sp, color = Color(0xFFEF4444))
+                        Text(text = "0%", fontSize = 10.sp, color = Color(0xFFEF4444))
                     }
                 }
 
@@ -1728,7 +1728,7 @@ fun BodyProgressBentoCard(
                     listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec").forEach { lbl ->
                         Text(
                             text = lbl,
-                            fontSize = 5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B),
                             modifier = Modifier.weight(1f),
@@ -1749,22 +1749,22 @@ fun BodyProgressBentoCard(
                 // Weight
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF10B981)))
-                    Text(text = "Weight (kg)", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "Weight (kg)", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
                 // Muscle
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF0284C7)))
-                    Text(text = "Muscle (kg)", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "Muscle (kg)", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
                 // Body Fat
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFF59E0B)))
-                    Text(text = "Body Fat (%)", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "Body Fat (%)", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
                 // Waist
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFF8B5CF6)))
-                    Text(text = "Waist (cm)", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                    Text(text = "Waist (cm)", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                 }
             }
 
@@ -1778,27 +1778,27 @@ fun BodyProgressBentoCard(
             ) {
                 // 1. Strength
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = "\uD83D\uDCCA", fontSize = 11.sp)
+                    Text(text = "\uD83D\uDCCA", fontSize = 12.sp)
                     Column {
-                        Text(text = "Strength", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "+18%", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
-                        Text(text = "(Est. 1RM)", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "Strength", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "+18%", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                        Text(text = "(Est. 1RM)", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                     }
                 }
                 // 2. Endurance
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = "\u2764\uFE0F", fontSize = 11.sp)
+                    Text(text = "\u2764\uFE0F", fontSize = 12.sp)
                     Column {
-                        Text(text = "Endurance", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
-                        Text(text = "+22%", fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
-                        Text(text = "(Avg Cardio Time)", fontSize = 5.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "Endurance", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "+22%", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A), maxLines = 1, softWrap = false)
+                        Text(text = "(Avg Cardio Time)", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                     }
                 }
                 // 3. Overall Progress
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = "\uD83D\uDCC8", fontSize = 11.sp)
+                    Text(text = "\uD83D\uDCC8", fontSize = 12.sp)
                     Column(horizontalAlignment = Alignment.Start) {
-                        Text(text = "Overall Progress", fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
+                        Text(text = "Overall Progress", fontSize = 10.5.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
                         Spacer(modifier = Modifier.height(1.dp))
                         Box(
                             modifier = Modifier
@@ -1808,7 +1808,7 @@ fun BodyProgressBentoCard(
                         ) {
                             Text(
                                 text = "On Track",
-                                fontSize = 7.5.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White,
                                 maxLines = 1,
@@ -1859,7 +1859,7 @@ fun ThemePickerDialog(
                         )
                         Text(
                             text = "All 8 canonical presets from mockup",
-                            fontSize = 11.5.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8)
                         )
@@ -1872,7 +1872,7 @@ fun ThemePickerDialog(
                             .clickable { onDismiss() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "\u2715", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(text = "\u2715", fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -1919,7 +1919,7 @@ fun ThemePickerDialog(
                                 ) {
                                     Text(
                                         text = theme.id,
-                                        fontSize = 12.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = FontWeight.Black,
                                         color = Color.White
                                     )
@@ -1928,13 +1928,13 @@ fun ThemePickerDialog(
                                 Column {
                                     Text(
                                         text = theme.title,
-                                        fontSize = 13.sp,
+                                        fontSize = 14.sp,
                                         fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                                         color = if (isSelected) Color.White else Color(0xFFE2E8F0)
                                     )
                                     Text(
                                         text = "${theme.badge} \u2022 ${itemPalette.stats.goal} \u2022 ${itemPalette.stats.totalVisits} visits",
-                                        fontSize = 10.5.sp,
+                                        fontSize = 12.sp,
                                         color = if (isSelected) itemPalette.themeAccent else Color(0xFF94A3B8)
                                     )
                                 }
@@ -2015,7 +2015,7 @@ fun AttendanceDetailsDialog(
                             )
                             Text(
                                 text = "Monthly attendance overview & logs",
-                                fontSize = 10.sp,
+                                fontSize = 11.5.sp,
                                 color = Color(0xFF64748B)
                             )
                         }
@@ -2053,14 +2053,14 @@ fun AttendanceDetailsDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text(text = "\u2039", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                        Text(text = "\u2039", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                         Text(
                             text = "October 2026",
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF1E293B)
                         )
-                        Text(text = "\u203A", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                        Text(text = "\u203A", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                     }
                 }
 
@@ -2116,7 +2116,7 @@ fun AttendanceDetailsDialog(
                             )
                             Text(
                                 text = "Rate",
-                                fontSize = 8.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFF64748B)
                             )
@@ -2140,9 +2140,9 @@ fun AttendanceDetailsDialog(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Text(text = "\u2713", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A))
-                                Text(text = "18", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                                Text(text = "Present", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
+                                Text(text = "\u2713", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFF16A34A))
+                                Text(text = "18", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text(text = "Present", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
                             }
                         }
 
@@ -2158,9 +2158,9 @@ fun AttendanceDetailsDialog(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Text(text = "!", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
-                                Text(text = "1", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                                Text(text = "Absent", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFFDC2626))
+                                Text(text = "!", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFFDC2626))
+                                Text(text = "1", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text(text = "Absent", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFDC2626))
                             }
                         }
 
@@ -2176,9 +2176,9 @@ fun AttendanceDetailsDialog(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Text(text = "\uD83C\uDFD6\uFE0F", fontSize = 11.sp)
-                                Text(text = "5", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                                Text(text = "Off", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                                Text(text = "\uD83C\uDFD6\uFE0F", fontSize = 12.sp)
+                                Text(text = "5", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                                Text(text = "Off", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
                             }
                         }
                     }
@@ -2203,7 +2203,7 @@ fun AttendanceDetailsDialog(
                             listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa").forEach { day ->
                                 Text(
                                     text = day,
-                                    fontSize = 9.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF64748B),
                                     modifier = Modifier.weight(1f),
@@ -2256,7 +2256,7 @@ fun AttendanceDetailsDialog(
                                             ) {
                                                 Text(
                                                     text = "$dayNum",
-                                                    fontSize = 9.sp,
+                                                    fontSize = 11.sp,
                                                     fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                                                     color = textColor
                                                 )
@@ -2284,13 +2284,13 @@ fun AttendanceDetailsDialog(
                         Column {
                             Text(
                                 text = "Day $selectedDay • 16 Oct 2026",
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF065F46)
                             )
                             Text(
                                 text = "In: 06:10 AM • Out: 07:42 AM • Workout: 62 min",
-                                fontSize = 9.5.sp,
+                                fontSize = 11.5.sp,
                                 color = Color(0xFF047857)
                             )
                         }
@@ -2302,7 +2302,7 @@ fun AttendanceDetailsDialog(
                         ) {
                             Text(
                                 text = "Present",
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )

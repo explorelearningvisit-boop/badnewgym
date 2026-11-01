@@ -118,11 +118,11 @@ fun BadGymPassShowcase(
                                     BadGymPassTier.DIAMOND -> "💎"
                                     BadGymPassTier.ELITE -> "👑"
                                 },
-                                fontSize = 11.5.sp
+                                fontSize = 13.sp
                             )
                             Text(
                                 text = tier.title,
-                                fontSize = 11.5.sp,
+                                fontSize = 13.sp,
                                 fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                                 color = if (isSelected) Color.White else Color(0xFF334155)
                             )

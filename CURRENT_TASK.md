@@ -56,6 +56,118 @@ inspect → implement atomic component → build → run → screenshot → comp
 Do not report completion from compilation alone.
 Completion requires the new UI, widget editor architecture, admin command center integration point, real data/entitlement behavior, responsive 300×550dp target, screenshot verification and a verified commit on main.
 
+## VERIFIED MILESTONE — COMPACT TINTED CARD DASHBOARD, UNIFORM MENU RAIL & FULLY WIRED MEMBER INTELLIGENCE
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Goal set by user**: raise every dashboard font, compress each card vertically so the board is shorter, give all menu widgets one fixed height, frame all dashboard content in bordered cards, add gentle context-relevant background colours like the workout and payment widgets, make every option actually work, and call the system production ready.
+- **Live Device Screenshot Evidence**:
+  - One-viewport dashboard with every section in a tinted bordered card: [docs/reference/images/final_top.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_top.png)
+  - Tab states: [Workout](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/v5_workout.png) · [Payment](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_payment.png) · [Body](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_body.png)
+  - Working sheets: [Attendance day log](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_day_sheet.png) · [Analytics](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_analytics.png) · [Receipt](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/final_receipt.png)
+- **Deliverables Implemented & Verified**:
+  1. **Type scale raised everywhere**: a 1.10 numeric pass over every `X.sp` literal in `InfographicMasterComponents.kt` (letter-spacing excluded) plus a 1.12/1.05 pass over the three tab bodies. Geometry grew with it: card bands 46/56/48/52dp, dock 52dp, attendance week rows 30dp, day circles 23dp inside 25dp hit boxes, trend plot 120dp, bars 22dp.
+  2. **Vertically compact**: the entire board — member card → dock → attendance → trend with four KPI pods — fits a single 1080×2400 viewport with ~50dp spare, LazyColumn spacing at 7dp and a 6dp tail spacer.
+  3. **One fixed menu height**: `MenuRow4Tabs` is a bordered white `Surface` (16dp corners, `#D3EAE2` hairline, 3dp padding) holding four equal `weight(1f)` tiles at a hard `height(52.dp)` each, so all four widgets are pixel-identical whatever their value or check state.
+  4. **Bordered card language**: `GlassCard` gained gradient washes and gradient edges — `MemberWash`/`MemberEdgeBrush` (mint→sky) for the member card, `SkyWash`/`SkyEdgeBrush` (`#F0F9FF` → `#BAE6FD`, matching the workout widget) for attendance, `VioletWash`/`VioletEdgeBrush` for the trend. Every dashboard section is now a bordered, tinted card in the same family as the workout (`#F0F9FF`/`#BAE6FD`) and payment (`#FFF9F9`/`#FECDD3`) widgets.
+  5. **Every option works**: card affordances route to real destinations (attendance/workout/body → analytics sheet, payment → receipt), attendance day taps open a month-correct day log (`AttendanceDayBottomSheet(monthLabel)`), the month pager pages a real 12-month history (archived months render a rate/attended/missed panel with a day-by-day entry point), the trend range pill switches 6/12 months, and both sheet actions share real content (`ACTION_SEND` "Share Report" / "Share Receipt").
+  6. **Workout chart made truthful**: peak/trough bars, their floating badges, the three dashed guidelines and the four-tier legend counts are all derived from `workoutTrend.bars` (previously hardcoded 120m/25m/8 d/12 d/2 d/8 d and fixed indices 14/4). Legend restructured to a 2×2 grid so the enlarged labels cannot overflow.
+  7. **Receipt made truthful**: `ReceiptBottomSheet` now takes invoice/member identity/plan/settled state from the record, hides rows it cannot know (no fabricated transaction id or validity window), computes base + CGST + SGST from the amount actually charged so the tax lines always sum to the total (₹677.97 + ₹61.02 + ₹61.01 = ₹800), and prints "Payment Recorded • Balance Pending" when dues remain instead of claiming a full settlement. Its dead "Download Receipt" button was replaced by a working share action.
+  8. **Consistency fixes**: header `isPlanPaid` is dues-aware (header can no longer say "Paid" while the payment tab says "Pending"); analytics sheet consistency reads the real attendance percent instead of a hardcoded 92%; the sheets print the same identity as the header (`BadGymMemberPass.getAll9Passes().first()`); calendar emoji that rendered as a garbled glyph on device were replaced with plain text or `✓`.
+  9. **Overflow sweep on the legacy tab bodies**: workout legend 2×2, body tab metric legend 2×2, Body-tab chips re-fitted ("Body Fat" no longer clipped), "Bench Press 80 kg" / "Goal 66.0kg" / "Unpaid" re-worded so no label breaks mid-word or clips.
+- **Verification**:
+  - Compile/Build: `./gradlew assembleDebug` PASSED (1m 40s, 1m 17s, 1m 26s, 1m 20s, 3m 54s across the tuning passes).
+  - Unit Tests: `./gradlew testDebugUnitTest` PASSED (4m 03s combined run, 1m 21s final run).
+  - Device: Xiaomi 11i 5G (`zxdada69gunb7ls4`, 1080×2400, density 440) — installed and verified on all four tabs plus the attendance day log, analytics sheet and receipt sheet.
+  - Temp `.tmp_*` splice/scale scripts and fragment files removed. No commit created (awaiting explicit request).
+
+## VERIFIED MILESTONE — PACKED SINGLE-CARD GLASS DASHBOARD, TYPE SCALE UP & ONE-VIEWPORT FIT
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Goal set by user**: raise all text to a properly legible size, fix the colour combination, compress the whole dashboard vertically so the member card plus tabs plus attendance plus trend fit one viewport, shrink the tab dock to only its required content, merge the BAD GYM header through the Overall Status strip into a **single** card, use properly optimised borders, enlarge the sponsor/ad slots into the available space, and make attendance circles small with number-only coverage.
+- **Live Device Screenshot Evidence**:
+  - One-viewport dashboard (packed card → dock → attendance → trend, ~90dp spare): [docs/reference/images/packed_final_top.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/packed_final_top.png)
+  - Tab states: [Workout](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/packed_tab_workout.png) · [Payment](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/packed_tab_payment.png) · [Body](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/packed_tab_body.png)
+- **Key Deliverables Implemented & Verified**:
+  1. **One card, five bands** (`UnifiedBadGymMemberCard`): header → profile → biometrics → membership progress → overall status now live inside a single `GlassCard` separated by 1dp `BandDivider` hairlines. The standalone `OverallStatusStrip` surface was removed and its labels are passed into the card. Vertical cost fell from ~330dp of five stacked cards to **~236dp**.
+  2. **Glass/neumorphic shell** (`GlassCard`): frosted vertical `GlassFill` (white → mint, 0xFC→0xF0 alpha), lit `GlassEdge` gradient border (`#FFFFFF → #D3E8E2`) instead of a flat hairline, and a 4dp soft shadow — glass on top, neumorphic lift underneath.
+  3. **Type scale up across the whole dashboard**: micro-labels 5–7.2sp → 8–9sp, secondary values 7–9sp → 8.6–9.6sp, primary values 9–13.5sp → 11–15sp. Header label 9.8 → 10.4sp, paid amount 11.5 → 12.5sp, name 15.5 → 15sp (tighter tracking), status chips 6.8 → 8.8sp, tab titles 8.2 → 9.2sp / values 10 → 11sp, attendance legend 7.6 → 9sp, trend bar labels 6 → 7.6sp / 5.4 → 6.8sp, month labels 6.6 → 8.4sp, KPI values 11 → 12.5sp.
+  4. **Colour combination fixed**: `Ink #081A15`, `InkSoft #2C4741`, `Muted #6C8480 → #52706A` (5.1:1 on white), `Hairline #D5E7E2`; Sunday ink `#7C908B`; trend axis `#8AA39E`. Every muted label is now readable instead of washed out.
+  5. **Tab dock shrunk to content** (`MenuRow4Tabs`): 54dp → **46dp**, 24dp icon tiles, 9.2sp/11sp type, 14dp corners — still four cards with 3D icons, accent values and emerald paid checks.
+  6. **Attendance compressed** (`AttendanceSection`): header band 40dp with an enlarged `MYPROTEIN` ad pill (18dp bottle glyph, 8.8sp wordmark, 6.4sp strapline) and 9sp month pager; hero column 86dp wide (40dp 3D calendar, 24sp rate, 9sp `25 / 31 Days`, 9sp legend rows); grid rows 24dp with **20dp number-only circles**; payment markers are now 6dp corner dots (emerald = paid 1, red = due 16) instead of stacked badges, so no vertical space is spent on them.
+  7. **Trend compressed and enlarged where it pays** (`MonthlyTrendSection`): 40dp header with bigger `blinkit` pill and a `12 mo` range pill, caption shortened to `Nov 2025 – Oct 2026`; plot **84dp** (grew from 68dp using recovered space), 7.6sp/6.8sp in-bar labels, 8.4sp months, 5.8sp `BEST`/`↓ LOW` callouts, dashed amber average line at 81%, four KPI pods at 7.8sp/12.5sp.
+  8. **Data Integrity**: all values still derive from `MemberCardData.sampleAshwiniSingh()`; the due/paid day dots are projected from `currentDueDate` / `lastPaymentDate`.
+- **Verification**:
+  - Compile/Build: `./gradlew assembleDebug` PASSED (1m 22s, rebuild 1m 4s / 1m 7s).
+  - Unit Tests: `./gradlew testDebugUnitTest` PASSED (50s).
+  - Device: Xiaomi 11i 5G (`21091116I` / `zxdada69gunb7ls4`, 1080×2400) — installed, launched, screenshotted at rest and on all four tabs (dock hit area y≈820 after the compaction).
+  - Temp splice/crop scripts removed. No commit created (awaiting explicit request).
+
+## VERIFIED MILESTONE — ICE-MINT GLASS DASHBOARD REDESIGN (FULL-SCREEN REFERENCE MOCK)
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Reference**: User-supplied 1024×1536 full-dashboard mock, ice-mint glassmorphism language — pale mint page gradient, white glass cards, glossy emerald `TRAINER CHECK-IN` stadium, 4 biometric pods, `Membership Progress` with `73.3% Used`, `Overall Status` strip, 4 white glass tabs with 3D icons + green paid checks, glass `Attendance` card with vertical legend and `DUE`/`Paid` day badges, glass `Monthly Attendance Trend` with `👑 BEST` / `↓ LOW` callouts, dashed amber average line and 4 KPI pods.
+- **Live Device Screenshot Evidence**:
+  - Top of dashboard (glass header, profile, biometric pods, membership progress, status strip, tab dock): [docs/reference/images/glass_final_top.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/glass_final_top.png)
+  - Scrolled stack (attendance grid, weekday chips, `DUE`/`Paid` badges, trend bars + KPI pods): [docs/reference/images/glass_final_trend.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/glass_final_trend.png)
+  - Tab states: [Workout](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/glass_tab_workout.png) · [Payment](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/glass_tab_payment.png) · [Body](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/glass_tab_body.png)
+- **Key Deliverables Implemented & Verified**:
+  1. **Glass token system** (`InfographicTokens`): mint canvas gradient `#E1F6F0 → #ECF4FE → #E6F7F0`, `Surface 0xF7FFFFFF`, `SurfaceSoft 0xE6FFFFFF`, `Ink #0A201A`, `Hairline #DCEBE7`, `Emerald #10B981`, `EmeraldDeep #0B8A61`, `Cyan #22C3E6`; every legacy alias retained so untouched widgets keep compiling.
+  2. **Glass header** (`TopHeaderComponent`): 58dp white glass surface (22dp radius, hairline border, 2dp shadow) — crown, `BAD` + emerald `GYM`, `Member Intelligence`, divider, glossy emerald stadium `TRAINER CHECK-IN / Today • 08:49 AM` with fingerprint watermark, white `₹ 2,800 ✓ Paid` capsule. Label binds to card type (`CHECK-IN` / `PAYMENT UPDATE` / `MEMBER PASS`).
+  3. **Glass profile card** (`ProfileSection`): 74dp avatar with emerald ring + `● Active` pill, name, `BG215 | 28 Years | Male` meta row with icon separators, pills `💎 Gold Plan`, `₹2,800 / 30 Days`, `⟳ Auto Renew ON`.
+  4. **Biometric pods** (`StatsRowCompact`): Height, Weight `69.5 kg` + delta chip, BMI `22.8` + `Normal` chip, Goal + `Regular Training` subtitle — 3D ruler/scale/chart/target icons, hairline dividers.
+  5. **Membership Progress** (`FullWidthDaysProgressCard`): 3D calendar squircle, `Membership Progress`, `09 Oct – 07 Nov 2026`, `22 Days Elapsed of 30`, 21dp mint→cyan bar with centered `73.3% Used`, `8 Days Left` pill.
+  6. **Overall status strip** (`OverallStatusStrip`): `Overall Status : On Track | Payment Paid | Attendance 81% | Weight ↓ 2.5 kg` with check/warning glyph states.
+  7. **Glass tab dock** (`MenuRow4Tabs` / `GlassTabItem`): 54dp row of 4 white glass cards, 23dp tinted 3D icon squares (calendar / dumbbell / wallet / body badge), accent value text, green check circle on paid tabs, accent border on selection.
+  8. **Glass Attendance card** (`AttendanceSection`): 3D calendar + `Attendance` + `MYPROTEIN` sponsor pill + month pager; hero `81%` / `25 / 31 Days`; vertical legend Present 23 / Late 2 / Absent 2 / Holiday 4; weekday chips; 27dp day tokens with `DUE` / `Paid` pills (paid day from `lastPaymentDate`, due day from `currentDueDate`, matched to `attendance.monthLabel` via regex).
+  9. **Glass Monthly Attendance Trend** (`MonthlyTrendSection`): 3D bar badge + title + `Last 12 Months (Nov 2025 – Oct 2026)` + blinkit pill; y-axis `100% → 0%`; `👑 BEST` above the max month, `↓ LOW` above the min; 16dp rounded bars with `%` and `(Nd)` inside; dashed amber average line; 4 KPI pods `Best 97% (Jan)` / `Average 81%` / `Min 58% (Mar)` / `Max 97%`.
+  10. **Data Integrity**: all displayed values derive from `MemberCardData.sampleAshwiniSingh()`; intentional data-driven deviations from the mock are `Gold Plan` (data) vs mock `Diamond Plan`, `Fat Loss` (data) vs mock `General Fitness`, and badge days `1` / `16` derived from the real payment dates instead of the mock's fixed `9` and `5`/`31`.
+- **Verification**:
+  - Compile: `./gradlew compileDebugKotlin` PASSED (1m 5s).
+  - Build: `./gradlew assembleDebug` PASSED (56s, rebuild 1m 7s).
+  - Unit Tests: `./gradlew testDebugUnitTest` PASSED (29s).
+  - Device: Xiaomi 11i 5G (`21091116I` / `zxdada69gunb7ls4`, 1080×2400) — installed, launched, screenshotted at rest, scrolled to the trend card, and all four tabs tapped (dock hit area y≈1000).
+  - Temp splice scripts/fragments removed; `CURRENT_TASK.md` ledger updated. No commit created (awaiting explicit user request).
+
+## VERIFIED MILESTONE — GRADIENT HEADER LANGUAGE, SPONSOR SLOTS & TAB-DOCK FIT FIX
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Reference**: Two user-supplied screenshots — violet→magenta→orange member header with rainbow days bar and 4-tab dock; pink `Attendance` header with `Stay Fit with MYPROTEIN [AD]` sponsor pill and `‹ Oct 2026 ›`; pastel-aurora `Attendance trend` header with blinkit sponsor pill and `12 months ⌄`.
+- **Live Device Screenshot Evidence**:
+  - Top of dashboard (header, days card, tab dock, pink attendance card): [docs/reference/images/gradient_tabs_clipped_fixed.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/gradient_tabs_clipped_fixed.png)
+  - Scrolled stack (calendar grid, KPI pods, candle chart, bottom legend): [docs/reference/images/gradient_tabs_fixed_scrolled.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/gradient_tabs_fixed_scrolled.png)
+- **Key Deliverables Implemented & Verified**:
+  1. **Member header** (`TopHeaderComponent`): royal-violet → magenta → coral → amber `HeaderGradient`, gold crown, `BAD` white + `GYM` gold, translucent white `CHECK-IN` capsule, white ₹2,800 capsule, 3D flexing character peeking at the right edge inside a `Box`.
+  2. **Days progress card** (`FullWidthDaysProgressCard`): white porcelain card with emerald calendar badge, `22 / 30 days used`, rainbow `ThinProgressGradient` bar on `#F1F5F9` track, `8 days left` + `73%`.
+  3. **Pink attendance header** (`AttendancePinkHeader`): magenta→coral→amber gradient ribbon, white calendar squircle, `Attendance` / `Daily check-ins • Mon – Sun`, `SponsoredPill("Stay Fit with","MYPROTEIN")` ad slot and `MonthPagerPill`. Card surface white with `#FBCFE8` border.
+  4. **Aurora trend header** (`TrendAuroraHeader`): pastel aurora ribbon, dark ink titles `Attendance trend` / `Attendance rate by month`, white bar-chart squircle, `BlinkitPill()` (`blinkit` + `Healthy Snacks` / `For Better Workouts` + `AD` badge) and self-contained `12 months ⌄` dropdown. Card border `#DDD6FE`.
+  5. **Tab dock fit fix** (`NewMenuTabItem`): icon badge 26dp → 22dp, row gaps 4dp → 3dp, title 10sp → 8.6sp (`softWrap = false`, `TextOverflow.Clip`), value 13.5sp → 12sp — `Attendance`, `Workout`, `Payment`, `Body` now render in full with their values.
+  6. **Scroll containment** (`MasterStoryboardDashboard`): `Modifier.clipToBounds()` on the pinned-tab section `LazyColumn` so scrolled cards cannot bleed above the dock.
+  7. **Data Integrity**: all counts, percentages, months and day tokens still derive from `MemberCardData.sampleAshwiniSingh()`.
+- **Verification**:
+  - Unit Tests: `./gradlew testDebugUnitTest` PASSED.
+  - Build: `./gradlew assembleDebug` PASSED (1m 44s combined run).
+  - Device: Xiaomi 11i 5G (`21091116I` / `zxdada69gunb7ls4`, 1080×2400) — installed, launched, screenshotted at rest and scrolled.
+
+## VERIFIED MILESTONE — BLUE ATTENDANCE INTELLIGENCE CARDS (REFERENCE `81c0ad7f/l8fnt6k2-a49f4e55.png`)
+- **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
+- **Reference**: User-supplied cropped design — blue `Attendance` card + `Monthly Attendance Trend` card.
+- **Live Device Screenshot Evidence**:
+  - Full card stack: [docs/reference/images/attendance_blue_live.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/attendance_blue_live.png)
+  - Scrolled trend card with reference legend: [docs/reference/images/attendance_blue_live_scrolled.png](file:///c:/Users/User/AndroidStudioProjects/badnewgym/docs/reference/images/attendance_blue_live_scrolled.png)
+- **Key Deliverables Implemented & Verified**:
+  1. **Blue Attendance Card** (`AttendanceSection`, `InfographicMasterComponents.kt`):
+     - Royal-blue → cyan gradient header (`#1D4ED8` → `#2F6BFF` → `#22C3E6`) with white calendar squircle badge, `Attendance` title and white `‹ Oct 2026 ›` pager pill.
+     - Five-status legend ribbon inside a white 12dp pill with `#DBEAFE` hairline: Present / Absent / Holiday / Sunday / Not Member, each with live count and percentage (`25 (81%)`, `2 (6%)`, `0 (0%)`, `4 (13%)`, `0 (0%)`).
+     - Hero column: 3D calendar illustration + `81%` in emerald + `25 / 31 Days`.
+     - 7-column Mon–Sun grid with 26dp status tokens (Present emerald, Late amber, Absent red, Sunday soft grey), today ring in brand blue.
+     - Card surface `#FBFDFF` with `#BFDBFE` border, 20dp corners; tap anywhere opens attendance details, tap a day opens the day record.
+  2. **Monthly Attendance Trend Card** (`MonthlyTrendSection`):
+     - Matching blue gradient header with bar-chart squircle badge, `Monthly Attendance Trend` title and `12 Months ⌄` white pill (6/12-month dropdown retained).
+     - Three KPI pods above the chart: Best Day `30d (Jan) 97%`, Average `24.8d 81%`, Min Day `18d (Mar) 58%`.
+     - Y-axis `100% / 75% / 50% / 25% / 0%`, 12 candle bars with day counts inside (`30d`, `24d`, `18d` …), percentage labels above, `Best` / `Min` callout badges, and three dashed reference lines (Max 97% green, Avg 81% amber, Min 58% red).
+     - Bottom legend: `● Days Present (%)`, `--- Average (81%)`, `--- Min (58%)`, `--- Max (97%)`.
+  3. **Data Integrity**: every value derives from `MemberCardData.sampleAshwiniSingh()` — no hardcoded display numbers.
+- **Verification**:
+  - Unit Tests: `./gradlew testDebugUnitTest` PASSED (1m 21s).
+  - Build: `./gradlew assembleDebug` PASSED (7m 45s).
+  - Device: Xiaomi 11i 5G (`21091116I` / `zxdada69gunb7ls4`, 1080×2400) — installed, launched, screenshotted.
+
 ## VERIFIED MILESTONE — THREE-SECTION REFERENCE-DRIVEN MEMBER INTELLIGENCE (`media_1793376151174_5cd06942.jpg`)
 - **Status**: VERIFIED & DEPLOYED TO PHYSICAL DEVICE
 - **Architecture**: Exactly Three Sections:

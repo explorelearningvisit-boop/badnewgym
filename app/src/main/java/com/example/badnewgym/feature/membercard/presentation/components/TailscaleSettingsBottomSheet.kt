@@ -51,17 +51,10 @@ fun TailscaleSettingsBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = Color(0xFFF8FAFC),
-        dragHandle = {
-            Box(
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-                    .width(42.dp)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(Color(0xFFCBD5E1))
-            )
-        },
+        containerColor = Color(0xFFF4FBF9),
+        scrimColor = Color(0x66021C17),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        dragHandle = { SheetGrip() },
         modifier = modifier
     ) {
         Column(
@@ -102,7 +95,7 @@ fun TailscaleSettingsBottomSheet(
                         )
                         Text(
                             text = "Embedded Node • No Mobile App Required",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             color = Color(0xFF64748B)
                         )
                     }
@@ -152,7 +145,7 @@ fun TailscaleSettingsBottomSheet(
             // Configuration section
             Text(
                 text = "CONFIGURATION",
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF94A3B8),
                 letterSpacing = 0.5.sp
@@ -211,8 +204,8 @@ fun TailscaleSettingsBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Enable Embedded Tailscale", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
-                            Text("Registers port 8787 in Tailnet", fontSize = 12.sp, color = Color(0xFF64748B))
+                            Text("Enable Embedded Tailscale", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                            Text("Registers port 8787 in Tailnet", fontSize = 13.sp, color = Color(0xFF64748B))
                         }
                         Switch(
                             checked = isEnabled,
@@ -228,8 +221,8 @@ fun TailscaleSettingsBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Start on Mobile Restart", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
-                            Text("Auto-connects on device boot", fontSize = 12.sp, color = Color(0xFF64748B))
+                            Text("Start on Mobile Restart", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                            Text("Auto-connects on device boot", fontSize = 13.sp, color = Color(0xFF64748B))
                         }
                         Switch(
                             checked = autostartOnBoot,
@@ -245,8 +238,8 @@ fun TailscaleSettingsBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Trigger App on Restart / Request", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
-                            Text("Brings BAD GYM to front when triggered", fontSize = 12.sp, color = Color(0xFF64748B))
+                            Text("Trigger App on Restart / Request", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                            Text("Brings BAD GYM to front when triggered", fontSize = 13.sp, color = Color(0xFF64748B))
                         }
                         Switch(
                             checked = triggerAppOnTurnOn,
@@ -273,7 +266,7 @@ fun TailscaleSettingsBottomSheet(
                     ) {
                         Column {
                             Text("Always Run in Background", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
-                            Text("WhatsApp mode: survives app close & recent swipe", fontSize = 12.sp, color = Color(0xFF64748B))
+                            Text("WhatsApp mode: survives app close & recent swipe", fontSize = 13.sp, color = Color(0xFF64748B))
                         }
                         val isBatteryIgnoring = BackgroundKeepAliveManager.isIgnoringBatteryOptimizations(context)
                         Box(
@@ -285,7 +278,7 @@ fun TailscaleSettingsBottomSheet(
                             Text(
                                 if (isBatteryIgnoring) "UNRESTRICTED" else "OPTIMIZED",
                                 color = if (isBatteryIgnoring) Color(0xFF166534) else Color(0xFF92400E),
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -300,7 +293,7 @@ fun TailscaleSettingsBottomSheet(
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7)),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Exempt from Battery Optimization (Recommended)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Exempt from Battery Optimization (Recommended)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                     }
@@ -318,7 +311,7 @@ fun TailscaleSettingsBottomSheet(
                     ) {
                         Text(
                             "Open ${BackgroundKeepAliveManager.getOemName()} Autostart Settings",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             color = Color(0xFF334155),
                             fontWeight = FontWeight.Medium
                         )
@@ -331,11 +324,11 @@ fun TailscaleSettingsBottomSheet(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Screen Capture Across Other Apps", fontSize = 12.sp, color = Color(0xFF475569))
+                        Text("Screen Capture Across Other Apps", fontSize = 13.sp, color = Color(0xFF475569))
                         val a11yActive = DeviceAccessibilityService.instance != null
                         Text(
                             if (a11yActive) "Active (Ready)" else "Accessibility Off",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (a11yActive) Color(0xFF10B981) else Color(0xFFEF4444)
                         )
@@ -359,7 +352,7 @@ fun TailscaleSettingsBottomSheet(
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF6366F1)),
                             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC7D2FE))
                         ) {
-                            Text("Enable BAD GYM in Accessibility Settings", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Enable BAD GYM in Accessibility Settings", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -458,7 +451,7 @@ private fun StatusCard(
                     Text(
                         text = if (isConnected) "Connected & Registered" else status.backendState,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         color = Color(0xFF0F172A)
                     )
                 }
@@ -471,7 +464,7 @@ private fun StatusCard(
                 ) {
                     Text(
                         text = "Port ${status.listenPort}",
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = badgeTextColor
                     )
@@ -487,7 +480,7 @@ private fun StatusCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Tailscale IP", fontSize = 11.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
+                    Text("Tailscale IP", fontSize = 12.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
                     Text(
                         text = if (status.ip.isNotBlank()) status.ip else "Pending registration...",
                         fontSize = 15.sp,
@@ -510,10 +503,10 @@ private fun StatusCard(
 
             if (status.dnsName.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("MagicDNS", fontSize = 11.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
+                Text("MagicDNS", fontSize = 12.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
                 Text(
                     text = status.dnsName,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontFamily = FontFamily.Monospace,
                     color = Color(0xFF334155)
                 )
@@ -525,12 +518,12 @@ private fun StatusCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Forwarding To", fontSize = 11.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
-                    Text("127.0.0.1:8787 (MCP Server)", fontSize = 13.sp, color = Color(0xFF334155))
+                    Text("Forwarding To", fontSize = 12.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
+                    Text("127.0.0.1:8787 (MCP Server)", fontSize = 14.sp, color = Color(0xFF334155))
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("Node Name", fontSize = 11.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
-                    Text(status.hostname.ifBlank { "badgym-device" }, fontSize = 13.sp, color = Color(0xFF334155))
+                    Text("Node Name", fontSize = 12.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
+                    Text(status.hostname.ifBlank { "badgym-device" }, fontSize = 14.sp, color = Color(0xFF334155))
                 }
             }
 
@@ -538,7 +531,7 @@ private fun StatusCard(
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "Error: ${status.error}",
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     color = Color(0xFFDC2626)
                 )
             }

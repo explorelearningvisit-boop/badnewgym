@@ -3,6 +3,8 @@ package com.example.badnewgym.feature.membercard.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,12 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -35,11 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.badnewgym.feature.membercard.design.MemberCardTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,148 +57,157 @@ fun SearchBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = Color(0xFFF8FAFC),
-        dragHandle = {
-            Box(
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-                    .width(42.dp)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(Color(0xFFCBD5E1))
-            )
-        },
+        containerColor = Color.Transparent,
+        scrimColor = Color(0x66021C17),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        dragHandle = null,
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 6.dp)
-        ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        GlassSheetSurface {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
             ) {
-                Text(
-                    text = "QUICK SEARCH",
-                    color = MemberCardTokens.DarkNavy,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Black
+                GlassSheetHeader(
+                    title = "Quick search",
+                    subtitle = "Find any record in one place",
+                    onClose = onDismissRequest
                 )
 
-                IconButton(
-                    onClick = onDismissRequest,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
-                        tint = MemberCardTokens.SlateMuted,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
+                Spacer(modifier = Modifier.height(14.dp))
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Search Bar Input
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = {
-                    Text(text = "Search logs, receipts, workouts...", color = Color(0xFF94A3B8), fontSize = 13.sp)
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        tint = Color(0xFF2563EB),
-                        modifier = Modifier.size(20.dp)
-                    )
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF2563EB),
-                    unfocusedBorderColor = Color(0xFFCBD5E1),
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Quick Filter Chips
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                quickFilters.forEach { filter ->
-                    val isSelected = filter == selectedFilter
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(if (isSelected) Color(0xFF2563EB) else Color.White)
-                            .border(1.dp, if (isSelected) Color(0xFF2563EB) else Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
-                            .clickable { selectedFilter = filter }
-                            .padding(horizontal = 10.dp, vertical = 5.dp)
-                    ) {
+                // Search field — frosted well with a lit rim.
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = {
                         Text(
-                            text = filter,
-                            color = if (isSelected) Color.White else MemberCardTokens.DarkNavy,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "Search logs, receipts, workouts...",
+                            color = GlassFaint,
+                            fontSize = 14.sp
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = InfographicTokens.Brand,
+                            modifier = Modifier.size(21.dp)
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontSize = 14.5.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = GlassInk
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = InfographicTokens.Brand,
+                        unfocusedBorderColor = GlassHairline,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(4.dp, RoundedCornerShape(16.dp), ambientColor = Color(0xFF9DB2C8), spotColor = Color(0xFFB9C7D6))
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Quick filter chips
+                Text(
+                    text = "FILTER BY",
+                    fontSize = 11.sp,
+                    lineHeight = 14.sp,
+                    fontWeight = FontWeight.Black,
+                    color = GlassFaint,
+                    letterSpacing = 0.9.sp,
+                    modifier = Modifier.padding(start = 2.dp, bottom = 8.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp)
+                ) {
+                    quickFilters.forEach { filter ->
+                        GlassChip(
+                            label = filter,
+                            selected = filter == selectedFilter,
+                            accent = InfographicTokens.Brand,
+                            onClick = { selectedFilter = filter }
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = "RECENT SEARCHES",
+                    fontSize = 11.sp,
+                    lineHeight = 14.sp,
+                    fontWeight = FontWeight.Black,
+                    color = GlassFaint,
+                    letterSpacing = 0.9.sp,
+                    modifier = Modifier.padding(start = 2.dp, bottom = 8.dp)
+                )
+
+                RecentSearchRow("Sep 2026 Attendance Summary", InfographicTokens.Brand) { searchQuery = "Sep 2026 Attendance" }
+                Spacer(modifier = Modifier.height(8.dp))
+                RecentSearchRow("Prime Membership Payment Receipt", InfographicTokens.Orange) { searchQuery = "Receipt 2026" }
+                Spacer(modifier = Modifier.height(8.dp))
+                RecentSearchRow("Chest & Triceps Hypertrophy Log", InfographicTokens.Purple) { searchQuery = "Chest & Triceps" }
+
+                GlassSheetFooterPad(height = 18)
             }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            Text(
-                text = "RECENT SEARCHES",
-                color = MemberCardTokens.SlateMuted,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            RecentSearchItem("Sep 2026 Attendance Summary") { searchQuery = "Sep 2026 Attendance" }
-            RecentSearchItem("Prime Membership Payment Receipt") { searchQuery = "Receipt 2026" }
-            RecentSearchItem("Chest & Triceps Hypertrophy Log") { searchQuery = "Chest & Triceps" }
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
 
 @Composable
-private fun RecentSearchItem(text: String, onClick: () -> Unit) {
+private fun RecentSearchRow(
+    text: String,
+    tint: Color,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .shadow(4.dp, RoundedCornerShape(16.dp), ambientColor = Color(0xFF9DB2C8), spotColor = Color(0xFFB9C7D6))
+            .clip(RoundedCornerShape(16.dp))
+            .background(GlassPaneFill)
+            .border(1.dp, Color.White, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp, horizontal = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Default.History,
-            contentDescription = null,
-            tint = Color(0xFF94A3B8),
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.width(10.dp))
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .background(Brush.verticalGradient(listOf(tint.copy(alpha = 0.16f), tint.copy(alpha = 0.08f))))
+                .border(0.8.dp, tint.copy(alpha = 0.24f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.History,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(17.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(11.dp))
         Text(
             text = text,
-            color = MemberCardTokens.DarkNavy,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium
+            color = GlassInkSoft,
+            fontSize = 13.5.sp,
+            lineHeight = 17.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
         )
     }
 }

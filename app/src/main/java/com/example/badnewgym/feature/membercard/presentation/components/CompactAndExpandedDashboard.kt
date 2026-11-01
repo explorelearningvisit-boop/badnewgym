@@ -135,7 +135,7 @@ fun CompactIntelligenceCard(
                         )
                         Text(
                             text = "Member Intelligence",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF1E3A34)
                         )
@@ -164,7 +164,7 @@ fun CompactIntelligenceCard(
                         )
                         Text(
                             text = "02 Oct 2026",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
@@ -377,7 +377,7 @@ fun RohitHeroCard(
                             .border(1.5.dp, Color.White, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "👑", fontSize = 12.sp)
+                        Text(text = "👑", fontSize = 13.sp)
                     }
 
                     // Green Camera Circular Button (Bottom-Right of Avatar)
@@ -418,7 +418,7 @@ fun RohitHeroCard(
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "ID: ${profile.memberCode}",
-                        fontSize = 12.5.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF475569)
                     )
@@ -435,7 +435,7 @@ fun RohitHeroCard(
                         )
                         Text(
                             text = "${profile.age} yrs | ${profile.gender}",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF334155)
                         )
@@ -463,7 +463,7 @@ fun RohitHeroCard(
                         )
                         Text(
                             text = if (profile.isActive) "Active Member" else "Inactive",
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
@@ -550,10 +550,10 @@ fun RohitHeroCard(
                             )
                             Text(
                                 text = "Days\nLeft",
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF475569),
-                                lineHeight = 10.sp,
+                                lineHeight = 11.5.sp,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -597,24 +597,24 @@ fun RohitHeroCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(text = "👑", fontSize = 12.sp)
+                    Text(text = "👑", fontSize = 13.sp)
                     Text(
                         text = profile.tierName.ifEmpty { "Premium Plan" },
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
-                    Text(text = "•", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                    Text(text = "•", fontSize = 11.5.sp, color = Color(0xFF94A3B8))
                     Text(
                         text = paymentPlan.amountPaid.ifEmpty { "₹1,800/mo" },
-                        fontSize = 10.5.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF334155)
                     )
-                    Text(text = "•", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                    Text(text = "•", fontSize = 11.5.sp, color = Color(0xFF94A3B8))
                     Text(
                         text = paymentPlan.planPeriod.ifEmpty { "Till 12 Dec 2026" },
-                        fontSize = 10.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF64748B)
                     )
@@ -665,20 +665,20 @@ fun RohitHeroCard(
                         Column {
                             Text(
                                 text = "Joined",
-                                fontSize = 9.5.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color(0xFF64748B)
                             )
                             Text(
                                 text = profile.joinedDate.ifEmpty { "15 Jun 2026" },
-                                fontSize = 10.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1
                             )
                             Text(
                                 text = profile.joinedDuration.ifEmpty { "4 Months" },
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFF64748B)
                             )
@@ -706,18 +706,18 @@ fun RohitHeroCard(
                                 .background(Color(0xFF7C3AED)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "🎯", fontSize = 13.sp)
+                            Text(text = "🎯", fontSize = 14.sp)
                         }
                         Column {
                             Text(
                                 text = "Goal",
-                                fontSize = 9.5.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color(0xFF64748B)
                             )
                             Text(
                                 text = profile.goal.ifEmpty { "Muscle Gain" },
-                                fontSize = 10.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1
@@ -756,13 +756,13 @@ fun RohitHeroCard(
                         Column {
                             Text(
                                 text = "Branch",
-                                fontSize = 9.5.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color(0xFF64748B)
                             )
                             Text(
                                 text = profile.branch.ifEmpty { "Varanasi" },
-                                fontSize = 10.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1
@@ -844,7 +844,7 @@ fun CompactMiniBento(
                     }
                     Text(
                         text = title,
-                        fontSize = 13.5.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -858,7 +858,7 @@ fun CompactMiniBento(
                             .background(Color(0xFFDC2626)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "!", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color.White)
+                        Text(text = "!", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.White)
                     }
                 }
             }
@@ -878,7 +878,7 @@ fun CompactMiniBento(
                     )
                     Text(
                         text = subText,
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White.copy(alpha = 0.92f)
                     )
@@ -929,14 +929,14 @@ fun QuickWidgetChip(
         Column {
             Text(
                 text = label,
-                fontSize = 10.5.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF64748B),
                 maxLines = 1
             )
             Text(
                 text = value,
-                fontSize = 13.5.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF0F172A),
                 maxLines = 1
@@ -1007,7 +1007,7 @@ fun ExpandedIntelligenceCard(
                         )
                         Text(
                             text = "Member Details",
-                            fontSize = 13.5.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF1E3A34)
                         )
@@ -1033,7 +1033,7 @@ fun ExpandedIntelligenceCard(
                         ) {
                             Text(
                                 text = tf,
-                                fontSize = 11.5.sp,
+                                fontSize = 13.sp,
                                 fontWeight = if (isActive) FontWeight.Black else FontWeight.SemiBold,
                                 color = if (isActive) Color(0xFF0F172A) else Color(0xFF64748B)
                             )
@@ -1063,7 +1063,7 @@ fun ExpandedIntelligenceCard(
                         )
                         Text(
                             text = "02 Oct",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
@@ -1108,7 +1108,7 @@ fun ExpandedIntelligenceCard(
                     ) {
                         Text(
                             text = tab,
-                            fontSize = 13.5.sp,
+                            fontSize = 15.sp,
                             fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                             color = if (isSelected) Color.White else Color(0xFF334155)
                         )
@@ -1183,7 +1183,7 @@ fun FullWidthAttendanceWidget(modifier: Modifier = Modifier) {
                     Text(text = "Attendance", fontSize = 15.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(text = "85%", fontSize = 32.sp, fontWeight = FontWeight.Black, color = Color.White)
-                        Text(text = "18/21 Days", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = 0.92f), modifier = Modifier.padding(bottom = 3.dp))
+                        Text(text = "18/21 Days", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = 0.92f), modifier = Modifier.padding(bottom = 3.dp))
                     }
                 }
             }
@@ -1194,7 +1194,7 @@ fun FullWidthAttendanceWidget(modifier: Modifier = Modifier) {
                     .background(Color.White.copy(alpha = 0.25f))
                     .padding(horizontal = 11.dp, vertical = 5.dp)
             ) {
-                Text(text = "\u2197\uFE0F 12%", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Text(text = "\u2197\uFE0F 12%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
         }
 
@@ -1233,7 +1233,7 @@ fun FullWidthAttendanceWidget(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             listOf("1", "5", "10", "15", "20", "25", "30").forEach { d ->
-                Text(text = d, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.85f))
+                Text(text = d, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.85f))
             }
         }
 
@@ -1246,22 +1246,22 @@ fun FullWidthAttendanceWidget(modifier: Modifier = Modifier) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 Box(modifier = Modifier.size(9.dp).clip(CircleShape).background(Color(0xFF00E676)))
-                Text(text = "Present 18", fontSize = 13.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "Present 18", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 Box(modifier = Modifier.size(9.dp).clip(CircleShape).background(Color(0xFFEF4444)))
-                Text(text = "Absent 3", fontSize = 13.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "Absent 3", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 Box(modifier = Modifier.size(9.dp).clip(CircleShape).background(Color.White))
-                Text(text = "Gym Off 4", fontSize = 13.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "Gym Off 4", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
         // This Week: M T W T F S S (34dp circles)
-        Text(text = "This Week", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color.White)
+        Text(text = "This Week", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color.White)
         Spacer(modifier = Modifier.height(5.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1278,7 +1278,7 @@ fun FullWidthAttendanceWidget(modifier: Modifier = Modifier) {
                 Triple("S", false, false)
             ).forEach { (day, isPresent, isAbsent) ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = day, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.95f))
+                    Text(text = day, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.95f))
                     Spacer(modifier = Modifier.height(3.dp))
                     Box(
                         modifier = Modifier
@@ -1328,7 +1328,7 @@ fun FullWidthAttendanceWidget(modifier: Modifier = Modifier) {
             )
             Text(
                 text = "Good! Attendance up by 12% this month.",
-                fontSize = 13.5.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
@@ -1376,7 +1376,7 @@ fun FullWidthWorkoutWidget(modifier: Modifier = Modifier) {
                     Text(text = "Workout", fontSize = 15.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(text = "47 min", fontSize = 32.sp, fontWeight = FontWeight.Black, color = Color.White)
-                        Text(text = "Avg/Day", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = 0.92f), modifier = Modifier.padding(bottom = 3.dp))
+                        Text(text = "Avg/Day", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = 0.92f), modifier = Modifier.padding(bottom = 3.dp))
                     }
                 }
             }
@@ -1387,7 +1387,7 @@ fun FullWidthWorkoutWidget(modifier: Modifier = Modifier) {
                     .background(Color.White.copy(alpha = 0.25f))
                     .padding(horizontal = 11.dp, vertical = 5.dp)
             ) {
-                Text(text = "\u2197\uFE0F 8%", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Text(text = "\u2197\uFE0F 8%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
         }
 
@@ -1421,7 +1421,7 @@ fun FullWidthWorkoutWidget(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             listOf("1", "5", "10", "15", "20", "25", "30").forEach { d ->
-                Text(text = d, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.85f))
+                Text(text = d, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.85f))
             }
         }
 
@@ -1433,15 +1433,15 @@ fun FullWidthWorkoutWidget(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "\uD83C\uDFCB\uFE0F Total Workouts", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                Text(text = "\uD83C\uDFCB\uFE0F Total Workouts", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
                 Text(text = "18", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "\uD83C\uDFC6 Best Day", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                Text(text = "\uD83C\uDFC6 Best Day", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
                 Text(text = "92 min", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "\uD83D\uDD25 Current Streak", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                Text(text = "\uD83D\uDD25 Current Streak", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
                 Text(text = "12 Days", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
         }
@@ -1449,7 +1449,7 @@ fun FullWidthWorkoutWidget(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(10.dp))
 
         // This Week (min)
-        Text(text = "This Week (min)", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color.White)
+        Text(text = "This Week (min)", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color.White)
         Spacer(modifier = Modifier.height(5.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1467,7 +1467,7 @@ fun FullWidthWorkoutWidget(modifier: Modifier = Modifier) {
                                 .clip(RoundedCornerShape(5.dp))
                                 .background(color)
                         )
-                        Text(text = "$mins", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "$mins", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
         }
@@ -1492,7 +1492,7 @@ fun FullWidthWorkoutWidget(modifier: Modifier = Modifier) {
             )
             Text(
                 text = "Great! Workout time increasing trend.",
-                fontSize = 13.5.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
@@ -1540,7 +1540,7 @@ fun FullWidthPaymentWidget(modifier: Modifier = Modifier) {
                     Text(text = "Payment", fontSize = 15.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(text = "\u20B912,800", fontSize = 32.sp, fontWeight = FontWeight.Black, color = Color.White)
-                        Text(text = "25 Days Left", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = 0.92f), modifier = Modifier.padding(bottom = 3.dp))
+                        Text(text = "25 Days Left", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = 0.92f), modifier = Modifier.padding(bottom = 3.dp))
                     }
                 }
             }
@@ -1551,7 +1551,7 @@ fun FullWidthPaymentWidget(modifier: Modifier = Modifier) {
                     .background(Color(0xFFDC2626).copy(alpha = 0.9f))
                     .padding(horizontal = 11.dp, vertical = 5.dp)
             ) {
-                Text(text = "\u2198\uFE0F 20%", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Text(text = "\u2198\uFE0F 20%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
         }
 
@@ -1576,7 +1576,7 @@ fun FullWidthPaymentWidget(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             listOf("1", "5", "10", "15", "20", "25", "30").forEach { d ->
-                Text(text = d, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.85f))
+                Text(text = d, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.85f))
             }
         }
 
@@ -1588,15 +1588,15 @@ fun FullWidthPaymentWidget(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "\uD83D\uDCB3 Total Paid", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                Text(text = "\uD83D\uDCB3 Total Paid", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
                 Text(text = "\u20B9112,600", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "\u23F3 Pending", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                Text(text = "\u23F3 Pending", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
                 Text(text = "\u20B912,800", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "\uD83D\uDCC5 Next Due", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                Text(text = "\uD83D\uDCC5 Next Due", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
                 Text(text = "27 Oct 2026", fontSize = 16.5.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
         }
@@ -1604,7 +1604,7 @@ fun FullWidthPaymentWidget(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(10.dp))
 
         // Payment History (Last 7)
-        Text(text = "Payment History (Last 7)", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color.White)
+        Text(text = "Payment History (Last 7)", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color.White)
         Spacer(modifier = Modifier.height(5.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1647,7 +1647,7 @@ fun FullWidthPaymentWidget(modifier: Modifier = Modifier) {
             )
             Text(
                 text = "Payments stable. Next due in 25 days.",
-                fontSize = 13.5.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
@@ -1697,7 +1697,7 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
                     Text(text = "Body Progress", fontSize = 15.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(text = "69.5 kg", fontSize = 32.sp, fontWeight = FontWeight.Black, color = Color.White)
-                        Text(text = "\uD83D\uDCC9 -0.7 kg", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = 0.92f), modifier = Modifier.padding(bottom = 3.dp))
+                        Text(text = "\uD83D\uDCC9 -0.7 kg", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = 0.92f), modifier = Modifier.padding(bottom = 3.dp))
                     }
                 }
             }
@@ -1708,7 +1708,7 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
                     .background(Color.White.copy(alpha = 0.25f))
                     .padding(horizontal = 11.dp, vertical = 5.dp)
             ) {
-                Text(text = "\u2197\uFE0F 5%", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Text(text = "\u2197\uFE0F 5%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.White)
             }
         }
 
@@ -1750,7 +1750,7 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text = m,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = if (isAct) FontWeight.Black else FontWeight.Bold,
                         color = if (isAct) Color(0xFF0F172A) else Color.White
                     )
@@ -1766,15 +1766,15 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "Start", fontSize = 12.sp, color = Color.White.copy(alpha = 0.85f))
+                Text(text = "Start", fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
                 Text(text = "72.3 kg", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "Current", fontSize = 12.sp, color = Color.White.copy(alpha = 0.85f))
+                Text(text = "Current", fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
                 Text(text = "69.5 kg", fontSize = 18.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF00E676))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "Target", fontSize = 12.sp, color = Color.White.copy(alpha = 0.85f))
+                Text(text = "Target", fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
                 Text(text = "68 kg", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
@@ -1787,7 +1787,7 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(text = "Progress 38%", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(text = "Progress 38%", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -1808,7 +1808,7 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(10.dp))
 
         // Body Goals (2): Lose Weight -4.8kg | Build Muscle +2.5kg
-        Text(text = "Body Goals (2)", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color.White)
+        Text(text = "Body Goals (2)", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color.White)
         Spacer(modifier = Modifier.height(5.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1825,8 +1825,8 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
             ) {
                 Text(text = "\u2696\uFE0F", fontSize = 18.sp)
                 Column {
-                    Text(text = "Lose Weight", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
-                    Text(text = "-4.8 kg left", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    Text(text = "Lose Weight", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
+                    Text(text = "-4.8 kg left", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
                 }
             }
 
@@ -1841,8 +1841,8 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
             ) {
                 Text(text = "\uD83D\uDCAA", fontSize = 18.sp)
                 Column {
-                    Text(text = "Build Muscle", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
-                    Text(text = "+2.5 kg left", fontSize = 13.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
+                    Text(text = "Build Muscle", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
+                    Text(text = "+2.5 kg left", fontSize = 15.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
                 }
             }
         }
@@ -1867,7 +1867,7 @@ fun FullWidthBodyProgressWidget(modifier: Modifier = Modifier) {
             )
             Text(
                 text = "Good progress! Weight down by 0.7 kg.",
-                fontSize = 13.5.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )

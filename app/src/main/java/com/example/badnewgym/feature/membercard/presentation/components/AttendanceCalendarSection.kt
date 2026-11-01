@@ -101,7 +101,7 @@ fun AttendanceCalendarSection(
                     Text(
                         text = data.monthLabel,
                         color = Color(0xFF2563EB),
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.width(2.dp))
@@ -170,13 +170,13 @@ fun AttendanceCalendarSection(
                             Text(
                                 text = "${data.attendedDays} / ${data.totalDays}",
                                 color = MemberCardTokens.SlateTitle,
-                                fontSize = 11.5.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "Days",
                                 color = MemberCardTokens.SlateMuted,
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -210,7 +210,7 @@ fun AttendanceCalendarSection(
                             Text(
                                 text = day,
                                 color = if (day == "S") Color(0xFF10B981) else Color(0xFF2563EB),
-                                fontSize = 10.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.weight(1f)
@@ -261,7 +261,7 @@ fun AttendanceCalendarSection(
                                     Text(
                                         text = day.dayOfMonth.toString(),
                                         color = MemberCardTokens.DarkNavy,
-                                        fontSize = 9.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
@@ -298,14 +298,14 @@ private fun LegendRow(
             Text(
                 text = label,
                 color = MemberCardTokens.SlateBody,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Medium
             )
         }
         Text(
             text = count.toString(),
             color = MemberCardTokens.DarkNavy,
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold
         )
     }

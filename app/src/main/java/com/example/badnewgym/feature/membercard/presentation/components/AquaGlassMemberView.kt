@@ -80,7 +80,7 @@ fun AquaGlassMemberView(
         ) {
             Text(
                 text = "FREEDOM FITNESS",
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White.copy(alpha = 0.25f),
                 letterSpacing = 2.sp,

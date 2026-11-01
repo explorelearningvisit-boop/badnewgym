@@ -224,7 +224,7 @@ private fun StatIconBadge(type: BodyStatType) {
                 Text(
                     text = "%",
                     color = Color.White,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Black
                 )
             }
@@ -240,7 +240,7 @@ private fun StatIconBadge(type: BodyStatType) {
                 Text(
                     text = "BMI",
                     color = Color.White,
-                    fontSize = 8.5.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Black
                 )
             }
@@ -256,19 +256,19 @@ private fun StatSubtext(item: BodyStatItem) {
                 Text(
                     text = "↓",
                     color = Color(0xFF10B981),
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = " kg ",
                     color = MemberCardTokens.SlateMuted,
-                    fontSize = 10.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = "2.5",
                     color = Color(0xFF10B981),
-                    fontSize = 10.5.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -278,13 +278,13 @@ private fun StatSubtext(item: BodyStatItem) {
                 Text(
                     text = "kg ",
                     color = MemberCardTokens.SlateMuted,
-                    fontSize = 10.5.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = "↑ 1.4",
                     color = Color(0xFF10B981),
-                    fontSize = 10.5.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -294,14 +294,14 @@ private fun StatSubtext(item: BodyStatItem) {
                 Text(
                     text = "↓",
                     color = Color(0xFFEF4444),
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.width(2.dp))
                 Text(
                     text = "1.2",
                     color = Color(0xFFEF4444),
-                    fontSize = 10.5.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -310,7 +310,7 @@ private fun StatSubtext(item: BodyStatItem) {
             Text(
                 text = "Normal",
                 color = Color(0xFF10B981),
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
         }

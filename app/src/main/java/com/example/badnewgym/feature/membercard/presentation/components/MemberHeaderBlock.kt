@@ -78,7 +78,7 @@ fun MemberHeaderBlock(
                 Text(
                     text = "M E M B E R",
                     color = MemberCardTokens.SlateTitle,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 3.sp,
                     modifier = Modifier.offset(y = (-2).dp)
@@ -190,7 +190,7 @@ fun MemberHeaderBlock(
                 Text(
                     text = "${profile.memberCode}  |  ${profile.age} yrs  |  ${profile.gender}",
                     color = MemberCardTokens.SlateMuted,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Medium
                 )
 
@@ -222,7 +222,7 @@ fun MemberHeaderBlock(
                         Text(
                             text = "Prime",
                             color = MemberCardTokens.PillAmberText,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -247,7 +247,7 @@ fun MemberHeaderBlock(
                         Text(
                             text = "Active",
                             color = Color.White,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -302,13 +302,13 @@ fun MemberHeaderBlock(
                     Text(
                         text = "${profile.attendedDays} / ${profile.totalDays}",
                         color = MemberCardTokens.SlateTitle,
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Days",
                         color = MemberCardTokens.SlateMuted,
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }

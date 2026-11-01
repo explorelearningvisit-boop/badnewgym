@@ -128,7 +128,7 @@ fun DashboardTopBar(
             }
             Text(
                 text = "Member Intelligence",
-                fontSize = 10.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1A4363),
                 maxLines = 1,
@@ -160,7 +160,7 @@ fun DashboardTopBar(
                 )
                 Text(
                     text = dateText,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF072C4F),
                     maxLines = 1,
@@ -295,7 +295,7 @@ fun MemberCenterpieceHero(
             ) {
                 Text(
                     text = "👑",
-                    fontSize = 12.sp
+                    fontSize = 13.sp
                 )
             }
 
@@ -320,7 +320,7 @@ fun MemberCenterpieceHero(
                     )
                     Text(
                         text = "Active",
-                        fontSize = 10.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White
                     )
@@ -343,7 +343,7 @@ fun MemberCenterpieceHero(
             )
             Text(
                 text = "👑",
-                fontSize = 14.sp
+                fontSize = 15.sp
             )
         }
 
@@ -352,7 +352,7 @@ fun MemberCenterpieceHero(
         // Code and Plan
         Text(
             text = "$memberCode | $planName",
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF334155)
         )
@@ -375,11 +375,11 @@ fun MemberCenterpieceHero(
         ) {
             Text(
                 text = "👑",
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
             Text(
                 text = "$daysLeft Days Left",
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFE11D48)
             )
@@ -389,7 +389,7 @@ fun MemberCenterpieceHero(
 
         Text(
             text = planName,
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = Color(0xFF475569)
         )
@@ -445,7 +445,7 @@ fun AttendanceBentoCard(
 
                 Text(
                     text = "Attendance",
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White.copy(alpha = 0.95f)
                 )
@@ -462,7 +462,7 @@ fun AttendanceBentoCard(
                 )
                 Text(
                     text = daysRatio,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.White.copy(alpha = 0.85f)
                 )
@@ -501,7 +501,7 @@ fun AttendanceBentoCard(
                 ) {
                     Text(
                         text = "↑ $trend",
-                        fontSize = 10.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -576,7 +576,7 @@ fun PaymentBentoCard(
 
                 Text(
                     text = "Payment",
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White.copy(alpha = 0.95f)
                 )
@@ -593,7 +593,7 @@ fun PaymentBentoCard(
                 )
                 Text(
                     text = statusText,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.White.copy(alpha = 0.85f)
                 )
@@ -614,7 +614,7 @@ fun PaymentBentoCard(
                 ) {
                     Text(
                         text = "! $alertText",
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White
                     )
@@ -706,7 +706,7 @@ fun WorkoutBentoCard(
 
                 Text(
                     text = "Workout",
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White.copy(alpha = 0.95f)
                 )
@@ -723,7 +723,7 @@ fun WorkoutBentoCard(
                 )
                 Text(
                     text = subLabel,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.White.copy(alpha = 0.85f)
                 )
@@ -744,7 +744,7 @@ fun WorkoutBentoCard(
                 ) {
                     Text(
                         text = "↑ $trend",
-                        fontSize = 10.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -819,7 +819,7 @@ fun BodyProgressBentoCard(
 
                 Text(
                     text = "Body Progress",
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White.copy(alpha = 0.95f)
                 )
@@ -836,7 +836,7 @@ fun BodyProgressBentoCard(
                 )
                 Text(
                     text = "↓ $difference",
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White.copy(alpha = 0.9f)
                 )
@@ -937,7 +937,7 @@ fun DetailedOverviewCard(
                 ) {
                     Text(
                         text = "View All",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1E3A34)
                     )
@@ -977,7 +977,7 @@ fun DetailedOverviewCard(
                     ) {
                         Text(
                             text = timeframe,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.SemiBold,
                             color = if (isActive) Color.White else Color(0xFF475569)
                         )
@@ -1071,13 +1071,13 @@ fun DetailedOverviewCard(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "85%",
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White
                             )
                             Text(
                                 text = "(18/21)",
-                                fontSize = 8.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White.copy(alpha = 0.9f)
                             )
@@ -1094,7 +1094,7 @@ fun DetailedOverviewCard(
                         repeat(16) {
                             Text(
                                 text = "1",
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF64748B)
                             )
@@ -1210,7 +1210,7 @@ fun MetricSummaryPill(
         Column {
             Text(
                 text = label,
-                fontSize = 9.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF64748B)
             )
@@ -1220,13 +1220,13 @@ fun MetricSummaryPill(
             ) {
                 Text(
                     text = value,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color(0xFF0F172A)
                 )
                 Text(
                     text = trend,
-                    fontSize = 9.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = trendColor
                 )
@@ -1261,13 +1261,13 @@ fun FitnessMilestoneCapsule(
         Column {
             Text(
                 text = label,
-                fontSize = 8.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF64748B)
             )
             Text(
                 text = value,
-                fontSize = 10.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A)
             )
@@ -1331,7 +1331,7 @@ fun FloatingGlassBottomDock(
                         )
                         Text(
                             text = "Home",
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             maxLines = 1,
@@ -1407,7 +1407,7 @@ fun NavDockItem(
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
-            fontSize = 9.sp,
+            fontSize = 11.sp,
             fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
             color = if (isActive) Color(0xFF00A336) else Color(0xFF1E3A5F),
             maxLines = 1,

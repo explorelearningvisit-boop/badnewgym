@@ -129,13 +129,13 @@ fun PaymentPlanDetailedSection(
                         Text(
                             text = paymentPlan.planDuration,
                             color = Color(0xFFB45309),
-                            fontSize = 10.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = paymentPlan.planPeriod,
                             color = Color(0xFF2563EB),
-                            fontSize = 8.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -189,7 +189,7 @@ fun PaymentPlanDetailedSection(
                             Text(
                                 text = paymentPlan.paymentStatus,
                                 color = Color(0xFF10B981),
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
@@ -201,7 +201,7 @@ fun PaymentPlanDetailedSection(
                             Text(
                                 text = paymentPlan.paidOnDate,
                                 color = MemberCardTokens.SlateMuted,
-                                fontSize = 8.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -240,14 +240,14 @@ fun PaymentPlanDetailedSection(
                             Text(
                                 text = "Next Due",
                                 color = MemberCardTokens.SlateMuted,
-                                fontSize = 8.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = paymentPlan.nextDueDate,
                                     color = MemberCardTokens.DarkNavy,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Icon(
@@ -260,7 +260,7 @@ fun PaymentPlanDetailedSection(
                             Text(
                                 text = "in ${paymentPlan.daysLeft} days",
                                 color = Color(0xFF2563EB),
-                                fontSize = 8.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -303,7 +303,7 @@ fun PaymentPlanDetailedSection(
                         Text(
                             text = "View Receipt >",
                             color = Color(0xFF2563EB),
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }

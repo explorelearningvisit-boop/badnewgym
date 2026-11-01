@@ -2,6 +2,7 @@ package com.example.badnewgym.feature.membercard.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,6 +48,7 @@ fun AttendanceDayBottomSheet(
     day: CalendarDay?,
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
+    monthLabel: String = "",
     modifier: Modifier = Modifier
 ) {
     if (day == null) return
@@ -53,17 +56,10 @@ fun AttendanceDayBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = Color(0xFFF8FAFC),
-        dragHandle = {
-            Box(
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-                    .width(42.dp)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(Color(0xFFCBD5E1))
-            )
-        },
+        containerColor = Color(0xFFF4FBF9),
+        scrimColor = Color(0x66021C17),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        dragHandle = { SheetGrip() },
         modifier = modifier
     ) {
         Column(
@@ -72,45 +68,20 @@ fun AttendanceDayBottomSheet(
                 .padding(horizontal = 20.dp, vertical = 6.dp)
         ) {
             // Header Row: Close + Title
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "ATTENDANCE LOG",
-                        color = MemberCardTokens.SlateMuted,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.sp
-                    )
-                    Text(
-                        text = "Day ${day.dayOfMonth} • September 2026",
-                        color = MemberCardTokens.DarkNavy,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                }
-
-                IconButton(
-                    onClick = onDismissRequest,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
-                        tint = MemberCardTokens.SlateMuted,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
+            GlassSheetHeader(
+                title = buildString {
+                    append("Day ").append(day.dayOfMonth)
+                    if (monthLabel.isNotBlank()) append(" \u2022 ").append(monthLabel)
+                },
+                subtitle = "Attendance log",
+                onClose = onDismissRequest
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 
             // Status Card
             val (statusText, statusBg, statusColor) = when (day.status) {
-                DayAttendanceStatus.PRESENT -> Triple("Present • On-Time", Color(0xFFDCFCE7), Color(0xFF15803D))
+                DayAttendanceStatus.PRESENT -> Triple("Present \u2022 On-Time", Color(0xFFDCFCE7), Color(0xFF15803D))
                 DayAttendanceStatus.ABSENT -> Triple("Absent", Color(0xFFFEE2E2), Color(0xFFB91C1C))
                 DayAttendanceStatus.LATE -> Triple("Late Entry", Color(0xFFFEF3C7), Color(0xFFB45309))
                 DayAttendanceStatus.HOLIDAY -> Triple("Rest Day / Holiday", Color(0xFFF1F5F9), Color(0xFF475569))
@@ -121,7 +92,8 @@ fun AttendanceDayBottomSheet(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
                     .background(statusBg)
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                    .border(1.dp, statusColor.copy(alpha = 0.22f), RoundedCornerShape(14.dp))
+                    .padding(horizontal = 14.dp, vertical = 11.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
@@ -130,12 +102,12 @@ fun AttendanceDayBottomSheet(
                             .clip(CircleShape)
                             .background(statusColor)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(9.dp))
                     Text(
                         text = statusText,
                         color = statusColor,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 14.5.sp,
+                        fontWeight = FontWeight.Black
                     )
                 }
             }
@@ -146,9 +118,10 @@ fun AttendanceDayBottomSheet(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+                    .neumorphicLift(RoundedCornerShape(18.dp), tint = Color(0xFF10B981), elevation = 7.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Brush.verticalGradient(listOf(Color.White, Color(0xFFFDFFFF), Color(0xFFF8FCFA))))
+                    .border(1.dp, Color.White, RoundedCornerShape(18.dp))
                     .padding(16.dp)
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -162,7 +135,7 @@ fun AttendanceDayBottomSheet(
                                 Text(
                                     text = "CHECK IN",
                                     color = MemberCardTokens.SlateMuted,
-                                    fontSize = 10.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
@@ -178,7 +151,7 @@ fun AttendanceDayBottomSheet(
                                 Text(
                                     text = "CHECK OUT",
                                     color = MemberCardTokens.SlateMuted,
-                                    fontSize = 10.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
@@ -194,7 +167,7 @@ fun AttendanceDayBottomSheet(
                                 Text(
                                     text = "DURATION",
                                     color = MemberCardTokens.SlateMuted,
-                                    fontSize = 10.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
@@ -223,7 +196,7 @@ fun AttendanceDayBottomSheet(
                             Text(
                                 text = "Chest & Triceps Hypertrophy",
                                 color = MemberCardTokens.DarkNavy,
-                                fontSize = 13.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -245,7 +218,7 @@ fun AttendanceDayBottomSheet(
                                 Text(
                                     text = "490 kcal burned",
                                     color = MemberCardTokens.SlateMuted,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium
                                 )
                             }
@@ -261,7 +234,7 @@ fun AttendanceDayBottomSheet(
                                 Text(
                                     text = "Avg HR: 138 bpm",
                                     color = MemberCardTokens.SlateMuted,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium
                                 )
                             }
@@ -270,28 +243,28 @@ fun AttendanceDayBottomSheet(
                         Text(
                             text = "No gym entry recorded for this day.",
                             color = MemberCardTokens.SlateMuted,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "A rest day or travel period was logged.",
                             color = MemberCardTokens.DarkNavy,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     } else {
                         Text(
                             text = "Scheduled gym rest / recovery day.",
                             color = MemberCardTokens.DarkNavy,
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Recommended: Active mobility, hydration, and 8 hours sleep.",
                             color = MemberCardTokens.SlateMuted,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -300,21 +273,24 @@ fun AttendanceDayBottomSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(
-                onClick = onDismissRequest,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(44.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MemberCardTokens.DarkNavy,
-                    contentColor = Color.White
-                )
+                    .neumorphicLift(RoundedCornerShape(50.dp), tint = Color(0xFF10B981), elevation = 7.dp)
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF19C48A), Color(0xFF0FA875), Color(0xFF07956A))))
+                    .border(1.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(50.dp))
+                    .clickable { onDismissRequest() }
+                    .padding(vertical = 14.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "Close",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 15.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    letterSpacing = 0.2.sp
                 )
             }
 

@@ -37,8 +37,17 @@ data class MemberProfile(
     val branch: String = "Varanasi",
     val unreadNotifications: Int = 3,
     val dateDisplay: String = "Tue\n22 Oct 2026",
-    val planBadgeText: String = "Prime Plan"
-)
+    val planBadgeText: String = "Prime Plan",
+    // Reachability for payment reminders. A blank/null [whatsappNumber] means
+    // the member is not on WhatsApp, so the reminder flow falls back to the
+    // plain phone number as the default channel.
+    val phone: String = "+91 98765 43210",
+    val whatsappNumber: String? = "919876543210",
+    val email: String = "member@badnewgym.in"
+) {
+    /** True when a usable WhatsApp number is on file. */
+    val hasWhatsapp: Boolean get() = !whatsappNumber.isNullOrBlank()
+}
 
 enum class BodyStatType {
     WEIGHT,
@@ -430,17 +439,15 @@ data class MemberCardData(
 
             val workoutBars = (1..30).map { day ->
                 val mins = when (day) {
-                    8 -> 52 // Peak
-                    15 -> 42 // Highlight orange
-                    26 -> 48 // Secondary Peak
-                    16 -> 12 // Lowest
-                    else -> (22 + (day * 7) % 24)
+                    8 -> 88  // Peak session
+                    26 -> 74 // Secondary peak
+                    16 -> 32 // Shortest (still a real session, >= 30 min)
+                    else -> 40 + (day * 7) % 45 // 40..84 min
                 }
                 val color = when (day) {
                     8 -> redBar
-                    15 -> amberBar
                     26 -> cyanBar
-                    else -> if (mins >= 35) emeraldBar else blueBar
+                    else -> if (mins >= 55) emeraldBar else blueBar
                 }
                 WorkoutTrendBar(day, mins, color)
             }
@@ -531,16 +538,16 @@ data class MemberCardData(
                 paymentPlan = PaymentPlanState(
                     planDuration = "Gold Plan (6 Months)",
                     planPeriod = "01 May – 31 Oct 2026",
-                    amountPaid = "₹2,800",
+                    amountPaid = "₹6,000",
                     paymentStatus = "PAID • ON TIME",
                     paidOnDate = "Paid on 01 Sep 2026",
                     nextDueDate = "31 Oct 2026",
                     daysLeft = 9,
                     isPrime = false,
-                    lastPaymentAmount = "₹800",
+                    lastPaymentAmount = "₹1,200",
                     lastPaymentDate = "01 Oct 2026",
                     monthlyHistory = monthlyHistory,
-                    dueAlertAmount = "₹2,800",
+                    dueAlertAmount = "₹1,200",
                     dueAlertText = "Due in 3 days ⚠️",
                     dueAlertDate = "16 Oct 2026",
                     planName = "Gold Plan (6 Months)",
@@ -548,11 +555,11 @@ data class MemberCardData(
                     planDaysUsed = 135,
                     planTotalDays = 180,
                     planDaysRemaining = 45,
-                    lastPaidAmount = "₹2,800",
+                    lastPaidAmount = "₹1,200",
                     lastPaidDate = "01 Sep 2026",
-                    currentDueAmount = "₹2,800",
+                    currentDueAmount = "₹1,200",
                     currentDueDate = "16 Oct 2026",
-                    nextDueAmount = "₹2,800",
+                    nextDueAmount = "₹1,200",
                     nextDueDateFormatted = "16 Nov 2026",
                     promoTitle = "Stay Fit Stay Active",
                     promoSubtitle = "Renew Now & Get 1 Month Free 🎁"
@@ -571,19 +578,19 @@ data class MemberCardData(
                 workoutTrend = WorkoutTrendData(
                     monthLabel = "Oct 2026",
                     bars = workoutBars,
-                    avgPerDayMinutes = 48,
-                    peakMinutes = 52,
-                    peakDate = "10 Oct",
-                    lowestMinutes = 12,
+                    avgPerDayMinutes = 58,
+                    peakMinutes = 88,
+                    peakDate = "8 Oct",
+                    lowestMinutes = 32,
                     lowestDate = "16 Oct",
                     trendVsLastMonth = "↗ +12% vs Sep",
-                    daysWithWorkout = 22,
-                    daysNoWorkout = 8,
-                    avgMinutes = 28,
+                    daysWithWorkout = 30,
+                    daysNoWorkout = 0,
+                    avgMinutes = 58,
                     avgTrendText = "↑ 12% vs prev 30 days",
-                    peakDateText = "Peak (5 Oct)",
-                    lowestDateText = "Lowest (9 Oct)",
-                    highlightDayIndexes = mapOf(8 to "52m", 26 to "48m")
+                    peakDateText = "Peak (8 Oct)",
+                    lowestDateText = "Lowest (16 Oct)",
+                    highlightDayIndexes = mapOf(8 to "88m", 26 to "74m")
                 )
             )
         }

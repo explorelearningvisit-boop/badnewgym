@@ -232,7 +232,7 @@ private fun CompactHeroHeaderCard(
                     Text(
                         text = "M E M B E R",
                         color = Color(0xFF0D9488),
-                        fontSize = 8.5.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 2.5.sp,
                         modifier = Modifier.offset(y = (-2).dp)
@@ -298,7 +298,7 @@ private fun CompactHeroHeaderCard(
                             .background(Color(0xFFFBBF24)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "👑", fontSize = 8.sp)
+                        Text(text = "👑", fontSize = 10.5.sp)
                     }
 
                     // Green Online Dot (Bottom-Right)
@@ -332,7 +332,7 @@ private fun CompactHeroHeaderCard(
 
                     Text(
                         text = "${profile.memberCode} | ${profile.age} yrs | ${profile.gender}",
-                        fontSize = 10.5.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF64748B)
                     )
@@ -352,7 +352,7 @@ private fun CompactHeroHeaderCard(
                         ) {
                             Text(
                                 text = "⚡ Prime",
-                                fontSize = 8.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF92400E)
                             )
@@ -367,7 +367,7 @@ private fun CompactHeroHeaderCard(
                         ) {
                             Text(
                                 text = "✓ Active",
-                                fontSize = 8.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF065F46)
                             )
@@ -382,7 +382,7 @@ private fun CompactHeroHeaderCard(
                         ) {
                             Text(
                                 text = "📅 Joined 01 Sep 26",
-                                fontSize = 7.5.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color(0xFF7DD3FC)
                             )
@@ -422,13 +422,13 @@ private fun CompactHeroHeaderCard(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "${profile.attendancePercent}%",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White
                         )
                         Text(
                             text = "${profile.daysLeft} Days Left",
-                            fontSize = 6.5.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFFBAE6FD)
                         )
@@ -484,7 +484,7 @@ private fun CompactBodyStatsCard(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Body Stats",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
@@ -563,7 +563,7 @@ private fun CompactBodyStatBox(
             ) {
                 Text(
                     text = iconSymbol,
-                    fontSize = 7.sp,
+                    fontSize = 10.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
@@ -572,13 +572,13 @@ private fun CompactBodyStatBox(
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = item.value,
-                    fontSize = 10.5.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
                 Text(
                     text = item.delta,
-                    fontSize = 7.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = item.lineColor
                 )
@@ -650,12 +650,12 @@ private fun CompactPaymentPlanCard(
                             .background(Color(0xFFF43F5E)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "💳", fontSize = 10.sp)
+                        Text(text = "💳", fontSize = 11.5.sp)
                     }
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Payment & Plan",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
@@ -671,11 +671,11 @@ private fun CompactPaymentPlanCard(
                         .padding(horizontal = 6.dp, vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "⚡", fontSize = 8.sp)
+                    Text(text = "⚡", fontSize = 10.5.sp)
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = "Prime Plan (1 Month) 01 Sep – 30 Sep 2026",
-                        fontSize = 7.5.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF92400E)
                     )
@@ -725,19 +725,19 @@ private fun CompactPaymentPlanCard(
                     Column {
                         Text(
                             text = "Paid • On Time",
-                            fontSize = 8.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF10B981)
                         )
                         Text(
                             text = "₹2,800",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color(0xFF0F172A)
                         )
                         Text(
                             text = "01 Sep 2026",
-                            fontSize = 7.5.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B)
                         )
@@ -773,13 +773,13 @@ private fun CompactPaymentPlanCard(
                     Column {
                         Text(
                             text = "Next Due",
-                            fontSize = 8.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2563EB)
                         )
                         Text(
                             text = "30 Sep 2026",
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
@@ -791,7 +791,7 @@ private fun CompactPaymentPlanCard(
                         ) {
                             Text(
                                 text = "25 Days Left",
-                                fontSize = 7.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1D4ED8)
                             )
@@ -811,11 +811,11 @@ private fun CompactPaymentPlanCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "📄", fontSize = 11.sp)
+                        Text(text = "📄", fontSize = 12.sp)
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = "Receipt >",
-                            fontSize = 9.5.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2563EB)
                         )
@@ -872,7 +872,7 @@ private fun CompactAttendanceCard(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Attendance",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
@@ -921,17 +921,17 @@ private fun CompactAttendanceCard(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "${attendance.percent}%",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color(0xFF0F172A)
                         )
                         Text(
                             text = "${attendance.attendedDays}/${attendance.totalDays}\nDays",
-                            fontSize = 6.5.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B),
                             textAlign = TextAlign.Center,
-                            lineHeight = 7.5.sp
+                            lineHeight = 10.5.sp
                         )
                     }
                 }
@@ -961,7 +961,7 @@ private fun CompactAttendanceCard(
                         listOf("S", "M", "T", "W", "T", "F", "S").forEach { day ->
                             Text(
                                 text = day,
-                                fontSize = 7.5.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF64748B),
                                 modifier = Modifier.width(8.dp),
@@ -1019,14 +1019,14 @@ private fun CompactLegendItem(label: String, count: Int, color: Color) {
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = label,
-            fontSize = 8.sp,
+            fontSize = 10.5.sp,
             fontWeight = FontWeight.Medium,
             color = Color(0xFF64748B),
             modifier = Modifier.width(36.dp)
         )
         Text(
             text = "$count",
-            fontSize = 8.5.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0F172A)
         )
@@ -1068,12 +1068,12 @@ private fun CompactWorkoutTrendCard(
                             .background(Color(0xFF2563EB)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "🏋️", fontSize = 10.sp)
+                        Text(text = "🏋️", fontSize = 11.5.sp)
                     }
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Workout Trend",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
@@ -1115,9 +1115,9 @@ private fun CompactWorkoutTrendCard(
                             modifier = Modifier.fillMaxHeight(),
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("60m", fontSize = 6.sp, color = Color(0xFF94A3B8))
-                            Text("30m", fontSize = 6.sp, color = Color(0xFF94A3B8))
-                            Text("0m", fontSize = 6.sp, color = Color(0xFF94A3B8))
+                            Text("60m", fontSize = 10.5.sp, color = Color(0xFF94A3B8))
+                            Text("30m", fontSize = 10.5.sp, color = Color(0xFF94A3B8))
+                            Text("0m", fontSize = 10.5.sp, color = Color(0xFF94A3B8))
                         }
 
                         // Vertical Bars (30 days)
@@ -1153,7 +1153,7 @@ private fun CompactWorkoutTrendCard(
                         listOf("1", "5", "10", "15", "20", "25", "30").forEach { day ->
                             Text(
                                 text = day,
-                                fontSize = 6.5.sp,
+                                fontSize = 10.sp,
                                 color = Color(0xFF94A3B8),
                                 fontWeight = FontWeight.Medium
                             )
@@ -1176,12 +1176,12 @@ private fun CompactWorkoutTrendCard(
                                 .background(Color(0xFFD1FAE5)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("🕒", fontSize = 7.sp)
+                            Text("🕒", fontSize = 10.sp)
                         }
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("48m", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        Text("48m", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                         Spacer(modifier = Modifier.width(2.dp))
-                        Text("Avg / Day", fontSize = 7.sp, color = Color(0xFF64748B))
+                        Text("Avg / Day", fontSize = 10.sp, color = Color(0xFF64748B))
                     }
 
                     // Peak
@@ -1193,12 +1193,12 @@ private fun CompactWorkoutTrendCard(
                                 .background(Color(0xFFD1FAE5)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("↑", fontSize = 8.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
+                            Text("↑", fontSize = 10.5.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("52m", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        Text("52m", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                         Spacer(modifier = Modifier.width(2.dp))
-                        Text("Peak (10 Oct)", fontSize = 7.sp, color = Color(0xFF64748B))
+                        Text("Peak (10 Oct)", fontSize = 10.sp, color = Color(0xFF64748B))
                     }
 
                     // Lowest
@@ -1210,12 +1210,12 @@ private fun CompactWorkoutTrendCard(
                                 .background(Color(0xFFFFE4E6)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("↓", fontSize = 8.sp, color = Color(0xFFE11D48), fontWeight = FontWeight.Bold)
+                            Text("↓", fontSize = 10.5.sp, color = Color(0xFFE11D48), fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("12m", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        Text("12m", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                         Spacer(modifier = Modifier.width(2.dp))
-                        Text("Lowest (16 Oct)", fontSize = 7.sp, color = Color(0xFF64748B))
+                        Text("Lowest (16 Oct)", fontSize = 10.sp, color = Color(0xFF64748B))
                     }
                 }
             }
@@ -1256,12 +1256,12 @@ private fun CompactAnalyticsButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "📊", fontSize = 12.sp)
+            Text(text = "📊", fontSize = 13.sp)
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "View Detailed Analytics  →",
                 color = Color.White,
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
         }

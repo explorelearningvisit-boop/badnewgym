@@ -168,7 +168,7 @@ fun BadGymMemberPassCard(
                                 ) {
                                     Text(
                                         text = cardType.title,
-                                        fontSize = 8.5.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Black,
                                         color = cardType.badgeText,
                                         letterSpacing = 0.4.sp,
@@ -188,7 +188,7 @@ fun BadGymMemberPassCard(
                                 ) {
                                     Text(
                                         text = status.label,
-                                        fontSize = 8.sp,
+                                        fontSize = 10.5.sp,
                                         fontWeight = FontWeight.Black,
                                         color = status.color,
                                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
@@ -199,7 +199,7 @@ fun BadGymMemberPassCard(
 
                         Text(
                             text = if (cardType == MemberCardType.MEMBER_PASS) "MEMBER PASS" else cardType.subtitle,
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             letterSpacing = 1.sp,
                             color = if (cardType == MemberCardType.MEMBER_PASS) Color(0xFF64748B) else cardType.badgeText.copy(alpha = 0.9f)
@@ -215,14 +215,14 @@ fun BadGymMemberPassCard(
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = "DISCIPLINE",
-                            fontSize = 8.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = "BUILDS FREEDOM",
-                            fontSize = 8.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp,
                             color = Color(0xFF64748B)
@@ -298,7 +298,7 @@ fun BadGymMemberPassCard(
                     ) {
                         Text(
                             text = "★",
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White
                         )
@@ -322,7 +322,7 @@ fun BadGymMemberPassCard(
 
                     Text(
                         text = "${pass.memberId}  |  ${pass.age} yrs  |  ${pass.gender}",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF475569),
                         maxLines = 1
@@ -330,7 +330,7 @@ fun BadGymMemberPassCard(
 
                     Text(
                         text = "\u201C${pass.quote}\u201D",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1E293B),
                         maxLines = 1
@@ -348,7 +348,7 @@ fun BadGymMemberPassCard(
                         )
                         Text(
                             text = "${pass.startDate} – ${pass.endDate}",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF334155)
                         )
@@ -372,17 +372,17 @@ fun BadGymMemberPassCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(text = "⭐", fontSize = 11.sp)
+                            Text(text = "⭐", fontSize = 12.sp)
                             Column {
                                 Text(
                                     text = pass.tier.title,
-                                    fontSize = 12.sp,
+                                    fontSize = 13.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF0F172A)
                                 )
                                 Text(
                                     text = pass.tier.durationText,
-                                    fontSize = 9.5.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF64748B)
                                 )
@@ -417,7 +417,7 @@ fun BadGymMemberPassCard(
                             }
                             Text(
                                 text = if (pass.isOverdue) "Overdue" else "Active",
-                                fontSize = 11.5.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White
                             )
@@ -464,7 +464,7 @@ fun BadGymMemberPassCard(
                     // Text horizontally centered across the full bar (Pixel-perfect match to Image 3)
                     Text(
                         text = "${pass.daysLeft} / ${pass.totalDays} Days Left",
-                        fontSize = 13.5.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.White,
                         modifier = Modifier.align(Alignment.Center)
@@ -570,7 +570,7 @@ private fun BiometricPodItem(
             )
             Text(
                 text = label,
-                fontSize = 9.5.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF64748B),
                 maxLines = 1
@@ -837,14 +837,14 @@ private fun PassVectorPod(
             ) {
                 Text(
                     text = title,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = titleColor,
                     maxLines = 1
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 10.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = subtitleColor,
                     maxLines = 1

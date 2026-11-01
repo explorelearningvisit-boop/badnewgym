@@ -143,7 +143,7 @@ fun PaymentPlanSection(
                         Text(
                             text = paymentPlan.paymentStatus,
                             color = Color(0xFF15803D),
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -187,20 +187,20 @@ fun PaymentPlanSection(
                         Text(
                             text = "Next Due",
                             color = MemberCardTokens.SlateMuted,
-                            fontSize = 9.5.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = paymentPlan.nextDueDate,
                             color = MemberCardTokens.DarkNavy,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1
                         )
                         Text(
                             text = "${paymentPlan.daysLeft} Days Left",
                             color = Color(0xFF2563EB),
-                            fontSize = 10.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -234,7 +234,7 @@ fun PaymentPlanSection(
                         Text(
                             text = "Prime",
                             color = Color(0xFFB45309),
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }

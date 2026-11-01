@@ -156,14 +156,14 @@ fun AquaLeftNavRail(
         ) {
             Text(
                 text = "Check-In",
-                fontSize = 8.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = AquaGlassTokens.TextSlate,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "LIVE",
-                fontSize = 8.5.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = AquaGlassTokens.MintNeon,
                 textAlign = TextAlign.Center
@@ -215,7 +215,7 @@ fun AquaLeftNavRail(
 
                 Text(
                     text = item.title,
-                    fontSize = 7.5.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                     color = if (isSelected) AquaGlassTokens.EmeraldDark else AquaGlassTokens.TextSlate,
                     maxLines = 1,
@@ -226,7 +226,7 @@ fun AquaLeftNavRail(
                 if (item.badge.isNotEmpty()) {
                     Text(
                         text = item.badge,
-                        fontSize = 7.5.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.EmeraldDark,
                         textAlign = TextAlign.Center
@@ -458,7 +458,7 @@ fun AquaHeroCard(
 
                     Text(
                         text = "${profile.memberCode}  •  ${profile.age} yrs  •  ${profile.gender}",
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         color = AquaGlassTokens.TextMuted
                     )
@@ -479,7 +479,7 @@ fun AquaHeroCard(
                         ) {
                             Text(
                                 text = "👑 Gold Plan",
-                                fontSize = 9.5.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFB45309)
                             )
@@ -493,7 +493,7 @@ fun AquaHeroCard(
                         ) {
                             Text(
                                 text = "Active",
-                                fontSize = 9.5.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
@@ -512,7 +512,7 @@ fun AquaHeroCard(
             ) {
                 Text(
                     text = "12 / 30 days used",
-                    fontSize = 11.5.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1E3A8A)
                 )
@@ -617,7 +617,7 @@ fun AquaPaymentCard(
                     ) {
                         Text(
                             text = "DUE SOON  ⚠️",
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF9A3412)
                         )
@@ -658,13 +658,13 @@ fun AquaPaymentCard(
                     )
                     Text(
                         text = "Due in 3 days",
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.CoralDark
                     )
                     Text(
                         text = "16 Oct 2026",
-                        fontSize = 10.5.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = AquaGlassTokens.TextMuted
                     )
@@ -794,21 +794,21 @@ fun AquaPaymentCard(
 
                     Text(
                         text = "Last Paid",
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = AquaGlassTokens.TextMuted,
                         textAlign = TextAlign.End
                     )
                     Text(
                         text = "₹2,800",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.TextNavy,
                         textAlign = TextAlign.End
                     )
                     Text(
                         text = "15 Sep 2026",
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Normal,
                         color = AquaGlassTokens.TextLight,
                         textAlign = TextAlign.End
@@ -868,7 +868,7 @@ fun AquaAttendanceCard(
 
                     Text(
                         text = "(Oct 2026)",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.BlueRoyal
                     )
@@ -884,7 +884,7 @@ fun AquaAttendanceCard(
                 ) {
                     Text(
                         text = "<",
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.BlueCyan
                     )
@@ -985,18 +985,18 @@ fun AquaAttendanceCard(
 
                     Text(
                         text = "9 / 10",
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.TextNavy
                     )
                     Text(
                         text = "Open Days",
-                        fontSize = 8.5.sp,
+                        fontSize = 11.sp,
                         color = AquaGlassTokens.TextMuted
                     )
                     Text(
                         text = "↓ 2% vs prev",
-                        fontSize = 8.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.CoralRose
                     )
@@ -1023,8 +1023,8 @@ fun AquaAttendanceCard(
                             ) {
                                 Icon(imageVector = Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(11.dp))
                             }
-                            Text(text = "7", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
-                            Text(text = "Present", fontSize = 7.5.sp, color = AquaGlassTokens.TextSlate)
+                            Text(text = "7", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
+                            Text(text = "Present", fontSize = 10.5.sp, color = AquaGlassTokens.TextSlate)
                         }
 
                         // Late
@@ -1043,8 +1043,8 @@ fun AquaAttendanceCard(
                                         .background(Color.White)
                                 )
                             }
-                            Text(text = "2", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
-                            Text(text = "Late", fontSize = 7.5.sp, color = AquaGlassTokens.TextSlate)
+                            Text(text = "2", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
+                            Text(text = "Late", fontSize = 10.5.sp, color = AquaGlassTokens.TextSlate)
                         }
 
                         // Absent
@@ -1058,8 +1058,8 @@ fun AquaAttendanceCard(
                             ) {
                                 Icon(imageVector = Icons.Default.Close, contentDescription = null, tint = Color.White, modifier = Modifier.size(11.dp))
                             }
-                            Text(text = "1", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
-                            Text(text = "Absent", fontSize = 7.5.sp, color = AquaGlassTokens.TextSlate)
+                            Text(text = "1", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
+                            Text(text = "Absent", fontSize = 10.5.sp, color = AquaGlassTokens.TextSlate)
                         }
                     }
 
@@ -1083,7 +1083,7 @@ fun AquaAttendanceCard(
                                     .clickable { onDayClick(CalendarDay(num, 0, status)) }
                                     .padding(horizontal = 2.dp, vertical = 1.dp)
                             ) {
-                                Text(text = day, fontSize = 8.5.sp, color = AquaGlassTokens.TextMuted)
+                                Text(text = day, fontSize = 11.sp, color = AquaGlassTokens.TextMuted)
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Box(
                                     modifier = Modifier
@@ -1102,7 +1102,7 @@ fun AquaAttendanceCard(
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "$num", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextSlate)
+                                Text(text = "$num", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextSlate)
                             }
                         }
                     }
@@ -1163,7 +1163,7 @@ fun AquaWorkoutCard(
 
                     Text(
                         text = "(Last 15 Days)",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.BlueRoyal
                     )
@@ -1178,7 +1178,7 @@ fun AquaWorkoutCard(
                 ) {
                     Text(
                         text = "7D",
-                        fontSize = 10.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.BlueRoyal
                     )
@@ -1264,7 +1264,7 @@ fun AquaWorkoutCard(
                         ) {
                             Text(
                                 text = if (mins > 0) "${mins}m" else "0",
-                                fontSize = 8.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = if (isPeak) FontWeight.ExtraBold else FontWeight.SemiBold,
                                 color = if (isPeak) AquaGlassTokens.EmeraldDark else AquaGlassTokens.TextNavy
                             )
@@ -1297,10 +1297,10 @@ fun AquaWorkoutCard(
 
                             Text(
                                 text = date,
-                                fontSize = 7.5.sp,
+                                fontSize = 10.5.sp,
                                 color = AquaGlassTokens.TextMuted,
                                 textAlign = TextAlign.Center,
-                                lineHeight = 9.sp
+                                lineHeight = 11.sp
                             )
                         }
                     }
@@ -1325,11 +1325,11 @@ fun AquaWorkoutCard(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "11", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
+                        Text(text = "11", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
                         Spacer(modifier = Modifier.width(3.dp))
-                        Text(text = "Sessions", fontSize = 8.sp, color = AquaGlassTokens.TextMuted)
+                        Text(text = "Sessions", fontSize = 10.5.sp, color = AquaGlassTokens.TextMuted)
                     }
-                    Text(text = "↑ 2 vs prev", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.MintGreen)
+                    Text(text = "↑ 2 vs prev", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.MintGreen)
                 }
 
                 // Card 2: 823m Total Duration
@@ -1347,10 +1347,10 @@ fun AquaWorkoutCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "823m", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
-                        Text(text = "↑ 14%", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.MintGreen)
+                        Text(text = "823m", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
+                        Text(text = "↑ 14%", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.MintGreen)
                     }
-                    Text(text = "Total Duration", fontSize = 8.sp, color = AquaGlassTokens.TextMuted)
+                    Text(text = "Total Duration", fontSize = 10.5.sp, color = AquaGlassTokens.TextMuted)
                 }
 
                 // Card 3: 74m Average
@@ -1363,8 +1363,8 @@ fun AquaWorkoutCard(
                         .padding(horizontal = 6.dp, vertical = 6.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "74m", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
-                    Text(text = "Average", fontSize = 8.sp, color = AquaGlassTokens.TextMuted)
+                    Text(text = "74m", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = AquaGlassTokens.TextNavy)
+                    Text(text = "Average", fontSize = 10.5.sp, color = AquaGlassTokens.TextMuted)
                 }
             }
         }
@@ -1421,7 +1421,7 @@ fun AquaBodyProgressCard(
 
                     Text(
                         text = "(30D)",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.PurpleViolet
                     )
@@ -1455,10 +1455,10 @@ fun AquaBodyProgressCard(
                                 .background(AquaGlassTokens.PurpleViolet),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "⚖", fontSize = 10.sp, color = Color.White)
+                            Text(text = "⚖", fontSize = 11.5.sp, color = Color.White)
                         }
                         Spacer(modifier = Modifier.width(5.dp))
-                        Text(text = "Weight", fontSize = 9.5.sp, fontWeight = FontWeight.Medium, color = AquaGlassTokens.TextSlate)
+                        Text(text = "Weight", fontSize = 11.5.sp, fontWeight = FontWeight.Medium, color = AquaGlassTokens.TextSlate)
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1471,7 +1471,7 @@ fun AquaBodyProgressCard(
                     )
                     Text(
                         text = "↓ 1.2 kg",
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.MintGreen
                     )
@@ -1516,10 +1516,10 @@ fun AquaBodyProgressCard(
                                 .background(AquaGlassTokens.BlueCyan),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "💪", fontSize = 10.sp, color = Color.White)
+                            Text(text = "💪", fontSize = 11.5.sp, color = Color.White)
                         }
                         Spacer(modifier = Modifier.width(5.dp))
-                        Text(text = "Muscle", fontSize = 9.5.sp, fontWeight = FontWeight.Medium, color = AquaGlassTokens.TextSlate)
+                        Text(text = "Muscle", fontSize = 11.5.sp, fontWeight = FontWeight.Medium, color = AquaGlassTokens.TextSlate)
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1532,7 +1532,7 @@ fun AquaBodyProgressCard(
                     )
                     Text(
                         text = "↑ 1.8 kg",
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.MintGreen
                     )
@@ -1577,27 +1577,27 @@ fun AquaBodyProgressCard(
                 ) {
                     Text(
                         text = "Top Exercise",
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = AquaGlassTokens.TextMuted
                     )
                     Text(
                         text = "Bench Press",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.TextNavy
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "65 → 67.5 kg",
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = AquaGlassTokens.TextNavy
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "(+4%)",
-                            fontSize = 10.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = AquaGlassTokens.MintGreen
                         )
@@ -1640,7 +1640,7 @@ fun AquaBodyProgressCard(
                 ) {
                     Text(
                         text = "Muscle Focus (Sets)",
-                        fontSize = 10.5.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = AquaGlassTokens.TextNavy
                     )
@@ -1668,7 +1668,7 @@ private fun MuscleFocusRow(name: String, progress: Float, gradient: List<Color>)
     ) {
         Text(
             text = name,
-            fontSize = 8.5.sp,
+            fontSize = 11.sp,
             color = AquaGlassTokens.TextMuted,
             modifier = Modifier.width(34.dp)
         )

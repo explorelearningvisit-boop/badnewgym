@@ -141,7 +141,7 @@ fun IntelligenceTopBar(
                 )
                 Text(
                     text = "Member Intelligence",
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF64748B)
                 )
@@ -172,7 +172,7 @@ fun IntelligenceTopBar(
                 )
                 Text(
                     text = monthLabel,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
@@ -318,7 +318,7 @@ fun IntelligenceHeroCard(
 
                         Text(
                             text = "${profile.memberCode}  |  ${profile.age} yrs  |  ${profile.gender}",
-                            fontSize = 12.5.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF64748B)
                         )
@@ -343,7 +343,7 @@ fun IntelligenceHeroCard(
                                 VectorLightning(tint = Color(0xFFD97706), modifier = Modifier.size(11.dp))
                                 Text(
                                     text = profile.planBadgeText,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFFB45309)
                                 )
@@ -366,7 +366,7 @@ fun IntelligenceHeroCard(
                                 )
                                 Text(
                                     text = "Active",
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
@@ -429,13 +429,13 @@ fun IntelligenceHeroCard(
                             )
                             Text(
                                 text = "${profile.daysLeft} / ${profile.totalPlanDays}",
-                                fontSize = 10.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF334155)
                             )
                             Text(
                                 text = "Days Left",
-                                fontSize = 8.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color(0xFF64748B)
                             )
@@ -472,17 +472,17 @@ fun IntelligenceHeroCard(
                         }
 
                         Column {
-                            Text("Joined", fontSize = 8.5.sp, color = Color(0xFF64748B))
+                            Text("Joined", fontSize = 11.sp, color = Color(0xFF64748B))
                             Text(
                                 text = profile.joinedDate,
-                                fontSize = 10.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1
                             )
                             Text(
                                 text = profile.joinedDuration,
-                                fontSize = 8.sp,
+                                fontSize = 10.5.sp,
                                 color = Color(0xFF64748B),
                                 maxLines = 1
                             )
@@ -511,10 +511,10 @@ fun IntelligenceHeroCard(
                         }
 
                         Column {
-                            Text("Goal", fontSize = 8.5.sp, color = Color(0xFF64748B))
+                            Text("Goal", fontSize = 11.sp, color = Color(0xFF64748B))
                             Text(
                                 text = profile.goal,
-                                fontSize = 10.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1,
@@ -545,10 +545,10 @@ fun IntelligenceHeroCard(
                         }
 
                         Column {
-                            Text("Branch", fontSize = 8.5.sp, color = Color(0xFF64748B))
+                            Text("Branch", fontSize = 11.sp, color = Color(0xFF64748B))
                             Text(
                                 text = profile.branch,
-                                fontSize = 10.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F172A),
                                 maxLines = 1,
@@ -606,7 +606,7 @@ fun IntelligenceBodyStatsCard(
                         )
                         Text(
                             text = "  • Latest vs Previous",
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF7C3AED)
                         )
@@ -619,7 +619,7 @@ fun IntelligenceBodyStatsCard(
                 ) {
                     Text(
                         text = "View Details",
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF2563EB)
                     )
@@ -685,7 +685,7 @@ private fun BentoStatTile(
                 when (item.type) {
                     BodyStatType.WEIGHT -> VectorKettlebell(tint = Color.White, modifier = Modifier.size(13.dp))
                     BodyStatType.MUSCLE -> VectorDumbbell(tint = Color.White, modifier = Modifier.size(13.dp))
-                    BodyStatType.BODY_FAT -> Text("%", fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                    BodyStatType.BODY_FAT -> Text("%", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
                     BodyStatType.BMI -> VectorUserSilhouette(tint = Color.White, modifier = Modifier.size(13.dp))
                 }
             }
@@ -703,7 +703,7 @@ private fun BentoStatTile(
         // Main Metric Value
         Text(
             text = item.value,
-            fontSize = 14.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Black,
             color = Color(0xFF0F172A),
             maxLines = 1
@@ -712,7 +712,7 @@ private fun BentoStatTile(
         // Label
         Text(
             text = item.label,
-            fontSize = 10.sp,
+            fontSize = 11.5.sp,
             color = Color(0xFF64748B)
         )
 
@@ -728,7 +728,7 @@ private fun BentoStatTile(
             ) {
                 Text(
                     text = item.badgeText,
-                    fontSize = 8.5.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF16A34A)
                 )
@@ -740,7 +740,7 @@ private fun BentoStatTile(
 
             Text(
                 text = item.delta,
-                fontSize = 9.5.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = deltaColor
             )
@@ -811,7 +811,7 @@ private fun BentoStatTile(
             }
             Text(
                 text = item.footerText.ifEmpty { "Active" },
-                fontSize = 8.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = footerColor,
                 maxLines = 1,
@@ -859,7 +859,7 @@ fun IntelligenceWorkoutAttendanceCard(
 
                     Text(
                         text = "Workout Trend & Attendance",
-                        fontSize = 14.5.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color(0xFF0F172A)
                     )
@@ -879,7 +879,7 @@ fun IntelligenceWorkoutAttendanceCard(
                     ) {
                         Text(
                             text = "Oct 2026",
-                            fontSize = 10.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
@@ -902,7 +902,7 @@ fun IntelligenceWorkoutAttendanceCard(
                     ) {
                         Text(
                             text = "Details",
-                            fontSize = 10.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2563EB)
                         )
@@ -998,11 +998,11 @@ fun IntelligenceWorkoutAttendanceCard(
                         .padding(start = 2.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("60m", fontSize = 8.5.sp, color = Color(0xFF64748B))
-                    Text("45m", fontSize = 8.5.sp, color = Color(0xFF64748B))
-                    Text("30m", fontSize = 8.5.sp, color = Color(0xFF64748B))
-                    Text("15m", fontSize = 8.5.sp, color = Color(0xFF64748B))
-                    Text("0m", fontSize = 8.5.sp, color = Color(0xFF64748B))
+                    Text("60m", fontSize = 11.sp, color = Color(0xFF64748B))
+                    Text("45m", fontSize = 11.sp, color = Color(0xFF64748B))
+                    Text("30m", fontSize = 11.sp, color = Color(0xFF64748B))
+                    Text("15m", fontSize = 11.sp, color = Color(0xFF64748B))
+                    Text("0m", fontSize = 11.sp, color = Color(0xFF64748B))
                 }
 
                 // 3. Right Y-Axis Threshold Bands
@@ -1030,7 +1030,7 @@ fun IntelligenceWorkoutAttendanceCard(
                 ) {
                     Text(
                         text = "Avg 28m",
-                        fontSize = 8.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -1090,7 +1090,7 @@ fun IntelligenceWorkoutAttendanceCard(
                             ) {
                                 Text(
                                     text = dayNum.toString(),
-                                    fontSize = 6.5.sp,
+                                    fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
                                     textAlign = TextAlign.Center
@@ -1120,11 +1120,11 @@ fun IntelligenceWorkoutAttendanceCard(
                                 .background(Color(0xFF5B21B6)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("+", fontSize = 8.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            Text("+", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color.White)
                         }
                         Column {
-                            Text("Peak", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                            Text("52m (10 Oct)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Peak", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("52m (10 Oct)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }
@@ -1149,11 +1149,11 @@ fun IntelligenceWorkoutAttendanceCard(
                                 .background(Color(0xFFB91C1C)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("↓", fontSize = 8.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            Text("↓", fontSize = 10.5.sp, fontWeight = FontWeight.Black, color = Color.White)
                         }
                         Column {
-                            Text("Lowest", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                            Text("12m (16 Oct)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Lowest", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("12m (16 Oct)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }
@@ -1201,8 +1201,8 @@ private fun LegendVectorItem(icon: @Composable () -> Unit, label: String, count:
     ) {
         icon()
         Column {
-            Text(label, fontSize = 7.5.sp, color = Color(0xFF64748B))
-            Text(count, fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = fg)
+            Text(label, fontSize = 10.5.sp, color = Color(0xFF64748B))
+            Text(count, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = fg)
         }
     }
 }
@@ -1218,7 +1218,7 @@ private fun ThresholdPill(text: String, bg: Color, fg: Color) {
     ) {
         Text(
             text = text,
-            fontSize = 7.5.sp,
+            fontSize = 10.5.sp,
             fontWeight = FontWeight.Bold,
             color = fg
         )
@@ -1238,8 +1238,8 @@ private fun LegendDotItem(color: Color, label: String, count: String) {
                 .background(color)
         )
         Column {
-            Text(label, fontSize = 7.5.sp, color = Color(0xFF64748B))
-            Text(count, fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+            Text(label, fontSize = 10.5.sp, color = Color(0xFF64748B))
+            Text(count, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
         }
     }
 }
@@ -1250,10 +1250,10 @@ private fun LegendStatItem(icon: String, label: String, count: String, fg: Color
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        Text(icon, fontSize = 9.sp)
+        Text(icon, fontSize = 11.sp)
         Column {
-            Text(label, fontSize = 7.5.sp, color = Color(0xFF64748B))
-            Text(count, fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = fg)
+            Text(label, fontSize = 10.5.sp, color = Color(0xFF64748B))
+            Text(count, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = fg)
         }
     }
 }
@@ -1314,7 +1314,7 @@ fun IntelligencePaymentPlanCard(
                     VectorLightning(tint = Color(0xFFD97706), modifier = Modifier.size(11.dp))
                     Text(
                         text = "Prime Plan (1 Month)",
-                        fontSize = 11.5.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFB45309)
                     )
@@ -1364,21 +1364,21 @@ fun IntelligencePaymentPlanCard(
                     Column {
                         Text(
                             text = payment.amountPaid,
-                            fontSize = 14.5.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1
                         )
                         Text(
                             text = "Paid • On Time",
-                            fontSize = 8.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF10B981),
                             maxLines = 1
                         )
                         Text(
                             text = "01 Sep 2026",
-                            fontSize = 7.5.sp,
+                            fontSize = 10.5.sp,
                             color = Color(0xFF64748B),
                             maxLines = 1
                         )
@@ -1409,20 +1409,20 @@ fun IntelligencePaymentPlanCard(
                     Column {
                         Text(
                             text = "Next Due",
-                            fontSize = 7.5.sp,
+                            fontSize = 10.5.sp,
                             color = Color(0xFF64748B),
                             maxLines = 1
                         )
                         Text(
                             text = payment.nextDueDate,
-                            fontSize = 10.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A),
                             maxLines = 1
                         )
                         Text(
                             text = "${payment.daysLeft} Days Left",
-                            fontSize = 8.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2563EB),
                             maxLines = 1
@@ -1445,10 +1445,10 @@ fun IntelligencePaymentPlanCard(
                     VectorReceipt(tint = Color(0xFF2563EB), modifier = Modifier.size(14.dp))
                     Text(
                         text = "View\nReceipt",
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2563EB),
-                        lineHeight = 11.sp
+                        lineHeight = 12.sp
                     )
                 }
 
@@ -1476,17 +1476,17 @@ fun IntelligencePaymentPlanCard(
                     ) {
                         Text(
                             text = "₹",
-                            fontSize = 9.5.sp,
+                            fontSize = 11.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF059669)
                         )
                     }
                     Text(
                         text = "Collect\nMoney",
-                        fontSize = 9.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
-                        lineHeight = 11.sp
+                        lineHeight = 12.sp
                     )
                 }
             }
@@ -1543,7 +1543,7 @@ fun IntelligenceTodayActivityCard(
                 ) {
                     Text(
                         text = "Details",
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2563EB)
                     )
@@ -1658,12 +1658,12 @@ private fun TodayActivityTile(
         Column {
             Text(
                 text = label,
-                fontSize = 9.sp,
+                fontSize = 11.sp,
                 color = Color(0xFF64748B)
             )
             Text(
                 text = value,
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF0F172A)
             )

@@ -188,7 +188,7 @@ fun AppHeader(
                         Text(
                             text = branch.uppercase(),
                             color = Color(0xFF059669),
-                            fontSize = 9.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Black,
                             letterSpacing = 1.sp
                         )
@@ -258,7 +258,7 @@ fun AppHeader(
                         Text(
                             text = unreadCount.toString(),
                             color = Color.White,
-                            fontSize = 9.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Black
                         )
                     }
@@ -478,14 +478,14 @@ private fun DaysLeftGauge(daysLeft: Int, totalDays: Int) {
             Text(
                 text = "Days Left",
                 color = Color(0xFF64748B),
-                fontSize = 8.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "of $totalDays",
                 color = Color(0xFF94A3B8),
-                fontSize = 8.sp,
+                fontSize = 10.sp,
                 textAlign = TextAlign.Center
             )
         }
@@ -541,7 +541,7 @@ fun QuickStatsStrip(profile: MemberProfile) {
                 Text(
                     text = stat.label,
                     color = Color(0xFF64748B),
-                    fontSize = 9.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                     maxLines = 1
@@ -559,7 +559,7 @@ fun QuickStatsStrip(profile: MemberProfile) {
                     Text(
                         text = stat.sub,
                         color = if (stat.sub.startsWith("\u25B2")) Color(0xFF10B981) else Color(0xFF94A3B8),
-                        fontSize = 9.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         maxLines = 1
@@ -1213,7 +1213,7 @@ private fun WorkoutActivityChart(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("52m", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Black)
-                Text("10 Oct", color = Color.White.copy(alpha = 0.85f), fontSize = 8.sp, fontWeight = FontWeight.Medium)
+                Text("10 Oct", color = Color.White.copy(alpha = 0.85f), fontSize = 10.sp, fontWeight = FontWeight.Medium)
             }
         }
 
@@ -1229,7 +1229,7 @@ private fun WorkoutActivityChart(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("12m", color = Color(0xFFE11D48), fontSize = 10.sp, fontWeight = FontWeight.Black)
-                Text("16 Oct", color = Color(0xFFE11D48).copy(alpha = 0.8f), fontSize = 8.sp, fontWeight = FontWeight.Medium)
+                Text("16 Oct", color = Color(0xFFE11D48).copy(alpha = 0.8f), fontSize = 10.sp, fontWeight = FontWeight.Medium)
             }
         }
 
@@ -1349,7 +1349,7 @@ private fun LegendItem(
                 .background(dotColor),
             contentAlignment = Alignment.Center
         ) {
-            Text(iconText, color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+            Text(iconText, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         }
         Text(
             text = label,
