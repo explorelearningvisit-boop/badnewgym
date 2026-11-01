@@ -149,9 +149,9 @@ data class BadGymMemberPass(
 ) {
     companion object {
         fun sampleAshwaniKumarSingh(): BadGymMemberPass = BadGymMemberPass(
-            tier = BadGymPassTier.SILVER,
+            tier = BadGymPassTier.GOLD,
             memberId = "BG215",
-            name = "Ashwani Kumar Singh Srivastav",
+            name = "Ashwani Kumar Singh",
             age = 28,
             gender = "Male",
             quote = "Discipline Builds Freedom",
@@ -164,10 +164,10 @@ data class BadGymMemberPass(
             height = "5'9\"",
             weight = "69.5 kg",
             bmi = "22.8",
-            goal = "Fat Loss",
+            goal = "Muscle Gain",
             avatarRes = R.drawable.avatar_ashwini,
-            planName = "Starter Plan SILVER",
-            planPrice = "30 Days Plan",
+            planName = "Gold Plan (6 Months)",
+            planPrice = "180 Days Plan",
             branchName = "Varanasi",
             isVerified = true
         )

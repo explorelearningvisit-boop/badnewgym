@@ -58,6 +58,10 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.AccountBalanceWallet
+import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.BodyIntelligenceSheetHost
+import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.bodyIntelligenceItems
+import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.rememberBodyIntelligenceState
+import com.example.badnewgym.feature.membercard.data.MemberBodyIntelligenceMapper
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CreditCard
@@ -594,6 +598,27 @@ fun MasterStoryboardDashboard(
     // cycles through demo identities when the avatar is tapped.
     val currentPass = remember { BadGymMemberPass.getAll9Passes().first() }
 
+    // Body Intelligence reads the signed-in member's own records once per data
+    // change; selection and privacy state survive tab switches and sheet opens.
+    val bodyInput = remember(data, currentPass) {
+        val base = MemberBodyIntelligenceMapper.from(data)
+        base.copy(
+            memberName = currentPass.name,
+            memberId = currentPass.memberId,
+            // The pass is the signed-in identity; the member card supplies the
+            // plan, goal and dues that the pass model does not carry.
+            profile = base.profile?.copy(
+                name = currentPass.name,
+                memberId = currentPass.memberId,
+                age = currentPass.age.toString(),
+                gender = currentPass.gender,
+                status = if (currentPass.isOverdue) "Overdue" else "Active",
+                goalLabel = currentPass.goal.takeIf { it.isNotBlank() } ?: base.profile?.goalLabel
+            )
+        )
+    }
+    val bodyState = rememberBodyIntelligenceState(bodyInput)
+
     val hasDues = data.paymentPlan.dueAlertAmount.isNotEmpty() ||
         data.paymentPlan.currentDueAmount.isNotEmpty()
 
@@ -810,9 +835,7 @@ fun MasterStoryboardDashboard(
                     }
                 }
                 3 -> {
-                    item(key = "tab_body") {
-                        MasterBodyProgressCard(data = data, onClick = onBodyProgressClick)
-                    }
+                    bodyIntelligenceItems(state = bodyState, listState = lazyListState)
                 }
             }
 
@@ -827,6 +850,10 @@ fun MasterStoryboardDashboard(
             }
         }
         }
+
+        // Drill-down and privacy sheets live at the screen root so they survive
+        // the lazy list recycling its items.
+        BodyIntelligenceSheetHost(state = bodyState)
     }
 }
 
@@ -3228,40 +3255,12 @@ private fun PaymentSummaryCell(
 }
 
 // =============================================================================
-// 4. MASTER BODY INTELLIGENCE CARD
+// 4. BODY INTELLIGENCE
 // =============================================================================
-
-@Composable
-fun MasterBodyProgressCard(
-    data: MemberCardData,
-    onClick: () -> Unit = {},
-    isBlendedWithTab: Boolean = false,
-    modifier: Modifier = Modifier
-) {
-    val cardShape = if (isBlendedWithTab) {
-        RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 22.dp, bottomEnd = 22.dp)
-    } else {
-        RoundedCornerShape(22.dp)
-    }
-
-    Surface(
-        shape = cardShape,
-        color = Color.White,
-        border = BorderStroke(1.2.dp, InfographicTokens.Hairline),
-        shadowElevation = 0.dp,
-        modifier = modifier
-            .fillMaxWidth()
-            .neumorphicLift(cardShape, tint = Color(0xFF2563EB), elevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 9.dp, vertical = 8.dp)
-        ) {
-            BodyIntelligenceSection(data = data, onClick = onClick)
-        }
-    }
-}
+// The canonical Body tab lives in
+// feature/bodyprogress/presentation/intelligence/BodyIntelligenceDashboard.kt.
+// The previous mock section and its wrapper card were removed so there is one
+// implementation only.
 
 // =============================================================================
 // 5. MASTER FOOTER BANNER ("Consistent Steps, Brighter Days")

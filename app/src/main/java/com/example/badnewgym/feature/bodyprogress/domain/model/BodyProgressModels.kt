@@ -232,6 +232,10 @@ enum class FitnessTestKind(val label: String, val unit: String, val higherIsBett
     CYCLING_DISTANCE("Cycling Distance", "km", true),
     ROW_500M("Row 500m", "sec", false),
     PUSH_UPS("Push-ups", "reps", true),
+    PULL_UPS("Pull-ups", "reps", true),
+    SIT_UPS("Sit-ups", "reps", true),
+    SIT_AND_REACH("Sit & Reach", "cm", true),
+    BENCH_PRESS_1RM("Bench Press 1RM", "kg", true),
     PLANK_HOLD("Plank Hold", "sec", true),
     VO2_MAX("VO2 Max", "ml/kg/min", true),
     GRIP_STRENGTH("Grip Strength", "kg", true)
