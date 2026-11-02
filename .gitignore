@@ -41,4 +41,9 @@ OPPO/WhatsApp_Private_Documents_50MB/
 OPPO/__pycache__/
 .idea/inspectionProfiles/
 tools/badgym-agent-bridge/
+/*.png
+/.qoder/
+/MasterStoryboardDashboard.kt
+/tmp_scale.js
+/ui_tabs.xml
 

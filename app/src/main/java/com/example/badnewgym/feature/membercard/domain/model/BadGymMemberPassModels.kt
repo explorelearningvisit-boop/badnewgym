@@ -164,6 +164,8 @@ data class BadGymMemberPass(
             height = "5'9\"",
             weight = "69.5 kg",
             bmi = "22.8",
+            // Matches the signed-in member card: a lean bulk, so the weight target
+            // sits above the current weight and both sources agree on the goal.
             goal = "Muscle Gain",
             avatarRes = R.drawable.avatar_ashwini,
             planName = "Gold Plan (6 Months)",

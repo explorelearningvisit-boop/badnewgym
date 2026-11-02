@@ -274,6 +274,8 @@ fun GlassCard(
     val shape = RoundedCornerShape(corner)
     // The lift lives on the modifier so the shadow can carry the section hue
     // instead of the flat slate Surface elevation produces on its own.
+    // A 1.5dp lit edge is what makes each card read as its own framed panel once
+    // the cards sit tight against each other.
     Surface(
         shape = shape,
         color = Color.Transparent,
@@ -286,7 +288,7 @@ fun GlassCard(
             modifier = Modifier
                 .clip(shape)
                 .background(fill)
-                .border(1.dp, edge, shape)
+                .border(1.5.dp, edge, shape)
                 .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
             content = content
         )
@@ -1283,20 +1285,9 @@ fun UnifiedBadGymMemberCard(
             onMenuClick = onMenuClick
         )
 
-        BandDivider()
-
-        StatsRowCompact(
-            height = height,
-            weight = weight,
-            weightDelta = weightDelta,
-            bmi = bmi,
-            bmiCategory = bmiCategory,
-            goal = goal,
-            goalSubtitle = goalSubtitle,
-            accent = accent,
-            onGoalClick = onGoalClick
-        )
-
+        // The biometric band and the status strip used to sit below the profile.
+        // Both restated what the 4-tab dock already reports, so the card now ends
+        // at the plan progress bar.
         BandDivider()
 
         FullWidthDaysProgressCard(
@@ -1306,16 +1297,6 @@ fun UnifiedBadGymMemberCard(
             validity = validity,
             accent = accent,
             onClick = onProgressClick
-        )
-
-        BandDivider()
-
-        OverallStatusStrip(
-            statusLabel = statusLabel,
-            paymentLabel = paymentLabel,
-            attendanceLabel = attendanceLabel,
-            weightLabel = weightLabel,
-            accent = accent
         )
     }
 }
@@ -2394,7 +2375,13 @@ fun MonthlyTrendSection(
                         }
                     }
 
-                    // Callout bubbles floating above each tracked node.
+                    // Callout bubbles floating above selected tracked nodes.
+                    //
+                    // Labelling all twelve months packs twenty-four figures into a
+                    // ~360dp plot, and the bubbles sit on top of each other and on
+                    // the line. Only the three readings that actually answer a
+                    // question - best, worst and the current month - get a bubble;
+                    // every month still keeps its dot.
                     Row(modifier = Modifier.fillMaxSize()) {
                         visibleMonths.forEach { point ->
                             val v = point.percent
@@ -2407,6 +2394,8 @@ fun MonthlyTrendSection(
                                 if (v != null) {
                                     val isBest = point == bestMonth
                                     val isMin = point == lowestMonth
+                                    val isCurrent = point.label == currentLabel
+                                    if (isBest || isMin || isCurrent) {
                                     val bubbleTop = trendHeadroom +
                                         trendPlotHeight * (1f - v / 100f) - trendBubbleHeight
                                     Column(
@@ -2458,6 +2447,7 @@ fun MonthlyTrendSection(
                                                 softWrap = false
                                             )
                                         }
+                                    }
                                     }
                                 }
                             }

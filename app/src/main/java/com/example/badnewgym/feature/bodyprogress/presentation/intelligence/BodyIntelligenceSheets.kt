@@ -107,7 +107,7 @@ private fun SheetHeader(eyebrow: String, title: String, subtitle: String) {
         Spacer(Modifier.height(12.dp))
         Text(
             text = eyebrow.uppercase(),
-            fontSize = 9.5.sp,
+            fontSize = 10.5.sp,
             fontWeight = FontWeight.Black,
             letterSpacing = 1.sp,
             color = BodyIntelPalette.Emerald
@@ -133,7 +133,7 @@ private fun SheetHeader(eyebrow: String, title: String, subtitle: String) {
 private fun SectionLabel(text: String) {
     Text(
         text = text.uppercase(),
-        fontSize = 9.sp,
+        fontSize = 10.5.sp,
         fontWeight = FontWeight.Black,
         letterSpacing = 0.8.sp,
         color = BodyIntelPalette.Faint
@@ -231,7 +231,7 @@ private fun MetricHistoryContent(state: BodyIntelligenceState, target: BodySheet
             Spacer(Modifier.weight(1f))
             Text(
                 text = "recorded",
-                fontSize = 9.5.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.Medium,
                 color = BodyIntelPalette.Faint
             )
@@ -314,7 +314,7 @@ private fun MuscleHistoryContent(state: BodyIntelligenceState, target: BodySheet
                     )
                     Text(
                         text = exercise.equipment.label,
-                        fontSize = 9.5.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Medium,
                         color = BodyIntelPalette.Muted
                     )
@@ -474,7 +474,7 @@ private fun PrivacyContent(state: BodyIntelligenceState) {
                 )
                 Text(
                     text = if (category.privateByDefault) "Private by default" else "User controlled",
-                    fontSize = 9.5.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.Medium,
                     color = BodyIntelPalette.Faint
                 )
@@ -533,7 +533,7 @@ private fun PrivacyContent(state: BodyIntelligenceState) {
         Spacer(Modifier.width(4.dp))
         Text(
             text = "${settings.hidden.size} of ${PrivacyCategory.entries.size} categories hidden",
-            fontSize = 9.5.sp,
+            fontSize = 10.5.sp,
             fontWeight = FontWeight.Medium,
             color = BodyIntelPalette.Muted
         )

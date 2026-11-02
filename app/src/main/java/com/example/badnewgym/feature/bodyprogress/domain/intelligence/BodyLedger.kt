@@ -118,21 +118,27 @@ object BodyLedgerFactory {
             .sortedBy { it.day }
 
         val recent = workoutDays.takeLast(WINDOW)
-        val sessions = recent.mapIndexed { index, day ->
-            val split = when (index % 5) {
-                0 -> SessionSplit.PUSH
-                1 -> SessionSplit.PULL
-                2 -> SessionSplit.LEGS
-                3 -> SessionSplit.CORE
-                else -> SessionSplit.CARDIO
+        val sessions = if (input.strengthSets.isNotEmpty()) {
+            // Recorded sets win. Every load, rep and set count downstream then comes
+            // from something the member actually did, not from the split template.
+            sessionsFromRecordedSets(input, recent)
+        } else {
+            recent.mapIndexed { index, day ->
+                val split = when (index % 5) {
+                    0 -> SessionSplit.PUSH
+                    1 -> SessionSplit.PULL
+                    2 -> SessionSplit.LEGS
+                    3 -> SessionSplit.CORE
+                    else -> SessionSplit.CARDIO
+                }
+                sessionFor(
+                    index = index,
+                    day = day.day,
+                    minutes = day.minutes,
+                    split = split,
+                    totalSessions = recent.size
+                )
             }
-            sessionFor(
-                index = index,
-                day = day.day,
-                minutes = day.minutes,
-                split = split,
-                totalSessions = recent.size
-            )
         }
 
         return BodyLedger(
@@ -141,6 +147,54 @@ object BodyLedgerFactory {
             weeklyGoalKm = weeklyGoalKm(sessions),
             windowDays = WINDOW
         )
+    }
+
+    /** Groups the member's own sets into one session per training day. */
+    private fun sessionsFromRecordedSets(
+        input: BodyIntelligenceInput,
+        trainingDays: List<ActivityDay>
+    ): List<LedgerSession> {
+        val minutesByDay = trainingDays.associate { it.day to it.minutes }
+        return input.strengthSets.groupBy { it.day }.toSortedMap().map { (day, sets) ->
+            val ordered = sets.sortedWith(compareBy({ it.setNumber }, { it.exerciseId }))
+            LedgerSession(
+                day = day,
+                minutes = minutesByDay[day] ?: 0,
+                split = dominantSplit(ordered.map { it.exerciseId }),
+                kind = ActivityKind.STRENGTH,
+                sets = ordered.map {
+                    LedgerSet(
+                        exerciseId = it.exerciseId,
+                        loadKg = it.loadKg,
+                        reps = it.reps
+                    )
+                }
+            )
+        }
+    }
+
+    /**
+     * The split a session belongs to, read off the muscles its exercises load.
+     *
+     * Derived from the catalogue rather than stored alongside the sets, so a
+     * mislabelled session cannot quietly change what the muscle distribution claims.
+     */
+    private fun dominantSplit(exerciseIds: List<String>): SessionSplit {
+        val muscles = exerciseIds.mapNotNull { ExerciseCatalog.byId(it) }
+            .flatMap { it.primaryMuscles }
+        return when {
+            muscles.count {
+                it == MuscleGroup.QUADS || it == MuscleGroup.HAMSTRINGS ||
+                    it == MuscleGroup.GLUTES || it == MuscleGroup.CALVES
+            } >= 2 -> SessionSplit.LEGS
+            muscles.count {
+                it == MuscleGroup.LATS || it == MuscleGroup.BICEPS || it == MuscleGroup.TRAPS
+            } >= 2 -> SessionSplit.PULL
+            muscles.count {
+                it == MuscleGroup.CHEST || it == MuscleGroup.SHOULDERS || it == MuscleGroup.TRICEPS
+            } >= 2 -> SessionSplit.PUSH
+            else -> SessionSplit.CORE
+        }
     }
 
     private fun sessionFor(

@@ -842,8 +842,17 @@ object BodyDashboardAnalytics {
         )
 
         val summary = buildString {
-            append("Overall score is $score% based on ${overall.count { it.percent > 0 }} recorded categories. ")
-            focus?.let { append("${it.trainingDays} training days and ${it.totalSets} working sets are on record. ") }
+            append("Overall score is $score% across ${overall.count { it.percent > 0 }} of ${overall.size} categories. ")
+            // The ledger is assembled from a session template until the member logs
+            // real sets, so its set count describes an inferred split. Calling it
+            // "on record" would report invented volume as a stored fact.
+            focus?.let {
+                if (input.hasSetLevelRecords) {
+                    append("${it.trainingDays} training days and ${it.totalSets} working sets are on record. ")
+                } else {
+                    append("${it.trainingDays} training days recorded; set counts are inferred from the session split. ")
+                }
+            }
             view.readings.firstOrNull()?.let {
                 append("${it.label} is ${it.valueLabel}${it.deltaLabel?.let { d -> " ($d)" } ?: ""}.")
             }
@@ -851,7 +860,8 @@ object BodyDashboardAnalytics {
 
         val recommendations = buildList {
             focus?.muscles?.minByOrNull { it.percent }?.let {
-                add("Increase ${it.label.lowercase()} volume - currently ${it.percent}% of working sets.")
+                val basis = if (input.hasSetLevelRecords) "working sets" else "inferred session volume"
+                add("Increase ${it.label.lowercase()} volume - currently ${it.percent}% of $basis.")
             }
             activity?.let {
                 if (it.goalPercent < 100) add("Add one cardio session to reach the weekly distance target.")
@@ -871,11 +881,23 @@ object BodyDashboardAnalytics {
             add(Prediction("$score%", "Current overall score"))
         }
 
-        val goalTarget = view.readings.firstOrNull()?.goalLabel ?: input.goal.label
+        val goalTarget = view.readings.firstOrNull()?.goalLabel
+            ?.removePrefix("Goal:")?.trim()
+            ?.takeIf { it.isNotBlank() }
+            ?: "Goal not configured"
+        // This percent is goal *alignment* - how well the training distribution
+        // supports the selected goal - not distance travelled toward the target.
         val goalPercent = focus?.goalPercent ?: 0
         val goalRemaining = view.readings.firstOrNull()?.let { reading ->
             val target = reading.goalLabel?.filter { it.isDigit() || it == '.' }?.toDoubleOrNull()
-            if (target == null) "Goal not configured" else "${fmt(abs(target - reading.value))} ${reading.unit} remaining"
+            when {
+                target == null -> "Goal not configured"
+                // Naming the direction keeps the strip honest when a stored target sits
+                // on the opposite side of the member's goal label.
+                target > reading.value -> "${fmt(target - reading.value)} ${reading.unit} to gain"
+                target < reading.value -> "${fmt(reading.value - target)} ${reading.unit} to lose"
+                else -> "Target reached"
+            }
         } ?: "Goal not configured"
 
         // Weekly trend built from the recorded block. Each point is a real weekly

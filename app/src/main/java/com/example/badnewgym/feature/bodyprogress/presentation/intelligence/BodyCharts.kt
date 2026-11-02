@@ -108,8 +108,8 @@ fun KpiStrip(items: List<Kpi>, modifier: Modifier = Modifier) {
                 )
                 Text(
                     text = kpi.label,
-                    fontSize = 8.sp,
-                    lineHeight = 10.sp,
+                    fontSize = 10.sp,
+                    lineHeight = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = BodyIntelPalette.Muted,
                     textAlign = TextAlign.Center,
@@ -119,8 +119,8 @@ fun KpiStrip(items: List<Kpi>, modifier: Modifier = Modifier) {
                 if (kpi.caption != null) {
                     Text(
                         text = kpi.caption,
-                        fontSize = 7.5.sp,
-                        lineHeight = 9.sp,
+                        fontSize = 10.sp,
+                        lineHeight = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = BodyIntelPalette.Faint,
                         textAlign = TextAlign.Center,
@@ -181,7 +181,7 @@ fun RingChart(
             )
             Text(
                 text = centerLabel,
-                fontSize = 8.5.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = BodyIntelPalette.Muted,
                 textAlign = TextAlign.Center
@@ -189,7 +189,7 @@ fun RingChart(
             if (caption != null) {
                 Text(
                     text = caption,
-                    fontSize = 7.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = BodyIntelPalette.EmeraldDeep,
                     textAlign = TextAlign.Center
@@ -241,7 +241,7 @@ fun DonutChart(
             )
             Text(
                 text = centerBottom,
-                fontSize = 7.5.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = BodyIntelPalette.Muted,
                 textAlign = TextAlign.Center
@@ -264,7 +264,7 @@ fun DonutLegend(segments: List<DonutSegment>, modifier: Modifier = Modifier) {
                 Spacer(Modifier.width(5.dp))
                 Text(
                     text = segment.label,
-                    fontSize = 9.5.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = BodyIntelPalette.InkSoft,
                     modifier = Modifier.weight(1f),
@@ -273,7 +273,7 @@ fun DonutLegend(segments: List<DonutSegment>, modifier: Modifier = Modifier) {
                 )
                 Text(
                     text = "${segment.percent}%",
-                    fontSize = 9.5.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.Black,
                     color = BodyIntelPalette.Ink
                 )
@@ -402,7 +402,7 @@ fun LineTrendChart(
             labels.forEach { label ->
                 Text(
                     text = label,
-                    fontSize = 7.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Medium,
                     color = BodyIntelPalette.Faint,
                     maxLines = 1
@@ -431,7 +431,7 @@ fun ChartLegend(series: List<TrendLine>) {
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = line.label,
-                    fontSize = 8.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = BodyIntelPalette.Muted
                 )
@@ -457,10 +457,10 @@ fun BarRowList(rows: List<BarRow>, modifier: Modifier = Modifier, showTrend: Boo
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = row.label,
-                    fontSize = 9.5.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = BodyIntelPalette.InkSoft,
-                    modifier = Modifier.width(58.dp),
+                    modifier = Modifier.width(70.dp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -486,7 +486,7 @@ fun BarRowList(rows: List<BarRow>, modifier: Modifier = Modifier, showTrend: Boo
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = row.valueLabel,
-                    fontSize = 9.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Black,
                     color = BodyIntelPalette.Ink,
                     modifier = Modifier.width(40.dp),
@@ -501,7 +501,7 @@ fun BarRowList(rows: List<BarRow>, modifier: Modifier = Modifier, showTrend: Boo
                             row.trendPercent < 0 -> "${row.trendPercent}%"
                             else -> "0%"
                         },
-                        fontSize = 7.5.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (row.trendPercent >= 0) BodyIntelPalette.EmeraldDeep
                         else BodyIntelPalette.Rose,
@@ -567,7 +567,7 @@ fun WeekFrequencyStrip(marks: List<DayMark>, modifier: Modifier = Modifier) {
                 }
                 Text(
                     text = mark.label,
-                    fontSize = 7.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = BodyIntelPalette.Muted,
                     modifier = Modifier.padding(top = 2.dp)
@@ -592,7 +592,7 @@ fun MonthCalendar(
             weekLabels.forEach { label ->
                 Text(
                     text = label,
-                    fontSize = 8.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     color = BodyIntelPalette.Faint,
                     textAlign = TextAlign.Center,
@@ -639,7 +639,7 @@ fun MonthCalendar(
                         if (cell.day != 0) {
                             Text(
                                 text = cell.day.toString(),
-                                fontSize = 9.sp,
+                                fontSize = 10.sp,
                                 fontWeight = if (cell.isToday) FontWeight.Black else FontWeight.SemiBold,
                                 color = when (cell.state) {
                                     DayState.DONE -> BodyIntelPalette.EmeraldDeep
@@ -672,7 +672,7 @@ fun ProgressRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = label,
-                fontSize = 9.5.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = BodyIntelPalette.InkSoft,
                 modifier = Modifier.weight(1f),
@@ -681,7 +681,7 @@ fun ProgressRow(
             )
             Text(
                 text = valueLabel,
-                fontSize = 9.5.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.Black,
                 color = if (warn) BodyIntelPalette.Amber else BodyIntelPalette.EmeraldDeep
             )
@@ -735,7 +735,7 @@ fun SegmentedTabs(
             ) {
                 Text(
                     text = option,
-                    fontSize = 8.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = if (selected) FontWeight.Black else FontWeight.SemiBold,
                     color = if (selected) Color.White else BodyIntelPalette.Muted
                 )
@@ -780,8 +780,8 @@ fun FooterActions(
             ) {
                 Text(
                     text = label,
-                    fontSize = 8.sp,
-                    lineHeight = 10.sp,
+                    fontSize = 10.sp,
+                    lineHeight = 12.sp,
                     fontWeight = FontWeight.Black,
                     color = if (primary) BodyIntelPalette.EmeraldDeep else BodyIntelPalette.InkSoft,
                     textAlign = TextAlign.Center,
@@ -814,7 +814,7 @@ fun BulletLine(text: String, ok: Boolean?, modifier: Modifier = Modifier) {
         Spacer(Modifier.width(6.dp))
         Text(
             text = text,
-            fontSize = 9.5.sp,
+            fontSize = 10.5.sp,
             lineHeight = 13.sp,
             fontWeight = FontWeight.Medium,
             color = BodyIntelPalette.InkSoft
@@ -835,7 +835,7 @@ fun TableRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(
                 when {
                     header -> BodyIntelPalette.CardInset
@@ -850,8 +850,8 @@ fun TableRow(
             val last = index == cells.lastIndex
             Text(
                 text = cell,
-                fontSize = if (header) 8.sp else 9.sp,
-                fontWeight = if (header) FontWeight.Bold else FontWeight.SemiBold,
+                fontSize = if (header) 10.sp else 11.5.sp,
+                fontWeight = if (header) FontWeight.Bold else FontWeight.Black,
                 color = when {
                     header -> BodyIntelPalette.Muted
                     last && highlight -> BodyIntelPalette.EmeraldDeep
@@ -894,7 +894,7 @@ fun TestTile(
     ) {
         Text(
             text = label,
-            fontSize = 8.sp,
+            fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             color = BodyIntelPalette.Muted,
             maxLines = 1,
@@ -912,7 +912,7 @@ fun TestTile(
         if (changePercent != null) {
             Text(
                 text = if (changePercent >= 0) "▲ ${changePercent}% vs prev" else "▼ ${-changePercent}% vs prev",
-                fontSize = 7.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (changePercent >= 0) BodyIntelPalette.EmeraldDeep else BodyIntelPalette.Rose,
                 maxLines = 1

@@ -122,6 +122,12 @@ data class CompositionReading(
     val deltaIsFavourable: Boolean = true,
     /** Normalised 0..1 history shape from the member's records, oldest first. */
     val trend: List<Float> = emptyList(),
+    /**
+     * Dated values exactly as stored, oldest first. Where [trend] only carries a
+     * shape, this carries the numbers, so a chart may label its points and its
+     * axis. Empty when no dated history exists - never filled in by interpolation.
+     */
+    val history: List<Pair<String, Double>> = emptyList(),
     val goalLabel: String? = null,
     val sourceLabel: String = "Member app",
     val privacy: PrivacyCategory
@@ -134,10 +140,28 @@ data class CompositionReading(
             return "$rounded $unit".trim()
         }
     val hasTrend: Boolean get() = trend.size >= 2
+
+    /** True when enough dated records exist to label a chart with real numbers. */
+    val hasHistory: Boolean get() = history.size >= 2
 }
 
 /** A recorded training/activity day with its duration. */
 data class ActivityDay(val day: Int, val minutes: Int, val verified: Boolean = false)
+
+/**
+ * One completed set as the member or trainer recorded it.
+ *
+ * This is the only path by which the Body tab may print a load and rep count. A
+ * [loadKg] of null means a bodyweight or timed movement, where kilograms are not
+ * the right unit.
+ */
+data class StrengthSetRecord(
+    val exerciseId: String,
+    val day: Int,
+    val loadKg: Double?,
+    val reps: Int,
+    val setNumber: Int = 1
+)
 
 /** A gym check-in. Deliberately separate from a completed workout. */
 data class CheckInRecord(
@@ -187,6 +211,12 @@ data class BodyIntelligenceInput(
     val monthLabel: String = "",
     val anchorDay: Int = 0,
     val heightLabel: String? = null,
+    /**
+     * Sets the member actually logged this cycle. Empty until a set is recorded,
+     * which is what keeps the strength table reading "Not started" instead of
+     * inventing loads from a session template.
+     */
+    val strengthSets: List<StrengthSetRecord> = emptyList(),
     /**
      * True only when set-level strength records exist. Until they do, strength
      * rows must read "Not started" rather than "0 kg x 0 reps".

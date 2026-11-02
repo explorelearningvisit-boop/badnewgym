@@ -2,6 +2,7 @@ package com.example.badnewgym.feature.membercard.domain.model
 
 import androidx.compose.ui.graphics.Color
 import com.example.badnewgym.R
+import kotlin.math.roundToInt
 
 enum class MemberTier(
     val title: String,
@@ -56,6 +57,31 @@ enum class BodyStatType {
     BMI
 }
 
+/** Where a tape measurement was taken. Kept apart from [BodyStatType] because a
+ *  centimetre reading is not a composition stat and must not leak into widgets
+ *  that plot kilograms and percentages. */
+enum class MeasurementSite { CHEST, WAIST, ARM, THIGH, CALF, NECK }
+
+/** One trainer-taken tape measurement with its recorded change. */
+data class MeasurementEntry(
+    val site: MeasurementSite,
+    val value: Double,
+    val unit: String = "cm",
+    val delta: String = "",
+    val isFavorable: Boolean = true,
+    val goalText: String = "",
+    val sparklinePoints: List<Float> = emptyList()
+)
+
+/**
+ * One stored value for a metric at a point in time.
+ *
+ * [sparklinePoints] only carries a normalised shape, so a chart built from it can
+ * show direction but never a number. A history of these makes real axis labels
+ * and per-point values possible.
+ */
+data class StatPoint(val monthLabel: String, val value: Double)
+
 data class BodyStatItem(
     val type: BodyStatType,
     val value: String,
@@ -67,7 +93,8 @@ data class BodyStatItem(
     val unit: String = "",
     val goalText: String = "",
     val footerText: String = "",
-    val badgeText: String = ""
+    val badgeText: String = "",
+    val history: List<StatPoint> = emptyList()
 )
 
 data class MonthPaymentItem(
@@ -142,6 +169,20 @@ data class WorkoutTrendBar(
     val color: Color
 )
 
+/**
+ * A single logged set on the member's own training record.
+ *
+ * [loadKg] is null for bodyweight and timed movements, where a kilogram figure
+ * would be meaningless. Days are calendar days of the current month.
+ */
+data class MemberStrengthSet(
+    val exerciseId: String,
+    val day: Int,
+    val loadKg: Double?,
+    val reps: Int,
+    val setNumber: Int = 1
+)
+
 data class WorkoutTrendData(
     val monthLabel: String = "October 2026",
     val bars: List<WorkoutTrendBar>,
@@ -173,7 +214,9 @@ data class MemberCardData(
     val paymentPlan: PaymentPlanState,
     val attendance: AttendanceSectionData,
     val workoutTrend: WorkoutTrendData,
-    val todayActivity: TodayActivityState = TodayActivityState()
+    val todayActivity: TodayActivityState = TodayActivityState(),
+    val strengthSets: List<MemberStrengthSet> = emptyList(),
+    val measurements: List<MeasurementEntry> = emptyList()
 ) {
     companion object {
         fun sampleAmanTripathi(): MemberCardData {
@@ -437,20 +480,98 @@ data class MemberCardData(
             val redBar = Color(0xFFFF4D4F)
             val blueBar = Color(0xFF38BDF8)
 
-            val workoutBars = (1..30).map { day ->
-                val mins = when (day) {
-                    8 -> 88  // Peak session
-                    26 -> 74 // Secondary peak
-                    16 -> 32 // Shortest (still a real session, >= 30 min)
+            // Nobody trains thirty days straight. Closed Sundays, two absences and
+            // six attendances with no logged session all carry zero minutes, so
+            // "active days" reads as a real figure instead of a perfect score.
+            val noSessionDays = setOf(
+                4, 11, 18, 25,       // Gym closed
+                17, 24,              // Absent
+                3, 10, 14, 21, 28, 31 // Checked in, did not train
+            )
+            val workoutBars = (1..31).map { day ->
+                val mins = when {
+                    day in noSessionDays -> 0
+                    day == 8 -> 88   // Peak session
+                    day == 26 -> 74  // Secondary peak
+                    day == 16 -> 32  // Shortest real session
                     else -> 40 + (day * 7) % 45 // 40..84 min
                 }
-                val color = when (day) {
-                    8 -> redBar
-                    26 -> cyanBar
+                val color = when {
+                    mins == 0 -> Color(0xFFE2E8F0)
+                    day == 8 -> redBar
+                    day == 26 -> cyanBar
                     else -> if (mins >= 55) emeraldBar else blueBar
                 }
                 WorkoutTrendBar(day, mins, color)
             }
+
+            // A month of logged work: four movements per session, three working
+            // sets each, top load creeping up about 2.5% per session - which is
+            // what a first year of consistent training actually produces.
+            val pushSession = listOf(
+                Triple("bench_press_barbell", 60.0, 8),
+                Triple("shoulder_press_db", 24.0, 10),
+                Triple("incline_press_db", 18.0, 10),
+                Triple("triceps_pushdown", 22.5, 12)
+            )
+            val pullSession = listOf(
+                Triple("lat_pulldown", 45.0, 10),
+                Triple("barbell_row", 50.0, 10),
+                Triple("face_pull", 15.0, 15),
+                Triple("biceps_curl_db", 12.0, 12)
+            )
+            val legsSession = listOf(
+                Triple("back_squat", 80.0, 8),
+                Triple("romanian_deadlift", 70.0, 10),
+                Triple("leg_press", 140.0, 12),
+                Triple("calf_raise", 45.0, 15)
+            )
+            val sessionsByTag = mapOf('P' to pushSession, 'R' to pullSession, 'G' to legsSession)
+            val schedule = listOf(
+                1 to 'P', 2 to 'R', 5 to 'G', 6 to 'P', 7 to 'R', 8 to 'G',
+                9 to 'P', 12 to 'R', 13 to 'G', 15 to 'P', 16 to 'R', 19 to 'G',
+                20 to 'P', 22 to 'R', 23 to 'G', 26 to 'P', 27 to 'R', 29 to 'G',
+                30 to 'P'
+            )
+            val sessionStep = charArrayOf('P', 'R', 'G').associateWith { 0 }.toMutableMap()
+            val strengthSets = mutableListOf<MemberStrengthSet>()
+            schedule.forEach { (day, tag) ->
+                val step = sessionStep.getValue(tag)
+                sessionStep[tag] = step + 1
+                sessionsByTag.getValue(tag).forEach { (exerciseId, startKg, reps) ->
+                    // Rounded to the half kilogram so loads land on real plate sizes.
+                    val load = (startKg * (1 + 0.025 * step) * 2).roundToInt() / 2.0
+                    (1..3).forEach { set ->
+                        strengthSets += MemberStrengthSet(exerciseId, day, load, reps, set)
+                    }
+                }
+            }
+
+            // Tape measurements taken by the trainer. Waist narrowing while chest and
+            // arm grow is the signature of losing fat rather than muscle.
+            val measurements = listOf(
+                MeasurementEntry(
+                    site = MeasurementSite.CHEST,
+                    value = 98.0,
+                    delta = "↑ 2.0 cm",
+                    goalText = "Goal: 102 cm",
+                    sparklinePoints = listOf(0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.6f, 0.68f, 0.75f)
+                ),
+                MeasurementEntry(
+                    site = MeasurementSite.WAIST,
+                    value = 82.0,
+                    delta = "↓ 1.0 cm",
+                    goalText = "Goal: 78 cm",
+                    sparklinePoints = listOf(0.8f, 0.75f, 0.68f, 0.6f, 0.55f, 0.48f, 0.4f, 0.32f)
+                ),
+                MeasurementEntry(
+                    site = MeasurementSite.ARM,
+                    value = 34.0,
+                    delta = "↑ 1.0 cm",
+                    goalText = "Goal: 36 cm",
+                    sparklinePoints = listOf(0.35f, 0.4f, 0.42f, 0.5f, 0.55f, 0.6f, 0.66f, 0.72f)
+                )
+            )
 
             val monthlyHistory = listOf(
                 MonthPaymentItem("Jan", "--"),
@@ -494,12 +615,24 @@ data class MemberCardData(
                         type = BodyStatType.WEIGHT,
                         value = "69.5",
                         unit = "kg",
-                        delta = "↓ 2.5 kg",
+                        // A lean bulk: the scale climbs while body fat falls, which is
+                        // what the muscle and fat figures below already report.
+                        delta = "↑ 1.2 kg",
                         label = "Weight",
-                        sparklinePoints = listOf(0.6f, 0.55f, 0.45f, 0.5f, 0.35f, 0.4f, 0.25f, 0.2f),
+                        sparklinePoints = listOf(0.3f, 0.34f, 0.4f, 0.45f, 0.52f, 0.6f, 0.68f, 0.75f),
                         lineColor = Color(0xFF10B981),
                         isFavorable = true,
-                        goalText = "Goal: 65 kg"
+                        goalText = "Goal: 72 kg",
+                        // Six monthly weigh-ins. May to Sep is the run-up, and the
+                        // Sep to Oct step is exactly the "1.2 kg" delta above.
+                        history = listOf(
+                            StatPoint("May", 67.4),
+                            StatPoint("Jun", 67.9),
+                            StatPoint("Jul", 68.2),
+                            StatPoint("Aug", 68.6),
+                            StatPoint("Sep", 68.3),
+                            StatPoint("Oct", 69.5)
+                        )
                     ),
                     BodyStatItem(
                         type = BodyStatType.MUSCLE,
@@ -510,7 +643,15 @@ data class MemberCardData(
                         sparklinePoints = listOf(0.2f, 0.3f, 0.25f, 0.4f, 0.5f, 0.45f, 0.6f, 0.75f),
                         lineColor = Color(0xFF8B5CF6),
                         isFavorable = true,
-                        goalText = "Goal: 60 kg"
+                        goalText = "Goal: 60 kg",
+                        history = listOf(
+                            StatPoint("May", 54.6),
+                            StatPoint("Jun", 55.1),
+                            StatPoint("Jul", 55.6),
+                            StatPoint("Aug", 56.0),
+                            StatPoint("Sep", 55.8),
+                            StatPoint("Oct", 57.2)
+                        )
                     ),
                     BodyStatItem(
                         type = BodyStatType.BODY_FAT,
@@ -521,7 +662,15 @@ data class MemberCardData(
                         sparklinePoints = listOf(0.7f, 0.65f, 0.55f, 0.6f, 0.45f, 0.4f, 0.35f, 0.25f),
                         lineColor = Color(0xFFEF4444),
                         isFavorable = true,
-                        goalText = "Goal: 15%"
+                        goalText = "Goal: 15%",
+                        history = listOf(
+                            StatPoint("May", 19.4),
+                            StatPoint("Jun", 19.1),
+                            StatPoint("Jul", 18.8),
+                            StatPoint("Aug", 18.4),
+                            StatPoint("Sep", 18.8),
+                            StatPoint("Oct", 17.6)
+                        )
                     ),
                     BodyStatItem(
                         type = BodyStatType.BMI,
@@ -532,7 +681,17 @@ data class MemberCardData(
                         sparklinePoints = listOf(0.3f, 0.35f, 0.4f, 0.35f, 0.45f, 0.5f, 0.6f, 0.7f),
                         lineColor = Color(0xFF2563EB),
                         isFavorable = true,
-                        goalText = "18.5 – 24.9"
+                        goalText = "18.5 – 24.9",
+                        // Derived from the weigh-in series at the member's height, so the
+                        // weight and BMI lines cannot tell different stories.
+                        history = listOf(
+                            StatPoint("May", 22.1),
+                            StatPoint("Jun", 22.3),
+                            StatPoint("Jul", 22.4),
+                            StatPoint("Aug", 22.5),
+                            StatPoint("Sep", 22.4),
+                            StatPoint("Oct", 22.8)
+                        )
                     )
                 ),
                 paymentPlan = PaymentPlanState(
@@ -584,14 +743,16 @@ data class MemberCardData(
                     lowestMinutes = 32,
                     lowestDate = "16 Oct",
                     trendVsLastMonth = "↗ +12% vs Sep",
-                    daysWithWorkout = 30,
-                    daysNoWorkout = 0,
+                    daysWithWorkout = 19,
+                    daysNoWorkout = 12,
                     avgMinutes = 58,
                     avgTrendText = "↑ 12% vs prev 30 days",
                     peakDateText = "Peak (8 Oct)",
                     lowestDateText = "Lowest (16 Oct)",
                     highlightDayIndexes = mapOf(8 to "88m", 26 to "74m")
-                )
+                ),
+                strengthSets = strengthSets,
+                measurements = measurements
             )
         }
 

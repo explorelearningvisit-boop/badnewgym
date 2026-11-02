@@ -6,6 +6,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -112,6 +113,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -659,30 +661,39 @@ fun MasterStoryboardDashboard(
         modifier = modifier
             .fillMaxSize()
             .background(
+                // Four hue families instead of one flat mint wash, so the frosted
+                // cards have something to sit against rather than blending in.
                 Brush.verticalGradient(
-                    listOf(
-                        Color(0xFFE1F6F0),
-                        Color(0xFFEDF4FD),
-                        Color(0xFFE8F7F1),
-                        Color(0xFFE6F7F0)
-                    )
+                    0.00f to Color(0xFFE3F7F1),
+                    0.28f to Color(0xFFEAF3FE),
+                    0.58f to Color(0xFFF2ECFB),
+                    0.82f to Color(0xFFE4F8F0),
+                    1.00f to Color(0xFFDFF4F6)
                 )
             )
     ) {
-        // Ambient light: two soft blooms give the frosted cards something to refract.
+        // Ambient light: three coloured blooms give every glass edge a different
+        // colour to refract, which is what keeps the surface from reading as flat.
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .offset(x = 70.dp, y = (-80).dp)
-                .size(280.dp)
-                .background(Brush.radialGradient(listOf(Color(0x3822C3E6), Color(0x00000000))))
+                .offset(x = 80.dp, y = (-90).dp)
+                .size(300.dp)
+                .background(Brush.radialGradient(listOf(Color(0x4D22C3E6), Color(0x00000000))))
         )
         Box(
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .offset(x = (-90).dp, y = 100.dp)
-                .size(320.dp)
-                .background(Brush.radialGradient(listOf(Color(0x3010B981), Color(0x00000000))))
+                .align(Alignment.TopStart)
+                .offset(x = (-110).dp, y = 220.dp)
+                .size(280.dp)
+                .background(Brush.radialGradient(listOf(Color(0x408B5CF6), Color(0x00000000))))
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = 60.dp, y = 120.dp)
+                .size(340.dp)
+                .background(Brush.radialGradient(listOf(Color(0x4710B981), Color(0x00000000))))
         )
 
         Column(
@@ -756,7 +767,7 @@ fun MasterStoryboardDashboard(
             weightLabel = "Weight \u2193 2.5 kg"
         )
 
-        Spacer(modifier = Modifier.height(7.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         // =====================================================================
         // 2. PINNED 4-TAB COLOR DOCK
@@ -788,7 +799,15 @@ fun MasterStoryboardDashboard(
             paymentHasAlert = false
         )
 
-        Spacer(modifier = Modifier.height(7.dp))
+        Spacer(modifier = Modifier.height(5.dp))
+
+        // Switching tabs rebuilds the list, so the entrance is replayed per tab:
+        // the content lifts in rather than snapping into place.
+        val tabEnter = remember { Animatable(0f) }
+        LaunchedEffect(selectedTabIndex) {
+            tabEnter.snapTo(0f)
+            tabEnter.animateTo(1f, tween(280, easing = FastOutSlowInEasing))
+        }
 
         // =====================================================================
         // 3. SCROLLABLE SECTION CONTENT
@@ -798,8 +817,14 @@ fun MasterStoryboardDashboard(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .clipToBounds(),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
+                .clipToBounds()
+                .graphicsLayer {
+                    alpha = tabEnter.value
+                    translationY = (1f - tabEnter.value) * 28.dp.toPx()
+                    scaleX = 0.982f + 0.018f * tabEnter.value
+                    scaleY = 0.982f + 0.018f * tabEnter.value
+                },
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             when (selectedTabIndex) {
                 0 -> {
@@ -1948,8 +1973,8 @@ private fun Workout30DayBarChartSection(bars: List<WorkoutTrendBar>, accent: Col
     val red = Color(0xFFEF4444)
     val redBright = Color(0xFFFF6B6B)
 
-    val headroom = 26.dp
-    val plotHeight = 100.dp
+    val headroom = 22.dp
+    val plotHeight = 78.dp
     val boxHeight = headroom + plotHeight
 
     var revealed by remember { mutableStateOf(false) }
@@ -2071,8 +2096,10 @@ private fun Workout30DayBarChartSection(bars: List<WorkoutTrendBar>, accent: Col
                 bars.forEachIndexed { i, b ->
                     val isPeak = i == peakIndex
                     val isTrough = b.dayNumber in troughDays
-                    // Only every third day carries a chip so the plot stays readable.
-                    val showChip = isPeak || isTrough || i % 3 == 0
+                    // Every fifth day plus the two extremes. Ten chips across a 360dp
+                    // plot land on top of each other and hide the line they describe.
+                    // Rest days are deliberately silent: a "0m" bubble claims nothing.
+                    val showChip = (isPeak || isTrough || i % 5 == 0) && b.minutes > 0
                     if (!showChip) return@forEachIndexed
                     val above = if (isPeak || isTrough) true else i % 2 == 0
                     val cx = stepDp * (i + 0.5f)
@@ -2128,7 +2155,12 @@ private fun Workout30DayBarChartSection(bars: List<WorkoutTrendBar>, accent: Col
         ) {
             val stepDp = maxWidth / bars.size
             bars.forEachIndexed { i, b ->
-                val isAnchor = b.dayNumber == 1 || b.dayNumber % 5 == 0 || b.dayNumber == bars.size
+                // The final day always gets a label, so the fifth-of-the-month anchor
+                // just before it is dropped - otherwise "30" and "31" print on top
+                // of each other at the right edge.
+                val isAnchor = b.dayNumber == 1 ||
+                    (b.dayNumber % 5 == 0 && b.dayNumber < bars.size - 1) ||
+                    i == bars.lastIndex
                 if (!isAnchor) return@forEachIndexed
                 Text(
                     text = b.dayNumber.toString(),
@@ -2227,7 +2259,7 @@ private fun WorkoutMonthlyPatternCard(accent: Color) {
     val monthlyData = monthlyWorkoutPattern
     val maxHours = monthlyData.maxOf { it.hours }.coerceAtLeast(1.0)
     val totalHours = monthlyData.sumOf { it.hours }
-    val barMaxHeight = 60.dp
+    val barMaxHeight = 44.dp
 
     Column(
         modifier = Modifier
@@ -2313,8 +2345,8 @@ private fun WorkoutMonthlyPatternCard(accent: Color) {
 
         // Monthly spline / area chart
         val maxScaleH = maxHours
-        val headroom = 24.dp
-        val plotH = 52.dp
+        val headroom = 20.dp
+        val plotH = 40.dp
         val boxH = headroom + plotH
         val green = Color(0xFF16A34A)
         val greenBright = Color(0xFF4ADE80)
@@ -3051,8 +3083,8 @@ private fun PaymentTrendChart(accent: Color) {
     val green = Color(0xFF16A34A)
     val greenBright = Color(0xFF4ADE80)
     val greenDeep = Color(0xFF0E9F6E)
-    val headroom = 22.dp
-    val plotH = 46.dp
+    val headroom = 18.dp
+    val plotH = 38.dp
 
     Column(modifier = Modifier.fillMaxWidth()) {
         BoxWithConstraints(
