@@ -7,19 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.AnatomyView
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyDashboardAnalytics
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyInsight
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyIntelligenceAnalytics
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyIntelligenceInput
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyIntelligenceView
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyLedger
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyLedgerFactory
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyPrivacySettings
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyWidget
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.BodyWidgetPriority
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.CompositionReading
-import com.example.badnewgym.feature.bodyprogress.domain.intelligence.PrivacyCategory
+import com.example.badnewgym.feature.bodyprogress.domain.intelligence.*
 import com.example.badnewgym.feature.bodyprogress.domain.model.BodyMetric
 import com.example.badnewgym.feature.bodyprogress.domain.model.Exercise
 import com.example.badnewgym.feature.bodyprogress.domain.model.FitnessTestKind
@@ -107,6 +95,59 @@ class BodyIntelligenceState(val input: BodyIntelligenceInput) {
     var showAllAssessments by mutableStateOf(false)
     var showAllInsights by mutableStateOf(false)
     var sheet by mutableStateOf<BodySheetTarget?>(null)
+
+    // =========================================================================
+    // MODULAR NAVIGATION & INTERACTIVE STATE
+    // =========================================================================
+    var primaryTab by mutableStateOf(BodyPrimaryTab.OVERVIEW)
+    var overviewSubTab by mutableStateOf(OverviewSubTab.SUMMARY)
+    var compositionSubTab by mutableStateOf(CompositionSubTab.OVERVIEW)
+    var measurementsSubTab by mutableStateOf(MeasurementsSubTab.ALL)
+    var progressSubTab by mutableStateOf(ProgressSubTab.WEIGHT)
+    var gallerySubTab by mutableStateOf(GallerySubTab.COMPARE)
+    var goalsSubTab by mutableStateOf(GoalsSubTab.ACTIVE)
+    var healthSubTab by mutableStateOf(HealthSubTab.VITALS)
+    var moreSubTab by mutableStateOf(MoreSubTab.ASSESSMENTS)
+
+    var progressTimeRange by mutableStateOf("1M") // 1M, 3M, 6M, 1Y, All
+    var measurementUnit by mutableStateOf("in")   // in vs cm
+    var gallerySliderPosition by mutableStateOf(0.5f) // 0..1
+    var selectedPhotoView by mutableStateOf("Front")
+
+    // --------------------------------------------------------- Truthful Models
+    val compositionRecord: BodyCompositionRecord = BodyCompositionRecord()
+    val segmentalComposition: SegmentalComposition = SegmentalComposition()
+    val bodyRatios: BodyRatios = BodyRatios()
+    val transformationGoal: TransformationGoal = TransformationGoal()
+    val healthVitals: HealthVitalsRecord = HealthVitalsRecord()
+    val transformationPhoto: TransformationPhotoData = TransformationPhotoData()
+
+    val circumferences: List<CircumferenceRecord> = listOf(
+        CircumferenceRecord("Neck", MeasurementCategory.UPPER, 14.5, 0.2),
+        CircumferenceRecord("Shoulders", MeasurementCategory.UPPER, 44.0, 1.0),
+        CircumferenceRecord("Chest", MeasurementCategory.UPPER, 38.0, 1.0),
+        CircumferenceRecord("Left Biceps", MeasurementCategory.UPPER, 13.2, 0.4),
+        CircumferenceRecord("Right Biceps", MeasurementCategory.UPPER, 13.4, 0.5),
+        CircumferenceRecord("Left Forearm", MeasurementCategory.UPPER, 11.0, 0.2),
+        CircumferenceRecord("Right Forearm", MeasurementCategory.UPPER, 11.1, 0.3),
+        CircumferenceRecord("Waist", MeasurementCategory.CORE, 32.0, -2.0),
+        CircumferenceRecord("Abdomen", MeasurementCategory.CORE, 34.0, -1.5),
+        CircumferenceRecord("Hips", MeasurementCategory.CORE, 36.5, -0.5),
+        CircumferenceRecord("Left Thigh", MeasurementCategory.LOWER, 21.5, 0.3),
+        CircumferenceRecord("Right Thigh", MeasurementCategory.LOWER, 21.7, 0.4),
+        CircumferenceRecord("Left Calf", MeasurementCategory.LOWER, 14.0, 0.2),
+        CircumferenceRecord("Right Calf", MeasurementCategory.LOWER, 14.1, 0.2)
+    )
+
+    val progressTimeline: List<ProgressHistoryPoint> = listOf(
+        ProgressHistoryPoint("01 Apr", 74.5, 22.0, 54.8, 37.0),
+        ProgressHistoryPoint("15 Apr", 73.2, 21.2, 55.1, 37.2),
+        ProgressHistoryPoint("01 May", 72.8, 20.5, 55.4, 37.5),
+        ProgressHistoryPoint("15 May", 71.0, 19.8, 55.8, 37.7),
+        ProgressHistoryPoint("01 Jun", 70.2, 19.2, 56.2, 37.8),
+        ProgressHistoryPoint("30 Jun", 69.5, 18.5, 56.6, 38.0)
+    )
+
 
     val view: BodyIntelligenceView by derivedStateOf {
         BodyIntelligenceAnalytics.viewOf(input, privacy)

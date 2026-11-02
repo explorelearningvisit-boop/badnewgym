@@ -99,31 +99,7 @@ fun LazyListScope.bodyIntelligenceItems(
     listState: LazyListState,
     onPrivacyClick: () -> Unit = { state.openSheet(BodySheetTarget.Privacy) }
 ) {
-    val view = state.view
-    val insights = state.insights
-
-    item(key = "bi_goal") {
-        GoalAndMetrics(
-            state = state,
-            insights = insights,
-            onMetricClick = { state.openSheet(BodySheetTarget.MetricDetail(it)) }
-        )
-    }
-
-    item(key = "bi_transformation") {
-        TransformationCard(
-            view = view,
-            onMetricClick = { state.openSheet(BodySheetTarget.MetricDetail(it)) }
-        )
-    }
-
-    item(key = "bi_muscle_focus") { MuscleFocusCard(state = state) }
-
-    item(key = "bi_strength") { StrengthCard(state = state) }
-
-    item(key = "bi_measurements") { MeasurementsCard(view = view) }
-
-    item(key = "bi_bottom_space") { Spacer(modifier = Modifier.height(6.dp)) }
+    bodyModularWorkspace(state = state)
 }
 
 // =============================================================================

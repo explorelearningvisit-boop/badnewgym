@@ -9,22 +9,35 @@ import androidx.compose.ui.graphics.Color
  * status accents. Dark surfaces are never used as a card background.
  */
 internal object BodyIntelPalette {
-    val Pearl = Color(0xFFF5FAF7)
+    // BAD GYM Emerald Soft Glass Theme Tokens
+    val Primary = Color(0xFF159B65)
+    val DeepEmerald = Color(0xFF087B50)
+    val FreshGreen = Color(0xFF38B978)
+    val SoftMint = Color(0xFFDDF5E8)
+    val Background = Color(0xFFF3F6F3)
+    val Surface = Color(0xFFFFFFFF)
+    val Text = Color(0xFF26352D)
+    val Secondary = Color(0xFF75847A)
+    val TextMuted = Color(0xFFA0AAA3)
+    val CardBorder = Color(0xFFE2EBE5)
+
+    // Palette & Glass Surface Aliases
+    val Pearl = Color(0xFFF3F6F3)
     val Card = Color(0xFFFFFFFF)
     val CardSoft = Color(0xFFF1F8F4)
     val CardInset = Color(0xFFF7FBF9)
 
-    val Ink = Color(0xFF0A201A)
+    val Ink = Color(0xFF26352D)
     val InkSoft = Color(0xFF2C4A40)
-    val Muted = Color(0xFF5B736A)
-    val Faint = Color(0xFF8AA096)
-    val Hairline = Color(0xFFE1EFE7)
+    val Muted = Color(0xFF75847A)
+    val Faint = Color(0xFFA0AAA3)
+    val Hairline = Color(0xFFE2EBE5)
     val HairlineStrong = Color(0xFFCBE3D7)
 
-    val Emerald = Color(0xFF0E9F6E)
-    val EmeraldDeep = Color(0xFF07694A)
-    val EmeraldWash = Color(0xFFE6F7EF)
-    val EmeraldEdge = Color(0xFFA7E3C9)
+    val Emerald = Color(0xFF159B65)
+    val EmeraldDeep = Color(0xFF087B50)
+    val EmeraldWash = Color(0xFFDDF5E8)
+    val EmeraldEdge = Color(0xFF38B978)
 
     val Violet = Color(0xFF6B5BD2)
     val VioletWash = Color(0xFFF0EEFB)

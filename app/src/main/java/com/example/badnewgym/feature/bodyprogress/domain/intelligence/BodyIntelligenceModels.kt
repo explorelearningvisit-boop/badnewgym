@@ -363,3 +363,178 @@ val BODY_ASSESSMENTS: List<FitnessTestKind> = listOf(
     FitnessTestKind.GRIP_STRENGTH,
     FitnessTestKind.VO2_MAX
 )
+
+// =============================================================================
+// MODULAR BODY INTELLIGENCE ARCHITECTURE CONTRACTS
+// =============================================================================
+
+/** Primary navigation modules for Body Intelligence workspace. */
+enum class BodyPrimaryTab(val label: String) {
+    OVERVIEW("Overview"),
+    COMPOSITION("Composition"),
+    MEASUREMENTS("Measurements"),
+    PROGRESS("Progress"),
+    GALLERY("Gallery"),
+    GOALS("Goals"),
+    HEALTH("Health"),
+    MORE("More")
+}
+
+/** Contextual secondary sub-tabs for each primary module. */
+enum class OverviewSubTab(val label: String) {
+    SUMMARY("Summary"),
+    TRENDS("Trends"),
+    ACTIVITY("Activity")
+}
+
+enum class CompositionSubTab(val label: String) {
+    OVERVIEW("Overview"),
+    FAT_MASS("Fat"),
+    LEAN_MASS("Lean"),
+    SEGMENTAL("Segmental")
+}
+
+enum class MeasurementsSubTab(val label: String) {
+    ALL("All"),
+    UPPER("Upper"),
+    CORE("Core"),
+    LOWER("Lower"),
+    RATIOS("Ratios")
+}
+
+enum class ProgressSubTab(val label: String) {
+    WEIGHT("Weight"),
+    BODY_FAT("Body Fat"),
+    MUSCLE("Muscle"),
+    SIZE("Size")
+}
+
+enum class GallerySubTab(val label: String) {
+    COMPARE("Compare"),
+    FRONT("Front"),
+    SIDE("Side"),
+    BACK("Back"),
+    TIMELINE("Timeline")
+}
+
+enum class GoalsSubTab(val label: String) {
+    ACTIVE("Active"),
+    MILESTONES("Milestones"),
+    HISTORY("History")
+}
+
+enum class HealthSubTab(val label: String) {
+    VITALS("Vitals"),
+    RECOVERY("Recovery"),
+    LIFESTYLE("Lifestyle")
+}
+
+enum class MoreSubTab(val label: String) {
+    ASSESSMENTS("Assessments"),
+    REPORTS("Reports"),
+    DEVICE_SYNC("Device Sync"),
+    TRAINER_NOTES("Trainer Notes"),
+    SETTINGS("Settings")
+}
+
+// ---------------------------------------------------------------- Data Models
+
+/** Truthful body composition breakdown (Total Weight = Fat Mass + Fat-Free Mass). */
+data class BodyCompositionRecord(
+    val totalWeightKg: Double = 69.5,
+    val fatMassKg: Double = 12.9,
+    val fatFreeMassKg: Double = 56.6, // 12.9 + 56.6 = 69.5 exactly
+    val bodyFatPercent: Double = 18.5,
+    val skeletalMuscleKg: Double = 53.2, // Subset of fatFreeMassKg
+    val bodyWaterKg: Double = 41.8,      // Overlaps fatFreeMassKg
+    val boneMineralKg: Double = 3.1,     // Overlaps fatFreeMassKg
+    val visceralFatGrade: Int = 5,       // Grade 5 (Normal 1-9)
+    val bmrKcal: Int = 1612,             // Labeled "Estimated"
+    val bmi: Double = 22.7,              // from 175cm / 69.5kg
+    val assessmentDate: String = "30 Jun 2025",
+    val sourceDevice: String = "InBody 570",
+    val recordedBy: String = "Certified Trainer"
+)
+
+data class SegmentalComposition(
+    val leftArmKg: Double = 3.2,
+    val leftArmPct: Double = 18.4,
+    val rightArmKg: Double = 3.3,
+    val rightArmPct: Double = 18.7,
+    val trunkKg: Double = 28.6,
+    val trunkPct: Double = 81.2,
+    val leftLegKg: Double = 9.7,
+    val leftLegPct: Double = 19.0,
+    val rightLegKg: Double = 9.8,
+    val rightLegPct: Double = 19.2
+)
+
+enum class MeasurementCategory { UPPER, CORE, LOWER }
+
+data class CircumferenceRecord(
+    val name: String,
+    val category: MeasurementCategory,
+    val currentInches: Double,
+    val changeInches: Double,
+    val previousInches: Double = currentInches - changeInches
+) {
+    fun currentCm(): Double = currentInches * 2.54
+    fun changeCm(): Double = changeInches * 2.54
+}
+
+data class BodyRatios(
+    val waistToHeight: Double = 0.48, // 32.0 / 66.9
+    val waistToHeightLabel: String = "Healthy",
+    val waistToHip: Double = 0.88,    // 32.0 / 36.5
+    val waistToHipLabel: String = "Normal"
+)
+
+data class ProgressHistoryPoint(
+    val dateLabel: String,
+    val weightKg: Double,
+    val bodyFatPct: Double,
+    val muscleKg: Double,
+    val chestIn: Double
+)
+
+data class MilestoneItem(
+    val title: String,
+    val date: String,
+    val completed: Boolean,
+    val note: String? = null
+)
+
+data class TransformationGoal(
+    val title: String = "Fat Loss Goal",
+    val status: String = "In Progress",
+    val startKg: Double = 72.8,
+    val currentKg: Double = 69.5,
+    val targetKg: Double = 65.0,
+    val progressPercent: Int = 56,
+    val milestones: List<MilestoneItem> = listOf(
+        MilestoneItem("Initial Assessment", "01 Apr 2025", true, "72.8 kg • Starting point"),
+        MilestoneItem("30-Day Review", "01 May 2025", true, "71.2 kg • -1.6 kg"),
+        MilestoneItem("60-Day Review", "01 Jun 2025", true, "70.1 kg • -1.1 kg"),
+        MilestoneItem("90-Day Review", "01 Jul 2025", false, "Goal: 69.0 kg • In progress")
+    )
+)
+
+data class HealthVitalsRecord(
+    val restingHeartRateBpm: Int = 62,
+    val bloodPressureSys: Int = 118,
+    val bloodPressureDia: Int = 76,
+    val sleepDuration: String = "7 hr 32 min",
+    val dailySteps: Int = 8420,
+    val hydrationLiters: Double = 2.8,
+    val recoveryStatus: String = "Good"
+)
+
+data class TransformationPhotoData(
+    val beforeDate: String = "01 Apr 2025",
+    val afterDate: String = "30 Jun 2025",
+    val beforeWeightKg: Double = 74.5,
+    val afterWeightKg: Double = 69.5,
+    val beforeFatPct: Double = 22.0,
+    val afterFatPct: Double = 18.5
+)
+
