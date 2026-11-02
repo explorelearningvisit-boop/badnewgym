@@ -1602,52 +1602,60 @@ fun AttendanceSection(
                 .padding(start = 9.dp, end = 9.dp, top = 4.dp, bottom = 5.dp)
         ) {
             Column(
-                modifier = Modifier.width(80.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .width(88.dp)
+                    .height(134.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = shownRate?.let { "$it%" } ?: "\u2014",
-                    fontSize = 21.sp,
-                    fontWeight = FontWeight.Black,
-                    color = AttendanceBlueprint.PresentDeep,
-                    letterSpacing = (-1).sp,
-                    lineHeight = 21.6.sp,
-                    maxLines = 1,
-                    softWrap = false
-                )
-                Text(
-                    text = if (shownTotal > 0) "$shownAttended / $shownTotal Days" else "No record",
-                    fontSize = 11.5.sp,
-                    fontWeight = FontWeight.Black,
-                    color = AttendanceBlueprint.Ink,
-                    lineHeight = 12.sp,
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = TextOverflow.Clip
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = shownRate?.let { "$it%" } ?: "\u2014",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Black,
+                        color = AttendanceBlueprint.PresentDeep,
+                        letterSpacing = (-1).sp,
+                        lineHeight = 28.sp,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                    Text(
+                        text = if (shownTotal > 0) "$shownAttended / $shownTotal Days" else "No record",
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AttendanceBlueprint.Ink,
+                        lineHeight = 12.sp,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Clip
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(3.dp))
-
-                if (showingCurrent) {
-                    AttendanceLegendRow(AttendanceBlueprint.Present, "Present", present)
-                    AttendanceLegendRow(AttendanceBlueprint.Late, "Late", late)
-                    AttendanceLegendRow(AttendanceBlueprint.Absent, "Absent", absent)
-                    AttendanceLegendRow(
-                        AttendanceBlueprint.Holiday,
-                        "Holiday",
-                        holidays + sundays
-                    )
-                } else {
-                    AttendanceLegendRow(
-                        AttendanceBlueprint.Present,
-                        "Attended",
-                        shownAttended
-                    )
-                    AttendanceLegendRow(
-                        AttendanceBlueprint.Absent,
-                        "Missed",
-                        (shownTotal - shownAttended).coerceAtLeast(0)
-                    )
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(2.5.dp)
+                ) {
+                    if (showingCurrent) {
+                        AttendanceLegendRow(AttendanceBlueprint.Present, "Present", present)
+                        AttendanceLegendRow(AttendanceBlueprint.Late, "Late", late)
+                        AttendanceLegendRow(AttendanceBlueprint.Absent, "Absent", absent)
+                        AttendanceLegendRow(
+                            AttendanceBlueprint.Holiday,
+                            "Holiday",
+                            holidays + sundays
+                        )
+                    } else {
+                        AttendanceLegendRow(
+                            AttendanceBlueprint.Present,
+                            "Attended",
+                            shownAttended
+                        )
+                        AttendanceLegendRow(
+                            AttendanceBlueprint.Absent,
+                            "Missed",
+                            (shownTotal - shownAttended).coerceAtLeast(0)
+                        )
+                    }
                 }
             }
 
@@ -1655,7 +1663,7 @@ fun AttendanceSection(
                 modifier = Modifier
                     .padding(horizontal = 7.dp)
                     .width(1.dp)
-                    .height(128.dp)
+                    .height(134.dp)
                     .background(Color(0xFFCFDDEE))
             )
 
@@ -2240,10 +2248,10 @@ fun MonthlyTrendSection(
         visibleMonths.lastOrNull()?.fullLabel
     ).joinToString(" \u2013 ")
 
-    // Spline / area chart geometry (compact — sized to save vertical space).
-    val trendHeadroom = 31.dp          // room for the tallest bubble + crown
-    val trendPlotHeight = 58.dp        // the 0%–100% curve region
-    val trendBubbleHeight = 20.dp
+    // Spline / area chart geometry (headroom sized so callout bubbles never overlap dots).
+    val trendHeadroom = 44.dp          // room for tallest bubble + crown above dot
+    val trendPlotHeight = 56.dp        // the 0%–100% curve region
+    val trendBubbleHeight = 22.dp
     val trendBoxHeight = trendHeadroom + trendPlotHeight
 
     GlassCard(
@@ -2396,58 +2404,59 @@ fun MonthlyTrendSection(
                                     val isMin = point == lowestMonth
                                     val isCurrent = point.label == currentLabel
                                     if (isBest || isMin || isCurrent) {
-                                    val bubbleTop = trendHeadroom +
-                                        trendPlotHeight * (1f - v / 100f) - trendBubbleHeight
-                                    Column(
-                                        modifier = Modifier.offset(y = bubbleTop - 12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = if (isBest) "\uD83D\uDC51" else " ",
-                                            fontSize = 11.5.sp,
-                                            lineHeight = 13.sp,
-                                            maxLines = 1,
-                                            modifier = Modifier.height(12.dp)
-                                        )
+                                        val dotY = trendHeadroom +
+                                            trendPlotHeight * (1f - v / 100f)
+                                        val bubbleTop = dotY - 42.dp
                                         Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth(0.94f)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(
-                                                    if (isMin) Brush.verticalGradient(
-                                                        listOf(Color(0xFFFF6B6B), Color(0xFFE8453C))
-                                                    ) else Brush.verticalGradient(
-                                                        listOf(Color(0xFF1FC57A), Color(0xFF0E9F6E))
-                                                    )
-                                                )
-                                                .border(
-                                                    1.dp,
-                                                    Color.White.copy(alpha = 0.7f),
-                                                    RoundedCornerShape(8.dp)
-                                                )
-                                                .padding(vertical = 1.dp),
+                                            modifier = Modifier.offset(y = bubbleTop),
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ) {
                                             Text(
-                                                text = "$v%",
+                                                text = if (isBest) "\uD83D\uDC51" else " ",
                                                 fontSize = 11.sp,
-                                                fontWeight = FontWeight.Black,
-                                                color = Color.White,
-                                                lineHeight = 11.5.sp,
+                                                lineHeight = 11.sp,
                                                 maxLines = 1,
-                                                softWrap = false
+                                                modifier = Modifier.height(11.dp)
                                             )
-                                            Text(
-                                                text = "(${point.attendedDays}d)",
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.White.copy(alpha = 0.92f),
-                                                lineHeight = 10.sp,
-                                                maxLines = 1,
-                                                softWrap = false
-                                            )
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth(0.94f)
+                                                    .clip(RoundedCornerShape(8.dp))
+                                                    .background(
+                                                        if (isMin) Brush.verticalGradient(
+                                                            listOf(Color(0xFFFF6B6B), Color(0xFFE8453C))
+                                                        ) else Brush.verticalGradient(
+                                                            listOf(Color(0xFF1FC57A), Color(0xFF0E9F6E))
+                                                        )
+                                                    )
+                                                    .border(
+                                                        1.dp,
+                                                        Color.White.copy(alpha = 0.7f),
+                                                        RoundedCornerShape(8.dp)
+                                                    )
+                                                    .padding(vertical = 1.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = "$v%",
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Black,
+                                                    color = Color.White,
+                                                    lineHeight = 11.5.sp,
+                                                    maxLines = 1,
+                                                    softWrap = false
+                                                )
+                                                Text(
+                                                    text = "(${point.attendedDays}d)",
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = Color.White.copy(alpha = 0.92f),
+                                                    lineHeight = 10.sp,
+                                                    maxLines = 1,
+                                                    softWrap = false
+                                                )
+                                            }
                                         }
-                                    }
                                     }
                                 }
                             }
@@ -2488,6 +2497,35 @@ fun MonthlyTrendSection(
                             )
                         }
                     }
+                }
+            }
+        }
+
+        // Context note for low-attendance season / break (e.g. March Holi / exams)
+        lowestMonth?.let { minMonth ->
+            if ((minMonth.percent ?: 100) < 65) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFFFEF2F2))
+                        .border(0.8.dp, Color(0xFFFECACA), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 7.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        text = "\u2139\uFE0F",
+                        fontSize = 10.sp
+                    )
+                    Text(
+                        text = "${minMonth.fullLabel ?: minMonth.label} drop (${minMonth.percent}%): Holi holidays & annual exam break",
+                        fontSize = 10.5.sp,
+                        color = Color(0xFF991B1B),
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1
+                    )
                 }
             }
         }

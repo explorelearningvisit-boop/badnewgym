@@ -864,14 +864,8 @@ fun MasterStoryboardDashboard(
                 }
             }
 
-            // Member offer strip. Closes every tab with real content instead of a
-            // bare wall of background, and gives the "Claim" CTA somewhere to land.
-            item(key = "sponsored_promo") {
-                BadGymSponsoredPromoCard(onClaimClick = onMenuClick)
-            }
-
             item(key = "bottom_spacer") {
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
         }
@@ -2174,24 +2168,35 @@ private fun Workout30DayBarChartSection(bars: List<WorkoutTrendBar>, accent: Col
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // KPI strip — two rows of three so every figure clears the legibility floor.
+        // KPI strip — compact horizontal key-value pairs to preserve vertical space.
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(Brush.verticalGradient(listOf(Color(0xFFF7FCFA), Color(0xFFEEF8F3))))
-                .border(0.9.dp, Color(0xFFDCEFE6), RoundedCornerShape(14.dp))
-                .padding(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
+                .border(0.9.dp, Color(0xFFDCEFE6), RoundedCornerShape(12.dp))
+                .padding(horizontal = 6.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                WorkoutStatMini("Avg / day", "${avgMin} min", green, Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                WorkoutStatMini("Avg/day", "${avgMin} min", green, Modifier.weight(1f))
+                Box(modifier = Modifier.width(1.dp).height(14.dp).background(Color(0xFFDCEFE6)))
                 WorkoutStatMini("Best", "${peakMin} min", greenDeep, Modifier.weight(1f))
+                Box(modifier = Modifier.width(1.dp).height(14.dp).background(Color(0xFFDCEFE6)))
                 WorkoutStatMini("Lowest", "${lowMin} min", red, Modifier.weight(1f))
             }
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFE2F0EA)))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 WorkoutStatMini("Total", "${totalHr} hr", Color(0xFF0F172A), Modifier.weight(1f))
-                WorkoutStatMini("Active days", "$activeDays / $totalDays", Color(0xFF0F172A), Modifier.weight(1f))
+                Box(modifier = Modifier.width(1.dp).height(14.dp).background(Color(0xFFDCEFE6)))
+                WorkoutStatMini("Active", "$activeDays/$totalDays d", Color(0xFF0F172A), Modifier.weight(1f))
+                Box(modifier = Modifier.width(1.dp).height(14.dp).background(Color(0xFFDCEFE6)))
                 WorkoutStatMini("Consistency", "$consistency%", green, Modifier.weight(1f))
             }
         }
@@ -2205,21 +2210,22 @@ private fun WorkoutStatMini(
     tint: Color,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.padding(horizontal = 2.dp)
     ) {
         Text(
-            text = label,
+            text = "$label ",
             fontSize = 10.5.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF7C8FA3),
+            color = Color(0xFF64748B),
             maxLines = 1,
             softWrap = false
         )
         Text(
             text = value,
-            fontSize = 12.5.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Black,
             color = tint,
             maxLines = 1,
@@ -2636,12 +2642,18 @@ private fun PaymentHeaderHeroSection(
         }
 
         // Due capsule: wallet + due amount + divider + due date / days left
+        val isUpcoming = daysLeft > 0
+        val alertRed = Color(0xFFDC2626)
+        val alertRedBg = Color(0xFFFEE2E2)
+        val infoBlue = Color(0xFF0284C7)
+        val infoBlueBg = Color(0xFFF0F9FF)
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
-                .border(1.dp, Color(0xFFEAF0F6), RoundedCornerShape(12.dp))
+                .border(1.dp, if (isUpcoming) Color(0xFFEAF0F6) else Color(0xFFFECACA), RoundedCornerShape(12.dp))
                 .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -2659,8 +2671,8 @@ private fun PaymentHeaderHeroSection(
                 verticalArrangement = Arrangement.spacedBy(1.dp)
             ) {
                 Text(
-                    text = "Due Amount",
-                    fontSize = 11.5.sp,
+                    text = if (isUpcoming) "Upcoming Renewal" else "Due Amount",
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF64748B)
                 )
@@ -2668,7 +2680,7 @@ private fun PaymentHeaderHeroSection(
                     text = dueAmount,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Black,
-                    color = deep,
+                    color = if (isUpcoming) Color(0xFF0F172A) else alertRed,
                     letterSpacing = (-0.7).sp,
                     lineHeight = 17.sp,
                     maxLines = 1,
@@ -2677,22 +2689,22 @@ private fun PaymentHeaderHeroSection(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50.dp))
-                        .background(Color(0xFFFEF3C7))
+                        .background(if (isUpcoming) infoBlueBg else alertRedBg)
                         .padding(horizontal = 6.dp, vertical = 1.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.HourglassEmpty,
+                        imageVector = if (isUpcoming) Icons.Filled.AccessTime else Icons.Filled.Info,
                         contentDescription = null,
-                        tint = Color(0xFFB45309),
+                        tint = if (isUpcoming) infoBlue else alertRed,
                         modifier = Modifier.size(10.dp)
                     )
                     Text(
-                        text = "Pending",
-                        fontSize = 11.sp,
+                        text = if (isUpcoming) "Due in $daysLeft Days" else "Payment Pending",
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Black,
-                        color = Color(0xFFB45309)
+                        color = if (isUpcoming) infoBlue else alertRed
                     )
                 }
             }
@@ -2719,14 +2731,14 @@ private fun PaymentHeaderHeroSection(
                     )
                     Column {
                         Text(
-                            text = "Due on",
-                            fontSize = 11.sp,
+                            text = if (isUpcoming) "Renewal Date" else "Due on",
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF64748B)
                         )
                         Text(
                             text = dueDate,
-                            fontSize = 13.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF0F172A),
                             maxLines = 1,
@@ -2739,16 +2751,16 @@ private fun PaymentHeaderHeroSection(
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.HourglassEmpty,
+                        imageVector = Icons.Default.AccessTime,
                         contentDescription = null,
-                        tint = deep,
+                        tint = if (isUpcoming) Color(0xFF059669) else alertRed,
                         modifier = Modifier.size(13.dp)
                     )
                     Text(
-                        text = "$daysLeft Days Left",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF0F172A),
+                        text = if (isUpcoming) "Active • $daysLeft Days Left" else "Overdue • Pay Now",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isUpcoming) Color(0xFF059669) else alertRed,
                         maxLines = 1,
                         softWrap = false
                     )
@@ -3083,8 +3095,8 @@ private fun PaymentTrendChart(accent: Color) {
     val green = Color(0xFF16A34A)
     val greenBright = Color(0xFF4ADE80)
     val greenDeep = Color(0xFF0E9F6E)
-    val headroom = 18.dp
-    val plotH = 38.dp
+    val headroom = 26.dp
+    val plotH = 46.dp
 
     Column(modifier = Modifier.fillMaxWidth()) {
         BoxWithConstraints(
@@ -3118,19 +3130,18 @@ private fun PaymentTrendChart(accent: Color) {
                         path = area,
                         brush = Brush.verticalGradient(
                             startY = headPx, endY = headPx + plotPx,
-                            colors = listOf(greenBright.copy(alpha = 0.4f), green.copy(alpha = 0.04f))
+                            colors = listOf(greenBright.copy(alpha = 0.35f), green.copy(alpha = 0.03f))
                         )
                     )
                     drawPath(line, color = green, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
                 }
-                // Months without a payment carry no marker: a dot parked on the
-                // baseline reads as a "₹0 paid" month rather than "no record".
+                // Visible dots with clear white ring outline
                 monthsData.forEachIndexed { i, m ->
                     if (m.isDashed) return@forEachIndexed
                     val cx = xFor(i)
                     val cy = yPix(m.heightDp)
-                    drawCircle(Color.White, 3.2.dp.toPx(), Offset(cx, cy))
-                    drawCircle(green, 2.2.dp.toPx(), Offset(cx, cy))
+                    drawCircle(Color.White, 4.dp.toPx(), Offset(cx, cy))
+                    drawCircle(green, 2.5.dp.toPx(), Offset(cx, cy))
                 }
             }
 
@@ -3139,25 +3150,38 @@ private fun PaymentTrendChart(accent: Color) {
                 val cx = stepDp * (i + 0.5f)
                 val isPeak = m.heightDp == maxV
                 val cy = nodeY(m.heightDp)
+                // Stagger vertical offsets for consecutive months to prevent collision
+                val labelYOffset = when (m.month) {
+                    "Jun" -> cy - 25.dp
+                    "Jul" -> cy - 23.dp
+                    else -> cy - 17.dp
+                }
+
                 if (isPeak) {
                     Text(
                         text = "\uD83D\uDC51",
-                        fontSize = 11.5.sp,
-                        modifier = Modifier.offset(x = cx - 6.dp, y = cy - 19.dp)
+                        fontSize = 11.sp,
+                        modifier = Modifier.offset(x = cx - 6.dp, y = labelYOffset - 13.dp)
                     )
                 }
-                Text(
-                    text = m.totalLabel ?: "\u2013",
-                    fontSize = 10.5.sp,
-                    fontWeight = FontWeight.Black,
-                    color = greenDeep,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    softWrap = false,
+                Box(
                     modifier = Modifier
-                        .offset(x = cx - 15.dp, y = cy - (if (isPeak) 14.dp else 11.dp))
-                        .width(30.dp)
-                )
+                        .offset(x = cx - 14.dp, y = labelYOffset)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(if (isPeak) Color(0xFFFEF3C7) else Color(0xFFEFF8F3))
+                        .border(0.6.dp, if (isPeak) Color(0xFFF59E0B) else Color(0xFFBCE3CD), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 2.dp, vertical = 0.5.dp)
+                ) {
+                    Text(
+                        text = m.totalLabel ?: "\u2013",
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Black,
+                        color = if (isPeak) Color(0xFFB45309) else greenDeep,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                }
             }
         }
         Row(
@@ -3171,12 +3195,32 @@ private fun PaymentTrendChart(accent: Color) {
                         text = m.month,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        // Dashed months fade back so the gap in the curve reads as
-                        // "no payment recorded" rather than a missed bill.
                         color = if (m.isDashed) Color(0xFFB4BECF) else Color(0xFF64748B)
                     )
                 }
             }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        // Informative context footnote requested by user
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "\u2605 Jul Spike: Annual Plan Renewal",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF059669)
+            )
+            Text(
+                text = "Mar, Apr, Aug: Pre-paid Cycle",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF94A3B8)
+            )
         }
     }
 }
