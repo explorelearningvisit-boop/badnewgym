@@ -799,7 +799,7 @@ fun MasterStoryboardDashboard(
             paymentHasAlert = false
         )
 
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         // Switching tabs rebuilds the list, so the entrance is replayed per tab:
         // the content lifts in rather than snapping into place.
@@ -824,7 +824,7 @@ fun MasterStoryboardDashboard(
                     scaleX = 0.982f + 0.018f * tabEnter.value
                     scaleY = 0.982f + 0.018f * tabEnter.value
                 },
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             when (selectedTabIndex) {
                 0 -> {
@@ -865,7 +865,7 @@ fun MasterStoryboardDashboard(
             }
 
             item(key = "bottom_spacer") {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(4.dp))
             }
         }
         }
