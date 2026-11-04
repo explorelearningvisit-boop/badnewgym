@@ -425,13 +425,15 @@ private fun BodyNavTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
     val shape = RoundedCornerShape(10.dp)
     val fill = if (isSelected) {
-        Brush.verticalGradient(listOf(Color(0xFFFEF08A), Color(0xFFFACC15)))
+        activeTheme.getActiveTabBrush()
     } else {
         Brush.verticalGradient(listOf(Color.White, Color.White))
     }
-    val borderColor = if (isSelected) Color(0xFFCA8A04) else Color(0xFFE2E8F0)
+    val borderColor = if (isSelected) activeTheme.getActiveTabBorder() else Color(0xFFE2E8F0)
+    val activeTextColor = activeTheme.getActiveTabTextColor()
 
     Surface(
         onClick = onClick,
@@ -454,14 +456,14 @@ private fun BodyNavTile(
             Icon(
                 imageVector = icon,
                 contentDescription = tab.label,
-                tint = if (isSelected) Color(0xFF0F172A) else Color(0xFF64748B),
+                tint = if (isSelected) activeTextColor else Color(0xFF64748B),
                 modifier = Modifier.size(13.dp)
             )
             Text(
                 text = tab.label,
                 fontSize = 9.sp,
                 fontWeight = if (isSelected) FontWeight.Black else FontWeight.SemiBold,
-                color = if (isSelected) Color(0xFF0F172A) else Color(0xFF475569),
+                color = if (isSelected) activeTextColor else Color(0xFF475569),
                 lineHeight = 10.sp,
                 maxLines = 1,
                 softWrap = false,
@@ -487,10 +489,17 @@ fun BodySecondaryNavBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Active Sub-Module Tag (Image 2 style: Body • [Tab])
+        val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
+        val tagBg = activeTheme.getActiveTabBrush()
+        val tagBorder = activeTheme.getActiveTabBorder()
+        val tagTextColor = activeTheme.getActiveTabTextColor()
         Surface(
             shape = RoundedCornerShape(50.dp),
-            color = Color(0xFFFEF08A),
-            border = BorderStroke(1.dp, Color(0xFFCA8A04))
+            color = Color.Transparent,
+            border = BorderStroke(1.dp, tagBorder),
+            modifier = Modifier
+                .clip(RoundedCornerShape(50.dp))
+                .background(tagBg)
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
@@ -501,13 +510,13 @@ fun BodySecondaryNavBar(
                     modifier = Modifier
                         .size(4.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF0F172A))
+                        .background(tagTextColor)
                 )
                 Text(
                     text = "Body • ${state.primaryTab.label}",
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Black,
-                    color = Color(0xFF0F172A)
+                    color = tagTextColor
                 )
             }
         }
@@ -595,20 +604,28 @@ private fun SecondaryPill(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
+    val fill = if (isSelected) activeTheme.getActiveTabBrush() else Brush.verticalGradient(listOf(Color.White, Color.White))
+    val borderColor = if (isSelected) activeTheme.getActiveTabBorder() else Color(0xFFE2E8F0)
+    val textColor = if (isSelected) activeTheme.getActiveTabTextColor() else Color(0xFF64748B)
+
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(50.dp),
-        color = if (isSelected) Color(0xFFFEF08A) else Color.White,
+        color = Color.Transparent,
         border = BorderStroke(
             width = 1.dp,
-            color = if (isSelected) Color(0xFFCA8A04) else Color(0xFFE2E8F0)
-        )
+            color = borderColor
+        ),
+        modifier = Modifier
+            .clip(RoundedCornerShape(50.dp))
+            .background(fill)
     ) {
         Text(
             text = label,
             fontSize = 9.sp,
             fontWeight = if (isSelected) FontWeight.Black else FontWeight.SemiBold,
-            color = if (isSelected) Color(0xFF0F172A) else Color(0xFF64748B),
+            color = textColor,
             modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
         )
     }

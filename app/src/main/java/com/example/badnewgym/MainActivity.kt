@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.badnewgym.deviceagent.DeviceAgentForegroundService
 import com.example.badnewgym.deviceagent.DeviceAgentRuntime
+import com.example.badnewgym.feature.membercard.design.BadGymThemeManager
 
 class MainActivity : ComponentActivity() {
     private val initialSheetState = androidx.compose.runtime.mutableStateOf<String?>(null)
@@ -59,6 +60,9 @@ class MainActivity : ComponentActivity() {
 
     private fun handleSheetIntent(intent: Intent?) {
         initialSheetState.value = intent?.getStringExtra("sheet")
+        intent?.getStringExtra("theme")?.let { code ->
+            BadGymThemeManager.setThemeByCode(code)
+        }
     }
 
     override fun onDestroy() {

@@ -126,6 +126,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.badnewgym.R
+import com.example.badnewgym.feature.membercard.design.BadGymDashboardTheme
+import com.example.badnewgym.feature.membercard.design.BadGymThemeManager
+import com.example.badnewgym.feature.membercard.design.BadGymThemeSelectorStrip
 import com.example.badnewgym.feature.membercard.design.MemberCardAccentManager
 import com.example.badnewgym.feature.membercard.design.MemberCardAccentTones
 import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
@@ -657,85 +660,101 @@ fun MasterStoryboardDashboard(
     val dueDay = remember(data) { dayInMonth(data.paymentPlan.currentDueDate) }
     val paidDay = remember(data) { dayInMonth(data.paymentPlan.lastPaymentDate) }
     val accent = MemberCardAccentManager.activeAccent.color
+    val activeTheme = BadGymThemeManager.activeTheme
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    0.00f to Color(0xFF09041A),
-                    0.07f to Color(0xFF1E0736),
-                    0.14f to Color(0xFF380854),
-                    0.20f to Color(0xFFFAF5FF),
-                    0.38f to Color(0xFFF8FAFC),
-                    1.00f to Color(0xFFFFFFFF)
-                )
-            )
+            .background(activeTheme.getCanvasGradient())
             .border(
                 1.5.dp,
-                Brush.linearGradient(
-                    listOf(
-                        Color(0xFFFF007A),
-                        Color(0xFFA855F7),
-                        Color(0xFF38BDF8),
-                        Color(0xFFFBBF24),
-                        Color(0xFFFF007A)
-                    )
-                ),
+                activeTheme.getOuterBorder(),
                 RoundedCornerShape(28.dp)
             )
             .clip(RoundedCornerShape(28.dp))
     ) {
-        // Celestial Starry Nebula Sparkles in Top Header Area
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-        ) {
-            val stars = listOf(
-                Offset(size.width * 0.08f, size.height * 0.25f) to 2.2f,
-                Offset(size.width * 0.18f, size.height * 0.65f) to 1.5f,
-                Offset(size.width * 0.35f, size.height * 0.20f) to 2.0f,
-                Offset(size.width * 0.44f, size.height * 0.70f) to 1.8f,
-                Offset(size.width * 0.68f, size.height * 0.30f) to 2.2f,
-                Offset(size.width * 0.82f, size.height * 0.60f) to 1.6f,
-                Offset(size.width * 0.94f, size.height * 0.22f) to 2.5f
-            )
-            stars.forEach { (pos, radiusDp) ->
+        // Celestial Starry Nebula Sparkles in Top Header Area (Active for Cosmic / Berry / Pink themes)
+        if (activeTheme.isStarryCosmic) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+            ) {
+                val stars = listOf(
+                    Offset(size.width * 0.08f, size.height * 0.25f) to 2.2f,
+                    Offset(size.width * 0.18f, size.height * 0.65f) to 1.5f,
+                    Offset(size.width * 0.35f, size.height * 0.20f) to 2.0f,
+                    Offset(size.width * 0.44f, size.height * 0.70f) to 1.8f,
+                    Offset(size.width * 0.68f, size.height * 0.30f) to 2.2f,
+                    Offset(size.width * 0.82f, size.height * 0.60f) to 1.6f,
+                    Offset(size.width * 0.94f, size.height * 0.22f) to 2.5f
+                )
+                stars.forEach { (pos, radiusDp) ->
+                    drawCircle(
+                        color = Color(0xFFFDE047).copy(alpha = 0.85f),
+                        radius = radiusDp.dp.toPx(),
+                        center = pos
+                    )
+                    drawCircle(
+                        color = Color.White.copy(alpha = 0.95f),
+                        radius = (radiusDp * 0.5f).dp.toPx(),
+                        center = pos
+                    )
+                }
+            }
+        }
+
+        // 3D Soft Cloud Elements in Top Canvas (Active for Sky Blue theme)
+        if (activeTheme.isCloudSky) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+            ) {
                 drawCircle(
-                    color = Color(0xFFFDE047).copy(alpha = 0.85f),
-                    radius = radiusDp.dp.toPx(),
-                    center = pos
+                    color = Color.White.copy(alpha = 0.85f),
+                    radius = 36.dp.toPx(),
+                    center = Offset(size.width * 0.06f, 45.dp.toPx())
                 )
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.95f),
-                    radius = (radiusDp * 0.5f).dp.toPx(),
-                    center = pos
+                    color = Color.White.copy(alpha = 0.75f),
+                    radius = 24.dp.toPx(),
+                    center = Offset(size.width * 0.16f, 58.dp.toPx())
+                )
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.80f),
+                    radius = 34.dp.toPx(),
+                    center = Offset(size.width * 0.92f, 38.dp.toPx())
+                )
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.70f),
+                    radius = 22.dp.toPx(),
+                    center = Offset(size.width * 0.82f, 52.dp.toPx())
                 )
             }
         }
 
-        // Ambient Cyber-Neon glow blooms behind cards
+        // Ambient Dynamic Theme glow blooms behind cards
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(x = 60.dp, y = (-50).dp)
                 .size(260.dp)
-                .background(Brush.radialGradient(listOf(Color(0x44FF007A), Color(0x00000000))))
+                .background(Brush.radialGradient(listOf(activeTheme.getGlowColor(), Color(0x00000000))))
         )
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset(x = (-80).dp, y = 180.dp)
                 .size(240.dp)
-                .background(Brush.radialGradient(listOf(Color(0x338B5CF6), Color(0x00000000))))
+                .background(Brush.radialGradient(listOf(activeTheme.primaryColor.copy(alpha = 0.20f), Color(0x00000000))))
         )
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(x = 60.dp, y = 120.dp)
                 .size(340.dp)
-                .background(Brush.radialGradient(listOf(Color(0x33C026D3), Color(0x00000000))))
+                .background(Brush.radialGradient(listOf(activeTheme.secondaryColor.copy(alpha = 0.20f), Color(0x00000000))))
         )
 
         Column(
@@ -745,6 +764,16 @@ fun MasterStoryboardDashboard(
                 .navigationBarsPadding()
                 .padding(horizontal = 8.dp)
         ) {
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // =====================================================================
+            // 10 THEMES QUICK SELECTOR BAR (1-Tap Switch Across All Verified Themes)
+            // =====================================================================
+            BadGymThemeSelectorStrip(
+                selectedTheme = activeTheme,
+                onThemeSelect = { BadGymThemeManager.setTheme(it) }
+            )
+
             Spacer(modifier = Modifier.height(2.dp))
 
             // =====================================================================

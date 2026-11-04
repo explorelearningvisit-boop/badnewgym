@@ -1450,17 +1450,21 @@ private fun GlossyColoredTabItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
     val shape = RoundedCornerShape(13.dp)
     val fill = if (isSelected) {
-        Brush.verticalGradient(listOf(Color(0xFFFEF08A), Color(0xFFFACC15)))
+        activeTheme.getActiveTabBrush()
     } else {
         Brush.verticalGradient(listOf(Color.White, Color.White))
     }
-    val borderColor = if (isSelected) Color(0xFFCA8A04) else Color(0xFFE2E8F0)
-    val titleColor = if (isSelected) Color(0xFF0F172A).copy(alpha = 0.85f) else Color(0xFF64748B)
-    val valueColor = Color(0xFF0F172A)
-    val chevronColor = if (isSelected) Color(0xFF0F172A) else Color(0xFF94A3B8)
-    val iconBoxBg = if (isSelected) Color.Black.copy(alpha = 0.08f) else Color(0xFFF1F5F9)
+    val borderColor = if (isSelected) activeTheme.getActiveTabBorder() else Color(0xFFE2E8F0)
+    val activeTextColor = activeTheme.getActiveTabTextColor()
+    val titleColor = if (isSelected) activeTextColor.copy(alpha = 0.85f) else Color(0xFF64748B)
+    val valueColor = if (isSelected) activeTextColor else Color(0xFF0F172A)
+    val chevronColor = if (isSelected) activeTextColor else Color(0xFF94A3B8)
+    val iconBoxBg = if (isSelected) {
+        if (activeTextColor == Color.White) Color.White.copy(alpha = 0.20f) else Color.Black.copy(alpha = 0.08f)
+    } else Color(0xFFF1F5F9)
 
     Surface(
         onClick = onClick,
