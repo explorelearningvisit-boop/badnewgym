@@ -656,44 +656,86 @@ fun MasterStoryboardDashboard(
     }
     val dueDay = remember(data) { dayInMonth(data.paymentPlan.currentDueDate) }
     val paidDay = remember(data) { dayInMonth(data.paymentPlan.lastPaymentDate) }
+    val accent = MemberCardAccentManager.activeAccent.color
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(
-                // Four hue families instead of one flat mint wash, so the frosted
-                // cards have something to sit against rather than blending in.
                 Brush.verticalGradient(
-                    0.00f to Color(0xFFE3F7F1),
-                    0.28f to Color(0xFFEAF3FE),
-                    0.58f to Color(0xFFF2ECFB),
-                    0.82f to Color(0xFFE4F8F0),
-                    1.00f to Color(0xFFDFF4F6)
+                    0.00f to Color(0xFF09041A),
+                    0.07f to Color(0xFF1E0736),
+                    0.14f to Color(0xFF380854),
+                    0.20f to Color(0xFFFAF5FF),
+                    0.38f to Color(0xFFF8FAFC),
+                    1.00f to Color(0xFFFFFFFF)
                 )
             )
+            .border(
+                1.5.dp,
+                Brush.linearGradient(
+                    listOf(
+                        Color(0xFFFF007A),
+                        Color(0xFFA855F7),
+                        Color(0xFF38BDF8),
+                        Color(0xFFFBBF24),
+                        Color(0xFFFF007A)
+                    )
+                ),
+                RoundedCornerShape(28.dp)
+            )
+            .clip(RoundedCornerShape(28.dp))
     ) {
-        // Ambient light: three coloured blooms give every glass edge a different
-        // colour to refract, which is what keeps the surface from reading as flat.
+        // Celestial Starry Nebula Sparkles in Top Header Area
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+        ) {
+            val stars = listOf(
+                Offset(size.width * 0.08f, size.height * 0.25f) to 2.2f,
+                Offset(size.width * 0.18f, size.height * 0.65f) to 1.5f,
+                Offset(size.width * 0.35f, size.height * 0.20f) to 2.0f,
+                Offset(size.width * 0.44f, size.height * 0.70f) to 1.8f,
+                Offset(size.width * 0.68f, size.height * 0.30f) to 2.2f,
+                Offset(size.width * 0.82f, size.height * 0.60f) to 1.6f,
+                Offset(size.width * 0.94f, size.height * 0.22f) to 2.5f
+            )
+            stars.forEach { (pos, radiusDp) ->
+                drawCircle(
+                    color = Color(0xFFFDE047).copy(alpha = 0.85f),
+                    radius = radiusDp.dp.toPx(),
+                    center = pos
+                )
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.95f),
+                    radius = (radiusDp * 0.5f).dp.toPx(),
+                    center = pos
+                )
+            }
+        }
+
+        // Ambient Cyber-Neon glow blooms behind cards
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .offset(x = 80.dp, y = (-90).dp)
-                .size(300.dp)
-                .background(Brush.radialGradient(listOf(Color(0x4D22C3E6), Color(0x00000000))))
+                .offset(x = 60.dp, y = (-50).dp)
+                .size(260.dp)
+                .background(Brush.radialGradient(listOf(Color(0x44FF007A), Color(0x00000000))))
         )
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = (-110).dp, y = 220.dp)
-                .size(280.dp)
-                .background(Brush.radialGradient(listOf(Color(0x408B5CF6), Color(0x00000000))))
+                .offset(x = (-80).dp, y = 180.dp)
+                .size(240.dp)
+                .background(Brush.radialGradient(listOf(Color(0x338B5CF6), Color(0x00000000))))
         )
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(x = 60.dp, y = 120.dp)
                 .size(340.dp)
-                .background(Brush.radialGradient(listOf(Color(0x4710B981), Color(0x00000000))))
+                .background(Brush.radialGradient(listOf(Color(0x33C026D3), Color(0x00000000))))
         )
 
         Column(
@@ -701,105 +743,133 @@ fun MasterStoryboardDashboard(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 10.dp)
+                .padding(horizontal = 8.dp)
         ) {
-        Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-        // =====================================================================
-        // 1. PINNED MEMBER CARD (identity, stats, plan progress)
-        // =====================================================================
-        UnifiedBadGymMemberCard(
-            planTitle = currentPass.tier.title,
-            checkInTime = "Today \u2022 08:49 AM",
-            isActive = !currentPass.isOverdue,
-            cardType = currentCardType,
-            paymentStatus = currentPaymentStatus,
-            paidAmount = if (currentPaymentStatus == PaymentStatus.PENDING || hasDues) {
-                displayDueAmount(data)
-            } else {
-                "\u20B90"
-            },
-            paidDate = data.paymentPlan.currentDueDate,
-            name = currentPass.name,
-            memberId = currentPass.memberId,
-            age = currentPass.age,
-            gender = currentPass.gender,
-            quote = currentPass.quote,
-            validity = dashboardValidity(currentPass.totalDays, currentPass.daysLeft),
-            avatarRes = currentPass.avatarRes,
-            height = currentPass.height,
-            weight = "69.5 kg",
-            bmi = "22.8",
-            bmiCategory = "Normal",
-            goal = currentPass.goal,
-            goalSubtitle = "Regular Training",
-            planName = data.paymentPlan.planName.substringBefore(" ("),
-            isPaid = isPlanPaid,
-            daysPassed = daysPassed,
-            totalDays = currentPass.totalDays,
-            percentage = pct,
-            onCheckInClick = {
-                selectedTabIndex = 0
-                currentCardType = MemberCardType.TRAINER_CHECK_IN
-                onAttendanceClick()
-            },
-            onPaymentHeaderClick = {
-                currentCardType = MemberCardType.PAYMENT
-                selectedTabIndex = 2
-                onPaymentClick()
-            },
-            onPlanClick = {
-                selectedTabIndex = 2
-                currentCardType = MemberCardType.PAYMENT
-            },
-            onAvatarClick = onMenuClick,
-            onMenuClick = onMenuClick,
-            onGoalClick = onBodyProgressClick,
-            onProgressClick = {
-                selectedTabIndex = 0
-                currentCardType = MemberCardType.CHECK_IN
-                onAttendanceClick()
-            },
-            // Plan health rides inside the same glass card as the identity block.
-            statusLabel = if (currentPass.isOverdue) "Overdue" else "On Track",
-            paymentLabel = if (isPlanPaid) "Payment Paid" else "Payment Due",
-            attendanceLabel = "Attendance ${data.attendance.percent}%",
-            weightLabel = "Weight \u2193 2.5 kg"
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        // =====================================================================
-        // 2. PINNED 4-TAB COLOR DOCK
-        // =====================================================================
-        MenuRow4Tabs(
-            selectedTabIndex = selectedTabIndex,
-            onTabSelected = { index ->
-                selectedTabIndex = index
-                currentCardType = when (index) {
-                    0 -> MemberCardType.TRAINER_CHECK_IN
-                    1 -> MemberCardType.CHECK_IN
-                    2 -> MemberCardType.PAYMENT
-                    else -> MemberCardType.MEMBER_PASS
+            // =====================================================================
+            // 0. TOP HEADER (Crown + BAD GYM + Member Intelligence | Trophy Capsule)
+            // =====================================================================
+            TopHeaderComponent(
+                planTitle = currentPass.tier.title,
+                checkInTime = "Today • 08:49 AM",
+                isActive = !currentPass.isOverdue,
+                cardType = currentCardType,
+                paymentStatus = currentPaymentStatus,
+                paidAmount = "₹1,200",
+                paidDate = "16 Oct 2026",
+                isPaid = isPlanPaid,
+                accent = accent,
+                onCheckInClick = {
+                    selectedTabIndex = 0
+                    currentCardType = MemberCardType.TRAINER_CHECK_IN
+                    onAttendanceClick()
+                },
+                onPaymentHeaderClick = {
+                    currentCardType = MemberCardType.PAYMENT
+                    selectedTabIndex = 2
+                    onPaymentClick()
+                },
+                onPlanClick = {
+                    selectedTabIndex = 2
+                    currentCardType = MemberCardType.PAYMENT
                 }
-                coroutineScope.launch {
-                    lazyListState.scrollToItem(0)
-                }
-            },
-            attendanceRate = "${data.attendance.percent}%",
-            workoutAvg = "${workoutAvgMinutes(data.workoutTrend.bars)} min",
-            paymentDue = displayDueAmount(data),
-            bodyWeight = "69.5 kg",
-            attendanceProgress = data.attendance.percent / 100f,
-            workoutProgress = workoutActiveDays(data.workoutTrend.bars).toFloat() /
-                data.workoutTrend.bars.size.coerceAtLeast(1),
-            paymentProgress = data.paymentPlan.planDaysUsed.toFloat() /
-                data.paymentPlan.planTotalDays.coerceAtLeast(1),
-            bodyProgress = 0.74f,
-            paymentHasAlert = false
-        )
+            )
 
-        Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(3.dp))
+
+            // =====================================================================
+            // 1. PINNED MEMBER CARD (identity, stats, plan progress)
+            // =====================================================================
+            UnifiedBadGymMemberCard(
+                planTitle = currentPass.tier.title,
+                checkInTime = "Today • 08:49 AM",
+                isActive = !currentPass.isOverdue,
+                cardType = currentCardType,
+                paymentStatus = currentPaymentStatus,
+                paidAmount = "₹1,200",
+                paidDate = "16 Oct 2026",
+                name = "Ashwani Kumar Singh",
+                memberId = currentPass.memberId,
+                age = currentPass.age,
+                gender = currentPass.gender,
+                quote = "“Discipline Builds Freedom”",
+                validity = "09 Oct 2026 – 07 Nov 2026 (30 Days Plan)",
+                avatarRes = currentPass.avatarRes,
+                height = "5'9\"",
+                weight = "69.5 kg",
+                weightDelta = "↓ 2.5 kg",
+                bmi = "22.8",
+                bmiCategory = "Normal",
+                goal = "Fat Loss",
+                goalSubtitle = "Goal",
+                planName = data.paymentPlan.planName.substringBefore(" ("),
+                isPaid = isPlanPaid,
+                daysPassed = 22,
+                totalDays = 30,
+                percentage = 73,
+                showHeader = false,
+                onCheckInClick = {
+                    selectedTabIndex = 0
+                    currentCardType = MemberCardType.TRAINER_CHECK_IN
+                    onAttendanceClick()
+                },
+                onPaymentHeaderClick = {
+                    currentCardType = MemberCardType.PAYMENT
+                    selectedTabIndex = 2
+                    onPaymentClick()
+                },
+                onPlanClick = {
+                    selectedTabIndex = 2
+                    currentCardType = MemberCardType.PAYMENT
+                },
+                onAvatarClick = onMenuClick,
+                onMenuClick = onMenuClick,
+                onGoalClick = onBodyProgressClick,
+                onProgressClick = {
+                    selectedTabIndex = 0
+                    currentCardType = MemberCardType.CHECK_IN
+                    onAttendanceClick()
+                },
+                statusLabel = if (currentPass.isOverdue) "Overdue" else "On Track",
+                paymentLabel = if (isPlanPaid) "Payment Paid" else "Payment Due",
+                attendanceLabel = "Attendance ${data.attendance.percent}%",
+                weightLabel = "Weight ↓ 2.5 kg"
+            )
+
+            Spacer(modifier = Modifier.height(3.dp))
+
+            // =====================================================================
+            // 2. PINNED 4-TAB COLOR DOCK (4 Glossy 3D Colored Action Cards)
+            // =====================================================================
+            MenuRow4Tabs(
+                selectedTabIndex = selectedTabIndex,
+                onTabSelected = { index ->
+                    selectedTabIndex = index
+                    currentCardType = when (index) {
+                        0 -> MemberCardType.TRAINER_CHECK_IN
+                        1 -> MemberCardType.CHECK_IN
+                        2 -> MemberCardType.PAYMENT
+                        else -> MemberCardType.MEMBER_PASS
+                    }
+                    coroutineScope.launch {
+                        lazyListState.scrollToItem(0)
+                    }
+                },
+                attendanceRate = "${data.attendance.percent}%",
+                workoutAvg = "61 min",
+                paymentDue = "₹1,200",
+                bodyWeight = "69.5 kg",
+                attendanceProgress = data.attendance.percent / 100f,
+                workoutProgress = workoutActiveDays(data.workoutTrend.bars).toFloat() /
+                    data.workoutTrend.bars.size.coerceAtLeast(1),
+                paymentProgress = data.paymentPlan.planDaysUsed.toFloat() /
+                    data.paymentPlan.planTotalDays.coerceAtLeast(1),
+                bodyProgress = 0.74f,
+                paymentHasAlert = true
+            )
+
+        Spacer(modifier = Modifier.height(2.dp))
 
         // Switching tabs rebuilds the list, so the entrance is replayed per tab:
         // the content lifts in rather than snapping into place.
@@ -824,7 +894,7 @@ fun MasterStoryboardDashboard(
                     scaleX = 0.982f + 0.018f * tabEnter.value
                     scaleY = 0.982f + 0.018f * tabEnter.value
                 },
-            verticalArrangement = Arrangement.spacedBy(3.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             when (selectedTabIndex) {
                 0 -> {
@@ -865,7 +935,7 @@ fun MasterStoryboardDashboard(
             }
 
             item(key = "bottom_spacer") {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
             }
         }
         }
@@ -1762,10 +1832,10 @@ private fun Workout30DayTrendCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .neumorphicLift(cardShape, tint = accent, elevation = 8.dp)
+            .neumorphicLift(cardShape, tint = accent, elevation = 4.dp)
             .clip(cardShape)
-            .background(MemberCardAccentTones.cardWash(accent))
-            .border(1.4.dp, MemberCardAccentTones.cardEdge(accent), cardShape)
+            .background(Color.White)
+            .border(1.2.dp, Color(0xFFE2E8F0), cardShape)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -2270,10 +2340,10 @@ private fun WorkoutMonthlyPatternCard(accent: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .neumorphicLift(cardShape, tint = accent, elevation = 8.dp)
+            .neumorphicLift(cardShape, tint = accent, elevation = 4.dp)
             .clip(cardShape)
-            .background(MemberCardAccentTones.cardWash(accent))
-            .border(1.4.dp, MemberCardAccentTones.cardEdge(accent), cardShape)
+            .background(Color.White)
+            .border(1.2.dp, Color(0xFFE2E8F0), cardShape)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -2499,10 +2569,10 @@ fun MasterPaymentCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .neumorphicLift(cardShape, tint = accent, elevation = 8.dp)
+            .neumorphicLift(cardShape, tint = accent, elevation = 4.dp)
             .clip(cardShape)
-            .background(MemberCardAccentTones.cardWash(accent))
-            .border(1.4.dp, MemberCardAccentTones.cardEdge(accent), cardShape)
+            .background(Color.White)
+            .border(1.2.dp, Color(0xFFE2E8F0), cardShape)
             .clickable { onClick() }
             .padding(horizontal = 11.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -2788,30 +2858,24 @@ private fun PaymentActionButtonsRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 1. View Due — solid accent button
+        // 1. View Due — solid neon yellow button
         Row(
             modifier = Modifier
                 .weight(1.5f)
                 .height(36.dp)
                 .clip(RoundedCornerShape(11.dp))
-                .background(MemberCardAccentTones.stadiumBrush(accent))
+                .background(Brush.verticalGradient(listOf(Color(0xFFFEF08A), Color(0xFFFACC15))))
+                .border(1.dp, Color(0xFFCA8A04), RoundedCornerShape(11.dp))
                 .clickable { onCollectPayment() }
                 .padding(horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.CreditCard,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(13.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "View Due",
-                fontSize = 12.sp,
+                text = "View Due \u203A",
+                fontSize = 12.5.sp,
                 fontWeight = FontWeight.Black,
-                color = Color.White,
+                color = Color(0xFF0F172A),
                 maxLines = 1,
                 softWrap = false
             )
