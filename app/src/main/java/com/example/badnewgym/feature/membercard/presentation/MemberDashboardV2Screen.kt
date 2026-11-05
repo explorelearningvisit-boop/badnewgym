@@ -23,7 +23,7 @@ import com.example.badnewgym.feature.membercard.domain.model.CalendarDay
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 import com.example.badnewgym.feature.membercard.presentation.components.AttendanceDayBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.DetailedAnalyticsBottomSheet
-import com.example.badnewgym.feature.membercard.presentation.components.MasterStoryboardDashboard
+import com.example.badnewgym.feature.membercard.presentation.intelligence.MemberIntelligenceDashboard
 import com.example.badnewgym.feature.membercard.presentation.components.MemberQuickActionsSheet
 import com.example.badnewgym.feature.membercard.presentation.components.NotificationsBottomSheet
 import com.example.badnewgym.feature.membercard.presentation.components.ReceiptBottomSheet
@@ -61,19 +61,19 @@ fun MemberDashboardV2Screen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        MasterStoryboardDashboard(
+        MemberIntelligenceDashboard(
             data = data,
+            pass = signedInPass,
             onMenuClick = {
                 showQuickActions = true
                 onMenuClick()
             },
             // Every card affordance lands on a real destination.
-            onAttendanceClick = { showAnalytics = true },
+            onAvatarClick = { showAnalytics = true },
             onAttendanceDayClick = { day -> selectedDay = day },
             onWorkoutClick = { showAnalytics = true },
             onPaymentClick = { showReceipt = true },
-            onViewReceiptClick = { showReceipt = true },
-            onBodyProgressClick = { showAnalytics = true }
+            onViewReceiptClick = { showReceipt = true }
         )
 
         if (showQuickActions) {
