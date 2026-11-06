@@ -218,19 +218,19 @@ fun IntelligenceChip(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(if (selected) c.accent else c.cardFill)
-            .border(1.2.dp, if (selected) c.accent else c.cardEdge, RoundedCornerShape(12.dp))
+            .background(if (selected) c.warn else c.cardFill)
+            .border(1.2.dp, if (selected) c.warn else c.cardEdge, RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(horizontal = 6.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = if (selected) c.onAccent else c.accent, modifier = Modifier.size(12.dp))
+        Icon(icon, contentDescription = null, tint = if (selected) Color(0xFF3B2A00) else c.accent, modifier = Modifier.size(12.dp))
         Text(
             label,
             fontSize = 9.5.sp,
             fontWeight = FontWeight.SemiBold,
-            color = if (selected) c.onAccent else c.ink,
+            color = if (selected) Color(0xFF3B2A00) else c.ink,
             letterSpacing = (-0.2).sp,
             maxLines = 1
         )

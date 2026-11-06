@@ -405,14 +405,14 @@ private fun MembershipProgressCard(
                     .fillMaxWidth(fillFraction.coerceIn(0f, 1f))
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(9.dp))
-                    .background(colors.accent),
+                    .background(colors.good),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     "$usedPercentLabel% Used",
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold,
-                    color = colors.onAccent,
+                    color = Color.White,
                     maxLines = 1
                 )
             }
@@ -459,24 +459,23 @@ private fun KpiTile(
     modifier: Modifier = Modifier
 ) {
     val selected = index == selectedTab
-    val contentColor = if (selected) colors.onAccent else colors.ink
+    val contentColor = colors.ink
     val shape = RoundedCornerShape(20.dp)
     Column(
         modifier = modifier
             .height(92.dp)
             .clip(shape)
+            .background(colors.cardFill, shape)
             .then(
-                if (selected) Modifier.background(colors.activeTabBrush, shape)
-                else Modifier
-                    .background(colors.cardFill, shape)
-                    .border(1.2.dp, colors.cardEdge, shape)
+                if (selected) Modifier.border(2.dp, colors.warn, shape)
+                else Modifier.border(1.2.dp, colors.cardEdge, shape)
             )
             .clickable { onTabSelected(index) }
             .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
     ) {
-        Icon(icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(22.dp))
+        Icon(icon, contentDescription = null, tint = colors.accent, modifier = Modifier.size(22.dp))
         Text(
             value,
             fontSize = 17.sp,

@@ -85,8 +85,8 @@ enum class BadGymDashboardTheme(
         code = "04",
         title = "Berry Purple",
         subtitle = "Cosmic Splash Signature",
-        primaryColor = Color(0xFFC026D3),
-        secondaryColor = Color(0xFF7E22CE)
+        primaryColor = Color(0xFF8000FF),
+        secondaryColor = Color(0xFF5B00B8)
     ),
     GRILL_ORANGE(
         code = "05",

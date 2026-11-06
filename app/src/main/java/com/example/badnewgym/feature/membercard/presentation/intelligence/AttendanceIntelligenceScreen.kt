@@ -115,8 +115,6 @@ fun AttendanceIntelligenceScreen(
                     modifier = Modifier.weight(1f)
                 )
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            MonthProgressTrack(fraction = attendance.percent / 100f, accent = c.accent, track = c.ink.copy(alpha = 0.06f))
         }
 
         val measurer = rememberTextMeasurer()
@@ -204,12 +202,12 @@ private fun RowScope.DayCell(
         modifier = Modifier
             .weight(1f)
             .size(34.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(50))
             .background(bg)
             .border(
                 width = if (isDue) 1.5.dp else 0.dp,
                 color = if (isDue) c.bad else Color.Transparent,
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(50)
             )
             .clickable { onDayClick(day) },
         contentAlignment = Alignment.Center
@@ -243,26 +241,6 @@ private fun RowScope.DayCell(
     }
 }
 
-/** Thin solid accent progress bar under the calendar, matching the reference. */
-@Composable
-private fun MonthProgressTrack(fraction: Float, accent: Color, track: Color) {
-    val clamped = fraction.coerceIn(0f, 1f)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(5.dp)
-            .clip(RoundedCornerShape(3.dp))
-            .background(track)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(clamped)
-                .height(5.dp)
-                .clip(RoundedCornerShape(3.dp))
-                .background(accent)
-        )
-    }
-}
 
 /** 12-month attendance line/area chart with peak, drop and current callout bubbles. */
 @Composable

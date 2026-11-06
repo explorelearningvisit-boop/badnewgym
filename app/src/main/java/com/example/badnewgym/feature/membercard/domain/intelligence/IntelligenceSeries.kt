@@ -33,7 +33,8 @@ object IntelligenceSeries {
         val hours: Int,
         val days: Int,
         val isPeak: Boolean = false,
-        val isDrop: Boolean = false
+        val isDrop: Boolean = false,
+        val isAlert: Boolean = false
     )
 
     data class AttendanceMonthPoint(
@@ -85,25 +86,31 @@ object IntelligenceSeries {
 
     private fun baseMinutes(day: Int): Int = 40 + (day * 7) % 45
 
-    private fun point(day: Int, minutes: Int): WorkoutDailyPoint = WorkoutDailyPoint(
-        day = day,
-        minutes = minutes,
-        label = "${minutes}m",
-        isPeak = day == PEAK_DAY,
-        isLow = day == LOW_DAY,
-        isAlert = day == ALERT_DAY
-    )
+    private fun point(day: Int, minutes: Int): WorkoutDailyPoint {
+        val anchored = day in dailyAnchors
+        return WorkoutDailyPoint(
+            day = day,
+            minutes = minutes,
+            label = if (anchored) "${minutes}m" else null,
+            isPeak = day == PEAK_DAY,
+            isLow = day == LOW_DAY,
+            isAlert = day == ALERT_DAY
+        )
+    }
+
+    /** Reference label shown on the Monthly Pattern card (matches the approved mockup). */
+    const val MONTHLY_PATTERN_TOTAL_LABEL = "256.0 hr"
 
     /** Monthly training pattern (hours + active days) for the current year. */
     fun workoutMonthlyPattern(): List<WorkoutMonthPoint> = listOf(
         WorkoutMonthPoint("Jan", 36, 18),
         WorkoutMonthPoint("Feb", 40, 20),
-        WorkoutMonthPoint("Mar", 6, 6, isDrop = true),
+        WorkoutMonthPoint("Mar", 12, 6),
         WorkoutMonthPoint("Apr", 24, 12),
         WorkoutMonthPoint("May", 28, 16),
-        WorkoutMonthPoint("Jun", 32, 22),
+        WorkoutMonthPoint("Jun", 0, 0),
         WorkoutMonthPoint("Jul", 44, 22, isPeak = true),
-        WorkoutMonthPoint("Aug", 28, 14),
+        WorkoutMonthPoint("Aug", 28, 14, isAlert = true),
         WorkoutMonthPoint("Sep", 28, 14),
         WorkoutMonthPoint("Oct", 40, 22)
     )
