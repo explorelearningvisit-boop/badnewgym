@@ -99,7 +99,7 @@ fun MemberIntelligenceDashboard(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BadGymThemeManager.activeTheme.getCanvasGradient())
+            .background(intelligenceColors().screenBrush)
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {

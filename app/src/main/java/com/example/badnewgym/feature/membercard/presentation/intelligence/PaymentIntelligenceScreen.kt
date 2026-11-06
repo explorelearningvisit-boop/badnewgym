@@ -6,53 +6,57 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.domain.intelligence.IntelligenceSeries
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
-import com.example.badnewgym.feature.membercard.domain.model.PaymentPlanState
 import java.util.Locale
 
-/** Payment tab of the Member Intelligence dashboard: renewal tiles, quick actions, trend chart and settlement summary. */
+/** Payment tab: renewal tiles, action rail, continuous payment trend and the settlement summary. */
 @Composable
 fun PaymentIntelligenceScreen(
     data: MemberCardData,
@@ -64,446 +68,315 @@ fun PaymentIntelligenceScreen(
 ) {
     val c = intelligenceColors()
     val plan = data.paymentPlan
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    val dueAmount = plan.currentDueAmount.ifBlank { plan.dueAlertAmount }
+    val measurer = rememberTextMeasurer()
+
+    Column(modifier = modifier.fillMaxWidth()) {
         IntelligenceSectionCard(
             title = "Payment",
             icon = Icons.Filled.AccountBalanceWallet,
             subtitle = plan.planDuration,
-            trailing = { HistoryChip(onClick = onHistoryClick) }
+            trailing = { IntelligencePillOutlined("History ▸", onClick = onHistoryClick) }
         ) {
-            RenewalTilesRow(plan = plan)
-            PaymentActionRow(
-                onViewDueClick = onViewDueClick,
-                onRemindClick = onRemindClick,
-                onReceiptClick = onReceiptClick
-            )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                RenewalTile(
+                    icon = Icons.Filled.AccountBalanceWallet,
+                    iconTint = Color(0xFFF59E0B),
+                    label = "Upcoming Renewal",
+                    value = dueAmount,
+                    valueSize = 18.sp,
+                    footnote = "Due in ${plan.planDaysRemaining} Days",
+                    footnoteIcon = Icons.Filled.Schedule,
+                    footnoteTint = c.inkSoft,
+                    modifier = Modifier.weight(1f)
+                )
+                RenewalTile(
+                    icon = Icons.Filled.CalendarMonth,
+                    iconTint = c.accent,
+                    label = "Renewal Date",
+                    value = plan.currentDueDate,
+                    valueSize = 15.sp,
+                    footnote = "Active • ${plan.planDaysRemaining} Days Left",
+                    footnoteIcon = Icons.Filled.CheckCircle,
+                    footnoteTint = c.good,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ViewDueButton(fraction = 1.25f, onClick = onViewDueClick)
+                ActionPill(Icons.Filled.Notifications, "Remind", onRemindClick)
+                ActionPill(Icons.Filled.Receipt, "Receipt", onReceiptClick)
+                ActionPill(Icons.Filled.MoreHoriz, "More", null)
+            }
         }
 
         IntelligenceSectionCard(
             title = "Payment Trend",
             icon = Icons.Filled.ShowChart,
-            trailing = {
-                Text(
-                    text = "Jan – Oct 2026",
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = c.muted,
-                    maxLines = 1
+            trailing = { IntelligencePillOutlined("Jan – Oct 2026 ▾") }
+        ) {
+            PaymentTrendChart(measurer = measurer)
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                SpikeChip(
+                    background = c.accentWash,
+                    foreground = c.ink,
+                    icon = Icons.Filled.Star,
+                    iconTint = Color(0xFFF59E0B),
+                    text = "Jul Spike: Annual Plan Renewal",
+                    modifier = Modifier.weight(1.15f)
+                )
+                SpikeChip(
+                    background = c.ink.copy(alpha = 0.05f),
+                    foreground = c.inkSoft,
+                    icon = null,
+                    iconTint = c.inkSoft,
+                    text = "Mar, Apr, Aug: Pre-paid Cycle",
+                    modifier = Modifier.weight(1f)
                 )
             }
-        ) {
-            PaymentTrendChart()
         }
-
-        IntelligenceNote("★ Jul Spike: Annual Plan Renewal")
-        IntelligenceNote("Mar, Apr, Aug: Pre-paid cycle months — no invoice raised")
-
-        PaymentSummaryRow(data = data)
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            SummaryTile(
+                icon = Icons.Filled.Check,
+                circleBg = c.good,
+                label = "Total Paid",
+                value = plan.amountPaid,
+                valueColor = c.ink
+            )
+            SummaryTile(
+                icon = Icons.Filled.Autorenew,
+                circleBg = c.good,
+                label = "Unpaid Balance",
+                value = dueAmount,
+                valueColor = c.bad
+            )
+            SummaryTile(
+                icon = Icons.Filled.Receipt,
+                circleBg = c.accentDeep,
+                label = "Last Payment",
+                value = plan.lastPaymentAmount,
+                valueColor = c.ink,
+                sub = plan.lastPaymentDate
+            )
+        }
     }
 }
 
-/** Accent-washed "History ›" pill that opens the member's payment history. */
-@Composable
-private fun HistoryChip(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val c = intelligenceColors()
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(50))
-            .background(c.accentWash)
-            .clickable { onClick() }
-            .padding(horizontal = 9.dp, vertical = 5.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(3.dp)
-    ) {
-        Icon(
-            imageVector = Icons.Filled.AccessTime,
-            contentDescription = null,
-            tint = c.accentDeep,
-            modifier = Modifier.size(11.dp)
-        )
-        Text(
-            text = "History ›",
-            fontSize = 9.sp,
-            fontWeight = FontWeight.Bold,
-            color = c.accentDeep,
-            maxLines = 1
-        )
-    }
-}
-
-/** Two equal renewal tiles: upcoming due amount and renewal date status. */
-@Composable
-private fun RenewalTilesRow(plan: PaymentPlanState, modifier: Modifier = Modifier) {
-    val c = intelligenceColors()
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        RenewalTile(
-            icon = Icons.Filled.AccountBalanceWallet,
-            title = "Upcoming Renewal",
-            value = displayDueAmount(plan),
-            valueSize = 16.sp,
-            footer = "Due in ${plan.planDaysRemaining} Days",
-            footerColor = c.accent,
-            footerIcon = Icons.Filled.AccessTime,
-            modifier = Modifier.weight(1f)
-        )
-        RenewalTile(
-            icon = Icons.Filled.Event,
-            title = "Renewal Date",
-            value = plan.currentDueDate,
-            valueSize = 13.sp,
-            footer = "Active • ${plan.planDaysRemaining} Days Left",
-            footerColor = c.good,
-            footerIcon = Icons.Filled.CheckCircle,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-/** One white renewal info tile with an iconed label, a big value and a tone-colored footer. */
+/** White renewal tile: tinted icon chip, muted label, bold value and an icon footnote. */
 @Composable
 private fun RenewalTile(
     icon: ImageVector,
-    title: String,
+    iconTint: Color,
+    label: String,
     value: String,
-    valueSize: TextUnit,
-    footer: String,
-    footerColor: Color,
-    footerIcon: ImageVector,
+    valueSize: androidx.compose.ui.unit.TextUnit,
+    footnote: String,
+    footnoteIcon: ImageVector,
+    footnoteTint: Color,
     modifier: Modifier = Modifier
 ) {
     val c = intelligenceColors()
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(c.cardFill)
-            .border(1.dp, c.cardEdge, RoundedCornerShape(12.dp))
-            .padding(horizontal = 10.dp, vertical = 9.dp),
-        verticalArrangement = Arrangement.spacedBy(3.dp)
+            .border(1.2.dp, c.cardEdge, RoundedCornerShape(14.dp))
+            .padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .background(c.accentWash),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = null, tint = c.accentDeep, modifier = Modifier.size(12.dp))
-            Text(
-                text = title,
-                fontSize = 8.5.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = c.muted,
-                maxLines = 1
-            )
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(17.dp))
         }
-        Text(
-            text = value,
-            fontSize = valueSize,
-            fontWeight = FontWeight.Black,
-            color = c.ink,
-            maxLines = 1
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(3.dp)
-        ) {
-            Icon(footerIcon, contentDescription = null, tint = footerColor, modifier = Modifier.size(9.dp))
-            Text(
-                text = footer,
-                fontSize = 8.5.sp,
-                fontWeight = FontWeight.Bold,
-                color = footerColor,
-                maxLines = 1
-            )
+        Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
+        Text(value, fontSize = valueSize, fontWeight = FontWeight.ExtraBold, color = c.ink, maxLines = 1)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Icon(footnoteIcon, contentDescription = null, tint = footnoteTint, modifier = Modifier.size(11.dp))
+            Text(footnote, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = footnoteTint, maxLines = 1)
         }
     }
 }
 
-/** Filled accent "View Due ›" button plus the Remind / Receipt / More soft tiles. */
+/** Solid accent primary action pill with a trailing chevron. */
 @Composable
-private fun PaymentActionRow(
-    onViewDueClick: () -> Unit,
-    onRemindClick: () -> Unit,
-    onReceiptClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun RowScope.ViewDueButton(fraction: Float, onClick: () -> Unit) {
     val c = intelligenceColors()
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier
+            .weight(fraction)
+            .height(40.dp)
+            .clip(RoundedCornerShape(50))
+            .background(c.accent)
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
-        Row(
-            modifier = Modifier
-                .weight(1.25f)
-                .height(36.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(c.accent)
-                .clickable { onViewDueClick() }
-                .padding(horizontal = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "View Due ›",
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Black,
-                color = c.onAccent,
-                maxLines = 1
-            )
-        }
-        PaymentActionTile(Icons.Filled.Notifications, "Remind", Modifier.weight(1f), onClick = onRemindClick)
-        PaymentActionTile(Icons.Filled.Receipt, "Receipt", Modifier.weight(1f), onClick = onReceiptClick)
-        PaymentActionTile(Icons.Filled.MoreHoriz, "More", Modifier.weight(0.8f))
+        Text("View Due ▸", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = c.onAccent)
     }
 }
 
-/** One soft accent-washed action tile with an icon over a label. */
+/** Secondary outlined action pill: accent icon plus ink label, centred. */
 @Composable
-private fun PaymentActionTile(
-    icon: ImageVector,
-    label: String,
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null
-) {
+private fun RowScope.ActionPill(icon: ImageVector, text: String, onClick: (() -> Unit)?) {
     val c = intelligenceColors()
-    Column(
-        modifier = modifier
-            .height(36.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(c.accentWash)
+    Row(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(50))
+            .background(c.cardFill)
+            .border(1.2.dp, c.cardEdge, RoundedCornerShape(50))
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
-            .padding(horizontal = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
-        Icon(icon, contentDescription = null, tint = c.accentDeep, modifier = Modifier.size(13.dp))
-        Text(
-            text = label,
-            fontSize = 9.sp,
-            fontWeight = FontWeight.Bold,
-            color = c.inkSoft,
-            maxLines = 1
-        )
+        Icon(icon, contentDescription = null, tint = c.accent, modifier = Modifier.size(15.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = c.ink, maxLines = 1)
     }
 }
 
-/** Canvas line/area chart of [IntelligenceSeries.paymentTrend] with a gold peak crown and dashed pre-paid gap connectors. */
+/** Inline legend chip used under the trend chart (wash fill, optional leading icon). */
 @Composable
-private fun PaymentTrendChart(modifier: Modifier = Modifier) {
-    val c = intelligenceColors()
-    val points = remember { IntelligenceSeries.paymentTrend() }
-    val maxY = 2000f
-    val canvasHeight = 120.dp
-    val headroom = 30.dp
-    val bottomPad = 2.dp
-
-    fun yDp(rupees: Int) = headroom + (canvasHeight - headroom - bottomPad) * (1f - rupees / maxY)
-
-    BoxWithConstraints(modifier = modifier.fillMaxWidth().height(canvasHeight)) {
-        val n = points.size
-        val stepDp = maxWidth / n
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val stepPx = size.width / n
-            val plotTop = headroom.toPx()
-            val plotBottom = size.height - bottomPad.toPx()
-            val plotHeight = plotBottom - plotTop
-            fun xFor(i: Int) = i * stepPx + stepPx / 2f
-            fun yFor(rupees: Int) = plotTop + plotHeight * (1f - rupees / maxY)
-            val coords = points.mapIndexed { i, p -> Offset(xFor(i), yFor(p.rupees ?: 0)) }
-
-            // Solid runs of consecutive recorded months; faint dashed connectors span the pre-paid gaps.
-            val runs = mutableListOf<List<Int>>()
-            var current = mutableListOf<Int>()
-            points.forEachIndexed { i, p ->
-                if (p.rupees == null) {
-                    if (current.isNotEmpty()) {
-                        runs += current
-                        current = mutableListOf()
-                    }
-                } else {
-                    current += i
-                }
-            }
-            if (current.isNotEmpty()) runs += current
-
-            runs.forEach { run ->
-                if (run.size >= 2) {
-                    val runPts = run.map { coords[it] }
-                    val line = smoothTrendPath(runPts)
-                    val area = Path().apply {
-                        addPath(line)
-                        lineTo(runPts.last().x, plotBottom)
-                        lineTo(runPts.first().x, plotBottom)
-                        close()
-                    }
-                    drawPath(area, color = c.accentWash)
-                    drawPath(
-                        line,
-                        color = c.accent,
-                        style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-                    )
-                }
-            }
-            for (r in 0 until runs.size - 1) {
-                drawLine(
-                    color = c.faint,
-                    start = coords[runs[r].last()],
-                    end = coords[runs[r + 1].first()],
-                    strokeWidth = 2.dp.toPx(),
-                    cap = StrokeCap.Round,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 5.dp.toPx()))
-                )
-            }
-            points.forEachIndexed { i, p ->
-                if (p.rupees == null) return@forEachIndexed
-                val center = coords[i]
-                drawCircle(c.cardFill, 4.dp.toPx(), center)
-                drawCircle(if (p.isPeak) c.warn else c.accent, 2.5.dp.toPx(), center)
-                if (p.isPeak) drawTrendCrown(center, c.warn)
-            }
+private fun RowScope.SpikeChip(
+    background: Color,
+    foreground: Color,
+    icon: ImageVector?,
+    iconTint: Color,
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(50))
+            .background(background)
+            .padding(horizontal = 10.dp, vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(11.dp))
         }
-
-        points.forEachIndexed { i, p ->
-            if (p.rupees == null) return@forEachIndexed
-            val isPeak = p.isPeak
-            val labelY = if (isPeak) yDp(p.rupees) - 26.dp else yDp(p.rupees) - (if (i % 2 == 0) 16.dp else 22.dp)
-            Box(
-                modifier = Modifier
-                    .offset(x = stepDp * i, y = labelY)
-                    .width(stepDp),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Text(
-                    text = rupeeLabel(p.rupees),
-                    fontSize = 8.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isPeak) c.warn else c.ink,
-                    maxLines = 1
-                )
-            }
-        }
+        Text(text, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = foreground, maxLines = 1)
     }
 }
 
-/** Draws a small gold crown marker hovering just above the peak point. */
-private fun DrawScope.drawTrendCrown(center: Offset, color: Color) {
-    val crownWidth = 10.dp.toPx()
-    val crownHeight = 6.dp.toPx()
-    val baseY = center.y - 6.dp.toPx()
-    val topY = baseY - crownHeight
-    val crown = Path().apply {
-        moveTo(center.x - crownWidth / 2f, baseY)
-        lineTo(center.x - crownWidth / 2f, topY)
-        lineTo(center.x - crownWidth / 6f, baseY - crownHeight * 0.45f)
-        lineTo(center.x, topY)
-        lineTo(center.x + crownWidth / 6f, baseY - crownHeight * 0.45f)
-        lineTo(center.x + crownWidth / 2f, topY)
-        lineTo(center.x + crownWidth / 2f, baseY)
-        close()
-    }
-    drawPath(crown, color = color)
-}
-
-/** Builds a smooth horizontal-tangent cubic path through the given points. */
-private fun smoothTrendPath(points: List<Offset>): Path {
-    val path = Path()
-    if (points.isEmpty()) return path
-    path.moveTo(points[0].x, points[0].y)
-    for (i in 1 until points.size) {
-        val prev = points[i - 1]
-        val cur = points[i]
-        val midX = (prev.x + cur.x) / 2f
-        path.cubicTo(midX, prev.y, midX, cur.y, cur.x, cur.y)
-    }
-    return path
-}
-
-/** Bottom settlement strip: total paid, unpaid balance and the last payment record. */
+/** Settlement summary tile: filled icon circle, muted label, bold value and optional date. */
 @Composable
-private fun PaymentSummaryRow(data: MemberCardData, modifier: Modifier = Modifier) {
-    val c = intelligenceColors()
-    val plan = data.paymentPlan
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        SummaryTile(
-            icon = Icons.Filled.CheckCircle,
-            tint = c.good,
-            label = "Total Paid",
-            value = plan.amountPaid,
-            valueColor = c.good,
-            modifier = Modifier.weight(1f)
-        )
-        SummaryTile(
-            icon = Icons.Filled.Autorenew,
-            tint = c.bad,
-            label = "Unpaid Balance",
-            value = displayDueAmount(plan),
-            valueColor = c.bad,
-            modifier = Modifier.weight(1f)
-        )
-        SummaryTile(
-            icon = Icons.Filled.Receipt,
-            tint = c.accentDeep,
-            label = "Last Payment",
-            value = plan.lastPaymentAmount,
-            valueColor = c.ink,
-            sub = plan.lastPaymentDate,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-/** One white summary tile with a tone-tinted icon, muted label and bold value plus an optional 8sp sub-line. */
-@Composable
-private fun SummaryTile(
+private fun RowScope.SummaryTile(
     icon: ImageVector,
-    tint: Color,
+    circleBg: Color,
     label: String,
     value: String,
     valueColor: Color,
-    modifier: Modifier = Modifier,
     sub: String? = null
 ) {
     val c = intelligenceColors()
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+    Row(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(14.dp))
             .background(c.cardFill)
-            .border(1.dp, c.cardEdge, RoundedCornerShape(12.dp))
-            .padding(horizontal = 6.dp, vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+            .border(1.2.dp, c.cardEdge, RoundedCornerShape(14.dp))
+            .padding(9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(12.dp))
-        Text(
-            text = label,
-            fontSize = 8.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = c.muted,
-            maxLines = 1
-        )
-        Text(
-            text = value,
-            fontSize = 11.5.sp,
-            fontWeight = FontWeight.Black,
-            color = valueColor,
-            maxLines = 1
-        )
-        if (sub != null) {
-            Text(
-                text = sub,
-                fontSize = 8.sp,
-                fontWeight = FontWeight.Medium,
-                color = c.muted,
-                maxLines = 1
-            )
+        Box(
+            modifier = Modifier
+                .size(26.dp)
+                .clip(CircleShape)
+                .background(circleBg),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+        }
+        Column {
+            Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted, maxLines = 1)
+            Text(value, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
+            if (sub != null) {
+                Text(sub, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = c.muted, maxLines = 1)
+            }
         }
     }
 }
 
-/** Due display string with the same currentDueAmount → dueAlertAmount fallback the master payment card uses. */
-private fun displayDueAmount(plan: PaymentPlanState): String =
-    plan.currentDueAmount
-        .takeIf { it.isNotBlank() && it != "--" }
-        ?: plan.dueAlertAmount.takeIf { it.isNotBlank() && it != "--" }
-        ?: "₹0"
+/** Continuous Jan–Oct rupee trend: gaps are linearly interpolated, only valued months are labelled. */
+@Composable
+private fun PaymentTrendChart(measurer: TextMeasurer) {
+    val c = intelligenceColors()
+    val trend = IntelligenceSeries.paymentTrend()
+    Canvas(modifier = Modifier.fillMaxWidth().height(125.dp)) {
+        val plotBottom = size.height - 26.dp.toPx()
+        val topPad = 30.dp.toPx()
+        val values = trend.map { it.rupees }
+        val maxVal = values.filterNotNull().maxOrNull()?.coerceAtLeast(1) ?: 1
+        val slotW = size.width / trend.size
+        val xOf = { i: Int -> slotW * (i + 0.5f) }
+        val yOf = { rupees: Float -> plotBottom - rupees / maxVal * (plotBottom - topPad) }
 
-/** Formats a chart point as a grouped rupee string (₹1,000). */
-private fun rupeeLabel(rupees: Int): String = "₹" + String.format(Locale.US, "%,d", rupees)
+        val resolved = MutableList(trend.size) { i -> values[i]?.toFloat() ?: interpolate(values, i) }
+        val line = Path().apply {
+            resolved.forEachIndexed { i, v ->
+                val pt = Offset(xOf(i), yOf(v))
+                if (i == 0) moveTo(pt.x, pt.y) else lineTo(pt.x, pt.y)
+            }
+        }
+        drawPath(line, c.accent, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
+        val area = Path().apply {
+            moveTo(xOf(0), plotBottom)
+            resolved.forEachIndexed { i, v -> lineTo(xOf(i), yOf(v)) }
+            lineTo(xOf(resolved.lastIndex), plotBottom)
+            close()
+        }
+        drawPath(
+            path = area,
+            brush = Brush.verticalGradient(
+                colors = listOf(c.accent.copy(alpha = 0.24f), c.accent.copy(alpha = 0.0f)),
+                startY = topPad,
+                endY = plotBottom
+            )
+        )
+
+        val monthStyle = TextStyle(fontSize = 8.sp, color = c.muted, fontWeight = FontWeight.SemiBold)
+        val valueStyle = TextStyle(fontSize = 9.sp, color = c.ink, fontWeight = FontWeight.ExtraBold)
+        val peakStyle = TextStyle(fontSize = 9.sp, color = Color(0xFFD97706), fontWeight = FontWeight.ExtraBold)
+
+        trend.forEachIndexed { i, point ->
+            val x = xOf(i)
+            val mw = measurer.measure(point.month, monthStyle).size.width
+            drawText(measurer, point.month, Offset(x - mw / 2f, plotBottom + 4.dp.toPx()), style = monthStyle)
+            val rupees = point.rupees
+            if (rupees == null) return@forEachIndexed
+            val y = yOf(rupees.toFloat())
+            drawCircle(color = c.accent, radius = 2.dp.toPx(), center = Offset(x, y))
+            val label = String.format(Locale.US, "₹%,d", rupees)
+            val style = if (point.isPeak) peakStyle else valueStyle
+            val measured = measurer.measure(label, style)
+            val labelTop = y - 9.dp.toPx() - measured.size.height
+            if (point.isPeak) drawCrown(centerX = x, baseY = labelTop - 1.dp.toPx())
+            drawText(measurer, label, Offset(x - measured.size.width / 2f, labelTop), style = style)
+        }
+    }
+}
+
+/** Linear estimate for a pre-paid (null) month from its nearest valued neighbours. */
+private fun interpolate(values: List<Int?>, index: Int): Float {
+    var before = index - 1
+    while (before >= 0 && values[before] == null) before--
+    var after = index + 1
+    while (after < values.size && values[after] == null) after++
+    val a = if (before >= 0) values[before]!!.toFloat() else 0f
+    val b = if (after < values.size) values[after]!!.toFloat() else a
+    if (before < 0 || after >= values.size) return if (before < 0) b else a
+    val t = (index - before).toFloat() / (after - before).toFloat()
+    return a + (b - a) * t
+}

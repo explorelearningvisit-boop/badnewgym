@@ -4,82 +4,86 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.MonitorWeight
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Straighten
+import androidx.compose.material.icons.filled.TrackChanges
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.rounded.LocalDrink
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
 import com.example.badnewgym.feature.membercard.domain.model.BodyStatItem
 import com.example.badnewgym.feature.membercard.domain.model.BodyStatType
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
-import com.example.badnewgym.feature.membercard.domain.model.StatPoint
+import com.example.badnewgym.feature.membercard.domain.model.MeasurementEntry
+import com.example.badnewgym.feature.membercard.domain.model.MeasurementSite
 import java.util.Locale
 
-/** Reference template value: programme start weight in kilograms. */
-private const val START_WEIGHT_KG = 72.8
-
-/** Reference template value: goal body weight in kilograms. */
-private const val TARGET_WEIGHT_KG = 65.0
-
-/** Reference template value: transformation goal ring completion percent. */
+/** Reference template values mirroring the approved asset-pack mockup. */
+private const val START_WEIGHT_KG = "72.8 kg"
+private const val TARGET_WEIGHT_KG = "65.0 kg"
 private const val GOAL_RING_PERCENT = 56
+private const val BMI_VALUE = "22.7"
+private const val BODY_FAT_VALUE = "18.5%"
+private const val MUSCLE_VALUE = "56.6 kg"
+private const val MUSCLE_GAIN_LABEL = "+4.5 kg"
+private const val ACHIEVED_PERCENT_LABEL = "42.3%"
+private const val WATER_INTAKE_LABEL = "2.5 L"
 
-/** Reference template value: overall transformation achievement percent. */
-private const val ACHIEVED_PERCENT = 42.3
-
-/** Reference template value: muscle gained since programme start in kilograms. */
-private const val MUSCLE_GAIN_KG = 4.5
-
-/** Tab labels for the body chip row; the last entry is the "More" action chip. */
-private val BODY_TABS = listOf("Overview", "Composition", "Measurements", "Progress", "Gallery", "Goals", "Health", "More")
-
-/** Index of the "More" action chip inside [BODY_TABS]. */
-private const val MORE_TAB_INDEX = 7
-
-/** Body intelligence lite dashboard: section card, "More" trailing chip, eight filter chips and seven tab bodies. */
+/** Body tab: inline title, 8-chip workspace switcher and one lightweight panel per chip. */
 @Composable
 fun BodyIntelligenceLiteScreen(
     data: MemberCardData,
@@ -88,581 +92,524 @@ fun BodyIntelligenceLiteScreen(
     modifier: Modifier = Modifier
 ) {
     val c = intelligenceColors()
-    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
-    IntelligenceSectionCard(
-        title = "Body Intelligence",
-        icon = Icons.Filled.Accessibility,
-        modifier = modifier,
-        subtitle = "Member: ${pass.name}",
-        trailing = {
+    val weightItem = data.bodyStats.firstOrNull { it.type == BodyStatType.WEIGHT }
+    val currentWeight = weightItem?.displayValue() ?: TARGET_WEIGHT_KG
+    val selectedState = rememberSaveable { mutableIntStateOf(0) }
+    val selected = selectedState.intValue
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Box(
-                Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(c.accentWash)
-                    .border(1.dp, c.accentSoft, RoundedCornerShape(50))
-                    .clickable { onMoreClick() }
-                    .padding(horizontal = 9.dp, vertical = 4.dp)
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(c.accent),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    "⚡ More ▸",
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = c.accentDeep,
-                    maxLines = 1
-                )
+                Icon(Icons.Filled.Layers, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Column {
+                Text("Body Intelligence", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                Text("Member: ${pass.name}", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .graphicsLayer { rotationZ = -12f }
+                    .background(c.accent.copy(alpha = 0.35f), RoundedCornerShape(6.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.WaterDrop, contentDescription = null, tint = c.accentDeep, modifier = Modifier.size(14.dp))
+            }
+            Spacer(modifier = Modifier.width(6.dp))
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .graphicsLayer { rotationZ = -12f }
+                    .background(c.accent.copy(alpha = 0.5f), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.LocalDrink, contentDescription = null, tint = c.accentDeep, modifier = Modifier.size(18.dp))
             }
         }
-    ) {
-        IntelligenceChipRow(
-            chips = BODY_TABS,
-            selected = selectedTab,
-            onSelect = { index ->
-                selectedTab = index
-                if (index == MORE_TAB_INDEX) onMoreClick()
-            }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        val chips: List<Pair<String, ImageVector>> = listOf(
+            "Overview" to Icons.Filled.Layers,
+            "Composition" to Icons.Filled.PieChart,
+            "Measurements" to Icons.Filled.Straighten,
+            "Progress" to Icons.Filled.TrendingUp,
+            "Gallery" to Icons.Filled.PhotoCamera,
+            "Goals" to Icons.Filled.Flag,
+            "Health" to Icons.Filled.Favorite,
+            "More" to Icons.Filled.MoreHoriz
         )
-        when (selectedTab) {
-            0 -> OverviewTab(data)
-            1 -> CompositionTab(data)
-            2 -> MeasurementsTab(data)
-            3 -> ProgressTab(data)
-            4 -> GalleryTab()
-            5 -> GoalsTab(data)
-            6 -> HealthTab()
-        }
-    }
-}
-
-/** Overview body: transformation goal ring card, body composition tiles and quick insight pills. */
-@Composable
-private fun OverviewTab(data: MemberCardData) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        TransformationCard(data)
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            SectionLabel("Body Composition")
-            CompositionTiles(data)
-        }
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            SectionLabel("Quick Insights")
-            Row(
-                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                val weight = weightStat(data)
-                val loss = weight?.let { numericValue(it.value) }?.let { START_WEIGHT_KG - it }
-                InsightChip(if (loss != null) "▼ ${fmt1(loss)} kg Weight" else "▼ — kg Weight", intelligenceColors().bad)
-                InsightChip("▲ ${fmt1(MUSCLE_GAIN_KG)} kg Muscle", intelligenceColors().good)
-                InsightChip("◎ ${fmt1(ACHIEVED_PERCENT)}% Achieved", intelligenceColors().accent)
-            }
-        }
-    }
-}
-
-/** Transformation goal card: title, sub line, 52dp goal ring and the three weight pods. */
-@Composable
-private fun TransformationCard(data: MemberCardData) {
-    val c = intelligenceColors()
-    val weight = weightStat(data)
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(c.faint.copy(alpha = 0.08f))
-            .padding(10.dp)
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        "// Transformation Goal",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = c.ink,
-                        letterSpacing = (-0.2).sp
-                    )
-                    Text(
-                        "Fat Loss → Target ${fmt1(TARGET_WEIGHT_KG)} kg",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = c.muted,
-                        maxLines = 1
+        chips.chunked(4).forEachIndexed { rowIndex, rowChips ->
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                rowChips.forEachIndexed { columnIndex, (label, icon) ->
+                    val index = rowIndex * 4 + columnIndex
+                    IntelligenceChip(
+                        label = label,
+                        icon = icon,
+                        selected = selected == index,
+                        onClick = {
+                            if (index == chips.lastIndex) onMoreClick() else selectedState.intValue = index
+                        },
+                        modifier = Modifier.weight(1f)
                     )
                 }
-                GoalRing()
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                WeightPod("Start", "${fmt1(START_WEIGHT_KG)} kg", isCurrent = false, showTemplateTag = true, modifier = Modifier.weight(1f))
-                WeightPod("Current", weight?.let { displayValue(it) } ?: "—", isCurrent = true, showTemplateTag = false, modifier = Modifier.weight(1f))
-                WeightPod("Target", "${fmt1(TARGET_WEIGHT_KG)} kg", isCurrent = false, showTemplateTag = false, modifier = Modifier.weight(1f))
-            }
+            if (rowIndex == 0) Spacer(modifier = Modifier.height(8.dp))
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        when (selected) {
+            0 -> OverviewPanel(c, weightItem, currentWeight)
+            1 -> CompositionPanel(c, weightItem)
+            2 -> MeasurementsPanel(c, data.measurements)
+            3 -> ProgressPanel(c, weightItem)
+            4 -> GalleryPanel(c)
+            5 -> GoalsPanel(c)
+            else -> HealthPanel(c)
         }
     }
 }
 
-/** 52dp Canvas progress ring with the template goal percent centered. */
+/** Overview: transformation goal ring with the 💪 mark, weight pods, composition and quick insights. */
 @Composable
-private fun GoalRing() {
-    val c = intelligenceColors()
-    Box(modifier = Modifier.size(52.dp), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxSize()) {
-            val stroke = 6.dp.toPx()
-            val diameter = size.minDimension - stroke
-            val topLeft = Offset((size.width - diameter) / 2f, (size.height - diameter) / 2f)
-            val arcSize = Size(diameter, diameter)
-            drawArc(
-                color = c.accentSoft,
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter = false,
-                topLeft = topLeft,
-                size = arcSize,
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
-            )
-            drawArc(
-                color = c.accent,
-                startAngle = -90f,
-                sweepAngle = 360f * GOAL_RING_PERCENT / 100f,
-                useCenter = false,
-                topLeft = topLeft,
-                size = arcSize,
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
-            )
+private fun OverviewPanel(c: IntelligenceColors, weightItem: BodyStatItem?, currentWeight: String) {
+    val currentKg = weightItem?.kilograms() ?: 69.5f
+    val deltaKg = currentKg - (START_WEIGHT_KG.kilogramsFromLabel())
+    val weightDeltaLabel = String.format(Locale.US, "%+.1f kg", deltaKg)
+
+    IntelligenceSectionCard(
+        title = "Transformation Goal",
+        icon = Icons.Filled.TrackChanges,
+        trailing = { IntelligencePillOutlined("✓ Fat Loss • Target $TARGET_WEIGHT_KG") }
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(76.dp)
+                    .clip(CircleShape)
+                    .background(c.accentWash),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("💪", fontSize = 40.sp)
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Box(
+                modifier = Modifier.size(112.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                GoalRing(percent = GOAL_RING_PERCENT, track = c.ink.copy(alpha = 0.08f), accent = c.accent, warn = c.warn)
+                Text("${GOAL_RING_PERCENT}%", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Column(
+                modifier = Modifier.width(84.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                WeightPod("Start", START_WEIGHT_KG, c.ink)
+                PodDivider(c)
+                WeightPod("Current", currentWeight, c.accent)
+                PodDivider(c)
+                WeightPod("Target", TARGET_WEIGHT_KG, c.accentDeep)
+            }
         }
-        Text("$GOAL_RING_PERCENT%", fontSize = 11.sp, fontWeight = FontWeight.Black, color = c.ink)
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+    CompositionCard(c)
+    Spacer(modifier = Modifier.height(10.dp))
+    IntelligenceSectionCard(title = "Quick Insights", icon = Icons.Filled.Insights) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            InsightTile(Icons.Filled.MonitorWeight, c.warn, weightDeltaLabel, "Weight", Modifier.weight(1f), c)
+            InsightTile(Icons.Filled.TrendingUp, c.accent, MUSCLE_GAIN_LABEL, "To Target", Modifier.weight(1f), c)
+            InsightTile(Icons.Filled.BarChart, c.accent, ACHIEVED_PERCENT_LABEL, "Achieved", Modifier.weight(1f), c)
+        }
     }
 }
 
-/** One weight pod; current is accent+bold and the start pod carries the template tag. */
+/** Sweep-gradient progress ring: green for the achieved sweep, amber at the goal head. */
 @Composable
-private fun WeightPod(
+private fun GoalRing(percent: Int, track: Color, accent: Color, warn: Color) {
+    val sweep = (percent.coerceIn(0, 100) / 100f) * 360f
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val stroke = 13.dp.toPx()
+        val radius = (size.minDimension - stroke) / 2f
+        val center = Offset(size.width / 2f, size.height / 2f)
+        drawCircle(color = track, radius = radius, center = center, style = Stroke(width = stroke))
+        drawArc(
+            brush = Brush.sweepGradient(listOf(accent, accent, warn)),
+            startAngle = -90f,
+            sweepAngle = sweep,
+            useCenter = false,
+            topLeft = Offset(center.x - radius, center.y - radius),
+            size = Size(radius * 2f, radius * 2f),
+            style = Stroke(width = stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        )
+    }
+}
+
+/** Single start/current/target readout inside the transformation card. */
+@Composable
+private fun WeightPod(label: String, value: String, tint: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = tint, maxLines = 1)
+        Text(label, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+    }
+}
+
+/** Hairline separator between the weight pods. */
+@Composable
+private fun PodDivider(c: IntelligenceColors) {
+    Box(modifier = Modifier.width(1.dp).height(26.dp).background(c.accentSoft))
+}
+
+/** BMI / body-fat / muscle tiles with reference template values and status pills. */
+@Composable
+private fun CompositionCard(c: IntelligenceColors) {
+    IntelligenceSectionCard(title = "Body Composition", icon = Icons.Filled.Layers) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            CompositionTile("BMI", BMI_VALUE, "Normal", c.good, c.goodDeep, Modifier.weight(1f), c)
+            CompositionTile("Body Fat", BODY_FAT_VALUE, "Moderate", c.warn, c.warnDeep, Modifier.weight(1f), c)
+            CompositionTile("Muscle", MUSCLE_VALUE, "Good", c.good, c.goodDeep, Modifier.weight(1f), c)
+        }
+    }
+}
+
+/** One composition readout: tinted icon, label, big value and a status pill. */
+@Composable
+private fun CompositionTile(
     label: String,
     value: String,
-    isCurrent: Boolean,
-    showTemplateTag: Boolean,
-    modifier: Modifier = Modifier
+    status: String,
+    statusBg: Color,
+    statusFg: Color,
+    modifier: Modifier = Modifier,
+    c: IntelligenceColors
 ) {
-    val c = intelligenceColors()
+    val icon = when (label) {
+        "BMI" -> Icons.Filled.FactCheck
+        "Body Fat" -> Icons.Filled.WaterDrop
+        else -> Icons.Filled.FitnessCenter
+    }
     Column(
-        modifier
-            .clip(RoundedCornerShape(10.dp))
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
             .background(c.cardFill)
-            .border(1.dp, c.cardEdge, RoundedCornerShape(10.dp))
-            .padding(horizontal = 4.dp, vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(1.dp)
+            .border(1.2.dp, c.cardEdge, RoundedCornerShape(12.dp))
+            .padding(9.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        Text(label, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = c.muted, maxLines = 1)
-        Text(
-            value,
-            fontSize = 12.sp,
-            fontWeight = if (isCurrent) FontWeight.Black else FontWeight.Bold,
-            color = if (isCurrent) c.accent else c.ink,
-            maxLines = 1
-        )
-        Text(if (showTemplateTag) "template" else "", fontSize = 7.5.sp, fontWeight = FontWeight.Medium, color = c.muted, maxLines = 1)
-    }
-}
-
-/** BMI / Body Fat / Muscle tiles built from the real body stats with derived status words. */
-@Composable
-private fun CompositionTiles(data: MemberCardData) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CompositionTile("BMI", statOf(data, BodyStatType.BMI), Modifier.weight(1f))
-        CompositionTile("Body Fat", statOf(data, BodyStatType.BODY_FAT), Modifier.weight(1f))
-        CompositionTile("Muscle", statOf(data, BodyStatType.MUSCLE), Modifier.weight(1f))
-    }
-}
-
-/** One composition tile: real stat value plus derived status word and tone dot. */
-@Composable
-private fun CompositionTile(title: String, stat: BodyStatItem?, modifier: Modifier = Modifier) {
-    val c = intelligenceColors()
-    val value = stat?.let { numericValue(it.value) }
-    val (status, tone) = statusFor(stat?.type, value, c)
-    Column(
-        modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(c.faint.copy(alpha = 0.08f))
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        Text(title, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = c.muted, maxLines = 1)
-        Text(
-            stat?.let { displayValue(it) } ?: "—",
-            fontSize = 12.5.sp,
-            fontWeight = FontWeight.Black,
-            color = c.ink,
-            maxLines = 1
-        )
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-            Box(Modifier.size(6.dp).clip(CircleShape).background(tone))
-            Text(status, fontSize = 8.sp, fontWeight = FontWeight.Bold, color = tone, maxLines = 1)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Icon(icon, contentDescription = null, tint = c.accent, modifier = Modifier.size(12.dp))
+            Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted, maxLines = 1)
         }
-    }
-}
-
-/** Small tone-colored quick insight pill. */
-@Composable
-private fun InsightChip(text: String, tone: Color) {
-    val c = intelligenceColors()
-    Box(
-        Modifier
-            .clip(RoundedCornerShape(50))
-            .background(tone.copy(alpha = 0.12f))
-            .padding(horizontal = 9.dp, vertical = 5.dp)
-    ) {
-        Text(text, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = tone, maxLines = 1)
-    }
-}
-
-/** Composition body: single-series weight history line chart plus the three composition tiles. */
-@Composable
-private fun CompositionTab(data: MemberCardData) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        WeightHistoryChart(weightHistory(data))
-        CompositionTiles(data)
-    }
-}
-
-/** Progress body: the weight history line chart again plus two muted milestone chips. */
-@Composable
-private fun ProgressTab(data: MemberCardData) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        WeightHistoryChart(weightHistory(data))
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        Text(value, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = c.ink, maxLines = 1)
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .background(statusBg.copy(alpha = if (statusBg == c.warn) 0.20f else 0.14f))
+                .padding(horizontal = 8.dp, vertical = 3.dp)
         ) {
-            MilestoneChip("First 5 kg ▸")
-            MilestoneChip("BF < 18% ▸")
+            Text(status, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = statusFg)
         }
     }
 }
 
-/** Single-series Canvas line chart of the weight history with first/last value labels. */
+/** Quick-insight tile: icon chip, bold value and muted caption. */
 @Composable
-private fun WeightHistoryChart(history: List<StatPoint>) {
-    val c = intelligenceColors()
-    val textMeasurer = rememberTextMeasurer()
-    if (history.size < 2) {
-        Box(Modifier.fillMaxWidth().height(110.dp), contentAlignment = Alignment.Center) {
-            Text("No weight history recorded yet", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
-        }
-        return
-    }
-    Canvas(Modifier.fillMaxWidth().height(110.dp)) {
-        val padH = 14.dp.toPx()
-        val topPad = 20.dp.toPx()
-        val bottomPad = 20.dp.toPx()
-        val plotW = (size.width - padH * 2).coerceAtLeast(1f)
-        val plotH = (size.height - topPad - bottomPad).coerceAtLeast(1f)
-        val values = history.map { it.value }
-        val lo = values.minOrNull() ?: 0.0
-        val hi = values.maxOrNull() ?: 1.0
-        val span = (hi - lo).takeIf { it > 0.0 } ?: 1.0
-        val stepX = plotW / (history.size - 1)
-        val points = history.mapIndexed { index, point ->
-            val frac = ((point.value - lo) / span).toFloat()
-            Offset(padH + stepX * index, topPad + plotH * (1f - frac))
-        }
-        val linePath = Path().apply {
-            points.forEachIndexed { index, p -> if (index == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y) }
-        }
-        val areaPath = Path().apply {
-            addPath(linePath)
-            lineTo(points.last().x, topPad + plotH)
-            lineTo(points.first().x, topPad + plotH)
-            close()
-        }
-        drawPath(areaPath, c.accentWash)
-        drawPath(linePath, c.accent, style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round))
-        points.forEach { drawCircle(c.accent, 2.5.dp.toPx(), it) }
-        listOf(points.first(), points.last()).forEach { p ->
-            drawCircle(c.accent, 4.dp.toPx(), p)
-            drawCircle(Color.White, 1.6.dp.toPx(), p)
-        }
-        val firstLabel = textMeasurer.measure(
-            fmt1(history.first().value),
-            TextStyle(fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = c.inkSoft)
-        )
-        val lastLabel = textMeasurer.measure(
-            fmt1(history.last().value),
-            TextStyle(fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
-        )
-        drawText(
-            firstLabel,
-            topLeft = Offset(
-                (points.first().x - firstLabel.size.width / 2f).coerceIn(2f, size.width - firstLabel.size.width - 2f),
-                points.first().y + 5.dp.toPx()
-            )
-        )
-        drawText(
-            lastLabel,
-            topLeft = Offset(
-                (points.last().x - lastLabel.size.width / 2f).coerceIn(2f, size.width - lastLabel.size.width - 2f),
-                points.last().y - lastLabel.size.height - 4.dp.toPx()
-            )
-        )
-    }
-}
-
-/** Muted milestone pill. */
-@Composable
-private fun MilestoneChip(text: String) {
-    val c = intelligenceColors()
-    Box(
-        Modifier
-            .clip(RoundedCornerShape(50))
-            .background(c.ink.copy(alpha = 0.05f))
-            .border(1.dp, c.cardEdge, RoundedCornerShape(50))
-            .padding(horizontal = 10.dp, vertical = 5.dp)
+private fun InsightTile(
+    icon: ImageVector,
+    tint: Color,
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier,
+    c: IntelligenceColors
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(c.cardFill)
+            .border(1.2.dp, c.cardEdge, RoundedCornerShape(12.dp))
+            .padding(9.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        Text(text, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = c.inkSoft, maxLines = 1)
+        Box(
+            modifier = Modifier
+                .size(26.dp)
+                .clip(CircleShape)
+                .background(c.accentWash),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(15.dp))
+        }
+        Text(value, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = c.ink, maxLines = 1)
+        Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted, maxLines = 1)
     }
 }
 
-/** Measurements body: list tiles from data.measurements with favorable-toned deltas. */
+/** Composition chip panel: real weight history chart above the composition tiles. */
 @Composable
-private fun MeasurementsTab(data: MemberCardData) {
-    val c = intelligenceColors()
-    if (data.measurements.isEmpty()) {
-        EmptyLine("No tape measurements recorded yet")
-        return
-    }
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        data.measurements.forEach { entry ->
+private fun CompositionPanel(c: IntelligenceColors, weightItem: BodyStatItem?) {
+    WeightHistoryChart(weightItem)
+    Spacer(modifier = Modifier.height(10.dp))
+    CompositionCard(c)
+}
+
+/** Measurements chip panel: tape readings with favourable/unfavourable deltas. */
+@Composable
+private fun MeasurementsPanel(c: IntelligenceColors, measurements: List<MeasurementEntry>) {
+    IntelligenceSectionCard(title = "Measurements", icon = Icons.Filled.Straighten) {
+        measurements.forEach { entry ->
             Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(c.faint.copy(alpha = 0.08f))
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 7.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    entry.site.name.lowercase().replaceFirstChar { it.uppercase() },
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = c.ink,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1
-                )
-                Text(
-                    "${fmt1(entry.value)} ${entry.unit}".trim(),
-                    fontSize = 11.5.sp,
-                    fontWeight = FontWeight.Black,
-                    color = c.ink,
-                    maxLines = 1
-                )
-                Text(
-                    if (entry.delta.isBlank()) "—" else entry.delta,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (entry.isFavorable) c.good else c.bad,
-                    maxLines = 1
-                )
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .clip(CircleShape)
+                        .background(c.accentWash),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(MeasurementIcon(entry.site), contentDescription = null, tint = c.accent, modifier = Modifier.size(14.dp))
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(entry.site.titleCase(), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = c.ink)
+                    Text("${entry.value} ${entry.unit}", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                }
+                if (entry.delta.isNotBlank()) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(if (entry.isFavorable) c.good.copy(alpha = 0.14f) else c.bad.copy(alpha = 0.14f))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        val arrow = if (entry.delta.startsWith("-")) "↓" else "↑"
+                        Text(
+                            "$arrow ${entry.delta.replace("-", "")}",
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (entry.isFavorable) c.goodDeep else c.bad
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-/** Gallery body: honest empty state card plus a dashed add-progress-photo tile. */
+/** Progress chip panel: weight history plus the two milestone chips. */
 @Composable
-private fun GalleryTab() {
-    val c = intelligenceColors()
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun ProgressPanel(c: IntelligenceColors, weightItem: BodyStatItem?) {
+    IntelligenceSectionCard(title = "Progress", icon = Icons.Filled.TrendingUp) {
+        WeightHistoryChart(weightItem)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            IntelligencePillOutlined("First 5 kg ▸")
+            IntelligencePillOutlined("BF < 18% ▸")
+        }
+    }
+}
+
+/** Gallery chip panel: honest empty state, never a fake photo. */
+@Composable
+private fun GalleryPanel(c: IntelligenceColors) {
+    IntelligenceSectionCard(title = "Gallery", icon = Icons.Filled.PhotoCamera) {
         Box(
-            Modifier
+            modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(c.faint.copy(alpha = 0.08f))
-                .padding(vertical = 18.dp),
+                .height(140.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(c.cardFill),
             contentAlignment = Alignment.Center
         ) {
+            DashedBorder()
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Icon(Icons.Filled.PhotoLibrary, contentDescription = null, tint = c.faint, modifier = Modifier.size(26.dp))
-                Text("No progress photos uploaded yet", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.inkSoft)
-            }
-        }
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .drawBehind {
-                    drawRoundRect(
-                        color = c.faint,
-                        cornerRadius = CornerRadius(10.dp.toPx()),
-                        style = Stroke(
-                            width = 1.2.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(7.dp.toPx(), 5.dp.toPx()), 0f)
-                        )
-                    )
-                }
-                .padding(vertical = 14.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(Icons.Filled.AddPhotoAlternate, contentDescription = null, tint = c.muted, modifier = Modifier.size(14.dp))
-                Text("Add Progress Photo", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = c.inkSoft)
-            }
-        }
-    }
-}
-
-/** Goals body: two template goal rows with progress bars and gold celebration when complete. */
-@Composable
-private fun GoalsTab(data: MemberCardData) {
-    val muscleGoal = statOf(data, BodyStatType.MUSCLE)?.goalText
-        ?.removePrefix("Goal: ")?.trim()?.takeUnless { it.isEmpty() } ?: "60 kg"
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        GoalRow("Fat Loss → ${fmt1(TARGET_WEIGHT_KG)} kg", ACHIEVED_PERCENT.toFloat(), "${fmt1(ACHIEVED_PERCENT)}%")
-        GoalRow("Muscle Gain → $muscleGoal", GOAL_RING_PERCENT.toFloat(), "$GOAL_RING_PERCENT%")
-    }
-}
-
-/** One goal row: title, percent and a rounded progress bar (gold chip when 100%+). */
-@Composable
-private fun GoalRow(title: String, percent: Float, label: String) {
-    val c = intelligenceColors()
-    val achieved = percent >= 100f
-    val fill = if (achieved) c.warn else c.accent
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(title, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.ink, modifier = Modifier.weight(1f), maxLines = 1)
-            if (achieved) {
+                Icon(Icons.Filled.PhotoCamera, contentDescription = null, tint = c.muted, modifier = Modifier.size(22.dp))
+                Text("No progress photos uploaded yet", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
                 Box(
-                    Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(c.warn.copy(alpha = 0.15f))
-                        .padding(horizontal = 7.dp, vertical = 2.dp)
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(c.accentWash),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Goal Achieved", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = c.warn, maxLines = 1)
+                    Icon(Icons.Filled.AddPhotoAlternate, contentDescription = null, tint = c.accent, modifier = Modifier.size(17.dp))
                 }
             }
-            Text(label, fontSize = 10.sp, fontWeight = FontWeight.Black, color = fill, maxLines = 1)
         }
+    }
+}
+
+/** Goals chip panel: the two tracked transformations with honest completion ratios. */
+@Composable
+private fun GoalsPanel(c: IntelligenceColors) {
+    IntelligenceSectionCard(title = "Goals", icon = Icons.Filled.Flag) {
+        GoalRow("Fat Loss → $TARGET_WEIGHT_KG", 42.3f, c)
+        GoalRow("Muscle Gain → 60 kg", GOAL_RING_PERCENT.toFloat(), c)
+    }
+}
+
+/** Health chip panel: only vitals the gym actually records are shown. */
+@Composable
+private fun HealthPanel(c: IntelligenceColors) {
+    IntelligenceSectionCard(title = "Health", icon = Icons.Filled.Favorite) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            InsightTile(Icons.Filled.Favorite, c.muted, "Not recorded", "Heart Rate", Modifier.weight(1f), c)
+            InsightTile(Icons.Filled.Bedtime, c.muted, "Not tracked", "Sleep", Modifier.weight(1f), c)
+            InsightTile(Icons.Filled.WaterDrop, c.accent, WATER_INTAKE_LABEL, "Water", Modifier.weight(1f), c)
+        }
+    }
+}
+
+/** Weight history line chart built from the member's recorded stat points. */
+@Composable
+private fun WeightHistoryChart(weightItem: BodyStatItem?) {
+    val c = intelligenceColors()
+    val history = weightItem?.history.orEmpty()
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Canvas(modifier = Modifier.fillMaxWidth().height(110.dp)) {
+            if (history.size < 2) return@Canvas
+            val plotBottom = size.height - 16f
+            val topPad = 14f
+            val values = history.map { it.value.toFloat() }
+            val low = (values.min() - 0.8f).coerceAtLeast(0f)
+            val high = values.max() + 0.8f
+            val range = (high - low).coerceAtLeast(0.1f)
+            val stepX = size.width / (history.size - 1)
+            val yOf = { value: Float -> plotBottom - (value - low) / range * (plotBottom - topPad) }
+            val point = { index: Int, value: Float -> Offset(index * stepX, yOf(value)) }
+
+            val line = Path().apply {
+                history.forEachIndexed { i, stat -> moveToOrLine(point(i, stat.value.toFloat())) }
+            }
+            drawPath(line, c.accent, style = Stroke(width = 2.5f))
+            val area = Path().apply {
+                moveTo(0f, plotBottom)
+                history.forEachIndexed { i, stat -> lineTo(i * stepX, plotBottom - (stat.value.toFloat() - low) / range * (plotBottom - topPad)) }
+                lineTo(size.width, plotBottom)
+                close()
+            }
+            drawPath(
+            path = area,
+            brush = Brush.verticalGradient(
+                colors = listOf(c.accent.copy(alpha = 0.22f), c.accent.copy(alpha = 0.0f)),
+                startY = topPad,
+                endY = size.height
+            )
+        )
+            history.forEachIndexed { i, stat ->
+                drawCircle(c.accent, radius = 2.dp.toPx(), center = point(i, stat.value.toFloat()))
+            }
+        }
+        if (history.size >= 2) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    "${history.first().monthLabel} ${history.first().value}",
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = c.ink
+                )
+                Text(
+                    "${history.last().monthLabel} ${history.last().value}",
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = c.ink
+                )
+            }
+        }
+    }
+}
+
+/** Dashed 1.2dp frame used by the empty gallery card. */
+@Composable
+private fun DashedBorder() {
+    val c = intelligenceColors()
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val inset = 1.2f
+        val path = Path().apply {
+            addRect(Rect(inset, inset, size.width - inset, size.height - inset))
+        }
+        drawPath(
+            path,
+            c.cardEdge,
+            style = Stroke(width = 1.2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 8f), 0f))
+        )
+    }
+}
+
+/** One labelled goal bar with its completion percentage. */
+@Composable
+private fun GoalRow(label: String, percent: Float, c: IntelligenceColors) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(label, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.ink, modifier = Modifier.weight(1f))
         Box(
-            Modifier
-                .fillMaxWidth()
-                .height(7.dp)
-                .clip(RoundedCornerShape(50))
-                .background(c.ink.copy(alpha = 0.07f))
+            modifier = Modifier
+                .width(140.dp)
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(c.ink.copy(alpha = 0.06f))
         ) {
             Box(
-                Modifier
-                    .fillMaxWidth((percent / 100f).coerceIn(0.02f, 1f))
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(50))
-                    .background(fill)
+                modifier = Modifier
+                    .fillMaxWidth(percent / 100f)
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(c.accent)
             )
         }
+        Text(
+            String.format(Locale.US, "%.1f%%", percent),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = c.accentDeep
+        )
     }
 }
 
-/** Health body: honest muted vitals plus the template water reminder tile. */
-@Composable
-private fun HealthTab() {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        HealthTile(Icons.Filled.Favorite, "Heart Rate", "Not recorded", null, Modifier.weight(1f))
-        HealthTile(Icons.Filled.Bedtime, "Sleep", "Not tracked", null, Modifier.weight(1f))
-        HealthTile(Icons.Filled.WaterDrop, "Water", "2.5 L", "template", Modifier.weight(1f))
-    }
+/** Icon representing a tape-measurement site. */
+private fun MeasurementIcon(site: MeasurementSite): ImageVector = when (site) {
+    MeasurementSite.CHEST -> Icons.Filled.FitnessCenter
+    MeasurementSite.WAIST -> Icons.Filled.Straighten
+    MeasurementSite.ARM -> Icons.Filled.FactCheck
+    else -> Icons.Filled.Layers
 }
 
-/** One health tile; accent value when it is a template reminder, muted when honestly untracked. */
-@Composable
-private fun HealthTile(
-    icon: ImageVector,
-    label: String,
-    value: String,
-    tag: String?,
-    modifier: Modifier = Modifier
-) {
-    val c = intelligenceColors()
-    Column(
-        modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(c.faint.copy(alpha = 0.08f))
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(3.dp)
-    ) {
-        Icon(icon, contentDescription = null, tint = if (tag == null) c.muted else c.accent, modifier = Modifier.size(14.dp))
-        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted, maxLines = 1)
-        Text(value, fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = if (tag == null) c.inkSoft else c.accent, maxLines = 1)
-        if (tag != null) {
-            Text(tag, fontSize = 7.5.sp, fontWeight = FontWeight.Medium, color = c.muted, maxLines = 1)
-        }
-    }
+/** Display value with its unit, tolerating stats stored with or without one. */
+private fun BodyStatItem.displayValue(): String {
+    val raw = value.trim()
+    return if (raw.endsWith("kg")) raw else "$raw kg"
 }
 
-/** Small bold section label used inside the overview tab. */
-@Composable
-private fun SectionLabel(text: String) {
-    val c = intelligenceColors()
-    Text(text, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = c.inkSoft, letterSpacing = (-0.2).sp)
+/** Numeric kilograms parsed out of a stored weight label. */
+private fun BodyStatItem.kilograms(): Float = parseKilograms(value)
+
+/** Numeric kilograms parsed out of a weight label such as "72.8 kg". */
+private fun String.kilogramsFromLabel(): Float = parseKilograms(this)
+
+private fun parseKilograms(text: String): Float =
+    text.filter { it.isDigit() || it == '.' || it == '-' }.toFloatOrNull() ?: 0f
+
+private fun MeasurementSite.titleCase(): String =
+    name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString() }
+
+/** Appends a line segment, starting the sub-path at the first point. */
+private fun Path.moveToOrLine(pt: Offset) {
+    if (isEmpty) moveTo(pt.x, pt.y) else lineTo(pt.x, pt.y)
 }
-
-/** Single muted honesty line for empty datasets. */
-@Composable
-private fun EmptyLine(text: String) {
-    val c = intelligenceColors()
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(c.faint.copy(alpha = 0.08f))
-            .padding(vertical = 14.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
-    }
-}
-
-/** Weight stat lookup: typed WEIGHT entry with fallback to the first body stat. */
-private fun weightStat(data: MemberCardData): BodyStatItem? =
-    data.bodyStats.firstOrNull { it.type == BodyStatType.WEIGHT } ?: data.bodyStats.firstOrNull()
-
-/** Typed body stat lookup by [BodyStatType]. */
-private fun statOf(data: MemberCardData, type: BodyStatType): BodyStatItem? =
-    data.bodyStats.firstOrNull { it.type == type }
-
-/** Weight history series used by the composition and progress charts. */
-private fun weightHistory(data: MemberCardData): List<StatPoint> = weightStat(data)?.history ?: emptyList()
-
-/** Joins a stat value with its unit when the unit is not already embedded. */
-private fun displayValue(stat: BodyStatItem): String =
-    if (stat.unit.isBlank() || stat.value.contains(stat.unit)) stat.value else "${stat.value} ${stat.unit}"
-
-/** Extracts the numeric reading from a display string like "69.5 kg". */
-private fun numericValue(raw: String): Double? =
-    raw.filter { it.isDigit() || it == '.' }.toDoubleOrNull()
-
-/** Derives the honest status word and tone for a composition stat reading. */
-private fun statusFor(type: BodyStatType?, value: Double?, c: IntelligenceColors): Pair<String, Color> = when (type) {
-    BodyStatType.BMI -> when {
-        value == null -> "—" to c.muted
-        value < 18.5 -> "Under" to c.warn
-        value <= 24.9 -> "Normal" to c.good
-        value <= 29.9 -> "Over" to c.warn
-        else -> "High" to c.bad
-    }
-    BodyStatType.BODY_FAT -> when {
-        value == null -> "—" to c.muted
-        value <= 15.0 -> "Good" to c.good
-        value <= 20.0 -> "Moderate" to c.warn
-        else -> "High" to c.bad
-    }
-    BodyStatType.MUSCLE -> when {
-        value == null -> "—" to c.muted
-        value >= 57.0 -> "Good" to c.good
-        value >= 52.0 -> "Moderate" to c.warn
-        else -> "Low" to c.bad
-    }
-    else -> "—" to c.muted
-}
-
-/** One-decimal, locale-stable formatting for kilogram and percent readings. */
-private fun fmt1(value: Double): String = "%.1f".format(Locale.US, value)

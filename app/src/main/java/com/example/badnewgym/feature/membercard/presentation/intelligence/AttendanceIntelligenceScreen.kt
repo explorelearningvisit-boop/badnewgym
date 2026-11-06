@@ -8,16 +8,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Insights
@@ -28,34 +32,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.badnewgym.feature.membercard.domain.intelligence.IntelligenceSeries
 import com.example.badnewgym.feature.membercard.domain.model.CalendarDay
 import com.example.badnewgym.feature.membercard.domain.model.DayAttendanceStatus
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 import com.example.badnewgym.feature.membercard.presentation.components.AttendanceMonthRecord
 import com.example.badnewgym.feature.membercard.presentation.components.attendanceMonthHistory
 
-/** As-of date matcher: the first day-of-month group inside the profile's display date. */
-private val asOfDayRegex = Regex("(\\d{1,2})")
-
-/**
- * Attendance tab of the Member Intelligence dashboard: month calendar, 12-month
- * trend chart, drop note and summary stat tiles, all driven by [MemberCardData].
- */
+/** Attendance tab: month calendar with status badges, vertical legend, 12-month trend chart and footer stats. */
 @Composable
 fun AttendanceIntelligenceScreen(
     data: MemberCardData,
@@ -67,442 +70,360 @@ fun AttendanceIntelligenceScreen(
 ) {
     val c = intelligenceColors()
     val attendance = data.attendance
-    val days = attendance.calendarDays.sortedBy { it.dayOfMonth }
-    val todayDay = resolveAsOfTodayDay(
-        monthLabel = attendance.monthLabel,
-        dateDisplay = data.profile.dateDisplay
-    )
+    val nonNull = monthRecords.mapNotNull { record -> record.percent?.let { record to it } }
+    val best = nonNull.maxByOrNull { it.second }?.first
+    val min = nonNull.minByOrNull { it.second }?.first
+    val average = if (nonNull.isNotEmpty()) nonNull.sumOf { it.second } / nonNull.size else 0
+    val tracked = nonNull.size
 
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(modifier = modifier.fillMaxWidth()) {
         IntelligenceSectionCard(
             title = "Attendance",
             icon = Icons.Filled.EventAvailable,
-            trailing = { AttendanceMonthPill(label = attendance.monthLabel) }
+            trailing = { IntelligencePillOutlined("${attendance.monthLabel} ▾") }
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                    modifier = Modifier.width(112.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
-                        text = "${attendance.percent}%",
+                        "${attendance.percent}%",
                         fontSize = 34.sp,
-                        fontWeight = FontWeight.Black,
+                        fontWeight = FontWeight.ExtraBold,
                         color = c.accent,
-                        letterSpacing = (-0.5).sp
+                        letterSpacing = (-1f).sp
                     )
                     Text(
-                        text = "${attendance.attendedDays} / ${attendance.totalDays} Days",
-                        fontSize = 9.5.sp,
+                        "${attendance.attendedDays} / ${attendance.totalDays} Days",
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = c.muted
+                        color = c.ink
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    IntelligenceLegendRow(c.good, "Present", "${attendance.presentCount}")
+                    IntelligenceLegendRow(c.warn, "Late", "${attendance.lateCount}")
+                    IntelligenceLegendRow(c.bad, "Absent", "${attendance.absentCount}")
+                    IntelligenceLegendRow(Color(0xFFCBD5E1), "Holiday", "${attendance.holidayCount}")
                 }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    Row {
-                        listOf("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su").forEach { head ->
-                            Text(
-                                text = head,
-                                fontSize = 8.5.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = c.muted,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
-                    // Mon-first column offset straight from the model's Sunday-based index.
-                    val leadingBlanks = days.firstOrNull()?.let { (it.dayOfWeekIndex + 6) % 7 } ?: 0
-                    val cells: List<CalendarDay?> = buildList {
-                        repeat(leadingBlanks) { add(null) }
-                        addAll(days)
-                        while (size % 7 != 0) add(null)
-                    }
-                    cells.chunked(7).forEach { week ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            week.forEach { day ->
-                                if (day == null) {
-                                    Box(modifier = Modifier.weight(1f).height(30.dp))
-                                } else {
-                                    AttendanceDayCell(
-                                        day = day,
-                                        ringColor = dayRingColor(day, paidDay, dueDay, todayDay, c),
-                                        badge = dayBadge(day, paidDay, dueDay, c),
-                                        onDayClick = onDayClick,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                val present = days.count { it.status == DayAttendanceStatus.PRESENT }
-                val late = days.count { it.status == DayAttendanceStatus.LATE }
-                val absent = days.count { it.status == DayAttendanceStatus.ABSENT }
-                val holiday = days.count { it.status == DayAttendanceStatus.HOLIDAY }
-                IntelligenceLegendDot(color = c.good, label = "Present $present")
-                IntelligenceLegendDot(color = c.warn, label = "Late $late")
-                IntelligenceLegendDot(color = c.bad, label = "Absent $absent")
-                IntelligenceLegendDot(color = c.faint.copy(alpha = 0.6f), label = "Holiday $holiday")
-            }
-        }
-
-        IntelligenceSectionCard(
-            title = "Attendance Trend (12 Months)",
-            icon = Icons.Filled.Insights,
-            trailing = {
-                Text(
-                    text = trendRangeLabel(monthRecords, attendance.monthLabel),
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = c.muted
+                Spacer(modifier = Modifier.width(10.dp))
+                CalendarGrid(
+                    days = attendance.calendarDays,
+                    paidDay = paidDay,
+                    dueDay = dueDay,
+                    onDayClick = onDayClick,
+                    modifier = Modifier.weight(1f)
                 )
             }
+            Spacer(modifier = Modifier.height(10.dp))
+            MonthProgressTrack(fraction = attendance.percent / 100f, accent = c.accent, track = c.ink.copy(alpha = 0.06f))
+        }
+
+        val measurer = rememberTextMeasurer()
+        IntelligenceSectionCard(
+            title = "Attendance Trend",
+            icon = Icons.Filled.Insights,
+            subtitle = "Nov 2025 – Oct 2026",
+            trailing = { IntelligencePillOutlined("12 Months ▾") }
         ) {
-            AttendanceTrendChart(records = monthRecords)
-            IntelligenceNote(text = "Mar 2026 drop (58%): Holi holidays & annual exam break")
+            AttendanceTrendChart(records = monthRecords, measurer = measurer)
         }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            val recorded = monthRecords.filter { it.percent != null }
-            val best = recorded.maxByOrNull { it.percent ?: 0 }
-            val worst = recorded.minByOrNull { it.percent ?: 100 }
-            // Integer mean keeps the displayed average on the reference's 81% figure.
-            val average = if (recorded.isEmpty()) 0 else recorded.sumOf { it.percent ?: 0 } / recorded.size
-            AttendanceStatTile(
-                icon = Icons.Filled.EmojiEvents,
-                iconTint = c.warn,
-                label = "Best",
-                value = "${best?.percent ?: 0}%",
-                valueColor = c.good,
-                sub = best?.let { "(${it.label})" } ?: "–",
-                modifier = Modifier.weight(1f)
-            )
-            AttendanceStatTile(
-                icon = Icons.Filled.BarChart,
-                iconTint = c.inkSoft,
-                label = "Average",
-                value = "$average%",
-                valueColor = c.ink,
-                sub = "${recorded.size} mo",
-                modifier = Modifier.weight(1f)
-            )
-            AttendanceStatTile(
-                icon = Icons.Filled.TrendingDown,
-                iconTint = c.bad,
-                label = "Min",
-                value = "${worst?.percent ?: 0}%",
-                valueColor = c.bad,
-                sub = worst?.let { "(${it.label})" } ?: "–",
-                modifier = Modifier.weight(1f)
-            )
-            AttendanceStatTile(
-                icon = Icons.Filled.CalendarMonth,
-                iconTint = c.accent,
-                label = "Tracked",
-                value = "${recorded.size}/${monthRecords.size}",
-                valueColor = c.accent,
-                sub = "mo",
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-/** Static month label pill shown in the attendance section card header. */
-@Composable
-private fun AttendanceMonthPill(label: String) {
-    val c = intelligenceColors()
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .background(c.accentWash)
-            .padding(horizontal = 9.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = "$label ▾",
-            fontSize = 9.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = c.accentDeep
+        Spacer(modifier = Modifier.height(8.dp))
+        IntelligenceNote(
+            text = "Mar 2026 drop (58%): Holi holidays & annual exam break",
+            modifier = Modifier.padding(horizontal = 4.dp)
         )
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StatFooter(Icons.Filled.EmojiEvents, Color(0xFFF59E0B), "Best", "${best?.percent ?: 0}%", "(${best?.label ?: "--"})", c)
+            StatFooter(Icons.Filled.BarChart, c.accentDeep, "Average", "$average%", "", c)
+            StatFooter(Icons.Filled.TrendingDown, c.bad, "Min", "${min?.percent ?: 0}%", "(${min?.label ?: "--"})", c)
+            StatFooter(Icons.Filled.CalendarMonth, c.accent, "Tracked", "$tracked/12", "mo", c)
+        }
     }
 }
 
-/** Ring emphasis for a day: due (red) over paid (green) over today (accent), else no ring. */
-private fun dayRingColor(
-    day: CalendarDay,
+/** Mon-first month grid with solid status fills plus paid/due badges. */
+@Composable
+private fun CalendarGrid(
+    days: List<CalendarDay>,
     paidDay: Int?,
     dueDay: Int?,
-    todayDay: Int,
-    c: IntelligenceColors
-): Color = when {
-    dueDay != null && day.dayOfMonth == dueDay -> c.bad
-    paidDay != null && day.dayOfMonth == paidDay -> c.good
-    day.dayOfMonth == todayDay -> c.accent
-    else -> Color.Transparent
-}
-
-/** Tiny badge for a day: ₹ on red for due, ✓ on green for paid, null otherwise. */
-private fun dayBadge(day: CalendarDay, paidDay: Int?, dueDay: Int?, c: IntelligenceColors): Pair<Color, String>? =
-    when {
-        dueDay != null && day.dayOfMonth == dueDay -> c.bad to "₹"
-        paidDay != null && day.dayOfMonth == paidDay -> c.good to "✓"
-        else -> null
-    }
-
-/** One 30dp calendar cell holding the 26dp status chip, its ring and the due/paid badge. */
-@Composable
-private fun AttendanceDayCell(
-    day: CalendarDay,
-    ringColor: Color,
-    badge: Pair<Color, String>?,
     onDayClick: (CalendarDay) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val c = intelligenceColors()
-    val fill = when (day.status) {
-        DayAttendanceStatus.PRESENT -> c.good
-        DayAttendanceStatus.LATE -> c.warn
-        DayAttendanceStatus.ABSENT -> c.bad
-        DayAttendanceStatus.HOLIDAY -> c.faint.copy(alpha = 0.5f)
-    }
-    Box(modifier = modifier.height(30.dp), contentAlignment = Alignment.TopCenter) {
-        Box(
-            modifier = Modifier
-                .padding(top = 2.dp)
-                .size(26.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(fill)
-                .border(1.5.dp, ringColor, RoundedCornerShape(8.dp))
-                .clickable { onDayClick(day) },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = day.dayOfMonth.toString(),
-                fontSize = 9.5.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-        if (badge != null) {
-            Box(
-                modifier = Modifier
-                    .offset(y = 22.dp)
-                    .size(10.dp)
-                    .clip(CircleShape)
-                    .background(badge.first),
-                contentAlignment = Alignment.Center
-            ) {
+    val firstIndex = days.firstOrNull { it.dayOfMonth == 1 }?.dayOfWeekIndex ?: 0
+    val monFirstOffset = ((firstIndex - 1) % 7 + 7) % 7
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su").forEach { label ->
                 Text(
-                    text = badge.second,
-                    fontSize = 6.5.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White
+                    label,
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = c.accentDeep,
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
-    }
-}
-
-/** Custom Canvas line/area chart of the 12-month attendance history with target line. */
-@Composable
-private fun AttendanceTrendChart(records: List<AttendanceMonthRecord>) {
-    val c = intelligenceColors()
-    val textMeasurer = rememberTextMeasurer()
-    Canvas(modifier = Modifier.fillMaxWidth().height(110.dp)) {
-        val leftPad = 21.dp.toPx()
-        val rightPad = 6.dp.toPx()
-        val plotTop = 20.dp.toPx()
-        val plotBottom = size.height - 4.dp.toPx()
-        val plotHeight = plotBottom - plotTop
-
-        fun yFor(pct: Float): Float = plotBottom - (pct.coerceIn(0f, 100f) / 100f) * plotHeight
-        fun xFor(index: Int): Float =
-            leftPad + index * (size.width - leftPad - rightPad) / (records.size - 1).coerceAtLeast(1)
-
-        fun labelStyle(color: Color) = TextStyle(fontSize = 8.sp, fontWeight = FontWeight.Bold, color = color)
-
-        fun drawAxisLabel(text: String, color: Color, anchorX: Float, centerY: Float) {
-            val layout = textMeasurer.measure(text, labelStyle(color))
-            val x = (anchorX - layout.size.width).coerceIn(0f, size.width - layout.size.width)
-            drawText(layout, topLeft = Offset(x, centerY - layout.size.height / 2f))
-        }
-
-        fun drawPointLabel(text: String, color: Color, anchorX: Float, bottomY: Float, alignEnd: Boolean = false) {
-            val layout = textMeasurer.measure(text, labelStyle(color))
-            val x = if (alignEnd) {
-                (anchorX - layout.size.width).coerceIn(0f, size.width - layout.size.width)
-            } else {
-                (anchorX - layout.size.width / 2f).coerceIn(0f, size.width - layout.size.width)
-            }
-            drawText(layout, topLeft = Offset(x, bottomY.coerceAtLeast(0f)))
-        }
-
-        // 0/25/50/75/100 gridlines with their 8sp labels.
-        listOf(0, 25, 50, 75, 100).forEach { pct ->
-            val y = yFor(pct.toFloat())
-            drawLine(
-                color = c.faint.copy(alpha = 0.30f),
-                start = Offset(leftPad, y),
-                end = Offset(size.width - rightPad, y),
-                strokeWidth = 0.75.dp.toPx()
-            )
-            drawAxisLabel(pct.toString(), c.muted, anchorX = leftPad - 3.dp.toPx(), centerY = y)
-        }
-
-        // Dashed warn target line at the shared 75% reference constant.
-        drawLine(
-            color = c.warn,
-            start = Offset(leftPad, yFor(IntelligenceSeries.ATTENDANCE_TARGET_PERCENT.toFloat())),
-            end = Offset(size.width - rightPad, yFor(IntelligenceSeries.ATTENDANCE_TARGET_PERCENT.toFloat())),
-            strokeWidth = 1.2.dp.toPx(),
-            cap = StrokeCap.Round,
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()), 0f)
-        )
-
-        if (records.size < 2) return@Canvas
-        val dash = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 5.dp.toPx()), 0f)
-
-        // Area fill per contiguous recorded run so untracked months stay unfilled.
-        var runStart = -1
-        records.forEachIndexed { index, record ->
-            val isRecorded = record.percent != null
-            if (isRecorded && runStart < 0) runStart = index
-            val runEnds = isRecorded && (index == records.lastIndex || records[index + 1].percent == null)
-            if (runEnds && runStart >= 0) {
-                val area = Path()
-                area.moveTo(xFor(runStart), yFor(records[runStart].percent!!.toFloat()))
-                (runStart + 1..index).forEach { step ->
-                    area.lineTo(xFor(step), yFor(records[step].percent!!.toFloat()))
+        val weeks = ((monFirstOffset + days.size + 6) / 7).coerceAtLeast(1)
+        repeat(weeks) { week ->
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                repeat(7) { col ->
+                    val cell = week * 7 + col
+                    val index = cell - monFirstOffset
+                    if (cell < monFirstOffset || index >= days.size) {
+                        Box(modifier = Modifier.weight(1f).size(34.dp))
+                    } else {
+                        DayCell(days[index], paidDay == days[index].dayOfMonth, dueDay == days[index].dayOfMonth, onDayClick)
+                    }
                 }
-                area.lineTo(xFor(index), plotBottom)
-                area.lineTo(xFor(runStart), plotBottom)
-                area.close()
-                drawPath(area, c.accentWash)
-                runStart = -1
             }
-            if (!isRecorded) runStart = -1
-        }
-
-        // Solid accent line between adjacent recorded months; faint dashed connector
-        // jumps recorded points across untracked (null) months.
-        val recordedIndexes = records.indices.filter { records[it].percent != null }
-        recordedIndexes.zipWithNext().forEach { (fromIdx, toIdx) ->
-            val from = records[fromIdx].percent ?: return@forEach
-            val to = records[toIdx].percent ?: return@forEach
-            val adjacent = toIdx - fromIdx == 1
-            drawLine(
-                color = if (adjacent) c.accent else c.faint.copy(alpha = 0.7f),
-                start = Offset(xFor(fromIdx), yFor(from.toFloat())),
-                end = Offset(xFor(toIdx), yFor(to.toFloat())),
-                strokeWidth = if (adjacent) 2.5.dp.toPx() else 1.5.dp.toPx(),
-                cap = StrokeCap.Round,
-                pathEffect = if (adjacent) null else dash
-            )
-        }
-
-        // Dots on recorded months; the peak month gets the gold crown dot.
-        val peakIndex = recordedIndexes.maxByOrNull { records[it].percent ?: 0 }
-        recordedIndexes.forEach { index ->
-            val center = Offset(xFor(index), yFor(records[index].percent!!.toFloat()))
-            val isPeak = index == peakIndex
-            val radius = (if (isPeak) 4.5.dp else 3.5.dp).toPx()
-            drawCircle(color = if (isPeak) c.warn else c.accent, radius = radius, center = center)
-            drawCircle(
-                color = Color.White,
-                radius = radius,
-                center = center,
-                style = Stroke(width = 1.5.dp.toPx())
-            )
-        }
-
-        // Point labels: peak (gold), drop (red), current (ink); peak wins on collision.
-        val dropIndex = recordedIndexes.minByOrNull { records[it].percent ?: 100 }
-        val currentIndex = records.indexOfLast { it.percent != null }
-        peakIndex?.let { index ->
-            val record = records[index]
-            drawPointLabel(
-                text = "${record.percent}% (${record.attendedDays}d)",
-                color = c.warn,
-                anchorX = xFor(index),
-                bottomY = yFor(record.percent!!.toFloat()) - 8.dp.toPx()
-            )
-        }
-        if (dropIndex != null && dropIndex != peakIndex) {
-            val record = records[dropIndex]
-            drawPointLabel(
-                text = "${record.percent}% (${record.attendedDays}d)",
-                color = c.bad,
-                anchorX = xFor(dropIndex),
-                bottomY = yFor(record.percent!!.toFloat()) - 8.dp.toPx()
-            )
-        }
-        if (currentIndex >= 0 && currentIndex != peakIndex && currentIndex != dropIndex) {
-            val record = records[currentIndex]
-            drawPointLabel(
-                text = "${record.percent}% (${record.attendedDays}d)",
-                color = c.ink,
-                anchorX = xFor(currentIndex),
-                bottomY = yFor(record.percent!!.toFloat()) - 8.dp.toPx(),
-                alignEnd = true
-            )
         }
     }
 }
 
-/** Small white stat tile used in the footer summary row. */
+/** One 34dp calendar cell: solid status colour, optional paid ✓ / due ₹ badge. */
 @Composable
-private fun AttendanceStatTile(
-    icon: ImageVector,
-    iconTint: Color,
-    label: String,
-    value: String,
-    valueColor: Color,
-    sub: String,
-    modifier: Modifier = Modifier
+private fun RowScope.DayCell(
+    day: CalendarDay,
+    isPaid: Boolean,
+    isDue: Boolean,
+    onDayClick: (CalendarDay) -> Unit
 ) {
     val c = intelligenceColors()
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(c.cardFill)
-            .border(1.dp, c.cardEdge, RoundedCornerShape(12.dp))
-            .padding(horizontal = 8.dp, vertical = 7.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+    val bg = when (day.status) {
+        DayAttendanceStatus.PRESENT -> c.good
+        DayAttendanceStatus.LATE -> c.warn
+        DayAttendanceStatus.ABSENT -> c.bad
+        DayAttendanceStatus.HOLIDAY -> Color(0xFFE2E8F0)
+    }
+    val fg = if (day.status == DayAttendanceStatus.HOLIDAY) Color(0xFF64748B) else Color.White
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .size(34.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(bg)
+            .border(
+                width = if (isDue) 1.5.dp else 0.dp,
+                color = if (isDue) c.bad else Color.Transparent,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .clickable { onDayClick(day) },
+        contentAlignment = Alignment.Center
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(11.dp))
-            Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted, maxLines = 1)
+        Text("${day.dayOfMonth}", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = fg)
+        if (isDue) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 2.dp, y = 2.dp)
+                    .size(12.dp)
+                    .clip(CircleShape)
+                    .background(c.bad),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("₹", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        } else if (isPaid) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 2.dp, y = 2.dp)
+                    .size(13.dp)
+                    .clip(CircleShape)
+                    .background(c.accentDeep),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(8.dp))
+            }
         }
-        Text(value, fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = valueColor, maxLines = 1)
-        Text(sub, fontSize = 7.5.sp, fontWeight = FontWeight.Medium, color = c.muted, maxLines = 1)
     }
 }
 
-/** Derives the trend card's "Nov 2025 – Oct 2026" style range label from the records. */
-private fun trendRangeLabel(records: List<AttendanceMonthRecord>, fallback: String): String {
-    val first = records.firstOrNull()?.fullLabel ?: return fallback
-    val last = records.lastOrNull()?.fullLabel ?: return fallback
-    return "$first – $last"
+/** Thin solid accent progress bar under the calendar, matching the reference. */
+@Composable
+private fun MonthProgressTrack(fraction: Float, accent: Color, track: Color) {
+    val clamped = fraction.coerceIn(0f, 1f)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(5.dp)
+            .clip(RoundedCornerShape(3.dp))
+            .background(track)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(clamped)
+                .height(5.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(accent)
+        )
+    }
 }
 
-/**
- * Today = the member's as-of date (profile.dateDisplay, e.g. "Tue\n22 Oct 2026")
- * when it falls inside the shown month, else -1 (no ring). Deterministic, so the
- * accent ring renders the same on every device and screenshot; the model's
- * [CalendarDay.dayOfWeekIndex] removes any need for a hard-coded weekday offset.
- */
-private fun resolveAsOfTodayDay(monthLabel: String, dateDisplay: String): Int {
-    val normalizedDate = dateDisplay.replace("\n", " ").trim()
-    val normalizedMonth = monthLabel.replace("\n", " ").trim()
-    if (!normalizedDate.contains(normalizedMonth, ignoreCase = true)) return -1
-    return asOfDayRegex.find(normalizedDate)?.groupValues?.get(1)?.toIntOrNull() ?: -1
+/** 12-month attendance line/area chart with peak, drop and current callout bubbles. */
+@Composable
+private fun AttendanceTrendChart(
+    records: List<AttendanceMonthRecord>,
+    measurer: TextMeasurer
+) {
+    val c = intelligenceColors()
+    Canvas(modifier = Modifier.fillMaxWidth().height(164.dp)) {
+        val labelLeft = 34.dp.toPx()
+        val plotTop = 48.dp.toPx()
+        val plotBottom = size.height - 22.dp.toPx()
+        val plotH = (plotBottom - plotTop).coerceAtLeast(1f)
+        val slotW = (size.width - labelLeft) / records.size
+        val axisStyle = TextStyle(fontSize = 8.sp, color = c.muted, fontWeight = FontWeight.SemiBold)
+
+        listOf(100, 75, 50, 25, 0).forEachIndexed { i, value ->
+            val y = plotTop + i * plotH / 4f
+            drawLine(
+                color = c.ink.copy(alpha = 0.06f),
+                start = Offset(labelLeft, y),
+                end = Offset(size.width, y),
+                strokeWidth = 1f
+            )
+            drawText(measurer, "$value%", Offset(0f, y - 4f), style = axisStyle)
+        }
+        records.forEachIndexed { i, record ->
+            val mx = labelLeft + slotW * (i + 0.5f)
+            val text = record.label.take(3)
+            val tw = measurer.measure(text, axisStyle, constraints = Constraints(maxWidth = 40)).size.width
+            drawText(measurer, text, Offset(mx - tw / 2f, plotBottom + 6f), style = axisStyle)
+        }
+
+        val points = records.mapIndexedNotNull { i, record ->
+            record.percent?.let {
+                Triple(Offset(labelLeft + slotW * (i + 0.5f), plotBottom - it / 100f * plotH), record, i)
+            }
+        }
+        if (points.isEmpty()) return@Canvas
+
+        val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 8f))
+        points.windowed(2, 1).forEach { pair ->
+            val a = pair[0]
+            val b = pair[1]
+            if (b.third - a.third > 1) {
+                drawLine(
+                    color = Color(0xFF94A3B8),
+                    start = a.first,
+                    end = b.first,
+                    strokeWidth = 1.4f,
+                    pathEffect = dash
+                )
+            } else {
+                drawPath(
+                    Path().apply {
+                        moveTo(a.first.x, a.first.y)
+                        lineTo(b.first.x, b.first.y)
+                    },
+                    c.accent,
+                    style = Stroke(width = 2.5f, cap = StrokeCap.Round)
+                )
+            }
+        }
+        val area = Path().apply {
+            moveTo(points.first().first.x, plotBottom)
+            points.forEach { lineTo(it.first.x, it.first.y) }
+            lineTo(points.last().first.x, plotBottom)
+            close()
+        }
+        drawPath(
+            path = area,
+            brush = Brush.verticalGradient(
+                colors = listOf(c.accent.copy(alpha = 0.24f), c.accent.copy(alpha = 0.0f)),
+                startY = plotTop,
+                endY = plotBottom
+            )
+        )
+        points.forEach { drawCircle(center = it.first, radius = 2.5f, color = c.accent) }
+
+        val peak = points.maxByOrNull { it.second.percent ?: 0 }
+        val drop = points.minByOrNull { it.second.percent ?: Int.MAX_VALUE }
+        val current = points.last()
+        peak?.let { trendBubble(it.first.x, it.first.y, it.second, c.accent, crown = true, measurer = measurer) }
+        if (drop != null && drop !== peak && (drop.second.percent ?: 100) < 75) {
+            trendBubble(drop.first.x, drop.first.y, drop.second, c.bad, crown = false, measurer = measurer)
+        }
+        if (current !== peak && current !== drop) {
+            trendBubble(current.first.x, current.first.y, current.second, c.accent, crown = false, measurer = measurer)
+        }
+    }
+}
+
+/** Rounded percentage callout drawn above a trend point, flipped below when the top is tight. */
+private fun DrawScope.trendBubble(
+    x: Float,
+    y: Float,
+    record: AttendanceMonthRecord,
+    background: Color,
+    crown: Boolean,
+    measurer: TextMeasurer
+) {
+    val boxW = 34.dp.toPx()
+    val boxH = 30.dp.toPx()
+    val gap = 9.dp.toPx()
+    val margin = 2.dp.toPx()
+    val crownH = 8.dp.toPx()
+    val center = x.coerceIn(boxW / 2f + margin, size.width - boxW / 2f - margin)
+    val above = y - boxH - gap
+    val fitsAbove = above - (if (crown) crownH + 2.dp.toPx() else 0f) >= 0f
+    val top = if (fitsAbove) above else (y + gap).coerceAtMost(size.height - boxH - margin)
+    if (crown) {
+        val cw = 11.dp.toPx()
+        val baseY = if (fitsAbove) top - 1.dp.toPx() else top + boxH + crownH
+        val crownPath = Path().apply {
+            moveTo(center - cw / 2f, baseY)
+            lineTo(center - cw / 2f, baseY - crownH * 0.85f)
+            lineTo(center - cw / 4f, baseY - crownH * 0.35f)
+            lineTo(center, baseY - crownH)
+            lineTo(center + cw / 4f, baseY - crownH * 0.35f)
+            lineTo(center + cw / 2f, baseY - crownH * 0.85f)
+            lineTo(center + cw / 2f, baseY)
+            close()
+        }
+        drawPath(crownPath, Color(0xFFF2A81D))
+    }
+    drawRoundRect(
+        color = background,
+        topLeft = Offset(center - boxW / 2f, top),
+        size = Size(boxW, boxH),
+        cornerRadius = CornerRadius(9.dp.toPx())
+    )
+    val percent = "${record.percent ?: 0}%"
+    val pStyle = TextStyle(fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.ExtraBold)
+    val pw = measurer.measure(percent, pStyle).size.width
+    drawText(measurer, percent, Offset(center - pw / 2f, top + 3.dp.toPx()), style = pStyle)
+    val days = "${record.attendedDays}d"
+    val dStyle = TextStyle(fontSize = 7.5f.sp, color = Color.White.copy(alpha = 0.9f), fontWeight = FontWeight.SemiBold)
+    val dw = measurer.measure(days, dStyle).size.width
+    drawText(measurer, days, Offset(center - dw / 2f, top + 18.dp.toPx()), style = dStyle)
+}
+
+/** Compact white footer stat tile: tinted icon, label, value and inline sub-label. */
+@Composable
+private fun RowScope.StatFooter(icon: ImageVector, tint: Color, label: String, value: String, sub: String, c: IntelligenceColors) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(12.dp))
+            .background(c.cardFill)
+            .border(1.2.dp, c.cardEdge, RoundedCornerShape(12.dp))
+            .padding(8.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(13.dp))
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(value, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = tint)
+            if (sub.isNotBlank()) {
+                Text(sub, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
+            }
+        }
+    }
 }

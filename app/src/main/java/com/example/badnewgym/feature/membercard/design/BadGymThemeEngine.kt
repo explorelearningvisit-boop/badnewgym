@@ -356,10 +356,10 @@ fun BadGymThemeSelectorStrip(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 2.dp),
-        color = Color(0x22000000),
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        color = Color(0xF7FFFFFF),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(0.5.dp, Color(0x33FFFFFF))
+        border = BorderStroke(1.dp, Color(0x140F172A))
     ) {
         Row(
             modifier = Modifier
@@ -372,19 +372,19 @@ fun BadGymThemeSelectorStrip(
             Icon(
                 imageVector = Icons.Default.Palette,
                 contentDescription = "Themes",
-                tint = Color(0xFFFDE047),
+                tint = Color(0xFF94A3B8),
                 modifier = Modifier.size(16.dp)
             )
 
             BadGymDashboardTheme.values().forEach { theme ->
                 val isSelected = theme == selectedTheme
-                val bg = if (isSelected) theme.primaryColor else Color(0x22FFFFFF)
+                val bg = if (isSelected) theme.primaryColor else Color(0x0A0F172A)
                 val textColor = if (isSelected) {
                     if (theme == BadGymDashboardTheme.GAMING_RED ||
                         theme == BadGymDashboardTheme.SKY_BLUE ||
                         theme == BadGymDashboardTheme.PINK_AI
                     ) Color.White else Color(0xFF0F172A)
-                } else Color.White
+                } else Color(0xFF475569)
 
                 Box(
                     modifier = Modifier
@@ -392,7 +392,7 @@ fun BadGymThemeSelectorStrip(
                         .background(bg)
                         .border(
                             1.dp,
-                            if (isSelected) Color.White else Color(0x22FFFFFF),
+                            if (isSelected) theme.primaryColor else Color(0x140F172A),
                             RoundedCornerShape(8.dp)
                         )
                         .clickable { onThemeSelect(theme) }
