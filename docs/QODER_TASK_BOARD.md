@@ -47,10 +47,10 @@ Status values: `OPEN` · `IN_PROGRESS` · `REVIEW` · `DONE` · `BLOCKED`
 | ID | Task | Status | Owner |
 |---|---|---|---|
 | T-001 | Compose 1.11 API migration of the 5 intelligence files | **DONE** | Qoder |
-| T-002 | Full build + unit-test gate | **OPEN** | Qoder |
-| T-003 | Device authorize → install → screenshot all 4 tabs | **BLOCKED** (phone tap) | Qoder + user |
-| T-004 | Pixel comparison vs reference spec, deviation list | OPEN (after T-003) | Qoder |
-| T-005 | Commit the pixel pass with evidence | OPEN (after T-004) | Qoder |
+| T-002 | Full build + unit-test gate | **DONE** | Supervisor |
+| T-003 | Device authorize → install → screenshot all 4 tabs | **DONE** | Supervisor |
+| T-004 | Pixel comparison vs reference spec, deviation list | **DONE** | Supervisor |
+| T-005 | Commit the pixel pass with evidence | **DONE** (`307de25`) | Supervisor |
 
 ### T-001 — Compose 1.11 API migration — DONE
 
@@ -172,6 +172,23 @@ Append-only. Newest at the bottom. Worker writes result; supervisor writes verdi
 [2026-11-06] SUPERVISOR — T-001 marked DONE. compileDebugKotlin BUILD SUCCESSFUL (UP-TO-DATE).
              Verified imports moved to ui.geometry and measure() uses named constraints.
 [2026-11-06] SUPERVISOR — T-003 set BLOCKED: adb reports device unauthorized; requires on-phone tap.
+[2026-11-06] SUPERVISOR — Device re-authorized after `adb kill-server` + `start-server`.
+             testDebugUnitTest + assembleDebug green. All four tabs captured on zxdada69gunb7ls4.
+[2026-11-06] SUPERVISOR — T-004 findings (all now fixed):
+             1. Every chart used raw px for geometry. On 440dpi a callout bubble was ~12dp wide
+                holding two text lines -> clipped/illegible blobs. Now dp.toPx() throughout.
+             2. Body GoalRing stroke 13f px = 4.7dp instead of the specified 13dp.
+             3. Payment value labels sat on the line (y - 16px = 5.8dp) and the peak label
+                collided with its crown (40px vs 16px offsets).
+             4. Area fills were flat alpha blocks with hard edges -> vertical gradient.
+             5. Peak crowns were emoji glyphs ("\uD83D\uDC51") -> vector path (drawCrown).
+             6. Workout y-axis "0m" overlapped x label "1"; plot left inset widened.
+             7. Theme strip was styled for the old dark canvas (translucent black surface,
+                white unselected text) -> light surface, ink text, accent border.
+[2026-11-06] SUPERVISOR — T-005 DONE, commit 307de25 on feature/member-intelligence-v3.
+             Evidence: docs/reference/images/v3_{tab0_attendance,trend2,workout_b,payment_b,body_b}.png
+[2026-11-06] NOTE — `IntelligenceSeries.kt` and `CURRENT_TASK.md` still carry uncommitted edits.
+             Not part of 307de25. Decide whether to land or revert before the branch is merged.
 ```
 
 ---
