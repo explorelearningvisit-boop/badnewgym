@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -100,7 +101,7 @@ fun AttendanceIntelligenceScreen(
                         fontWeight = FontWeight.SemiBold,
                         color = c.ink
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     IntelligenceLegendRow(c.good, "Present", "${attendance.presentCount}")
                     IntelligenceLegendRow(c.warn, "Late", "${attendance.lateCount}")
                     IntelligenceLegendRow(c.bad, "Absent", "${attendance.absentCount}")
@@ -126,12 +127,12 @@ fun AttendanceIntelligenceScreen(
         ) {
             AttendanceTrendChart(records = monthRecords, measurer = measurer)
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         IntelligenceNote(
             text = "Mar 2026 drop (58%): Holi holidays & annual exam break",
             modifier = Modifier.padding(horizontal = 4.dp)
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(7.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StatFooter(Icons.Filled.EmojiEvents, Color(0xFFF59E0B), "Best", "${best?.percent ?: 0}%", "(${best?.label ?: "--"})", c)
             StatFooter(Icons.Filled.BarChart, c.accentDeep, "Average", "$average%", "", c)
@@ -172,7 +173,7 @@ private fun CalendarGrid(
                     val cell = week * 7 + col
                     val index = cell - monFirstOffset
                     if (cell < monFirstOffset || index >= days.size) {
-                        Box(modifier = Modifier.weight(1f).size(34.dp))
+                        Box(modifier = Modifier.weight(1f).aspectRatio(1f))
                     } else {
                         DayCell(days[index], paidDay == days[index].dayOfMonth, dueDay == days[index].dayOfMonth, onDayClick)
                     }
@@ -201,7 +202,7 @@ private fun RowScope.DayCell(
     Box(
         modifier = Modifier
             .weight(1f)
-            .size(34.dp)
+            .aspectRatio(1f)
             .clip(RoundedCornerShape(50))
             .background(bg)
             .border(
@@ -249,7 +250,7 @@ private fun AttendanceTrendChart(
     measurer: TextMeasurer
 ) {
     val c = intelligenceColors()
-    Canvas(modifier = Modifier.fillMaxWidth().height(164.dp)) {
+    Canvas(modifier = Modifier.fillMaxWidth().height(142.dp)) {
         val labelLeft = 34.dp.toPx()
         val plotTop = 48.dp.toPx()
         val plotBottom = size.height - 22.dp.toPx()

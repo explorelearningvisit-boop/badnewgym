@@ -314,7 +314,7 @@ private fun RowScope.SummaryTile(
 private fun PaymentTrendChart(measurer: TextMeasurer) {
     val c = intelligenceColors()
     val trend = IntelligenceSeries.paymentTrend()
-    Canvas(modifier = Modifier.fillMaxWidth().height(125.dp)) {
+    Canvas(modifier = Modifier.fillMaxWidth().height(110.dp)) {
         val plotBottom = size.height - 26.dp.toPx()
         val topPad = 30.dp.toPx()
         val values = trend.map { it.rupees }

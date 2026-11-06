@@ -123,8 +123,8 @@ fun MemberIntelligenceDashboard(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            contentPadding = PaddingValues(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             when (selectedTab) {
                 0 -> item(key = "tab_attendance") {

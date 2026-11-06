@@ -116,28 +116,8 @@ fun BodyIntelligenceLiteScreen(
                 Text("Body Intelligence", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
                 Text("Member: ${pass.name}", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .graphicsLayer { rotationZ = -12f }
-                    .background(c.accent.copy(alpha = 0.35f), RoundedCornerShape(6.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Rounded.WaterDrop, contentDescription = null, tint = c.accentDeep, modifier = Modifier.size(14.dp))
-            }
-            Spacer(modifier = Modifier.width(6.dp))
-            Box(
-                modifier = Modifier
-                    .size(30.dp)
-                    .graphicsLayer { rotationZ = -12f }
-                    .background(c.accent.copy(alpha = 0.5f), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Rounded.LocalDrink, contentDescription = null, tint = c.accentDeep, modifier = Modifier.size(18.dp))
-            }
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         val chips: List<Pair<String, ImageVector>> = listOf(
             "Overview" to Icons.Filled.Layers,
@@ -164,9 +144,9 @@ fun BodyIntelligenceLiteScreen(
                     )
                 }
             }
-            if (rowIndex == 0) Spacer(modifier = Modifier.height(8.dp))
+            if (rowIndex == 0) Spacer(modifier = Modifier.height(6.dp))
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         when (selected) {
             0 -> OverviewPanel(c, weightItem, currentWeight)
@@ -224,9 +204,9 @@ private fun OverviewPanel(c: IntelligenceColors, weightItem: BodyStatItem?, curr
             }
         }
     }
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(6.dp))
     CompositionCard(c)
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(6.dp))
     IntelligenceSectionCard(title = "Quick Insights", icon = Icons.Filled.Insights) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             InsightTile(Icons.Filled.MonitorWeight, c.warn, weightDeltaLabel, "Weight", Modifier.weight(1f), c)
@@ -360,7 +340,7 @@ private fun InsightTile(
 @Composable
 private fun CompositionPanel(c: IntelligenceColors, weightItem: BodyStatItem?) {
     WeightHistoryChart(weightItem)
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(6.dp))
     CompositionCard(c)
 }
 
@@ -427,7 +407,7 @@ private fun GalleryPanel(c: IntelligenceColors) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp)
+                .height(128.dp)
                 .clip(RoundedCornerShape(14.dp))
                 .background(c.cardFill),
             contentAlignment = Alignment.Center
@@ -480,7 +460,7 @@ private fun WeightHistoryChart(weightItem: BodyStatItem?) {
     val c = intelligenceColors()
     val history = weightItem?.history.orEmpty()
     Column(modifier = Modifier.fillMaxWidth()) {
-        Canvas(modifier = Modifier.fillMaxWidth().height(110.dp)) {
+        Canvas(modifier = Modifier.fillMaxWidth().height(96.dp)) {
             if (history.size < 2) return@Canvas
             val plotBottom = size.height - 16f
             val topPad = 14f

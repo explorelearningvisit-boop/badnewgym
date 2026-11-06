@@ -95,7 +95,7 @@ fun IntelligenceHeader(
         }
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             IntelligenceTopBar(
                 ink = c.ink,
@@ -233,7 +233,7 @@ private fun IntelligenceIdentityRow(
     ) {
         Box(
             modifier = Modifier
-                .size(62.dp)
+                .size(52.dp)
                 .clip(CircleShape)
                 .background(colors.accent)
                 .padding(2.5.dp)
@@ -256,7 +256,7 @@ private fun IntelligenceIdentityRow(
         ) {
             Text(
                 pass.name,
-                fontSize = 19.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = colors.ink,
                 maxLines = 1,
@@ -268,7 +268,7 @@ private fun IntelligenceIdentityRow(
                 IdentityMetaItem(Icons.Filled.Male, pass.gender, colors)
             }
             Row(
-                modifier = Modifier.height(26.dp),
+                modifier = Modifier.height(23.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -288,7 +288,7 @@ private fun SolidStatusChip(colors: IntelligenceColors) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(colors.accent)
-            .padding(horizontal = 9.dp, vertical = 5.dp),
+            .padding(horizontal = 7.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
@@ -304,7 +304,7 @@ private fun PlanChip(planName: String, colors: IntelligenceColors) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(colors.accent)
-            .padding(horizontal = 9.dp, vertical = 5.dp),
+            .padding(horizontal = 7.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -321,7 +321,7 @@ private fun OutlinedStatusChip(text: String, colors: IntelligenceColors) {
             .clip(RoundedCornerShape(50))
             .background(colors.cardFill)
             .border(1.2.dp, colors.accentSoft, RoundedCornerShape(50))
-            .padding(horizontal = 9.dp, vertical = 5.dp)
+            .padding(horizontal = 7.dp, vertical = 4.dp)
     ) {
         Text(text, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = colors.ink, maxLines = 1)
     }
@@ -335,7 +335,7 @@ private fun AutoChip(colors: IntelligenceColors) {
             .clip(RoundedCornerShape(50))
             .background(colors.cardFill)
             .border(1.2.dp, colors.accentSoft, RoundedCornerShape(50))
-            .padding(horizontal = 9.dp, vertical = 5.dp)
+            .padding(horizontal = 7.dp, vertical = 4.dp)
     ) {
         Text(
             buildAnnotatedString {
@@ -373,7 +373,7 @@ private fun MembershipProgressCard(
             .background(colors.cardFill)
             .border(1.2.dp, colors.cardEdge, RoundedCornerShape(16.dp))
             .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(Icons.Filled.Insights, contentDescription = null, tint = colors.accent, modifier = Modifier.size(16.dp))
@@ -395,7 +395,7 @@ private fun MembershipProgressCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(18.dp)
+                .height(16.dp)
                 .clip(RoundedCornerShape(9.dp))
                 .background(colors.ink.copy(alpha = 0.06f))
                 .border(1.dp, colors.accentSoft, RoundedCornerShape(9.dp))
@@ -463,7 +463,7 @@ private fun KpiTile(
     val shape = RoundedCornerShape(20.dp)
     Column(
         modifier = modifier
-            .height(92.dp)
+            .height(72.dp)
             .clip(shape)
             .background(colors.cardFill, shape)
             .then(
@@ -471,21 +471,21 @@ private fun KpiTile(
                 else Modifier.border(1.2.dp, colors.cardEdge, shape)
             )
             .clickable { onTabSelected(index) }
-            .padding(horizontal = 4.dp, vertical = 10.dp),
+            .padding(horizontal = 4.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
     ) {
-        Icon(icon, contentDescription = null, tint = colors.accent, modifier = Modifier.size(22.dp))
+        Icon(icon, contentDescription = null, tint = colors.accent, modifier = Modifier.size(18.dp))
         Text(
             value,
-            fontSize = 17.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.ExtraBold,
             color = contentColor,
             maxLines = 1
         )
         Text(
             label,
-            fontSize = 10.5.sp,
+            fontSize = 9.5.sp,
             fontWeight = FontWeight.SemiBold,
             color = contentColor,
             maxLines = 1

@@ -110,10 +110,10 @@ private fun DailyMinutesChart(
     measurer: TextMeasurer
 ) {
     val c = intelligenceColors()
-    Canvas(modifier = Modifier.fillMaxWidth().height(135.dp)) {
+    Canvas(modifier = Modifier.fillMaxWidth().height(120.dp)) {
         val plotLeft = 30.dp.toPx()
         val plotRight = size.width - 6.dp.toPx()
-        val plotTop = 26.dp.toPx()
+        val plotTop = 40.dp.toPx()
         val plotBottom = size.height - 26.dp.toPx()
         val plotH = (plotBottom - plotTop).coerceAtLeast(1f)
         val span = plotRight - plotLeft
@@ -161,9 +161,14 @@ private fun DailyMinutesChart(
             drawCircle(dotColor, radius = 1.8.dp.toPx(), center = Offset(xOf(p.day), yOf(p.minutes)))
         }
 
+        var prevRight = 0f
         points.filter { it.label != null }.forEach { p ->
-            val x = xOf(p.day)
+            val naturalX = xOf(p.day)
             val y = yOf(p.minutes)
+            val halfW = 17.dp.toPx()
+            val x = if (naturalX - halfW < prevRight) prevRight + halfW + 2.dp.toPx()
+            else naturalX.coerceAtLeast(36.dp.toPx())
+            prevRight = x + halfW
             val background = if (p.isAlert || p.isLow) c.bad else c.accent
             drawLabelBubble(
                 text = p.label!!,
@@ -216,9 +221,9 @@ private fun MonthlyBarsChart(
     measurer: TextMeasurer
 ) {
     val c = intelligenceColors()
-    Canvas(modifier = Modifier.fillMaxWidth().height(135.dp)) {
+    Canvas(modifier = Modifier.fillMaxWidth().height(120.dp)) {
         val plotBottom = size.height - 16.dp.toPx()
-        val topPad = 26.dp.toPx()
+        val topPad = 34.dp.toPx()
         val maxHr = pattern.maxOfOrNull { it.hours }?.coerceAtLeast(1) ?: 1
         val slotW = size.width / pattern.size
         val barW = slotW * 0.56f

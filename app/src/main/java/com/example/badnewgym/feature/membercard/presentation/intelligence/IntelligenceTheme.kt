@@ -155,7 +155,7 @@ fun IntelligenceSectionCard(
             .background(c.cardFill)
             .border(1.2.dp, c.cardEdge, RoundedCornerShape(18.dp))
             .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(7.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
             Box(
