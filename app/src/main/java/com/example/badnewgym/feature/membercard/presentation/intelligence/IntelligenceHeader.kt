@@ -98,17 +98,9 @@ fun IntelligenceHeader(
             drawIntelligenceSwooshes(c.accent)
         }
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(if (compact) Modifier.padding(top = 6.dp) else Modifier),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            AnimatedVisibility(
-                visible = !compact,
-                enter = expandVertically(expandFrom = Alignment.Top),
-                exit = shrinkVertically(shrinkTowards = Alignment.Top)
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             IntelligenceTopBar(
                 ink = c.ink,
                 inkSoft = c.inkSoft,
@@ -124,24 +116,30 @@ fun IntelligenceHeader(
                 colors = c,
                 onAvatarClick = onAvatarClick
             )
-            MembershipProgressCard(
-                pass = pass,
-                usedDays = usedDays,
-                usedPercentLabel = usedLabel,
-                fillFraction = if (pass.totalDays > 0) usedDays.toFloat() / pass.totalDays else 0f,
-                colors = c
-            )
+            AnimatedVisibility(
+                visible = !compact,
+                enter = expandVertically(expandFrom = Alignment.Top),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    MembershipProgressCard(
+                        pass = pass,
+                        usedDays = usedDays,
+                        usedPercentLabel = usedLabel,
+                        fillFraction = if (pass.totalDays > 0) usedDays.toFloat() / pass.totalDays else 0f,
+                        colors = c
+                    )
+                    KpiTabRow(
+                        selectedTab = selectedTab,
+                        onTabSelected = onTabSelected,
+                        attendanceValue = "${data.attendance.percent}%",
+                        workoutValue = "$avgSessionMin min",
+                        paymentValue = dueAmount,
+                        bodyValue = bodyValue,
+                        colors = c
+                    )
                 }
             }
-            KpiTabRow(
-                selectedTab = selectedTab,
-                onTabSelected = onTabSelected,
-                attendanceValue = "${data.attendance.percent}%",
-                workoutValue = "$avgSessionMin min",
-                paymentValue = dueAmount,
-                bodyValue = bodyValue,
-                colors = c
-            )
         }
     }
 }

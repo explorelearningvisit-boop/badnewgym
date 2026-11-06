@@ -125,16 +125,10 @@ fun MemberIntelligenceDashboard(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-        AnimatedVisibility(
-            visible = !headerCompact,
-            enter = expandVertically(expandFrom = Alignment.Top),
-            exit = shrinkVertically(shrinkTowards = Alignment.Top)
-        ) {
-            BadGymThemeSelectorStrip(
-                selectedTheme = BadGymThemeManager.activeTheme,
-                onThemeSelect = { BadGymThemeManager.setTheme(it) }
-            )
-        }
+        BadGymThemeSelectorStrip(
+            selectedTheme = BadGymThemeManager.activeTheme,
+            onThemeSelect = { BadGymThemeManager.setTheme(it) }
+        )
 
         IntelligenceHeader(
             data = data,
