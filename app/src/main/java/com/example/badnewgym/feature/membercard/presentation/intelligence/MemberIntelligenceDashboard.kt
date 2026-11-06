@@ -16,6 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,8 +26,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -93,9 +101,23 @@ fun MemberIntelligenceDashboard(
     val dueDay = remember(data) { dayInMonth(data.paymentPlan.currentDueDate) }
     val paidDay = remember(data) { dayInMonth(data.paymentPlan.lastPaymentDate) }
 
-    // A tab switch or a full-body open restarts the reading order at the top.
-    LaunchedEffect(selectedTab, showFullBody) { lazyListState.scrollToItem(0) }
+    // Scrolling forward folds the identity block away; scrolling back restores it.
+    var headerCompact by remember { mutableStateOf(false) }
+    val foldOnScroll = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.y < -3f) headerCompact = true
+                else if (available.y > 3f) headerCompact = false
+                return Offset.Zero
+            }
+        }
+    }
 
+    // A tab switch or a full-body open restarts the reading order at the top.
+    LaunchedEffect(selectedTab, showFullBody) {
+        lazyListState.scrollToItem(0)
+        headerCompact = false
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -103,10 +125,16 @@ fun MemberIntelligenceDashboard(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-        BadGymThemeSelectorStrip(
-            selectedTheme = BadGymThemeManager.activeTheme,
-            onThemeSelect = { BadGymThemeManager.setTheme(it) }
-        )
+        AnimatedVisibility(
+            visible = !headerCompact,
+            enter = expandVertically(expandFrom = Alignment.Top),
+            exit = shrinkVertically(shrinkTowards = Alignment.Top)
+        ) {
+            BadGymThemeSelectorStrip(
+                selectedTheme = BadGymThemeManager.activeTheme,
+                onThemeSelect = { BadGymThemeManager.setTheme(it) }
+            )
+        }
 
         IntelligenceHeader(
             data = data,
@@ -115,14 +143,16 @@ fun MemberIntelligenceDashboard(
             onTabSelected = { selectedTab = it },
             onMenuClick = onMenuClick,
             onAvatarClick = onAvatarClick,
-            onDueClick = onPaymentClick
+            onDueClick = onPaymentClick,
+            compact = headerCompact
         )
 
         LazyColumn(
             state = lazyListState,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
+                .nestedScroll(foldOnScroll),
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {

@@ -32,6 +32,9 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -66,6 +69,7 @@ fun IntelligenceHeader(
     onMenuClick: () -> Unit,
     onAvatarClick: () -> Unit,
     onDueClick: () -> Unit,
+    compact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val c = intelligenceColors()
@@ -94,9 +98,17 @@ fun IntelligenceHeader(
             drawIntelligenceSwooshes(c.accent)
         }
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (compact) Modifier.padding(top = 6.dp) else Modifier),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
+            AnimatedVisibility(
+                visible = !compact,
+                enter = expandVertically(expandFrom = Alignment.Top),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             IntelligenceTopBar(
                 ink = c.ink,
                 inkSoft = c.inkSoft,
@@ -119,6 +131,8 @@ fun IntelligenceHeader(
                 fillFraction = if (pass.totalDays > 0) usedDays.toFloat() / pass.totalDays else 0f,
                 colors = c
             )
+                }
+            }
             KpiTabRow(
                 selectedTab = selectedTab,
                 onTabSelected = onTabSelected,
