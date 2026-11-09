@@ -75,6 +75,7 @@ import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.Body
 import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.BodyProgressModule
 import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.BodySecondaryNavBar
 import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.rememberBodyIntelligenceState
+import java.util.Locale
 import com.example.badnewgym.feature.membercard.data.MemberBodyIntelligenceMapper
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 
@@ -100,6 +101,22 @@ import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
  *   - Left: Gallery (3 photo thumbnails: Back, Side, Front + Add button)
  *   - Right: AI Insights (Good weight gain, Muscle up, Body fat down + Next Target 72.0 kg button)
  */
+/** Short live value rendered inside each workspace pill; the reference shows pills carrying data, not bare labels. */
+private fun bodyTabValues(state: BodyIntelligenceState): Map<BodyPrimaryTab, String> {
+    val goal = state.transformationGoal
+    val composition = state.compositionRecord
+    return mapOf(
+        BodyPrimaryTab.OVERVIEW to "${goal.progressPercent}%",
+        BodyPrimaryTab.COMPOSITION to String.format(Locale.US, "%.1f kg", composition.totalWeightKg),
+        BodyPrimaryTab.MEASUREMENTS to "${state.circumferences.size}",
+        BodyPrimaryTab.PROGRESS to String.format(Locale.US, "%+.1f kg", goal.currentKg - goal.startKg),
+        BodyPrimaryTab.GALLERY to "3",
+        BodyPrimaryTab.GOALS to String.format(Locale.US, "%.1f kg", goal.targetKg),
+        BodyPrimaryTab.HEALTH to state.healthVitals.recoveryStatus,
+        BodyPrimaryTab.MORE to "All"
+    )
+}
+
 @Composable
 fun BodyIntelligenceLiteScreen(
     data: MemberCardData,
@@ -121,7 +138,8 @@ fun BodyIntelligenceLiteScreen(
         // TOP 8-MODULE WORKSPACE NAVIGATOR (Overview, Composition, Measurements, Progress, Gallery, Goals, Health, More)
         BodyPrimaryNavBar(
             selectedTab = resolvedState.primaryTab,
-            onTabSelected = { resolvedState.primaryTab = it }
+            onTabSelected = { resolvedState.primaryTab = it },
+            values = bodyTabValues(resolvedState)
         )
 
         // IF NOT IN OVERVIEW: Show Secondary Sub-nav and Selected Module

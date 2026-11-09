@@ -369,111 +369,94 @@ fun UniformModuleTile(
 fun BodyPrimaryNavBar(
     selectedTab: BodyPrimaryTab,
     onTabSelected: (BodyPrimaryTab) -> Unit,
+    values: Map<BodyPrimaryTab, String> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
-    val row1 = listOf(
+    val icons = mapOf(
         BodyPrimaryTab.OVERVIEW to Icons.Filled.Assessment,
         BodyPrimaryTab.COMPOSITION to Icons.Filled.Scale,
         BodyPrimaryTab.MEASUREMENTS to Icons.Filled.Straighten,
-        BodyPrimaryTab.PROGRESS to Icons.Filled.ShowChart
-    )
-    val row2 = listOf(
+        BodyPrimaryTab.PROGRESS to Icons.Filled.ShowChart,
         BodyPrimaryTab.GALLERY to Icons.Filled.CameraAlt,
         BodyPrimaryTab.GOALS to Icons.Filled.Flag,
         BodyPrimaryTab.HEALTH to Icons.Filled.Favorite,
         BodyPrimaryTab.MORE to Icons.Filled.MoreHoriz
     )
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(3.dp)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
-        ) {
-            row1.forEach { (tab, icon) ->
-                BodyNavTile(
-                    tab = tab,
-                    icon = icon,
-                    isSelected = tab == selectedTab,
-                    onClick = { onTabSelected(tab) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
-        ) {
-            row2.forEach { (tab, icon) ->
-                BodyNavTile(
-                    tab = tab,
-                    icon = icon,
-                    isSelected = tab == selectedTab,
-                    onClick = { onTabSelected(tab) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+        BodyPrimaryTab.entries.forEach { tab ->
+            BodyNavPill(
+                tab = tab,
+                icon = icons.getValue(tab),
+                value = values[tab],
+                isSelected = tab == selectedTab,
+                onClick = { onTabSelected(tab) }
+            )
         }
     }
 }
 
+/** Reference-style stadium pill: violet hairline when idle, violet gradient when active, live value trailing. */
 @Composable
-private fun BodyNavTile(
+private fun BodyNavPill(
     tab: BodyPrimaryTab,
     icon: ImageVector,
+    value: String?,
     isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
     val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
     val accent = activeTheme.primaryColor
     val accentDeep = activeTheme.secondaryColor
     val onAccent = if ((accent.red + accent.green + accent.blue) / 3f > 0.62f) Color(0xFF0F172A) else Color.White
-    val shape = RoundedCornerShape(10.dp)
-    val fill = if (isSelected) {
-        Brush.verticalGradient(listOf(accent, accentDeep))
-    } else {
-        Brush.verticalGradient(listOf(Color.White, accent.copy(alpha = 0.07f)))
-    }
-    val borderColor = if (isSelected) accentDeep else accent.copy(alpha = 0.22f)
-    val activeTextColor = onAccent
+    val shape = RoundedCornerShape(50)
 
     Surface(
         onClick = onClick,
         shape = shape,
         color = Color.Transparent,
-        border = BorderStroke(if (isSelected) 1.5.dp else 1.dp, borderColor),
-        shadowElevation = if (isSelected) 1.5.dp else 0.5.dp,
-        modifier = modifier
+        border = BorderStroke(1.dp, if (isSelected) accentDeep else accent.copy(alpha = 0.22f)),
+        shadowElevation = if (isSelected) 1.5.dp else 0.dp,
+        modifier = Modifier
             .height(34.dp)
             .clip(shape)
-            .background(fill)
+            .background(
+                if (isSelected) Brush.horizontalGradient(listOf(accent, accentDeep))
+                else Brush.horizontalGradient(listOf(Color.White, Color.White))
+            )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 2.dp, vertical = 2.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Row(
+            modifier = Modifier.padding(horizontal = 11.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = tab.label,
-                tint = if (isSelected) activeTextColor else accentDeep,
+                tint = if (isSelected) onAccent else accentDeep,
                 modifier = Modifier.size(13.dp)
             )
             Text(
                 text = tab.label,
-                fontSize = 9.sp,
+                fontSize = 10.5.sp,
                 fontWeight = if (isSelected) FontWeight.Black else FontWeight.SemiBold,
-                color = if (isSelected) activeTextColor else Color(0xFF475569),
-                lineHeight = 10.sp,
-                maxLines = 1,
-                softWrap = false,
-                overflow = TextOverflow.Ellipsis
+                color = if (isSelected) onAccent else Color(0xFF334155),
+                maxLines = 1
             )
+            if (!value.isNullOrBlank()) {
+                Text(
+                    text = value,
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = if (isSelected) onAccent else accentDeep,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
