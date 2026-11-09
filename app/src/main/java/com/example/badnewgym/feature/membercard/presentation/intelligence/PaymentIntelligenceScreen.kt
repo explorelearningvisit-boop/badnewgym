@@ -113,49 +113,65 @@ fun PaymentIntelligenceScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // 1. 5-Pill Subnavigation Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            subTabs.forEachIndexed { index, item ->
-                val isSelected = selectedSubTab == index
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(
-                            if (isSelected) Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9)))
-                            else Brush.horizontalGradient(listOf(Color.White, Color.White))
-                        )
-                        .border(
-                            width = 1.dp,
-                            color = if (isSelected) Color(0xFF7C3AED) else Color(0x338B5CF6),
-                            shape = RoundedCornerShape(50)
-                        )
-                        .clickable { selectedSubTab = index }
-                        .padding(horizontal = 14.dp, vertical = 7.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+        // Five labelled pills cannot fit 360-392dp, so the row scrolls and the trailing edge fades
+        // instead of hard-cutting the fourth pill mid-word.
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                subTabs.forEachIndexed { index, item ->
+                    val isSelected = selectedSubTab == index
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(
+                                if (isSelected) Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9)))
+                                else Brush.horizontalGradient(listOf(Color.White, Color.White))
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = if (isSelected) Color(0xFF7C3AED) else Color(0x338B5CF6),
+                                shape = RoundedCornerShape(50)
+                            )
+                            .clickable { selectedSubTab = index }
+                            .padding(horizontal = 11.dp, vertical = 7.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            item.icon,
-                            contentDescription = null,
-                            tint = if (isSelected) Color.White else Color(0xFF8B5CF6),
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Text(
-                            text = item.title,
-                            fontSize = 11.5.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                            color = if (isSelected) Color.White else c.ink
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                item.icon,
+                                contentDescription = null,
+                                tint = if (isSelected) Color.White else Color(0xFF8B5CF6),
+                                modifier = Modifier.size(13.dp)
+                            )
+                            Text(
+                                text = item.title,
+                                fontSize = 11.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                color = if (isSelected) Color.White else c.ink,
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
             }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .width(22.dp)
+                    .fillMaxHeight()
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(Color.Transparent, Color.White.copy(alpha = 0.92f))
+                        )
+                    )
+            )
         }
 
         // Sub-Tab Content

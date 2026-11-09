@@ -1024,3 +1024,41 @@
   - Tab switching driven by `uiautomator` bounds (KPI tile label row at y=970), not guessed coordinates
   - Live screenshots: `v3b_attendance.png` (header light pass), `v4_attendance_trend.png` (trend + footer), `v5_workout_monthly.png` (daily + monthly charts), `v3c_payment.png`, `v3c_body.png`
 - **Not yet done**: no commit recorded on `feature/member-intelligence-v3` (working tree carries the 6 changed files); `docs/reference/INTELLIGENCE_V3_REBUILD_SPEC.md` still describes the superseded dark-hero header.
+
+---
+
+## 2026-11-09 — Five-image reference reconciliation (supervisor pass)
+
+**Scope.** Integrated the five supplied mockups (Attendance, Workout, Body, Payment A, Payment B) into the existing dashboard. Extraction recorded in `docs/reference/DESIGN_REFERENCE_FIVE_IMAGES.md`.
+
+**Finding.** The V3 pass had already implemented the five references to ~90%. This was a defect/gap punch list, not a greenfield migration.
+
+### Verified on device (`zxdada69gunb7ls4`, 1080x2400)
+
+| Tab | Reference | Evidence | Verdict |
+|---|---|---|---|
+| Attendance | image 1 | `s2_att_bottom.png` | ring 81%, streak, avg check-in, 4 stat pills, calendar, trend callouts, 5-stat footer, Smart Insight + Next Goal — complete |
+| Workout | image 2 | `r1_workout.png` | 19.4 hr ring, 4 stat tiles, daily callouts + crown, 4-tile footer, monthly bars — complete |
+| Body | image 3 | `s1_body_nav.png`, `s5_body_bottom.png` | goal ring 46%, 3 milestones, 3 delta pills, composition donut, measurements, 3-line trend, gallery, AI Insights, Next Target — complete |
+| Payment | images 4/5 | `s4_pay_bottom.png`, `s6_pay_nav_fixed.png` | status card, 4 tiles, behaviour ring + bars, plan history, trend with callouts, AI Insight + Suggestion — complete |
+
+### Fixed this pass
+
+1. **Body workspace switcher** (`BodyModularWorkspace.kt`) — was two rows of 34dp tiles that clipped "Measurements" and carried no data. Rebuilt as a single horizontally scrolling stadium row: violet hairline idle, violet gradient active, icon + label + live value (`46%`, `69.5 kg`, `14`, `-3.3 kg`, `3`, `65.0 kg`, `Good`, `All`). Values derived in `bodyTabValues()` from `BodyIntelligenceState`.
+2. **Payment sub-nav** (`PaymentIntelligenceScreen.kt`) — 5 labelled pills cannot fit 360-392dp; the fourth was hard-cut mid-word ("Beha…"). Pills tightened (11sp, 11dp padding, 5dp gaps) and a 22dp trailing fade added so the row reads as scrollable. "Behaviour" now renders fully.
+
+### Corrected false positive
+
+Inactive KPI tiles were suspected of rendering grey. Pixel sampling of `s1_body_nav.png` proved they are `#FFFFFF` with a violet hairline; the grey readings were label glyphs. No change made — verified, not "fixed".
+
+### Not implemented, deliberately
+
+- 3D dumbbell / flexing-arm header props appear in all five mockups but `ANTIGRAVITY_RUN.md` forbids "fidget/toy/3D decorative UI". Contract wins over mockup.
+- Body hero stays the vector avatar: the repo has no member photo asset, and fabricating one violates "No fake data".
+- Lottie / Iconify not added: nothing in the references needs motion, and `material-icons-extended` already covers every icon used.
+
+### Build / test
+
+- `assembleDebug` → BUILD SUCCESSFUL
+- `testDebugUnitTest` → BUILD SUCCESSFUL
+- Installed via `adb install -r`, cold-launched with monkey, tab-switched by KPI-tile coordinates at y=778
