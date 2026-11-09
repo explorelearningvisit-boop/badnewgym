@@ -1062,3 +1062,30 @@ Inactive KPI tiles were suspected of rendering grey. Pixel sampling of `s1_body_
 - `assembleDebug` → BUILD SUCCESSFUL
 - `testDebugUnitTest` → BUILD SUCCESSFUL
 - Installed via `adb install -r`, cold-launched with monkey, tab-switched by KPI-tile coordinates at y=778
+---
+
+## 2026-11-09 — Density pass: one-screen tabs, KPI tile colour defect
+
+**Goal.** No scrolling. Every tab visible in a single 872dp viewport with information density preserved.
+
+### Density changes
+
+- Header: -70dp. Membership progress collapsed to a single title row + 10dp bar (date range and days-left inlined). Identity avatar 52->40dp, name 17->15sp, meta gaps 10->8dp, chips 23->19dp tall. KPI tiles 54->46dp.
+- IntelligenceSectionCard: padding 12->9dp, icon 34->26dp, title 15->13sp, spacing 7->5dp. Applies to every tab.
+- Attendance: ring 98->86dp, calendar cells 22->19dp, trend 116->94dp, insight card 12->9dp.
+- Workout: ring 86dp, daily chart 130->104dp, monthly chart 115->96dp.
+- Payment: stat tiles 52->46dp, trend chart 124->96dp.
+- Body: goal avatar 62x76dp, ring 74dp, delta pills 46dp, trend 115->78dp, gallery thumbs 38dp, section gaps 8->4dp.
+- Removed the empty "Body Intelligence" header card on the Body overview — a filler card whose only payload was a title already present in the workspace pill row.
+
+### Defect fixed (real, previously mis-diagnosed)
+
+Inactive KPI tiles painted an opaque `#C9C9C9`. Cause: Material3 `Surface(color = Color.Transparent, border, shadowElevation)`. Its `Modifier.surface` chain runs `.shadow()` **after** the caller's `.background()`, so the elevation layer composites over the white gradient. Replaced with `Box` + `.clickable` + explicit background + `.border`. Inactive tiles now `#FFFFFF`.
+
+The earlier "grey tiles are only glyph antialiasing" conclusion was wrong because the sample coordinates landed on the Attendance card, not the KPI row. Re-sampled at device `(320,560)` => `R201 G201 B201`.
+
+### Verified on device
+
+`e0_att.png`, `e1_workout.png`, `e2_payment.png`, `f3_body.png` — each shows a complete tab with zero scroll. Build and unit tests green.
+
+**Commit:** `47bfe08`
