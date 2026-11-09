@@ -112,19 +112,19 @@ fun LazyListScope.bodyIntelligenceItems(
  * without reading the header.
  */
 internal object BiSurface {
-    val Emerald = Color(0xFF0FA36B)
-    val EmeraldDeep = Color(0xFF06674A)
-    val EmeraldDark = Color(0xFF03412E)
+    val Emerald = Color(0xFF21A87D)
+    val EmeraldDeep = Color(0xFF0F6B4E)
+    val EmeraldDark = Color(0xFF0B4A38)
     val Lime = Color(0xFF65C43B)
-    val Violet = Color(0xFF6B5BD2)
-    val Amber = Color(0xFFE8A317)
-    val Rose = Color(0xFFD6455F)
-    val Cyan = Color(0xFF2C9BD4)
+    val Violet = Color(0xFF6E74B0)
+    val Amber = Color(0xFFFFBB0D)
+    val Rose = Color(0xFFE05C5C)
+    val Cyan = Color(0xFF489CC1)
 
     val CardFill = Brush.verticalGradient(
         0f to Color.White,
-        0.55f to Color(0xFFFCFEFD),
-        1f to Color(0xFFF0F8F3)
+        0.55f to Color(0xFFF2F6F4),
+        1f to Color(0xFFEAF2ED)
     )
     val GoalFill = Brush.verticalGradient(
         0f to Emerald,
@@ -132,13 +132,13 @@ internal object BiSurface {
         1f to EmeraldDark
     )
     val ScoreFill = Brush.linearGradient(listOf(Emerald, EmeraldDark))
-    val InsightFill = Brush.linearGradient(listOf(Color(0xFF0FB877), Color(0xFF067251)))
-    val ReviewFill = Brush.linearGradient(listOf(Color(0xFF9C36A8), Color(0xFF5B2C9B)))
-    val RewardFill = Brush.linearGradient(listOf(Color(0xFF8B3FCB), Color(0xFF4A2A8F)))
+    val InsightFill = Brush.linearGradient(listOf(Color(0xFF21A87D), Color(0xFF0F6B4E)))
+    val ReviewFill = Brush.linearGradient(listOf(Color(0xFF8F6BB0), Color(0xFF4E5484)))
+    val RewardFill = Brush.linearGradient(listOf(Color(0xFF7B81BE), Color(0xFF4E5484)))
 
     val TileFill = Brush.verticalGradient(
-        0f to Color(0xFFF5FBF8),
-        1f to Color(0xFFE8F4EE)
+        0f to Color(0xFFEDF3F0),
+        1f to Color(0xFFE4EFEA)
     )
 }
 
@@ -154,7 +154,7 @@ internal fun Modifier.biLift(
     elevation = elevation,
     shape = shape,
     clip = false,
-    ambientColor = Color(0xFF9CB4AC),
+    ambientColor = Color(0xFFA1AEBF),
     spotColor = tint.copy(alpha = 0.42f)
 )
 
@@ -368,7 +368,7 @@ private fun BiEmptyState(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(
-                Brush.verticalGradient(listOf(Color(0xFFF6FBF8), Color(0xFFEFF7F2)))
+                Brush.verticalGradient(listOf(Color(0xFFEFF4F1), Color(0xFFEAF1ED)))
             )
             .border(1.dp, BodyIntelPalette.HairlineStrong, RoundedCornerShape(16.dp))
             .padding(horizontal = 12.dp, vertical = 13.dp),
@@ -771,7 +771,7 @@ private fun BodyScoreTile(score: Int, label: String) {
             .biLift(shape, tint = BiSurface.EmeraldDeep, elevation = 8.dp)
             .clip(shape)
             .background(
-                Brush.verticalGradient(listOf(Color(0xFFF1FBF5), Color(0xFFDFF3E8)))
+                Brush.verticalGradient(listOf(Color(0xFFEBF2EE), Color(0xFFD9EBE3)))
             )
     ) {
         Column(
@@ -841,7 +841,7 @@ private fun ScoreGauge(percent: Int) {
             val inset = stroke / 2f
             // 270-degree gauge opening downward, like a dial the member can read at a glance.
             drawArc(
-                color = Color(0xFFD6E8DE),
+                color = Color(0xFFD4E5DD),
                 startAngle = 135f,
                 sweepAngle = 270f,
                 useCenter = false,
@@ -909,7 +909,7 @@ private fun TransformationCard(
                 BiPill(
                     text = "${(dated.size + shapeOnly.size).coerceAtLeast(1)} tracked",
                     foreground = BiSurface.EmeraldDeep,
-                    background = Color(0xFFE4F7EE)
+                    background = Color(0xFFE0F0EA)
                 )
             }
         )
@@ -1040,7 +1040,7 @@ private fun BiLabeledTrend(
             repeat(3) { k ->
                 val y = (plotTop + plotHeight * (k / 2f)).toPx()
                 drawLine(
-                    color = Color(0xFFE7F0EA),
+                    color = Color(0xFFE3EDE8),
                     start = Offset(0f, y),
                     end = Offset(size.width, y),
                     strokeWidth = 1f
@@ -1163,7 +1163,7 @@ private fun DeltaChip(
         modifier = modifier
             .biLift(shape, tint = tint, elevation = 4.dp)
             .clip(shape)
-            .background(Brush.verticalGradient(listOf(Color.White, Color(0xFFF3FAF6))))
+            .background(Brush.verticalGradient(listOf(Color.White, Color(0xFFEDF3F0))))
             .clickable { onClick() }
     ) {
         Row(
@@ -1227,13 +1227,13 @@ private fun MuscleFocusCard(state: BodyIntelligenceState) {
                     BiPill(
                         text = "${focus.totalSets} sets",
                         foreground = BiSurface.EmeraldDeep,
-                        background = Color(0xFFE4F7EE)
+                        background = Color(0xFFE0F0EA)
                     )
                 } else if (focus != null) {
                     BiPill(
                         text = "estimate",
-                        foreground = Color(0xFF7A5310),
-                        background = Color(0xFFFEF3DA)
+                        foreground = Color(0xFF7E6412),
+                        background = Color(0xFFF9F0DA)
                     )
                 }
             }
@@ -1255,7 +1255,7 @@ private fun MuscleFocusCard(state: BodyIntelligenceState) {
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
                         .background(
-                            Brush.verticalGradient(listOf(Color(0xFFF3FBF7), Color(0xFFEAF6F0)))
+                            Brush.verticalGradient(listOf(Color(0xFFEDF3F0), Color(0xFFE6F0EB)))
                         )
                         .border(1.dp, BodyIntelPalette.Hairline, RoundedCornerShape(16.dp))
                         .padding(vertical = 6.dp),
@@ -1279,7 +1279,7 @@ private fun MuscleFocusCard(state: BodyIntelligenceState) {
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(50.dp))
                                         .background(
-                                            if (active) BiSurface.Emerald else Color(0xFFEFF5F2)
+                                            if (active) BiSurface.Emerald else Color(0xFFEAF1EE)
                                         )
                                         .clickable { state.anatomyView = option }
                                         .padding(horizontal = 10.dp, vertical = 3.dp)
@@ -1342,8 +1342,8 @@ private fun StrengthCard(state: BodyIntelligenceState) {
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50.dp))
-                        .background(Color(0xFFF1EEFB))
-                        .border(1.dp, Color(0xFFDED7F6), RoundedCornerShape(50.dp))
+                        .background(Color(0xFFEAEAF3))
+                        .border(1.dp, Color(0xFFD9D9EC), RoundedCornerShape(50.dp))
                         .clickable { state.openSheet(BodySheetTarget.Report(BodySection.STRENGTH)) }
                         .padding(horizontal = 9.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically,

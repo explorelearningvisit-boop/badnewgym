@@ -82,6 +82,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.badnewgym.feature.membercard.presentation.intelligence.neuAccent
+import com.example.badnewgym.feature.membercard.presentation.intelligence.neuRaised
 import com.example.badnewgym.R
 import com.example.badnewgym.feature.bodyprogress.domain.intelligence.*
 import com.example.badnewgym.feature.bodyprogress.domain.model.BodyMetric
@@ -410,48 +412,50 @@ private fun BodyNavPill(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
-    val accent = activeTheme.primaryColor
-    val accentDeep = activeTheme.secondaryColor
-    val onAccent = if ((accent.red + accent.green + accent.blue) / 3f > 0.62f) Color(0xFF0F172A) else Color.White
-    val shape = RoundedCornerShape(50)
+    val accent = com.example.badnewgym.feature.membercard.presentation.intelligence.NeuPalette.violet
+    val accentDeep = com.example.badnewgym.feature.membercard.presentation.intelligence.NeuPalette.violetDeep
+    val onAccent = Color.White
 
-    Surface(
-        onClick = onClick,
-        shape = shape,
-        color = Color.Transparent,
-        border = BorderStroke(1.dp, if (isSelected) accentDeep else accent.copy(alpha = 0.22f)),
-        shadowElevation = if (isSelected) 1.5.dp else 0.dp,
+    Box(
         modifier = Modifier
             .height(34.dp)
-            .clip(shape)
-            .background(
-                if (isSelected) Brush.horizontalGradient(listOf(accent, accentDeep))
-                else Brush.horizontalGradient(listOf(Color.White, Color.White))
+            .then(
+                if (isSelected) {
+                    Modifier.neuAccent(accent, radius = 50.dp, depth = 3.dp, blur = 7.dp)
+                } else {
+                    Modifier.neuRaised(
+                        radius = 50.dp,
+                        color = com.example.badnewgym.feature.membercard.presentation.intelligence.NeuPalette.surfaceRaised,
+                        depth = 2.dp,
+                        blur = 5.dp
+                    )
+                }
             )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 10.dp),
+        contentAlignment = Alignment.Center
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 11.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = tab.label,
                 tint = if (isSelected) onAccent else accentDeep,
-                modifier = Modifier.size(13.dp)
+                modifier = Modifier.size(12.dp)
             )
             Text(
                 text = tab.label,
-                fontSize = 10.5.sp,
+                fontSize = 10.sp,
                 fontWeight = if (isSelected) FontWeight.Black else FontWeight.SemiBold,
-                color = if (isSelected) onAccent else Color(0xFF334155),
+                color = if (isSelected) onAccent else Color(0xFF5C6673),
                 maxLines = 1
             )
             if (!value.isNullOrBlank()) {
                 Text(
                     text = value,
-                    fontSize = 10.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = if (isSelected) onAccent else accentDeep,
                     maxLines = 1
@@ -595,10 +599,10 @@ private fun SecondaryPill(
     val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
     val accent = activeTheme.primaryColor
     val accentDeep = activeTheme.secondaryColor
-    val onAccent = if ((accent.red + accent.green + accent.blue) / 3f > 0.62f) Color(0xFF0F172A) else Color.White
+    val onAccent = if ((accent.red + accent.green + accent.blue) / 3f > 0.62f) Color(0xFF343434) else Color.White
     val fill = if (isSelected) Brush.verticalGradient(listOf(accent, accentDeep)) else Brush.verticalGradient(listOf(Color.White, accent.copy(alpha = 0.07f)))
     val borderColor = if (isSelected) accentDeep else accent.copy(alpha = 0.22f)
-    val textColor = if (isSelected) onAccent else Color(0xFF475569)
+    val textColor = if (isSelected) onAccent else Color(0xFF6E7887)
 
     Surface(
         onClick = onClick,
@@ -667,10 +671,10 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                         .clip(RoundedCornerShape(10.dp))
                         .background(
                             Brush.verticalGradient(
-                                listOf(Color(0xFFF8FAFC), Color(0xFFF1F5F9))
+                                listOf(Color(0xFFEDF0F4), Color(0xFFE6E9EF))
                             )
                         )
-                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp)),
+                        .border(1.dp, Color(0xFFDCDFE6), RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -696,7 +700,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     ) {
                         Canvas(modifier = Modifier.fillMaxSize()) {
                             drawArc(
-                                color = Color(0xFFE2E8F0),
+                                color = Color(0xFFDCDFE6),
                                 startAngle = 0f,
                                 sweepAngle = 360f,
                                 useCenter = false,
@@ -748,7 +752,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     label = "BMI",
                     value = bmi?.value?.let { bodyFmt(it) } ?: "--",
                     badge = bodyBmiStatus(bmi?.value),
-                    badgeColor = Color(0xFF16A34A)
+                    badgeColor = Color(0xFF21A87D)
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
@@ -756,7 +760,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = fat?.value?.let { bodyFmt(it) } ?: "--",
                     unit = "%",
                     badge = bodyFatStatus(fat?.value),
-                    badgeColor = Color(0xFFD97706)
+                    badgeColor = Color(0xFFD99F0B)
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
@@ -764,7 +768,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = muscle?.value?.let { bodyFmt(it) } ?: "--",
                     unit = "kg",
                     badge = "Good",
-                    badgeColor = Color(0xFF16A34A)
+                    badgeColor = Color(0xFF21A87D)
                 )
             }
         }
@@ -789,7 +793,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = bodySigned(current - start),
                     unit = "kg",
                     badge = "Change",
-                    badgeColor = Color(0xFF16A34A)
+                    badgeColor = Color(0xFF21A87D)
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
@@ -797,7 +801,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = bodySigned(bodyDelta(muscle)),
                     unit = "kg",
                     badge = "Change",
-                    badgeColor = Color(0xFF2563EB)
+                    badgeColor = Color(0xFF6B92E5)
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
@@ -805,7 +809,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = bodySigned(bodyDelta(fat)),
                     unit = "%",
                     badge = "Change",
-                    badgeColor = Color(0xFF7E22CE)
+                    badgeColor = Color(0xFF6A70A8)
                 )
             }
         }
@@ -817,7 +821,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
 private fun GoalMilestone(value: String, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = value, fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = color)
-        Text(text = label, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+        Text(text = label, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
     }
 }
 
@@ -878,7 +882,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                         DonutChart(
                             segments = listOf(
                                 DonutSegment("Lean", leanPct, BodyIntelPalette.Emerald),
-                                DonutSegment("Fat", fatSlicePct, Color(0xFFF59E0B))
+                                DonutSegment("Fat", fatSlicePct, Color(0xFFFFBB0D))
                             ),
                             centerTop = bodyFmt(wKg),
                             centerBottom = "kg Total",
@@ -893,8 +897,8 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             verticalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
                             CompositionLegendRow(color = BodyIntelPalette.Emerald, label = "Muscle", value = "${bodyFmt(muscleKg)} kg", pct = bodyPctOf(muscleKg, wKg))
-                            CompositionLegendRow(color = Color(0xFF10B981), label = "Lean Mass", value = "${bodyFmt(leanMass)} kg", pct = bodyPctOf(leanMass, wKg))
-                            CompositionLegendRow(color = Color(0xFFF59E0B), label = "Fat Mass", value = "${bodyFmt(fatMass)} kg", pct = bodyPctOf(fatMass, wKg))
+                            CompositionLegendRow(color = Color(0xFF21A87D), label = "Lean Mass", value = "${bodyFmt(leanMass)} kg", pct = bodyPctOf(leanMass, wKg))
+                            CompositionLegendRow(color = Color(0xFFFFBB0D), label = "Fat Mass", value = "${bodyFmt(fatMass)} kg", pct = bodyPctOf(fatMass, wKg))
                         }
                     }
                 }
@@ -927,7 +931,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             value = bodyFmt(fatMass),
                             unit = "kg",
                             badge = "Adipose",
-                            badgeColor = Color(0xFFD97706)
+                            badgeColor = Color(0xFFD99F0B)
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -947,7 +951,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                         title = "Fat Mass Analysis",
                         icon = Icons.Filled.Opacity,
                         trailingBadge = "${rec.bodyFatPercent}% Fat",
-                        trailingBadgeColor = Color(0xFFD97706)
+                        trailingBadgeColor = Color(0xFFD99F0B)
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -962,7 +966,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             value = "${rec.fatMassKg}",
                             unit = "kg",
                             badge = "18.5%",
-                            badgeColor = Color(0xFFD97706)
+                            badgeColor = Color(0xFFD99F0B)
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -1037,7 +1041,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             value = "${rec.bodyWaterKg}",
                             unit = "kg",
                             badge = "60.1%",
-                            badgeColor = Color(0xFF0284C7)
+                            badgeColor = Color(0xFF489CC1)
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -1045,7 +1049,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             value = "${rec.boneMineralKg}",
                             unit = "kg",
                             badge = "Dense",
-                            badgeColor = Color(0xFF8B5CF6)
+                            badgeColor = Color(0xFF7B81BE)
                         )
                     }
 
@@ -1368,9 +1372,9 @@ fun BodyMeasurementsModule(state: BodyIntelligenceState) {
                     } else {
                         (if (m.changeInches >= 0) "+${m.changeInches}" else "${m.changeInches}") + " in"
                     }
-                    val changeColor = if (m.category == MeasurementCategory.CORE && m.changeInches < 0) Color(0xFF10B981)
-                                      else if (m.category != MeasurementCategory.CORE && m.changeInches > 0) Color(0xFF10B981)
-                                      else Color(0xFFEF4444)
+                    val changeColor = if (m.category == MeasurementCategory.CORE && m.changeInches < 0) Color(0xFF21A87D)
+                                      else if (m.category != MeasurementCategory.CORE && m.changeInches > 0) Color(0xFF21A87D)
+                                      else Color(0xFFFF7272)
 
                     Row(
                         modifier = Modifier
@@ -1386,7 +1390,7 @@ fun BodyMeasurementsModule(state: BodyIntelligenceState) {
                         }
                     }
                     if (i < filtered.lastIndex) {
-                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFF1F5F3)))
+                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFE9EFEC)))
                     }
                 }
             }
@@ -1556,7 +1560,7 @@ fun BodyProgressModule(state: BodyIntelligenceState) {
                     for (i in 0..2) {
                         val y = h * (i / 2f)
                         drawLine(
-                            color = Color(0xFFF1F5F3),
+                            color = Color(0xFFE9EFEC),
                             start = Offset(0f, y),
                             end = Offset(w, y),
                             strokeWidth = 1f
@@ -1680,7 +1684,7 @@ private fun MilestoneItemCard(item: MilestoneItem) {
                 modifier = Modifier
                     .size(18.dp)
                     .clip(CircleShape)
-                    .background(if (item.completed) BodyIntelPalette.Primary else Color(0xFFE2EBE5)),
+                    .background(if (item.completed) BodyIntelPalette.Primary else Color(0xFFE0EAE5)),
                 contentAlignment = Alignment.Center
             ) {
                 if (item.completed) {
@@ -1728,7 +1732,7 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                             .fillMaxWidth()
                             .height(100.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFFF1F5F3))
+                            .background(Color(0xFFE9EFEC))
                             .pointerInput(Unit) {
                                 detectDragGestures { change, _ ->
                                     change.consume()
@@ -1748,14 +1752,14 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                                 .width(dividerOffset)
                                 .align(Alignment.CenterStart)
                                 .clipToBounds()
-                                .background(Brush.verticalGradient(listOf(Color(0xFFE2E8F0), Color(0xFFCBD5E1)))),
+                                .background(Brush.verticalGradient(listOf(Color(0xFFDCDFE6), Color(0xFFD3DBE6)))),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Filled.Person, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(28.dp))
+                                Icon(Icons.Filled.Person, contentDescription = null, tint = Color(0xFF8C94A0), modifier = Modifier.size(28.dp))
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "BEFORE", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF475569))
-                                Text(text = "01 Apr 2025 • 74.5 kg", fontSize = 7.5.sp, color = Color(0xFF64748B))
+                                Text(text = "BEFORE", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF6E7887))
+                                Text(text = "01 Apr 2025 • 74.5 kg", fontSize = 7.5.sp, color = Color(0xFF8C94A0))
                             }
                         }
 
@@ -1766,7 +1770,7 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                                 .width(w * (1f - sliderX))
                                 .align(Alignment.CenterEnd)
                                 .clipToBounds()
-                                .background(Brush.verticalGradient(listOf(Color(0xFFD1FAE5), Color(0xFFA7F3D0)))),
+                                .background(Brush.verticalGradient(listOf(Color(0xFFD5EDE4), Color(0xFFB7DFD1)))),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1828,7 +1832,7 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                             .fillMaxWidth()
                             .height(90.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Brush.verticalGradient(listOf(Color(0xFFF0FDF4), Color(0xFFDCFCE7)))),
+                            .background(Brush.verticalGradient(listOf(Color(0xFFEAF3EF), Color(0xFFDAEFE6)))),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -2041,7 +2045,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             value = "${h.restingHeartRateBpm}",
                             unit = "bpm",
                             badge = "60-100",
-                            badgeColor = Color(0xFFEF4444)
+                            badgeColor = Color(0xFFFF7272)
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -2049,7 +2053,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             value = "${h.bloodPressureSys}/${h.bloodPressureDia}",
                             unit = "mmHg",
                             badge = "Normal",
-                            badgeColor = Color(0xFF0284C7)
+                            badgeColor = Color(0xFF489CC1)
                         )
                     }
                 }
@@ -2074,7 +2078,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             label = "Sleep Duration",
                             value = h.sleepDuration,
                             badge = "88% Rest",
-                            badgeColor = Color(0xFF8B5CF6)
+                            badgeColor = Color(0xFF7B81BE)
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -2107,7 +2111,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             value = "${h.dailySteps}",
                             unit = "steps",
                             badge = "10k Goal",
-                            badgeColor = Color(0xFF10B981)
+                            badgeColor = Color(0xFF21A87D)
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -2115,7 +2119,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             value = "${h.hydrationLiters}",
                             unit = "L",
                             badge = "Optimal",
-                            badgeColor = Color(0xFF0EA5E9)
+                            badgeColor = Color(0xFF6B92E5)
                         )
                     }
                 }

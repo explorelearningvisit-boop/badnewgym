@@ -121,51 +121,51 @@ object MemberCardThemeManager {
                 cardBackground = Brush.verticalGradient(
                     listOf(
                         Color(0xFFE8FDF0),
-                        Color(0xFFDCFCE7),
-                        Color(0xFFF0FDF4)
+                        Color(0xFFDAEFE6),
+                        Color(0xFFEAF3EF)
                     )
                 ),
                 cardBorder = Brush.linearGradient(
                     listOf(
                         Color(0xFF6EE7B7),
-                        Color(0xFF34D399),
-                        Color(0xFFA7F3D0)
+                        Color(0xFF42CD8C),
+                        Color(0xFFB7DFD1)
                     )
                 ),
-                textPrimary = Color(0xFF0F172A),
-                textSecondary = Color(0xFF475569),
-                textMuted = Color(0xFF64748B),
-                iconTint = Color(0xFF059669),
-                headerPillBg = Color(0xFFDCFCE7),
+                textPrimary = Color(0xFF343434),
+                textSecondary = Color(0xFF6E7887),
+                textMuted = Color(0xFF8C94A0),
+                iconTint = Color(0xFF178A66),
+                headerPillBg = Color(0xFFDAEFE6),
                 headerPillText = Color(0xFF15803D),
                 statChipBg = Color.White.copy(alpha = 0.92f),
-                statChipBorder = Color(0xFFBBF7D0),
+                statChipBorder = Color(0xFFC9E8DC),
                 haloBrush = Brush.sweepGradient(
                     listOf(
-                        Color(0xFF10B981),
-                        Color(0xFF34D399),
-                        Color(0xFF059669),
-                        Color(0xFF10B981)
+                        Color(0xFF21A87D),
+                        Color(0xFF42CD8C),
+                        Color(0xFF178A66),
+                        Color(0xFF21A87D)
                     )
                 ),
-                progressBarTrack = Color(0xFFE2E8F0),
+                progressBarTrack = Color(0xFFDCDFE6),
                 progressBarFill = Brush.horizontalGradient(
-                    listOf(Color(0xFF10B981), Color(0xFF059669))
+                    listOf(Color(0xFF21A87D), Color(0xFF178A66))
                 ),
-                progressPercentColor = Color(0xFF059669),
-                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF0FDF4))),
-                bentoAttendanceBorder = Color(0xFF86EFAC),
-                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF0284C7), Color(0xFF0369A1))),
+                progressPercentColor = Color(0xFF178A66),
+                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFEAF3EF))),
+                bentoAttendanceBorder = Color(0xFF9BD9C2),
+                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF489CC1), Color(0xFF3C7E9C))),
                 bentoWorkoutBorder = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFBEB))),
-                bentoPaymentBorder = Color(0xFFFDE68A),
-                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAF5FF))),
-                bentoBodyBorder = Color(0xFFE9D5FF),
-                chartAttendanceColor = Color(0xFF10B981),
+                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF6F0E2))),
+                bentoPaymentBorder = Color(0xFFF7E3B2),
+                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE9EDF0))),
+                bentoBodyBorder = Color(0xFFDCD9EE),
+                chartAttendanceColor = Color(0xFF21A87D),
                 chartWorkoutColor = Color(0xFFFFFFFF),
-                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFF59E0B), Color(0xFFEA580C))),
-                chartBodyColor = Color(0xFFA855F7),
-                themeAccent = Color(0xFF10B981),
+                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFFFBB0D), Color(0xFFEA580C))),
+                chartBodyColor = Color(0xFF8B91CC),
+                themeAccent = Color(0xFF21A87D),
                 stats = ThemeQuickStats(
                     weight = "69.5 kg",
                     weightTarget = "Target 67",
@@ -181,43 +181,43 @@ object MemberCardThemeManager {
                 isDark = false,
                 cardBackground = Brush.verticalGradient(
                     listOf(
-                        Color(0xFFE0F2FE),
-                        Color(0xFFBAE6FD),
-                        Color(0xFFF0F9FF)
+                        Color(0xFFE2EAF4),
+                        Color(0xFFD3E3F0),
+                        Color(0xFFE9EDF0)
                     )
                 ),
                 cardBorder = Brush.linearGradient(
                     listOf(Color(0xFF7DD3FC), Color(0xFF38BDF8))
                 ),
-                textPrimary = Color(0xFF0F172A),
-                textSecondary = Color(0xFF475569),
-                textMuted = Color(0xFF64748B),
-                iconTint = Color(0xFF0284C7),
-                headerPillBg = Color(0xFFE0F2FE),
-                headerPillText = Color(0xFF0369A1),
+                textPrimary = Color(0xFF343434),
+                textSecondary = Color(0xFF6E7887),
+                textMuted = Color(0xFF8C94A0),
+                iconTint = Color(0xFF489CC1),
+                headerPillBg = Color(0xFFE2EAF4),
+                headerPillText = Color(0xFF3C7E9C),
                 statChipBg = Color.White.copy(alpha = 0.90f),
-                statChipBorder = Color(0xFFBAE6FD),
+                statChipBorder = Color(0xFFD3E3F0),
                 haloBrush = Brush.sweepGradient(
-                    listOf(Color(0xFF0284C7), Color(0xFF38BDF8), Color(0xFF0369A1), Color(0xFF0284C7))
+                    listOf(Color(0xFF489CC1), Color(0xFF38BDF8), Color(0xFF3C7E9C), Color(0xFF489CC1))
                 ),
-                progressBarTrack = Color(0xFFE2E8F0),
+                progressBarTrack = Color(0xFFDCDFE6),
                 progressBarFill = Brush.horizontalGradient(
-                    listOf(Color(0xFF0284C7), Color(0xFF00A3FF))
+                    listOf(Color(0xFF489CC1), Color(0xFF00A3FF))
                 ),
-                progressPercentColor = Color(0xFF0284C7),
-                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF0FDF4))),
-                bentoAttendanceBorder = Color(0xFF86EFAC),
-                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF0284C7), Color(0xFF0369A1))),
+                progressPercentColor = Color(0xFF489CC1),
+                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFEAF3EF))),
+                bentoAttendanceBorder = Color(0xFF9BD9C2),
+                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF489CC1), Color(0xFF3C7E9C))),
                 bentoWorkoutBorder = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFBEB))),
-                bentoPaymentBorder = Color(0xFFFDE68A),
-                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAF5FF))),
-                bentoBodyBorder = Color(0xFFE9D5FF),
-                chartAttendanceColor = Color(0xFF10B981),
+                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF6F0E2))),
+                bentoPaymentBorder = Color(0xFFF7E3B2),
+                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE9EDF0))),
+                bentoBodyBorder = Color(0xFFDCD9EE),
+                chartAttendanceColor = Color(0xFF21A87D),
                 chartWorkoutColor = Color(0xFFFFFFFF),
-                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFF59E0B), Color(0xFFEA580C))),
-                chartBodyColor = Color(0xFFA855F7),
-                themeAccent = Color(0xFF0284C7),
+                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFFFBB0D), Color(0xFFEA580C))),
+                chartBodyColor = Color(0xFF8B91CC),
+                themeAccent = Color(0xFF489CC1),
                 stats = ThemeQuickStats(
                     weight = "58.2 kg",
                     weightTarget = "Target 56",
@@ -233,43 +233,43 @@ object MemberCardThemeManager {
                 isDark = false,
                 cardBackground = Brush.verticalGradient(
                     listOf(
-                        Color(0xFFF8FAFC),
-                        Color(0xFFE2E8F0),
-                        Color(0xFFF1F5F9)
+                        Color(0xFFEDF0F4),
+                        Color(0xFFDCDFE6),
+                        Color(0xFFE6E9EF)
                     )
                 ),
                 cardBorder = Brush.linearGradient(
-                    listOf(Color(0xFFCBD5E1), Color(0xFF94A3B8))
+                    listOf(Color(0xFFD3DBE6), Color(0xFFA1AEBF))
                 ),
-                textPrimary = Color(0xFF0F172A),
-                textSecondary = Color(0xFF334155),
-                textMuted = Color(0xFF64748B),
-                iconTint = Color(0xFF475569),
-                headerPillBg = Color(0xFFF1F5F9),
-                headerPillText = Color(0xFF334155),
+                textPrimary = Color(0xFF343434),
+                textSecondary = Color(0xFF5C6673),
+                textMuted = Color(0xFF8C94A0),
+                iconTint = Color(0xFF6E7887),
+                headerPillBg = Color(0xFFE6E9EF),
+                headerPillText = Color(0xFF5C6673),
                 statChipBg = Color.White.copy(alpha = 0.90f),
-                statChipBorder = Color(0xFFE2E8F0),
+                statChipBorder = Color(0xFFDCDFE6),
                 haloBrush = Brush.sweepGradient(
-                    listOf(Color(0xFF94A3B8), Color(0xFFCBD5E1), Color(0xFF64748B), Color(0xFF94A3B8))
+                    listOf(Color(0xFFA1AEBF), Color(0xFFD3DBE6), Color(0xFF8C94A0), Color(0xFFA1AEBF))
                 ),
-                progressBarTrack = Color(0xFFE2E8F0),
+                progressBarTrack = Color(0xFFDCDFE6),
                 progressBarFill = Brush.horizontalGradient(
-                    listOf(Color(0xFF64748B), Color(0xFF475569))
+                    listOf(Color(0xFF8C94A0), Color(0xFF6E7887))
                 ),
-                progressPercentColor = Color(0xFF475569),
-                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF0FDF4))),
-                bentoAttendanceBorder = Color(0xFF86EFAC),
-                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF0284C7), Color(0xFF0369A1))),
+                progressPercentColor = Color(0xFF6E7887),
+                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFEAF3EF))),
+                bentoAttendanceBorder = Color(0xFF9BD9C2),
+                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF489CC1), Color(0xFF3C7E9C))),
                 bentoWorkoutBorder = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFBEB))),
-                bentoPaymentBorder = Color(0xFFFDE68A),
-                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAF5FF))),
-                bentoBodyBorder = Color(0xFFE9D5FF),
-                chartAttendanceColor = Color(0xFF10B981),
+                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF6F0E2))),
+                bentoPaymentBorder = Color(0xFFF7E3B2),
+                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE9EDF0))),
+                bentoBodyBorder = Color(0xFFDCD9EE),
+                chartAttendanceColor = Color(0xFF21A87D),
                 chartWorkoutColor = Color(0xFFFFFFFF),
-                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFF59E0B), Color(0xFFEA580C))),
-                chartBodyColor = Color(0xFFA855F7),
-                themeAccent = Color(0xFF64748B),
+                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFFFBB0D), Color(0xFFEA580C))),
+                chartBodyColor = Color(0xFF8B91CC),
+                themeAccent = Color(0xFF8C94A0),
                 stats = ThemeQuickStats(
                     weight = "74.1 kg",
                     weightTarget = "Target 70",
@@ -285,43 +285,43 @@ object MemberCardThemeManager {
                 isDark = false,
                 cardBackground = Brush.verticalGradient(
                     listOf(
-                        Color(0xFFFFFBEB),
-                        Color(0xFFFEF3C7),
-                        Color(0xFFFDE68A).copy(alpha = 0.7f)
+                        Color(0xFFF6F0E2),
+                        Color(0xFFFBEFD4),
+                        Color(0xFFF7E3B2).copy(alpha = 0.7f)
                     )
                 ),
                 cardBorder = Brush.linearGradient(
-                    listOf(Color(0xFFFCD34D), Color(0xFFF59E0B))
+                    listOf(Color(0xFFFCD34D), Color(0xFFFFBB0D))
                 ),
-                textPrimary = Color(0xFF0F172A),
+                textPrimary = Color(0xFF343434),
                 textSecondary = Color(0xFF78350F),
-                textMuted = Color(0xFFB45309),
-                iconTint = Color(0xFFD97706),
-                headerPillBg = Color(0xFFFEF3C7),
-                headerPillText = Color(0xFFB45309),
+                textMuted = Color(0xFFB5850A),
+                iconTint = Color(0xFFD99F0B),
+                headerPillBg = Color(0xFFFBEFD4),
+                headerPillText = Color(0xFFB5850A),
                 statChipBg = Color.White.copy(alpha = 0.90f),
-                statChipBorder = Color(0xFFFDE68A),
+                statChipBorder = Color(0xFFF7E3B2),
                 haloBrush = Brush.sweepGradient(
-                    listOf(Color(0xFFF59E0B), Color(0xFFFDE047), Color(0xFFD97706), Color(0xFFF59E0B))
+                    listOf(Color(0xFFFFBB0D), Color(0xFFFDE047), Color(0xFFD99F0B), Color(0xFFFFBB0D))
                 ),
-                progressBarTrack = Color(0xFFFEF3C7),
+                progressBarTrack = Color(0xFFFBEFD4),
                 progressBarFill = Brush.horizontalGradient(
-                    listOf(Color(0xFFF59E0B), Color(0xFFD97706))
+                    listOf(Color(0xFFFFBB0D), Color(0xFFD99F0B))
                 ),
-                progressPercentColor = Color(0xFFD97706),
-                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF0FDF4))),
-                bentoAttendanceBorder = Color(0xFF86EFAC),
-                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF0284C7), Color(0xFF0369A1))),
+                progressPercentColor = Color(0xFFD99F0B),
+                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFEAF3EF))),
+                bentoAttendanceBorder = Color(0xFF9BD9C2),
+                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF489CC1), Color(0xFF3C7E9C))),
                 bentoWorkoutBorder = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFBEB))),
-                bentoPaymentBorder = Color(0xFFFDE68A),
-                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAF5FF))),
-                bentoBodyBorder = Color(0xFFE9D5FF),
-                chartAttendanceColor = Color(0xFF10B981),
+                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF6F0E2))),
+                bentoPaymentBorder = Color(0xFFF7E3B2),
+                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE9EDF0))),
+                bentoBodyBorder = Color(0xFFDCD9EE),
+                chartAttendanceColor = Color(0xFF21A87D),
                 chartWorkoutColor = Color(0xFFFFFFFF),
-                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFF59E0B), Color(0xFFEA580C))),
-                chartBodyColor = Color(0xFFA855F7),
-                themeAccent = Color(0xFFF59E0B),
+                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFFFBB0D), Color(0xFFEA580C))),
+                chartBodyColor = Color(0xFF8B91CC),
+                themeAccent = Color(0xFFFFBB0D),
                 stats = ThemeQuickStats(
                     weight = "60.0 kg",
                     weightTarget = "Target 58",
@@ -337,43 +337,43 @@ object MemberCardThemeManager {
                 isDark = false,
                 cardBackground = Brush.verticalGradient(
                     listOf(
-                        Color(0xFFF0F9FF),
-                        Color(0xFFBAE6FD),
-                        Color(0xFFE0F2FE)
+                        Color(0xFFE9EDF0),
+                        Color(0xFFD3E3F0),
+                        Color(0xFFE2EAF4)
                     )
                 ),
                 cardBorder = Brush.linearGradient(
-                    listOf(Color(0xFF38BDF8), Color(0xFF0284C7))
+                    listOf(Color(0xFF38BDF8), Color(0xFF489CC1))
                 ),
-                textPrimary = Color(0xFF0F172A),
-                textSecondary = Color(0xFF0369A1),
-                textMuted = Color(0xFF0284C7),
-                iconTint = Color(0xFF0284C7),
-                headerPillBg = Color(0xFFE0F2FE),
-                headerPillText = Color(0xFF0369A1),
+                textPrimary = Color(0xFF343434),
+                textSecondary = Color(0xFF3C7E9C),
+                textMuted = Color(0xFF489CC1),
+                iconTint = Color(0xFF489CC1),
+                headerPillBg = Color(0xFFE2EAF4),
+                headerPillText = Color(0xFF3C7E9C),
                 statChipBg = Color.White.copy(alpha = 0.90f),
-                statChipBorder = Color(0xFFBAE6FD),
+                statChipBorder = Color(0xFFD3E3F0),
                 haloBrush = Brush.sweepGradient(
-                    listOf(Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF67E8F9), Color(0xFF38BDF8))
+                    listOf(Color(0xFF38BDF8), Color(0xFF489CC1), Color(0xFF67E8F9), Color(0xFF38BDF8))
                 ),
-                progressBarTrack = Color(0xFFE0F2FE),
+                progressBarTrack = Color(0xFFE2EAF4),
                 progressBarFill = Brush.horizontalGradient(
-                    listOf(Color(0xFF0284C7), Color(0xFF0369A1))
+                    listOf(Color(0xFF489CC1), Color(0xFF3C7E9C))
                 ),
-                progressPercentColor = Color(0xFF0284C7),
-                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF0FDF4))),
-                bentoAttendanceBorder = Color(0xFF86EFAC),
-                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF0284C7), Color(0xFF0369A1))),
+                progressPercentColor = Color(0xFF489CC1),
+                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFEAF3EF))),
+                bentoAttendanceBorder = Color(0xFF9BD9C2),
+                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF489CC1), Color(0xFF3C7E9C))),
                 bentoWorkoutBorder = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFBEB))),
-                bentoPaymentBorder = Color(0xFFFDE68A),
-                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAF5FF))),
-                bentoBodyBorder = Color(0xFFE9D5FF),
-                chartAttendanceColor = Color(0xFF10B981),
+                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF6F0E2))),
+                bentoPaymentBorder = Color(0xFFF7E3B2),
+                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE9EDF0))),
+                bentoBodyBorder = Color(0xFFDCD9EE),
+                chartAttendanceColor = Color(0xFF21A87D),
                 chartWorkoutColor = Color(0xFFFFFFFF),
-                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFF59E0B), Color(0xFFEA580C))),
-                chartBodyColor = Color(0xFFA855F7),
-                themeAccent = Color(0xFF0284C7),
+                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFFFBB0D), Color(0xFFEA580C))),
+                chartBodyColor = Color(0xFF8B91CC),
+                themeAccent = Color(0xFF489CC1),
                 stats = ThemeQuickStats(
                     weight = "72.4 kg",
                     weightTarget = "Target 70",
@@ -389,42 +389,42 @@ object MemberCardThemeManager {
                 isDark = false,
                 cardBackground = Brush.verticalGradient(
                     listOf(
-                        Color(0xFFFAF5FF),
+                        Color(0xFFE9EDF0),
                         Color(0xFFF3E8FF),
-                        Color(0xFFE9D5FF)
+                        Color(0xFFDCD9EE)
                     )
                 ),
                 cardBorder = Brush.linearGradient(
-                    listOf(Color(0xFFC084FC), Color(0xFF9333EA))
+                    listOf(Color(0xFFA9AEE3), Color(0xFF9333EA))
                 ),
-                textPrimary = Color(0xFF0F172A),
+                textPrimary = Color(0xFF343434),
                 textSecondary = Color(0xFF581C87),
-                textMuted = Color(0xFF7E22CE),
+                textMuted = Color(0xFF6A70A8),
                 iconTint = Color(0xFF9333EA),
                 headerPillBg = Color(0xFFF3E8FF),
-                headerPillText = Color(0xFF7E22CE),
+                headerPillText = Color(0xFF6A70A8),
                 statChipBg = Color.White.copy(alpha = 0.90f),
-                statChipBorder = Color(0xFFDDD6FE),
+                statChipBorder = Color(0xFFD8DBEE),
                 haloBrush = Brush.sweepGradient(
-                    listOf(Color(0xFFA855F7), Color(0xFFC084FC), Color(0xFF7E22CE), Color(0xFFA855F7))
+                    listOf(Color(0xFF8B91CC), Color(0xFFA9AEE3), Color(0xFF6A70A8), Color(0xFF8B91CC))
                 ),
                 progressBarTrack = Color(0xFFF3E8FF),
                 progressBarFill = Brush.horizontalGradient(
-                    listOf(Color(0xFF9333EA), Color(0xFF7E22CE))
+                    listOf(Color(0xFF9333EA), Color(0xFF6A70A8))
                 ),
                 progressPercentColor = Color(0xFF9333EA),
-                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF0FDF4))),
-                bentoAttendanceBorder = Color(0xFF86EFAC),
-                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF0284C7), Color(0xFF0369A1))),
+                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFEAF3EF))),
+                bentoAttendanceBorder = Color(0xFF9BD9C2),
+                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF489CC1), Color(0xFF3C7E9C))),
                 bentoWorkoutBorder = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFBEB))),
-                bentoPaymentBorder = Color(0xFFFDE68A),
-                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAF5FF))),
-                bentoBodyBorder = Color(0xFFE9D5FF),
-                chartAttendanceColor = Color(0xFF10B981),
+                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF6F0E2))),
+                bentoPaymentBorder = Color(0xFFF7E3B2),
+                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE9EDF0))),
+                bentoBodyBorder = Color(0xFFDCD9EE),
+                chartAttendanceColor = Color(0xFF21A87D),
                 chartWorkoutColor = Color(0xFFFFFFFF),
-                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFF59E0B), Color(0xFFEA580C))),
-                chartBodyColor = Color(0xFFA855F7),
+                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFFFBB0D), Color(0xFFEA580C))),
+                chartBodyColor = Color(0xFF8B91CC),
                 themeAccent = Color(0xFF9333EA),
                 stats = ThemeQuickStats(
                     weight = "67.8 kg",
@@ -447,7 +447,7 @@ object MemberCardThemeManager {
                     )
                 ),
                 cardBorder = Brush.linearGradient(
-                    listOf(Color(0xFFFACC15), Color(0xFFCA8A04), Color(0xFFEAB308))
+                    listOf(Color(0xFFFFBB0D), Color(0xFFCA8A04), Color(0xFFEAB308))
                 ),
                 textPrimary = Color.White,
                 textSecondary = Color(0xFFFDE047),
@@ -458,22 +458,22 @@ object MemberCardThemeManager {
                 statChipBg = Color(0xFF221E19),
                 statChipBorder = Color(0xFF523E15),
                 haloBrush = Brush.sweepGradient(
-                    listOf(Color(0xFFFACC15), Color(0xFFCA8A04), Color(0xFFEAB308), Color(0xFFFACC15))
+                    listOf(Color(0xFFFFBB0D), Color(0xFFCA8A04), Color(0xFFEAB308), Color(0xFFFFBB0D))
                 ),
                 progressBarTrack = Color(0xFF2B251F),
                 progressBarFill = Brush.horizontalGradient(
-                    listOf(Color(0xFFEAB308), Color(0xFFB45309))
+                    listOf(Color(0xFFEAB308), Color(0xFFB5850A))
                 ),
                 progressPercentColor = Color(0xFFFDE047),
                 bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFF221E19), Color(0xFF181512))),
                 bentoAttendanceBorder = Color(0xFF523E15),
-                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF1E293B), Color(0xFF0F172A))),
+                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF1E293B), Color(0xFF343434))),
                 bentoWorkoutBorder = Color(0xFF38BDF8).copy(alpha = 0.5f),
                 bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFF221E19), Color(0xFF181512))),
                 bentoPaymentBorder = Color(0xFF856218),
                 bentoBodyBg = Brush.linearGradient(listOf(Color(0xFF221E19), Color(0xFF181512))),
                 bentoBodyBorder = Color(0xFF523E15),
-                chartAttendanceColor = Color(0xFFFACC15),
+                chartAttendanceColor = Color(0xFFFFBB0D),
                 chartWorkoutColor = Color(0xFFFFFFFF),
                 chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFEAB308), Color(0xFFCA8A04))),
                 chartBodyColor = Color(0xFFFDE047),
@@ -501,7 +501,7 @@ object MemberCardThemeManager {
                 cardBorder = Brush.linearGradient(
                     listOf(Color(0xFFFDA4AF), Color(0xFFF43F5E))
                 ),
-                textPrimary = Color(0xFF0F172A),
+                textPrimary = Color(0xFF343434),
                 textSecondary = Color(0xFF9F1239),
                 textMuted = Color(0xFFBE123C),
                 iconTint = Color(0xFFE11D48),
@@ -517,18 +517,18 @@ object MemberCardThemeManager {
                     listOf(Color(0xFFFDA4AF), Color(0xFFF43F5E))
                 ),
                 progressPercentColor = Color(0xFFE11D48),
-                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF0FDF4))),
-                bentoAttendanceBorder = Color(0xFF86EFAC),
-                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF0284C7), Color(0xFF0369A1))),
+                bentoAttendanceBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFEAF3EF))),
+                bentoAttendanceBorder = Color(0xFF9BD9C2),
+                bentoWorkoutBg = Brush.linearGradient(listOf(Color(0xFF489CC1), Color(0xFF3C7E9C))),
                 bentoWorkoutBorder = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFBEB))),
-                bentoPaymentBorder = Color(0xFFFDE68A),
-                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAF5FF))),
-                bentoBodyBorder = Color(0xFFE9D5FF),
-                chartAttendanceColor = Color(0xFF10B981),
+                bentoPaymentBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF6F0E2))),
+                bentoPaymentBorder = Color(0xFFF7E3B2),
+                bentoBodyBg = Brush.linearGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE9EDF0))),
+                bentoBodyBorder = Color(0xFFDCD9EE),
+                chartAttendanceColor = Color(0xFF21A87D),
                 chartWorkoutColor = Color(0xFFFFFFFF),
-                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFF59E0B), Color(0xFFEA580C))),
-                chartBodyColor = Color(0xFFA855F7),
+                chartPaymentBarBrush = Brush.verticalGradient(listOf(Color(0xFFFFBB0D), Color(0xFFEA580C))),
+                chartBodyColor = Color(0xFF8B91CC),
                 themeAccent = Color(0xFFE11D48),
                 stats = ThemeQuickStats(
                     weight = "56.0 kg",
@@ -547,12 +547,12 @@ object MemberCardThemeManager {
 
             // 10: White Mint Glass
             MemberCardTheme.WHITE_MINT -> getPalette(MemberCardTheme.SPARK_2_MONTH).copy(
-                themeAccent = Color(0xFF059669)
+                themeAccent = Color(0xFF178A66)
             )
 
             // 11: White Ocean Glass
             MemberCardTheme.WHITE_OCEAN -> getPalette(MemberCardTheme.POWER_3_MONTH).copy(
-                themeAccent = Color(0xFF0284C7)
+                themeAccent = Color(0xFF489CC1)
             )
 
             // 12: White Lavender Glass

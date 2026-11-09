@@ -67,7 +67,7 @@ import com.example.badnewgym.feature.membercard.domain.model.BodyStatType
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 import java.util.Locale
 
-private val GOLD = Color(0xFFF59E0B)
+private val GOLD = Color(0xFFFFBB0D)
 
 /** Light-canvas dashboard header: leaf swooshes, wordmark, identity block, membership bar and the 4-tile KPI tab row. */
 @Composable
@@ -104,21 +104,6 @@ fun IntelligenceHeader(
     } ?: "69.5 kg"
 
     Box(modifier = modifier.fillMaxWidth()) {
-        // Floating 3D Dumbbell in top right atmosphere (matching reference)
-        Image(
-            painter = painterResource(id = R.drawable.illustration_3d_dumbbell_mini),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 10.dp, y = (-6).dp)
-                .size(72.dp)
-                .alpha(0.38f)
-                .rotate(-22f)
-        )
-        Canvas(modifier = Modifier.matchParentSize()) {
-            drawIntelligenceSwooshes(c.accent)
-        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -216,10 +201,12 @@ private fun IntelligenceTopBar(
                 }
                 Text(
                     "Member Intelligence",
-                    fontSize = 8.5.sp,
+                    fontSize = 8.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = colors.inkSoft,
-                    letterSpacing = 0.3.sp
+                    letterSpacing = 0.2.sp,
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
         }
@@ -230,15 +217,15 @@ private fun IntelligenceTopBar(
             contentAlignment = Alignment.Center
         ) {
             val pillBrush = if (isCheckedIn) {
-                Brush.horizontalGradient(listOf(Color(0xFF10B981), Color(0xFF059669)))
+                Brush.horizontalGradient(listOf(Color(0xFF21A87D), Color(0xFF178A66)))
             } else {
-                Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9)))
+                Brush.horizontalGradient(listOf(Color(0xFF7B81BE), Color(0xFF5E649E)))
             }
+            val pillColor = if (isCheckedIn) NeuPalette.green else NeuPalette.violet
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(pillBrush)
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                    .neuAccent(pillColor, radius = 50.dp, depth = 3.dp, blur = 8.dp)
+                    .padding(horizontal = 12.dp, vertical = 7.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -284,7 +271,7 @@ private fun IntelligenceTopBar(
                         .offset(x = (-1).dp, y = 2.dp)
                         .size(11.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFEF4444)),
+                        .background(Color(0xFFFF7272)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text("1", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
@@ -298,7 +285,7 @@ private fun IntelligenceTopBar(
                 onClick = onDueClick,
                 shape = RoundedCornerShape(50),
                 color = Color.White,
-                border = BorderStroke(1.dp, Color(0xFFFDE68A)),
+                border = BorderStroke(1.dp, Color(0xFFF7E3B2)),
                 shadowElevation = 1.dp
             ) {
                 Row(
@@ -403,7 +390,7 @@ private fun SolidStatusChip(colors: IntelligenceColors) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(Color(0xFF10B981))
+            .background(Color(0xFF21A87D))
             .padding(horizontal = 6.dp, vertical = 2.5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
@@ -419,7 +406,7 @@ private fun PlanChip(planName: String, colors: IntelligenceColors) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(Color(0xFF8B5CF6))
+            .background(Color(0xFF7B81BE))
             .padding(horizontal = 6.dp, vertical = 2.5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -436,7 +423,7 @@ private fun OutlinedStatusChip(text: String, colors: IntelligenceColors) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(colors.cardFill)
-            .border(1.dp, Color(0xFFE9D5FF), RoundedCornerShape(50))
+            .border(1.dp, Color(0xFFDCD9EE), RoundedCornerShape(50))
             .padding(horizontal = 6.dp, vertical = 2.5.dp)
     ) {
         Text(text, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = colors.ink, maxLines = 1)
@@ -449,14 +436,14 @@ private fun AutoChip(colors: IntelligenceColors) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(Color(0xFFEDE9FE))
-            .border(1.dp, Color(0xFFDDD6FE), RoundedCornerShape(50))
+            .background(Color(0xFFE0E3F2))
+            .border(1.dp, Color(0xFFD8DBEE), RoundedCornerShape(50))
             .padding(horizontal = 6.dp, vertical = 2.5.dp)
     ) {
         Text(
             buildAnnotatedString {
-                withStyle(SpanStyle(color = Color(0xFF4C1D95), fontWeight = FontWeight.SemiBold)) { append("Auto ") }
-                withStyle(SpanStyle(color = Color(0xFF7C3AED), fontWeight = FontWeight.Bold)) { append("(ON)") }
+                withStyle(SpanStyle(color = Color(0xFF4E5484), fontWeight = FontWeight.SemiBold)) { append("Auto ") }
+                withStyle(SpanStyle(color = Color(0xFF6A70A8), fontWeight = FontWeight.Bold)) { append("(ON)") }
             },
             fontSize = 10.sp,
             maxLines = 1
@@ -485,9 +472,7 @@ private fun MembershipProgressCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(colors.cardFill)
-            .border(1.dp, colors.cardEdge, RoundedCornerShape(16.dp))
+            .neuRaised(radius = 16.dp, depth = 4.dp, blur = 10.dp)
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -496,13 +481,13 @@ private fun MembershipProgressCard(
                 modifier = Modifier
                     .size(18.dp)
                     .clip(RoundedCornerShape(5.dp))
-                    .background(Color(0xFFEDE9FE)),
+                    .background(Color(0xFFE0E3F2)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Filled.Layers,
                     contentDescription = null,
-                    tint = Color(0xFF8B5CF6),
+                    tint = Color(0xFF7B81BE),
                     modifier = Modifier.size(11.dp)
                 )
             }
@@ -524,23 +509,21 @@ private fun MembershipProgressCard(
                 "· ${pass.daysLeft}d left",
                 fontSize = 9.5.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFD97706)
+                color = Color(0xFFD99F0B)
             )
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(10.dp)
-                .clip(RoundedCornerShape(5.dp))
-                .background(Color(0xFFF1F5F9))
-                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(5.dp))
+                .neuSunken(radius = 5.dp, color = Color(0xFFDCE2E8))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(fillFraction.coerceIn(0f, 1f))
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(5.dp))
-                    .background(Brush.horizontalGradient(listOf(Color(0xFF10B981), Color(0xFF059669)))),
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF21A87D), Color(0xFF178A66)))),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -568,11 +551,11 @@ private fun KpiTabRow(
             selectedTab = selectedTab,
             onTabSelected = onTabSelected,
             icon = Icons.Filled.CalendarMonth,
-            iconTint = Color(0xFF10B981),
-            iconBg = Color(0xFFDCFCE7),
+            iconTint = Color(0xFF21A87D),
+            iconBg = Color(0xFFDAEFE6),
             title = "Attendance",
             value = "81%",
-            valueColor = Color(0xFF10B981),
+            valueColor = Color(0xFF21A87D),
             sub = "25 / 31 Days",
             colors = colors,
             modifier = Modifier.weight(1f)
@@ -582,8 +565,8 @@ private fun KpiTabRow(
             selectedTab = selectedTab,
             onTabSelected = onTabSelected,
             icon = Icons.Filled.FitnessCenter,
-            iconTint = Color(0xFF8B5CF6),
-            iconBg = Color(0xFFEDE9FE),
+            iconTint = Color(0xFF7B81BE),
+            iconBg = Color(0xFFE0E3F2),
             title = "Workout",
             value = "61 min",
             valueColor = colors.ink,
@@ -597,10 +580,10 @@ private fun KpiTabRow(
             onTabSelected = onTabSelected,
             icon = Icons.Filled.AccountBalanceWallet,
             iconTint = Color.White,
-            iconBg = Color(0xFF8B5CF6),
+            iconBg = Color(0xFF7B81BE),
             title = "Payment",
             value = "Paid",
-            valueColor = Color(0xFF10B981),
+            valueColor = Color(0xFF21A87D),
             sub = "Next: 07 Nov",
             colors = colors,
             modifier = Modifier.weight(1f)
@@ -610,13 +593,13 @@ private fun KpiTabRow(
             selectedTab = selectedTab,
             onTabSelected = onTabSelected,
             icon = Icons.Filled.Accessibility,
-            iconTint = Color(0xFF8B5CF6),
-            iconBg = Color(0xFFEDE9FE),
+            iconTint = Color(0xFF7B81BE),
+            iconBg = Color(0xFFE0E3F2),
             title = "Body",
             value = "69.5 kg",
             valueColor = colors.ink,
             sub = "▲ +2.1 kg",
-            subColor = Color(0xFF10B981),
+            subColor = Color(0xFF21A87D),
             colors = colors,
             modifier = Modifier.weight(1f)
         )
@@ -636,25 +619,21 @@ private fun KpiTile(
     value: String,
     valueColor: Color,
     sub: String,
-    subColor: Color = Color(0xFF6B7280),
+    subColor: Color = Color(0xFF8C94A0),
     colors: IntelligenceColors,
     modifier: Modifier = Modifier
 ) {
     val selected = index == selectedTab
-    val shape = RoundedCornerShape(14.dp)
-    val background = if (selected) {
-        Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9)))
+    val tileModifier = if (selected) {
+        Modifier.neuAccent(color = NeuPalette.violet, radius = 16.dp, depth = 6.dp, blur = 16.dp)
     } else {
-        Brush.horizontalGradient(listOf(Color.White, Color.White))
+        Modifier.neuRaised(radius = 16.dp, depth = 4.dp, blur = 11.dp)
     }
-    val borderColor = if (selected) Color(0xFF7C3AED) else Color(0x338B5CF6)
 
     Box(
         modifier = modifier
             .height(46.dp)
-            .clip(shape)
-            .background(background)
-            .border(if (selected) 1.5.dp else 1.dp, borderColor, shape)
+            .then(tileModifier)
             .clickable { onTabSelected(index) }
     ) {
         Row(
@@ -683,14 +662,14 @@ private fun KpiTile(
                     title,
                     fontSize = 8.5.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (selected) Color.White.copy(alpha = 0.9f) else Color(0xFF64748B),
+                    color = if (selected) Color.White.copy(alpha = 0.9f) else Color(0xFF8C94A0),
                     maxLines = 1
                 )
                 Text(
                     value,
                     fontSize = 11.5.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = if (selected) (if (value == "Paid") Color(0xFF86EFAC) else Color.White) else valueColor,
+                    color = if (selected) Color.White else valueColor,
                     maxLines = 1
                 )
                 Text(

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,6 +26,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.unit.dp
 import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.BodyIntelligenceSheetHost
 import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.rememberBodyIntelligenceState
@@ -104,9 +108,7 @@ fun MemberIntelligenceDashboard(
             .fillMaxSize()
             .background(shellColors.screenBrush)
     ) {
-        Canvas(modifier = Modifier.matchParentSize()) {
-            drawAmbientBlooms(shellColors.accent, shellColors.accentDeep)
-        }
+        CompositionLocalProvider(LocalTextStyle provides TextStyle(fontFamily = BadGymSans)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -161,6 +163,7 @@ fun MemberIntelligenceDashboard(
             }
 
             BodyIntelligenceSheetHost(state = bodyState)
+        }
         }
     }
 }

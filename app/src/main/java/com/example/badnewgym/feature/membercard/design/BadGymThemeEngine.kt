@@ -64,71 +64,71 @@ enum class BadGymDashboardTheme(
         code = "01",
         title = "Neon Lime",
         subtitle = "Cyberpunk High-Volt",
-        primaryColor = Color(0xFFA3E635),
-        secondaryColor = Color(0xFF65A30D)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     GAMING_RED(
         code = "02",
         title = "Gaming Red",
         subtitle = "Crimson Intensity",
-        primaryColor = Color(0xFFEF4444),
-        secondaryColor = Color(0xFF991B1B)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     SMART_WATCH_GREEN(
         code = "03",
         title = "Smart Watch",
         subtitle = "Ultra Mint Tech",
-        primaryColor = Color(0xFF10B981),
-        secondaryColor = Color(0xFF047857)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     BERRY_PURPLE(
         code = "04",
         title = "Berry Purple",
         subtitle = "Cosmic Splash Signature",
-        primaryColor = Color(0xFF8000FF),
-        secondaryColor = Color(0xFF5B00B8)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     GRILL_ORANGE(
         code = "05",
         title = "Grill Orange",
         subtitle = "Flame Smoke Energy",
-        primaryColor = Color(0xFFF97316),
-        secondaryColor = Color(0xFFC2410C)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     MUESLI_FRESH(
         code = "06",
         title = "Muesli Fresh",
         subtitle = "Honey Toasted Amber",
-        primaryColor = Color(0xFFEAB308),
-        secondaryColor = Color(0xFF78350F)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     SHAKE_YELLOW(
         code = "07",
         title = "Shake Yellow",
         subtitle = "Vibrant Mango Gold",
-        primaryColor = Color(0xFFFACC15),
-        secondaryColor = Color(0xFFCA8A04)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     ENERGY_GREEN(
         code = "08",
         title = "Energy Green",
         subtitle = "Clean Pure Botanical",
-        primaryColor = Color(0xFF22C55E),
-        secondaryColor = Color(0xFF15803D)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     SKY_BLUE(
         code = "09",
         title = "3D Blue Sky",
         subtitle = "Cloud Sky & Warm Orange",
-        primaryColor = Color(0xFF0284C7),
-        secondaryColor = Color(0xFF0369A1)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     ),
     PINK_AI(
         code = "10",
         title = "Pink AI",
         subtitle = "Futuristic Cyber Glow",
-        primaryColor = Color(0xFFEC4899),
-        secondaryColor = Color(0xFFBE185D)
+        primaryColor = Color(0xFF7B81BE),
+        secondaryColor = Color(0xFF5E649E)
     );
 
     fun getCanvasGradient(): Brush {
@@ -137,32 +137,32 @@ enum class BadGymDashboardTheme(
                 0.00f to Color(0xFF041406),
                 0.08f to Color(0xFF0E3812),
                 0.16f to Color(0xFF16531D),
-                0.22f to Color(0xFFF0FDF4),
-                0.40f to Color(0xFFF8FAFC),
+                0.22f to Color(0xFFEAF3EF),
+                0.40f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
             GAMING_RED -> Brush.verticalGradient(
                 0.00f to Color(0xFF170404),
                 0.08f to Color(0xFF450A0A),
-                0.16f to Color(0xFF7F1D1D),
+                0.16f to Color(0xFF8E3A3A),
                 0.22f to Color(0xFFFFF1F2),
-                0.40f to Color(0xFFF8FAFC),
+                0.40f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
             SMART_WATCH_GREEN -> Brush.verticalGradient(
                 0.00f to Color(0xFF021711),
-                0.08f to Color(0xFF064E3B),
-                0.16f to Color(0xFF047857),
+                0.08f to Color(0xFF343434),
+                0.16f to Color(0xFF178A66),
                 0.22f to Color(0xFFECFDF5),
-                0.40f to Color(0xFFF8FAFC),
+                0.40f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
             BERRY_PURPLE -> Brush.verticalGradient(
                 0.00f to Color(0xFF09041A),
                 0.07f to Color(0xFF1E0736),
                 0.14f to Color(0xFF380854),
-                0.20f to Color(0xFFFAF5FF),
-                0.38f to Color(0xFFF8FAFC),
+                0.20f to Color(0xFFE9EDF0),
+                0.38f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
             GRILL_ORANGE -> Brush.verticalGradient(
@@ -170,15 +170,15 @@ enum class BadGymDashboardTheme(
                 0.08f to Color(0xFF431407),
                 0.16f to Color(0xFF7C2D12),
                 0.22f to Color(0xFFFFF7ED),
-                0.40f to Color(0xFFF8FAFC),
+                0.40f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
             MUESLI_FRESH -> Brush.verticalGradient(
                 0.00f to Color(0xFF1A1204),
                 0.08f to Color(0xFF451A03),
                 0.16f to Color(0xFF78350F),
-                0.22f to Color(0xFFFEF3C7),
-                0.40f to Color(0xFFF8FAFC),
+                0.22f to Color(0xFFFBEFD4),
+                0.40f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
             SHAKE_YELLOW -> Brush.verticalGradient(
@@ -186,31 +186,31 @@ enum class BadGymDashboardTheme(
                 0.08f to Color(0xFF422006),
                 0.16f to Color(0xFF713F12),
                 0.22f to Color(0xFFFEF9C3),
-                0.40f to Color(0xFFF8FAFC),
+                0.40f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
             ENERGY_GREEN -> Brush.verticalGradient(
                 0.00f to Color(0xFF031A0B),
                 0.08f to Color(0xFF052E16),
-                0.16f to Color(0xFF14532D),
-                0.22f to Color(0xFFDCFCE7),
-                0.40f to Color(0xFFF8FAFC),
+                0.16f to Color(0xFF343434),
+                0.22f to Color(0xFFDAEFE6),
+                0.40f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
             SKY_BLUE -> Brush.verticalGradient(
-                0.00f to Color(0xFF0369A1),
-                0.08f to Color(0xFF0284C7),
+                0.00f to Color(0xFF3C7E9C),
+                0.08f to Color(0xFF489CC1),
                 0.16f to Color(0xFF38BDF8),
-                0.24f to Color(0xFFE0F2FE),
-                0.45f to Color(0xFFF0F9FF),
+                0.24f to Color(0xFFE2EAF4),
+                0.45f to Color(0xFFE9EDF0),
                 1.00f to Color(0xFFFFFFFF)
             )
             PINK_AI -> Brush.verticalGradient(
                 0.00f to Color(0xFF180312),
-                0.08f to Color(0xFF500724),
-                0.16f to Color(0xFF831843),
-                0.22f to Color(0xFFFDF2F8),
-                0.40f to Color(0xFFF8FAFC),
+                0.08f to Color(0xFF3A2630),
+                0.16f to Color(0xFF6B3348),
+                0.22f to Color(0xFFE9EDF0),
+                0.40f to Color(0xFFEDF0F4),
                 1.00f to Color(0xFFFFFFFF)
             )
         }
@@ -219,18 +219,18 @@ enum class BadGymDashboardTheme(
     fun getOuterBorder(): Brush {
         return when (this) {
             NEON_LIME -> Brush.linearGradient(
-                listOf(Color(0xFFA3E635), Color(0xFF4ADE80), Color(0xFFFACC15), Color(0xFFA3E635))
+                listOf(Color(0xFFA9C25A), Color(0xFF4ADE80), Color(0xFFFFBB0D), Color(0xFFA9C25A))
             )
             GAMING_RED -> Brush.linearGradient(
-                listOf(Color(0xFFEF4444), Color(0xFFB91C1C), Color(0xFFF87171), Color(0xFFEF4444))
+                listOf(Color(0xFFFF7272), Color(0xFFC24B4B), Color(0xFFFF9090), Color(0xFFFF7272))
             )
             SMART_WATCH_GREEN -> Brush.linearGradient(
-                listOf(Color(0xFF10B981), Color(0xFF059669), Color(0xFF34D399), Color(0xFF10B981))
+                listOf(Color(0xFF21A87D), Color(0xFF178A66), Color(0xFF42CD8C), Color(0xFF21A87D))
             )
             BERRY_PURPLE -> Brush.linearGradient(
                 listOf(
                     Color(0xFFFF007A),
-                    Color(0xFFA855F7),
+                    Color(0xFF8B91CC),
                     Color(0xFF38BDF8),
                     Color(0xFFFBBF24),
                     Color(0xFFFF007A)
@@ -240,72 +240,44 @@ enum class BadGymDashboardTheme(
                 listOf(Color(0xFFF97316), Color(0xFFEA580C), Color(0xFFFBBF24), Color(0xFFF97316))
             )
             MUESLI_FRESH -> Brush.linearGradient(
-                listOf(Color(0xFFD97706), Color(0xFF92400E), Color(0xFFFCD34D), Color(0xFFD97706))
+                listOf(Color(0xFFD99F0B), Color(0xFF8A6410), Color(0xFFFCD34D), Color(0xFFD99F0B))
             )
             SHAKE_YELLOW -> Brush.linearGradient(
-                listOf(Color(0xFFFACC15), Color(0xFFEAB308), Color(0xFFFEF08A), Color(0xFFFACC15))
+                listOf(Color(0xFFFFBB0D), Color(0xFFEAB308), Color(0xFFFEF08A), Color(0xFFFFBB0D))
             )
             ENERGY_GREEN -> Brush.linearGradient(
-                listOf(Color(0xFF22C55E), Color(0xFF16A34A), Color(0xFF86EFAC), Color(0xFF22C55E))
+                listOf(Color(0xFF22C55E), Color(0xFF21A87D), Color(0xFF9BD9C2), Color(0xFF22C55E))
             )
             SKY_BLUE -> Brush.linearGradient(
-                listOf(Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFFF97316), Color(0xFF38BDF8))
+                listOf(Color(0xFF38BDF8), Color(0xFF489CC1), Color(0xFFF97316), Color(0xFF38BDF8))
             )
             PINK_AI -> Brush.linearGradient(
-                listOf(Color(0xFFEC4899), Color(0xFFC026D3), Color(0xFFF472B6), Color(0xFFEC4899))
+                listOf(Color(0xFFF88AB0), Color(0xFFC026D3), Color(0xFFF472B6), Color(0xFFF88AB0))
             )
         }
     }
 
     fun getActiveTabBrush(): Brush {
-        return when (this) {
-            NEON_LIME -> Brush.horizontalGradient(listOf(Color(0xFFBEF264), Color(0xFFA3E635)))
-            GAMING_RED -> Brush.horizontalGradient(listOf(Color(0xFFEF4444), Color(0xFFDC2626)))
-            SMART_WATCH_GREEN -> Brush.horizontalGradient(listOf(Color(0xFF34D399), Color(0xFF10B981)))
-            BERRY_PURPLE -> Brush.horizontalGradient(listOf(Color(0xFFFEF08A), Color(0xFFFACC15)))
-            GRILL_ORANGE -> Brush.horizontalGradient(listOf(Color(0xFFFB923C), Color(0xFFF97316)))
-            MUESLI_FRESH -> Brush.horizontalGradient(listOf(Color(0xFFFDE68A), Color(0xFFF59E0B)))
-            SHAKE_YELLOW -> Brush.horizontalGradient(listOf(Color(0xFFFEF08A), Color(0xFFFACC15)))
-            ENERGY_GREEN -> Brush.horizontalGradient(listOf(Color(0xFF86EFAC), Color(0xFF22C55E)))
-            SKY_BLUE -> Brush.horizontalGradient(listOf(Color(0xFFFB923C), Color(0xFFF97316)))
-            PINK_AI -> Brush.horizontalGradient(listOf(Color(0xFFF472B6), Color(0xFFEC4899)))
-        }
+        // One palette for every pack: the neumorphic accent, never a per-theme gradient.
+        return Brush.horizontalGradient(listOf(Color(0xFF7B81BE), Color(0xFF5E649E)))
     }
 
-    fun getActiveTabTextColor(): Color {
-        return when (this) {
-            GAMING_RED, SKY_BLUE, PINK_AI -> Color.White
-            else -> Color(0xFF0F172A)
-        }
-    }
+    fun getActiveTabTextColor(): Color = Color.White
 
-    fun getActiveTabBorder(): Color {
-        return when (this) {
-            NEON_LIME -> Color(0xFF4D7C0F)
-            GAMING_RED -> Color(0xFF991B1B)
-            SMART_WATCH_GREEN -> Color(0xFF047857)
-            BERRY_PURPLE -> Color(0xFFCA8A04)
-            GRILL_ORANGE -> Color(0xFF9A3412)
-            MUESLI_FRESH -> Color(0xFFB45309)
-            SHAKE_YELLOW -> Color(0xFFCA8A04)
-            ENERGY_GREEN -> Color(0xFF15803D)
-            SKY_BLUE -> Color(0xFFEA580C)
-            PINK_AI -> Color(0xFF9D174D)
-        }
-    }
+    fun getActiveTabBorder(): Color = Color(0xFF5E649E)
 
     fun getAccentPillColor(): Color {
         return when (this) {
-            NEON_LIME -> Color(0xFF84CC16)
-            GAMING_RED -> Color(0xFFEF4444)
-            SMART_WATCH_GREEN -> Color(0xFF10B981)
+            NEON_LIME -> Color(0xFF8FAF42)
+            GAMING_RED -> Color(0xFFFF7272)
+            SMART_WATCH_GREEN -> Color(0xFF21A87D)
             BERRY_PURPLE -> Color(0xFFC026D3)
             GRILL_ORANGE -> Color(0xFFF97316)
-            MUESLI_FRESH -> Color(0xFFD97706)
+            MUESLI_FRESH -> Color(0xFFD99F0B)
             SHAKE_YELLOW -> Color(0xFFEAB308)
             ENERGY_GREEN -> Color(0xFF22C55E)
-            SKY_BLUE -> Color(0xFF0284C7)
-            PINK_AI -> Color(0xFFEC4899)
+            SKY_BLUE -> Color(0xFF489CC1)
+            PINK_AI -> Color(0xFFF88AB0)
         }
     }
 
@@ -372,7 +344,7 @@ fun BadGymThemeSelectorStrip(
             Icon(
                 imageVector = Icons.Default.Palette,
                 contentDescription = "Themes",
-                tint = Color(0xFF94A3B8),
+                tint = Color(0xFFA1AEBF),
                 modifier = Modifier.size(16.dp)
             )
 
@@ -383,8 +355,8 @@ fun BadGymThemeSelectorStrip(
                     if (theme == BadGymDashboardTheme.GAMING_RED ||
                         theme == BadGymDashboardTheme.SKY_BLUE ||
                         theme == BadGymDashboardTheme.PINK_AI
-                    ) Color.White else Color(0xFF0F172A)
-                } else Color(0xFF475569)
+                    ) Color.White else Color(0xFF343434)
+                } else Color(0xFF6E7887)
 
                 Box(
                     modifier = Modifier

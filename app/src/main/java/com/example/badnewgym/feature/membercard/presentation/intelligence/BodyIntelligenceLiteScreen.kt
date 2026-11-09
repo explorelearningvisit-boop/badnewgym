@@ -165,10 +165,8 @@ fun BodyIntelligenceLiteScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .shadow(elevation = 3.dp, shape = RoundedCornerShape(16.dp), ambientColor = Color(0x148B5CF6), spotColor = Color(0x148B5CF6))
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(16.dp))
+                    .neuRaised(radius = 16.dp, depth = 6.dp, blur = 16.dp)
+                    
                     .padding(9.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -183,14 +181,14 @@ fun BodyIntelligenceLiteScreen(
                                 modifier = Modifier
                                     .size(24.dp)
                                     .clip(RoundedCornerShape(6.dp))
-                                    .background(Color(0xFFEDE9FE)),
+                                    .background(Color(0xFFE0E3F2)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Filled.TrackChanges, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(15.dp))
+                                Icon(Icons.Filled.TrackChanges, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(15.dp))
                             }
                             Column {
                                 Text("Transformation Goal", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = c.ink)
-                                Text("Muscle Gain • Target 72.0 kg", fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+                                Text("Muscle Gain • Target 72.0 kg", fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
                             }
                         }
 
@@ -198,13 +196,13 @@ fun BodyIntelligenceLiteScreen(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(50))
-                                .background(Color(0xFFDCFCE7))
-                                .border(1.dp, Color(0xFF86EFAC), RoundedCornerShape(50))
+                                .background(Color(0xFFDAEFE6))
+                                .border(1.dp, Color(0xFF9BD9C2), RoundedCornerShape(50))
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                                Icon(Icons.Filled.Check, contentDescription = null, tint = Color(0xFF16A34A), modifier = Modifier.size(10.dp))
-                                Text("On Track", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
+                                Icon(Icons.Filled.Check, contentDescription = null, tint = Color(0xFF21A87D), modifier = Modifier.size(10.dp))
+                                Text("On Track", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF21A87D))
                             }
                         }
                     }
@@ -222,12 +220,12 @@ fun BodyIntelligenceLiteScreen(
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(
                                     Brush.radialGradient(
-                                        colors = listOf(Color(0xFFDDD6FE), Color(0xFFFAF5FF), Color.White),
+                                        colors = listOf(Color(0xFFD8DBEE), Color(0xFFE9EDF0), Color.White),
                                         center = Offset(100f, 120f),
                                         radius = 180f
                                     )
                                 )
-                                .border(1.dp, Color(0xFFE9D5FF), RoundedCornerShape(14.dp)),
+                                .border(1.dp, Color(0xFFDCD9EE), RoundedCornerShape(14.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
@@ -252,7 +250,7 @@ fun BodyIntelligenceLiteScreen(
 
                                 // Grey track
                                 drawArc(
-                                    color = Color(0xFFF1F5F9),
+                                    color = Color(0xFFE6E9EF),
                                     startAngle = 0f,
                                     sweepAngle = 360f,
                                     useCenter = false,
@@ -265,10 +263,10 @@ fun BodyIntelligenceLiteScreen(
                                 drawArc(
                                     brush = Brush.sweepGradient(
                                         listOf(
-                                            Color(0xFF10B981),
-                                            Color(0xFF8B5CF6),
-                                            Color(0xFF7C3AED),
-                                            Color(0xFF10B981)
+                                            Color(0xFF21A87D),
+                                            Color(0xFF7B81BE),
+                                            Color(0xFF6A70A8),
+                                            Color(0xFF21A87D)
                                         )
                                     ),
                                     startAngle = -90f,
@@ -283,7 +281,7 @@ fun BodyIntelligenceLiteScreen(
                                 Icon(
                                     Icons.Filled.FitnessCenter,
                                     contentDescription = null,
-                                    tint = Color(0xFF8B5CF6),
+                                    tint = Color(0xFF7B81BE),
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Text(
@@ -301,9 +299,9 @@ fun BodyIntelligenceLiteScreen(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            MilestoneRow(icon = "🚩", label = "Goal", value = "72.0 kg", color = Color(0xFF7C3AED))
-                            MilestoneRow(icon = "📦", label = "Current", value = "69.5 kg", color = Color(0xFF10B981))
-                            MilestoneRow(icon = "⚖", label = "Start", value = "67.4 kg", color = Color(0xFF64748B))
+                            MilestoneRow(icon = "🚩", label = "Goal", value = "72.0 kg", color = Color(0xFF6A70A8))
+                            MilestoneRow(icon = "📦", label = "Current", value = "69.5 kg", color = Color(0xFF21A87D))
+                            MilestoneRow(icon = "⚖", label = "Start", value = "67.4 kg", color = Color(0xFF8C94A0))
                         }
                     }
 
@@ -316,24 +314,24 @@ fun BodyIntelligenceLiteScreen(
                             icon = "↑",
                             label = "+2.1 kg",
                             sub = "Weight",
-                            color = Color(0xFF10B981),
-                            bg = Color(0xFFDCFCE7),
+                            color = Color(0xFF21A87D),
+                            bg = Color(0xFFDAEFE6),
                             modifier = Modifier.weight(1f)
                         )
                         DeltaPill(
                             icon = "💪",
                             label = "+2.6 kg",
                             sub = "Muscle",
-                            color = Color(0xFF8B5CF6),
-                            bg = Color(0xFFEDE9FE),
+                            color = Color(0xFF7B81BE),
+                            bg = Color(0xFFE0E3F2),
                             modifier = Modifier.weight(1f)
                         )
                         DeltaPill(
                             icon = "↓",
                             label = "-1.8%",
                             sub = "Body Fat",
-                            color = Color(0xFFEF4444),
-                            bg = Color(0xFFFEE2E2),
+                            color = Color(0xFFFF7272),
+                            bg = Color(0xFFFFE3E3),
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -349,15 +347,13 @@ fun BodyIntelligenceLiteScreen(
                 Box(
                     modifier = Modifier
                         .weight(1.05f)
-                        .shadow(elevation = 2.dp, shape = RoundedCornerShape(14.dp), ambientColor = Color(0x108B5CF6), spotColor = Color(0x108B5CF6))
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Color.White)
-                        .border(1.dp, Color(0x208B5CF6), RoundedCornerShape(14.dp))
+                        .neuRaised(radius = 14.dp, depth = 6.dp, blur = 16.dp)
+                        
                         .padding(10.dp)
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(Icons.AutoMirrored.Filled.FactCheck, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(13.dp))
+                            Icon(Icons.AutoMirrored.Filled.FactCheck, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(13.dp))
                             Text("Body Composition", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
                         }
 
@@ -370,12 +366,12 @@ fun BodyIntelligenceLiteScreen(
                         ) {
                             Canvas(modifier = Modifier.size(56.dp)) {
                                 drawCircle(
-                                    color = Color(0xFFEDE9FE),
+                                    color = Color(0xFFE0E3F2),
                                     radius = size.minDimension / 2f
                                 )
                                 drawArc(
                                     brush = Brush.sweepGradient(
-                                        listOf(Color(0xFF8B5CF6), Color(0xFF10B981), Color(0xFFF59E0B), Color(0xFF8B5CF6))
+                                        listOf(Color(0xFF7B81BE), Color(0xFF21A87D), Color(0xFFFFBB0D), Color(0xFF7B81BE))
                                     ),
                                     startAngle = -90f,
                                     sweepAngle = 280f,
@@ -391,9 +387,9 @@ fun BodyIntelligenceLiteScreen(
                         }
 
                         // 3 rows: BMI, Body Fat, Muscle
-                        CompositionMetricRow("BMI", "22.8", "Normal", Color(0xFF10B981))
-                        CompositionMetricRow("Body Fat", "17.6%", "Athletic", Color(0xFF10B981))
-                        CompositionMetricRow("Muscle", "57.2 kg", "Good", Color(0xFF10B981))
+                        CompositionMetricRow("BMI", "22.8", "Normal", Color(0xFF21A87D))
+                        CompositionMetricRow("Body Fat", "17.6%", "Athletic", Color(0xFF21A87D))
+                        CompositionMetricRow("Muscle", "57.2 kg", "Good", Color(0xFF21A87D))
                     }
                 }
 
@@ -401,10 +397,8 @@ fun BodyIntelligenceLiteScreen(
                 Box(
                     modifier = Modifier
                         .weight(0.95f)
-                        .shadow(elevation = 2.dp, shape = RoundedCornerShape(14.dp), ambientColor = Color(0x108B5CF6), spotColor = Color(0x108B5CF6))
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Color.White)
-                        .border(1.dp, Color(0x208B5CF6), RoundedCornerShape(14.dp))
+                        .neuRaised(radius = 14.dp, depth = 6.dp, blur = 16.dp)
+                        
                         .padding(10.dp)
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -414,18 +408,18 @@ fun BodyIntelligenceLiteScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Icon(Icons.Filled.Straighten, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(13.dp))
+                                Icon(Icons.Filled.Straighten, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(13.dp))
                                 Text("Measurements", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
                             }
-                            Text("vs. Last", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8B5CF6))
+                            Text("vs. Last", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF7B81BE))
                         }
 
                         Spacer(modifier = Modifier.height(2.dp))
 
                         // 3 Measurements: Chest, Waist, Arm
-                        MeasurementMetricRow("Chest", "98.0 cm", "↑ +2.0 cm", Color(0xFF10B981))
-                        MeasurementMetricRow("Waist", "82.0 cm", "↓ -1.0 cm", Color(0xFFEF4444))
-                        MeasurementMetricRow("Arm", "34.0 cm", "↑ +1.0 cm", Color(0xFF10B981))
+                        MeasurementMetricRow("Chest", "98.0 cm", "↑ +2.0 cm", Color(0xFF21A87D))
+                        MeasurementMetricRow("Waist", "82.0 cm", "↓ -1.0 cm", Color(0xFFFF7272))
+                        MeasurementMetricRow("Arm", "34.0 cm", "↑ +1.0 cm", Color(0xFF21A87D))
                     }
                 }
             }
@@ -434,10 +428,8 @@ fun BodyIntelligenceLiteScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .shadow(elevation = 3.dp, shape = RoundedCornerShape(16.dp), ambientColor = Color(0x148B5CF6), spotColor = Color(0x148B5CF6))
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(16.dp))
+                    .neuRaised(radius = 16.dp, depth = 6.dp, blur = 16.dp)
+                    
                     .padding(12.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -448,15 +440,15 @@ fun BodyIntelligenceLiteScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(Icons.Filled.TrackChanges, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(14.dp))
+                            Icon(Icons.Filled.TrackChanges, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(14.dp))
                             Text("Weight & Composition Trend", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
                         }
 
                         // 3 Legend Items
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            LegendDot("Weight (kg)", Color(0xFF8B5CF6))
-                            LegendDot("Muscle (kg)", Color(0xFF10B981))
-                            LegendDot("Body Fat (%)", Color(0xFFF59E0B))
+                            LegendDot("Weight (kg)", Color(0xFF7B81BE))
+                            LegendDot("Muscle (kg)", Color(0xFF21A87D))
+                            LegendDot("Body Fat (%)", Color(0xFFFFBB0D))
                         }
                     }
 
@@ -474,15 +466,13 @@ fun BodyIntelligenceLiteScreen(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .shadow(elevation = 2.dp, shape = RoundedCornerShape(14.dp), ambientColor = Color(0x108B5CF6), spotColor = Color(0x108B5CF6))
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Color.White)
-                        .border(1.dp, Color(0x208B5CF6), RoundedCornerShape(14.dp))
+                        .neuRaised(radius = 14.dp, depth = 6.dp, blur = 16.dp)
+                        
                         .padding(10.dp)
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(Icons.Filled.PhotoCamera, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(13.dp))
+                            Icon(Icons.Filled.PhotoCamera, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(13.dp))
                             Text("Gallery", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
                         }
 
@@ -500,14 +490,14 @@ fun BodyIntelligenceLiteScreen(
                                     .weight(0.9f)
                                     .height(38.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Color(0xFFFAF5FF))
-                                    .border(1.dp, Color(0xFFDDD6FE), RoundedCornerShape(8.dp))
+                                    .background(Color(0xFFE9EDF0))
+                                    .border(1.dp, Color(0xFFD8DBEE), RoundedCornerShape(8.dp))
                                     .clickable { resolvedState.primaryTab = BodyPrimaryTab.GALLERY },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Filled.Add, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(14.dp))
-                                    Text("+ Add", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8B5CF6))
+                                    Icon(Icons.Filled.Add, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(14.dp))
+                                    Text("+ Add", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF7B81BE))
                                 }
                             }
                         }
@@ -518,10 +508,8 @@ fun BodyIntelligenceLiteScreen(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .shadow(elevation = 2.dp, shape = RoundedCornerShape(14.dp), ambientColor = Color(0x108B5CF6), spotColor = Color(0x108B5CF6))
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Color.White)
-                        .border(1.dp, Color(0x208B5CF6), RoundedCornerShape(14.dp))
+                        .neuRaised(radius = 14.dp, depth = 6.dp, blur = 16.dp)
+                        
                         .padding(10.dp)
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -537,10 +525,10 @@ fun BodyIntelligenceLiteScreen(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFFEDE9FE))
+                                    .background(Color(0xFFE0E3F2))
                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                             ) {
-                                Text("AI", fontSize = 7.5.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF8B5CF6))
+                                Text("AI", fontSize = 7.5.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF7B81BE))
                             }
                         }
 
@@ -555,7 +543,7 @@ fun BodyIntelligenceLiteScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(50))
-                                .background(Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF7C3AED))))
+                                .background(Brush.horizontalGradient(listOf(Color(0xFF7B81BE), Color(0xFF6A70A8))))
                                 .clickable { resolvedState.primaryTab = BodyPrimaryTab.GOALS }
                                 .padding(vertical = 5.dp),
                             contentAlignment = Alignment.Center
@@ -581,7 +569,7 @@ private fun MilestoneRow(icon: String, label: String, value: String, color: Colo
             Text(icon, fontSize = 10.sp)
             Text(value, fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold, color = color)
         }
-        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
     }
 }
 
@@ -607,7 +595,7 @@ private fun DeltaPill(
                 Text(icon, fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = color)
                 Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.ExtraBold, color = color)
             }
-            Text(sub, fontSize = 7.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+            Text(sub, fontSize = 7.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
         }
     }
 }
@@ -620,8 +608,8 @@ private fun CompositionMetricRow(label: String, value: String, status: String, s
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
-        Text(value, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1E1B4B))
+        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
+        Text(value, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF343434))
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
@@ -641,8 +629,8 @@ private fun MeasurementMetricRow(label: String, value: String, delta: String, de
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
-        Text(value, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1E1B4B))
+        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
+        Text(value, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF343434))
         Text(delta, fontSize = 8.sp, fontWeight = FontWeight.Bold, color = deltaColor)
     }
 }
@@ -657,7 +645,7 @@ private fun LegendDot(label: String, color: Color) {
                 .clip(CircleShape)
                 .background(color)
         )
-        Text(label, fontSize = 7.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+        Text(label, fontSize = 7.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
     }
 }
 
@@ -668,8 +656,8 @@ private fun GalleryThumbItem(resId: Int, label: String, modifier: Modifier = Mod
         modifier = modifier
             .height(38.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFFF8FAFC))
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp)),
+            .background(Color(0xFFEDF0F4))
+            .border(1.dp, Color(0xFFDCDFE6), RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -687,8 +675,8 @@ private fun GalleryThumbItem(resId: Int, label: String, modifier: Modifier = Mod
 @Composable
 private fun InsightCheckRow(text: String) {
     Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text("✔", fontSize = 8.sp, color = Color(0xFF10B981))
-        Text(text, fontSize = 8.sp, fontWeight = FontWeight.Normal, color = Color(0xFF475569), lineHeight = 11.sp)
+        Text("✔", fontSize = 8.sp, color = Color(0xFF21A87D))
+        Text(text, fontSize = 8.sp, fontWeight = FontWeight.Normal, color = Color(0xFF6E7887), lineHeight = 11.sp)
     }
 }
 
@@ -712,14 +700,14 @@ private fun BodyTrendSplineChart(
         val plotH = (plotBottom - plotTop).coerceAtLeast(1f)
         val span = plotRight - plotLeft
 
-        val axisStyle = TextStyle(fontSize = 7.5.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.SemiBold)
+        val axisStyle = TextStyle(fontSize = 7.5.sp, color = Color(0xFFA1AEBF), fontWeight = FontWeight.SemiBold)
 
         // Y-axis gridlines & labels: 76, 72, 68, 64, 60
         val yVals = listOf(76, 72, 68, 64, 60)
         yVals.forEachIndexed { i, yVal ->
             val y = plotTop + i * plotH / 4f
             drawLine(
-                color = Color(0xFFF1F5F9),
+                color = Color(0xFFE6E9EF),
                 start = Offset(plotLeft, y),
                 end = Offset(plotRight, y),
                 strokeWidth = 1f
@@ -742,25 +730,25 @@ private fun BodyTrendSplineChart(
 
         // Curve 1: Weight (67.4kg -> 69.5kg) in Purple
         val weightPoints = listOf(67.4f, 68.0f, 68.6f, 68.9f, 69.2f, 69.5f)
-        drawSplineCurve(points = weightPoints, xOf = xOf, yOf = yOf, color = Color(0xFF8B5CF6))
+        drawSplineCurve(points = weightPoints, xOf = xOf, yOf = yOf, color = Color(0xFF7B81BE))
 
         // Curve 2: Muscle (54.6kg -> 57.2kg, projected in visible band e.g. 64 -> 66)
         val musclePoints = listOf(64.2f, 64.6f, 65.0f, 65.4f, 65.8f, 66.2f)
-        drawSplineCurve(points = musclePoints, xOf = xOf, yOf = yOf, color = Color(0xFF10B981))
+        drawSplineCurve(points = musclePoints, xOf = xOf, yOf = yOf, color = Color(0xFF21A87D))
 
         // Curve 3: Body Fat (19.4% -> 17.6%, projected in visible band e.g. 61 -> 62)
         val fatPoints = listOf(61.8f, 61.5f, 61.2f, 61.0f, 60.8f, 60.6f)
-        drawSplineCurve(points = fatPoints, xOf = xOf, yOf = yOf, color = Color(0xFFF59E0B))
+        drawSplineCurve(points = fatPoints, xOf = xOf, yOf = yOf, color = Color(0xFFFFBB0D))
 
         // Floating Badges matching reference:
         // May Start: "67.4 kg" in purple badge
-        drawCalloutPill("67.4 kg", xOf(0), yOf(weightPoints[0]), Color(0xFF8B5CF6), measurer)
+        drawCalloutPill("67.4 kg", xOf(0), yOf(weightPoints[0]), Color(0xFF7B81BE), measurer)
         // Oct End: "69.5 kg" in purple badge
-        drawCalloutPill("69.5 kg", xOf(5), yOf(weightPoints[5]), Color(0xFF8B5CF6), measurer)
+        drawCalloutPill("69.5 kg", xOf(5), yOf(weightPoints[5]), Color(0xFF7B81BE), measurer)
         // Oct Muscle End: "57.2 kg" in green badge
-        drawCalloutPill("57.2 kg", xOf(5), yOf(musclePoints[5]), Color(0xFF10B981), measurer)
+        drawCalloutPill("57.2 kg", xOf(5), yOf(musclePoints[5]), Color(0xFF21A87D), measurer)
         // Oct Fat End: "17.6%" in orange badge
-        drawCalloutPill("17.6%", xOf(5), yOf(fatPoints[5]), Color(0xFFF59E0B), measurer)
+        drawCalloutPill("17.6%", xOf(5), yOf(fatPoints[5]), Color(0xFFFFBB0D), measurer)
     }
 }
 

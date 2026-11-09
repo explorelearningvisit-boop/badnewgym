@@ -1089,3 +1089,42 @@ The earlier "grey tiles are only glyph antialiasing" conclusion was wrong becaus
 `e0_att.png`, `e1_workout.png`, `e2_payment.png`, `f3_body.png` — each shows a complete tab with zero scroll. Build and unit tests green.
 
 **Commit:** `47bfe08`
+## 2026-11-09 — Neumorphic design system (three style-guide images)
+
+Source of truth: three supplied style-guide images (typography/colour/neumorphism,
+SF-Pro palette, and #ECF0F3 style sheet). Old pack themes removed from the dashboard.
+
+### Implemented
+- `IntelligenceTheme.kt` fully replaced: `NeuPalette` token object + `neoIntelligenceColors()`.
+  Pack themes (`BadGymDashboardTheme`) no longer recolour the dashboard; the
+  `intelligenceColors()` extension was deleted and replaced with a single source.
+- Neumorphic modifiers added: `Modifier.neuRaised` (dual opposing shadows via
+  `android.graphics.Paint.setShadowLayer` -> dark #A6B4C8 bottom-right, white
+  top-left), `neuSunken` (inner top shade well) and `neuAccent` (saturated fill
+  with self-coloured glow).
+- Canvas #E6EAEE, surface #EDF0F4, sunken #DCE2E8, shadow #A6B4C8, ink #343434,
+  greys #6E7887 / #8C94A0 / #A1AEBF, accents violet #7B81BE, blue #6B92E5,
+  sky #489CC1, green #21A87D / #42CD8C, coral #FF7272, amber #FFBB0D, pink #F88AB0.
+- Typography: Plus Jakarta Sans (SIL OFL) bundled in `res/font` and provided
+  through `LocalTextStyle` at the dashboard root, so every Text inherits it.
+  Gilroy/SF Pro are not redistributable; PJS is the closest open geometric match.
+- Global colour remap across 14 Kotlin files (~400 literals) from the old
+  violet/slate/green set to the new tokens.
+- Structural conversions: every white card, KPI tile, sub-nav pill, progress
+  track and body nav pill rebuilt on the new primitives. Removed ambient blooms,
+  painted swooshes and the 3D dumbbell prop from the header.
+- `BadGymThemeEngine.getActiveTabBrush/TextColor/Border` and all pack
+  primary/secondary colours flattened to the single neo accent.
+- Payment tab re-tightened (trend 96->86dp) so the AI Insight card clears the nav bar.
+
+### Verification
+- `assembleDebug` BUILD SUCCESSFUL.
+- `testDebugUnitTest` BUILD SUCCESSFUL.
+- Device zxdada69gunb7ls4, 1080x2400 @440dpi, cold launch each tab.
+- Captures: docs/reference/images/neo_attendance.png, neo_workout.png,
+  neo_payment.png, neo_body.png — all four tabs render in the new system and
+  each fits one screen without scrolling.
+- Defects found and fixed during the pass: progress-bar fill washed out by the
+  sunken overlay; "Paid" KPI rendered green-on-violet (now white); vivid
+  #8000FF/#5B00B8 leftovers from pack themes; oversized purple glow on body
+  nav pills; wordmark subtitle wrapping after the font change.

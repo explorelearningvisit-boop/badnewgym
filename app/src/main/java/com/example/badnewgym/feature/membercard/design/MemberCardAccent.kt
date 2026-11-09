@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
  * atomically when the accent changes.
  */
 enum class MemberCardAccent(val title: String, val color: Color) {
-    EMERALD("Emerald", Color(0xFF10B981)),
+    EMERALD("Emerald", Color(0xFF21A87D)),
     BLUE("Blue", Color(0xFF2979FF)),
     VIOLET("Violet", Color(0xFF8B2FE8)),
     AMBER("Amber", Color(0xFFF57F17))

@@ -114,7 +114,7 @@ fun AttendanceIntelligenceScreen(
                             val topLeft = Offset(strokeW / 2f, strokeW / 2f)
                             // Track
                             drawArc(
-                                color = Color(0xFFF1F5F9),
+                                color = Color(0xFFE6E9EF),
                                 startAngle = 0f,
                                 sweepAngle = 360f,
                                 useCenter = false,
@@ -125,7 +125,7 @@ fun AttendanceIntelligenceScreen(
                             // 81% Emerald Arc
                             drawArc(
                                 brush = Brush.sweepGradient(
-                                    listOf(Color(0xFF10B981), Color(0xFF34D399), Color(0xFF10B981))
+                                    listOf(Color(0xFF21A87D), Color(0xFF42CD8C), Color(0xFF21A87D))
                                 ),
                                 startAngle = -90f,
                                 sweepAngle = 360f * 0.81f,
@@ -137,7 +137,7 @@ fun AttendanceIntelligenceScreen(
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("81%", fontSize = 20.sp, fontWeight = FontWeight.Black, color = c.ink, letterSpacing = (-0.5).sp)
-                            Text("Attendance", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                            Text("Attendance", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8C94A0))
                             Text("25 / 31 Days", fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = c.ink)
                         }
                     }
@@ -147,12 +147,12 @@ fun AttendanceIntelligenceScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(50))
-                            .background(Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF7C3AED))))
+                            .background(Brush.horizontalGradient(listOf(Color(0xFF7B81BE), Color(0xFF6A70A8))))
                             .padding(horizontal = 6.dp, vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Icon(Icons.Filled.LocalFireDepartment, contentDescription = null, tint = Color(0xFFFACC15), modifier = Modifier.size(13.dp))
+                            Icon(Icons.Filled.LocalFireDepartment, contentDescription = null, tint = Color(0xFFFFBB0D), modifier = Modifier.size(13.dp))
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("Current Streak", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.85f))
                                 Text("6 Days", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color.White)
@@ -164,18 +164,16 @@ fun AttendanceIntelligenceScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color.White)
-                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+                            .neuRaised(radius = 8.dp, depth = 2.dp, blur = 4.dp)
                             .padding(horizontal = 5.dp, vertical = 4.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Icon(Icons.Filled.Schedule, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(11.dp))
+                            Icon(Icons.Filled.Schedule, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(11.dp))
                             Column {
-                                Text("Avg. Check-in Time", fontSize = 6.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+                                Text("Avg. Check-in Time", fontSize = 6.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                                     Text("07:18 AM", fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
-                                    Text("(↓ -12m)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                                    Text("(↓ -12m)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF21A87D))
                                 }
                             }
                         }
@@ -192,10 +190,10 @@ fun AttendanceIntelligenceScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        StatusTile("✔ 23", "Present", Color(0xFF10B981), Color(0xFFDCFCE7), Modifier.weight(1f))
-                        StatusTile("🕒 2", "Late", Color(0xFFF59E0B), Color(0xFFFEF3C7), Modifier.weight(1f))
-                        StatusTile("✖ 2", "Absent", Color(0xFFEF4444), Color(0xFFFEE2E2), Modifier.weight(1f))
-                        StatusTile("📅 4", "Holiday", Color(0xFF64748B), Color(0xFFF1F5F9), Modifier.weight(1f))
+                        StatusTile("✔ 23", "Present", Color(0xFF21A87D), Color(0xFFDAEFE6), Modifier.weight(1f))
+                        StatusTile("🕒 2", "Late", Color(0xFFFFBB0D), Color(0xFFFBEFD4), Modifier.weight(1f))
+                        StatusTile("✖ 2", "Absent", Color(0xFFFF7272), Color(0xFFFFE3E3), Modifier.weight(1f))
+                        StatusTile("📅 4", "Holiday", Color(0xFF8C94A0), Color(0xFFE6E9EF), Modifier.weight(1f))
                     }
 
                     // Mon-Sun Calendar Grid
@@ -219,11 +217,11 @@ fun AttendanceIntelligenceScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                TrendPod("6 Days", "Current Streak", Icons.Filled.LocalFireDepartment, Color(0xFFF59E0B), Modifier.weight(1f))
-                TrendPod("81%", "Avg. Attendance", Icons.AutoMirrored.Filled.ShowChart, Color(0xFF8B5CF6), Modifier.weight(1f))
-                TrendPod("97%", "Best (Jan)", Icons.Filled.EmojiEvents, Color(0xFF10B981), Modifier.weight(1f))
-                TrendPod("58%", "Lowest (Mar)", Icons.AutoMirrored.Filled.TrendingDown, Color(0xFFEF4444), Modifier.weight(1f))
-                TrendPod("8 / 12", "Tracked Months", Icons.Filled.CalendarMonth, Color(0xFF8B5CF6), Modifier.weight(1f))
+                TrendPod("6 Days", "Current Streak", Icons.Filled.LocalFireDepartment, Color(0xFFFFBB0D), Modifier.weight(1f))
+                TrendPod("81%", "Avg. Attendance", Icons.AutoMirrored.Filled.ShowChart, Color(0xFF7B81BE), Modifier.weight(1f))
+                TrendPod("97%", "Best (Jan)", Icons.Filled.EmojiEvents, Color(0xFF21A87D), Modifier.weight(1f))
+                TrendPod("58%", "Lowest (Mar)", Icons.AutoMirrored.Filled.TrendingDown, Color(0xFFFF7272), Modifier.weight(1f))
+                TrendPod("8 / 12", "Tracked Months", Icons.Filled.CalendarMonth, Color(0xFF7B81BE), Modifier.weight(1f))
             }
         }
 
@@ -231,10 +229,8 @@ fun AttendanceIntelligenceScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp), ambientColor = Color(0x188B5CF6), spotColor = Color(0x188B5CF6))
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
-                .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(14.dp))
+                .neuRaised(radius = 16.dp, depth = 6.dp, blur = 16.dp)
+                
                 .padding(9.dp)
         ) {
             Row(
@@ -251,10 +247,10 @@ fun AttendanceIntelligenceScreen(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFEDE9FE)),
+                            .background(Color(0xFFE0E3F2)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(17.dp))
+                        Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(17.dp))
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -262,16 +258,16 @@ fun AttendanceIntelligenceScreen(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFFEDE9FE))
+                                    .background(Color(0xFFE0E3F2))
                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                             ) {
-                                Text("AI", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8B5CF6))
+                                Text("AI", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF7B81BE))
                             }
                         }
                         Text(
                             "Attendance is good (81%), Keep your 6-day streak to reach 90%+ this month.",
                             fontSize = 9.sp,
-                            color = Color(0xFF475569),
+                            color = Color(0xFF6E7887),
                             lineHeight = 12.sp
                         )
                     }
@@ -280,12 +276,12 @@ fun AttendanceIntelligenceScreen(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .background(Color(0xFFDCFCE7))
-                        .border(1.dp, Color(0xFF10B981), RoundedCornerShape(50))
+                        .background(Color(0xFFDAEFE6))
+                        .border(1.dp, Color(0xFF21A87D), RoundedCornerShape(50))
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("🎯 Next Goal ≥ 90%", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF047857))
+                    Text("🎯 Next Goal ≥ 90%", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF178A66))
                 }
             }
         }
@@ -326,7 +322,7 @@ private fun CalendarGridMonSun(onDayClick: (CalendarDay) -> Unit) {
                     day,
                     fontSize = 8.5.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF64748B),
+                    color = Color(0xFF8C94A0),
                     modifier = Modifier.width(19.dp),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
@@ -335,11 +331,11 @@ private fun CalendarGridMonSun(onDayClick: (CalendarDay) -> Unit) {
 
         // Calendar rows (Oct 2026 starts on Thu = day 4)
         val gridData = listOf(
-            listOf(null, null, null, DayItem(1, "✓", Color(0xFF10B981)), DayItem(2, "✓", Color(0xFF10B981)), DayItem(3, "✓", Color(0xFF10B981)), DayItem(4, "4", Color(0xFFF1F5F9), Color(0xFF64748B))),
-            listOf(DayItem(5, "✓", Color(0xFF10B981)), DayItem(6, "✓", Color(0xFF10B981)), DayItem(7, "✓", Color(0xFF10B981)), DayItem(8, "✓", Color(0xFF10B981)), DayItem(9, "✓", Color(0xFF10B981)), DayItem(10, "10", Color(0xFF10B981)), DayItem(11, "11", Color(0xFFF1F5F9), Color(0xFF64748B))),
-            listOf(DayItem(12, "12", Color(0xFF10B981)), DayItem(13, "13", Color(0xFF10B981)), DayItem(14, "14", Color(0xFF10B981)), DayItem(15, "15", Color(0xFF10B981)), DayItem(16, "16", Color(0xFF10B981), isActive = true), DayItem(17, "17", Color(0xFFEF4444)), DayItem(18, "18", Color(0xFFF1F5F9), Color(0xFF64748B))),
-            listOf(DayItem(19, "19", Color(0xFF10B981)), DayItem(20, "20", Color(0xFF10B981)), DayItem(21, "21", Color(0xFF10B981)), DayItem(22, "22", Color(0xFFF59E0B)), DayItem(23, "23", Color(0xFF10B981)), DayItem(24, "24", Color(0xFFEF4444)), DayItem(25, "25", Color(0xFFF1F5F9), Color(0xFF64748B))),
-            listOf(DayItem(26, "26", Color(0xFF10B981)), DayItem(27, "27", Color(0xFF10B981)), DayItem(28, "28", Color(0xFFF59E0B)), DayItem(29, "29", Color(0xFF10B981)), DayItem(30, "30", Color(0xFF10B981)), DayItem(31, "31", Color(0xFF10B981)), null)
+            listOf(null, null, null, DayItem(1, "✓", Color(0xFF21A87D)), DayItem(2, "✓", Color(0xFF21A87D)), DayItem(3, "✓", Color(0xFF21A87D)), DayItem(4, "4", Color(0xFFE6E9EF), Color(0xFF8C94A0))),
+            listOf(DayItem(5, "✓", Color(0xFF21A87D)), DayItem(6, "✓", Color(0xFF21A87D)), DayItem(7, "✓", Color(0xFF21A87D)), DayItem(8, "✓", Color(0xFF21A87D)), DayItem(9, "✓", Color(0xFF21A87D)), DayItem(10, "10", Color(0xFF21A87D)), DayItem(11, "11", Color(0xFFE6E9EF), Color(0xFF8C94A0))),
+            listOf(DayItem(12, "12", Color(0xFF21A87D)), DayItem(13, "13", Color(0xFF21A87D)), DayItem(14, "14", Color(0xFF21A87D)), DayItem(15, "15", Color(0xFF21A87D)), DayItem(16, "16", Color(0xFF21A87D), isActive = true), DayItem(17, "17", Color(0xFFFF7272)), DayItem(18, "18", Color(0xFFE6E9EF), Color(0xFF8C94A0))),
+            listOf(DayItem(19, "19", Color(0xFF21A87D)), DayItem(20, "20", Color(0xFF21A87D)), DayItem(21, "21", Color(0xFF21A87D)), DayItem(22, "22", Color(0xFFFFBB0D)), DayItem(23, "23", Color(0xFF21A87D)), DayItem(24, "24", Color(0xFFFF7272)), DayItem(25, "25", Color(0xFFE6E9EF), Color(0xFF8C94A0))),
+            listOf(DayItem(26, "26", Color(0xFF21A87D)), DayItem(27, "27", Color(0xFF21A87D)), DayItem(28, "28", Color(0xFFFFBB0D)), DayItem(29, "29", Color(0xFF21A87D)), DayItem(30, "30", Color(0xFF21A87D)), DayItem(31, "31", Color(0xFF21A87D)), null)
         )
 
         gridData.forEach { week ->
@@ -353,7 +349,7 @@ private fun CalendarGridMonSun(onDayClick: (CalendarDay) -> Unit) {
                                 .size(19.dp)
                                 .clip(CircleShape)
                                 .background(day.bg)
-                                .border(if (day.isActive) 1.8.dp else 0.dp, Color(0xFF8B5CF6), CircleShape),
+                                .border(if (day.isActive) 1.8.dp else 0.dp, Color(0xFF7B81BE), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -391,12 +387,12 @@ private fun AttendanceTrendSpline(measurer: TextMeasurer, c: IntelligenceColors)
         // Grid lines (100%, 75%, 50%, 25%, 0%)
         val yLabels = listOf("100%", "75%", "50%", "25%", "0%")
         val yVals = listOf(100f, 75f, 50f, 25f, 0f)
-        val axisStyle = TextStyle(fontSize = 7.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.SemiBold)
+        val axisStyle = TextStyle(fontSize = 7.sp, color = Color(0xFFA1AEBF), fontWeight = FontWeight.SemiBold)
 
         yVals.forEachIndexed { index, v ->
             val y = topPad + (1f - v / 100f) * plotH
             drawLine(
-                color = Color(0xFFF1F5F9),
+                color = Color(0xFFE6E9EF),
                 start = Offset(leftPad, y),
                 end = Offset(size.width - rightPad, y),
                 strokeWidth = 0.8.dp.toPx()
@@ -442,14 +438,14 @@ private fun AttendanceTrendSpline(measurer: TextMeasurer, c: IntelligenceColors)
         drawPath(
             path = area,
             brush = Brush.verticalGradient(
-                colors = listOf(Color(0xFF8B5CF6).copy(alpha = 0.28f), Color.Transparent),
+                colors = listOf(Color(0xFF7B81BE).copy(alpha = 0.16f), Color.Transparent),
                 startY = topPad,
                 endY = topPad + plotH
             )
         )
 
         // Draw Stroke
-        drawPath(path, Color(0xFF8B5CF6), style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
+        drawPath(path, Color(0xFF7B81BE), style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
 
         // Points & Flags
         coords.forEachIndexed { i, pt ->
@@ -458,7 +454,7 @@ private fun AttendanceTrendSpline(measurer: TextMeasurer, c: IntelligenceColors)
             val isMar = i == 4 // 58% min
             val isOct = i == 11 // 81% current
 
-            drawCircle(color = Color(0xFF8B5CF6), radius = 2.5.dp.toPx(), center = pt)
+            drawCircle(color = Color(0xFF7B81BE), radius = 2.5.dp.toPx(), center = pt)
             drawCircle(color = Color.White, radius = 1.2.dp.toPx(), center = pt)
 
             // Month text below
@@ -469,13 +465,13 @@ private fun AttendanceTrendSpline(measurer: TextMeasurer, c: IntelligenceColors)
             // Floating Flags
             if (isJan) {
                 // Green flag: 👑 97% Jan
-                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "97% Jan", Color(0xFF10B981), measurer)
+                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "97% Jan", Color(0xFF21A87D), measurer)
             } else if (isMar) {
                 // Red flag: 58% Mar
-                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "58% Mar", Color(0xFFEF4444), measurer)
+                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "58% Mar", Color(0xFFFF7272), measurer)
             } else if (isOct) {
                 // Purple flag: 81% Oct
-                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "81% Oct", Color(0xFF8B5CF6), measurer)
+                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "81% Oct", Color(0xFF7B81BE), measurer)
             }
         }
     }
@@ -515,15 +511,15 @@ private fun TrendPod(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFFF8FAFC))
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+            .background(Color(0xFFEDF0F4))
+            .border(1.dp, Color(0xFFDCDFE6), RoundedCornerShape(8.dp))
             .padding(vertical = 5.dp, horizontal = 2.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(1.dp)) {
             Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(12.dp))
-            Text(value, fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF1E1B4B))
-            Text(label, fontSize = 6.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1)
+            Text(value, fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF343434))
+            Text(label, fontSize = 6.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8C94A0), maxLines = 1)
         }
     }
 }

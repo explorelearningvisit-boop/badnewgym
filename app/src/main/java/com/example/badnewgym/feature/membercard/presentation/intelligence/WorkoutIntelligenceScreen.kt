@@ -110,7 +110,7 @@ fun WorkoutIntelligenceScreen(
 
                         // Track
                         drawArc(
-                            color = Color(0xFFF1F5F9),
+                            color = Color(0xFFE6E9EF),
                             startAngle = 0f,
                             sweepAngle = 360f,
                             useCenter = false,
@@ -123,10 +123,10 @@ fun WorkoutIntelligenceScreen(
                         drawArc(
                             brush = Brush.sweepGradient(
                                 listOf(
-                                    Color(0xFF10B981),
-                                    Color(0xFF8B5CF6),
-                                    Color(0xFF7C3AED),
-                                    Color(0xFF10B981)
+                                    Color(0xFF21A87D),
+                                    Color(0xFF7B81BE),
+                                    Color(0xFF6A70A8),
+                                    Color(0xFF21A87D)
                                 )
                             ),
                             startAngle = -90f,
@@ -149,7 +149,7 @@ fun WorkoutIntelligenceScreen(
                             "Total Workout",
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF64748B)
+                            color = Color(0xFF8C94A0)
                         )
                     }
                 }
@@ -165,7 +165,7 @@ fun WorkoutIntelligenceScreen(
                     ) {
                         WorkoutStatTile(
                             icon = Icons.Filled.Schedule,
-                            iconTint = Color(0xFF10B981),
+                            iconTint = Color(0xFF21A87D),
                             value = "37 min",
                             label = "Avg / Day",
                             valueColor = c.ink,
@@ -173,7 +173,7 @@ fun WorkoutIntelligenceScreen(
                         )
                         WorkoutStatTile(
                             icon = Icons.Filled.EmojiEvents,
-                            iconTint = Color(0xFFF59E0B),
+                            iconTint = Color(0xFFFFBB0D),
                             value = "88 min",
                             label = "Best",
                             valueColor = c.ink,
@@ -186,15 +186,15 @@ fun WorkoutIntelligenceScreen(
                     ) {
                         WorkoutStatTile(
                             icon = Icons.AutoMirrored.Filled.TrendingDown,
-                            iconTint = Color(0xFFEF4444),
+                            iconTint = Color(0xFFFF7272),
                             value = "32 min",
                             label = "Lowest",
-                            valueColor = Color(0xFFEF4444),
+                            valueColor = Color(0xFFFF7272),
                             modifier = Modifier.weight(1f)
                         )
                         WorkoutStatTile(
                             icon = Icons.Filled.TrackChanges,
-                            iconTint = Color(0xFF10B981),
+                            iconTint = Color(0xFF21A87D),
                             value = "61%",
                             label = "Consistency",
                             valueColor = c.ink,
@@ -228,32 +228,32 @@ fun WorkoutIntelligenceScreen(
             ) {
                 WorkoutStatusChip(
                     icon = Icons.AutoMirrored.Filled.DirectionsRun,
-                    iconTint = Color(0xFF10B981),
-                    bg = Color(0xFFDCFCE7),
+                    iconTint = Color(0xFF21A87D),
+                    bg = Color(0xFFDAEFE6),
                     value = "19 / 31",
                     label = "Active Days",
                     modifier = Modifier.weight(1f)
                 )
                 WorkoutStatusChip(
                     icon = Icons.Filled.LocalFireDepartment,
-                    iconTint = Color(0xFFF59E0B),
-                    bg = Color(0xFFFEF3C7),
+                    iconTint = Color(0xFFFFBB0D),
+                    bg = Color(0xFFFBEFD4),
                     value = "5 Days",
                     label = "Current Streak",
                     modifier = Modifier.weight(1f)
                 )
                 WorkoutStatusChip(
                     icon = Icons.Filled.CalendarMonth,
-                    iconTint = Color(0xFF8B5CF6),
-                    bg = Color(0xFFEDE9FE),
+                    iconTint = Color(0xFF7B81BE),
+                    bg = Color(0xFFE0E3F2),
                     value = "18 / 30",
                     label = "Goal Days",
                     modifier = Modifier.weight(1f)
                 )
                 WorkoutStatusChip(
                     icon = Icons.Filled.TrackChanges,
-                    iconTint = Color(0xFF10B981),
-                    bg = Color(0xFFDCFCE7),
+                    iconTint = Color(0xFF21A87D),
+                    bg = Color(0xFFDAEFE6),
                     value = "61%",
                     label = "Consistency",
                     modifier = Modifier.weight(1f)
@@ -275,10 +275,8 @@ fun WorkoutIntelligenceScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp), ambientColor = Color(0x188B5CF6), spotColor = Color(0x188B5CF6))
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
-                .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(14.dp))
+                .neuRaised(radius = 16.dp, depth = 6.dp, blur = 16.dp)
+                
                 .padding(9.dp)
         ) {
             Row(
@@ -295,13 +293,13 @@ fun WorkoutIntelligenceScreen(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFEDE9FE)),
+                            .background(Color(0xFFE0E3F2)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.Filled.FitnessCenter,
                             contentDescription = null,
-                            tint = Color(0xFF8B5CF6),
+                            tint = Color(0xFF7B81BE),
                             modifier = Modifier.size(17.dp)
                         )
                     }
@@ -316,14 +314,14 @@ fun WorkoutIntelligenceScreen(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFFEDE9FE))
+                                    .background(Color(0xFFE0E3F2))
                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                             ) {
                                 Text(
                                     "AI",
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = Color(0xFF8B5CF6)
+                                    color = Color(0xFF7B81BE)
                                 )
                             }
                         }
@@ -331,7 +329,7 @@ fun WorkoutIntelligenceScreen(
                             "Great consistency (61%)! 🔥 Maintain 5+ day streak to reach 44 hr+ next month.",
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF475569),
+                            color = Color(0xFF6E7887),
                             lineHeight = 12.sp
                         )
                     }
@@ -342,9 +340,7 @@ fun WorkoutIntelligenceScreen(
                 // "View Plan ›" Pill Button
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(Color.White)
-                        .border(1.dp, Color(0xFF8B5CF6), RoundedCornerShape(50))
+                        .neuRaised(radius = 50.dp, color = NeuPalette.surfaceRaised, depth = 2.dp, blur = 5.dp)
                         .clickable(onClick = onClick)
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                     contentAlignment = Alignment.Center
@@ -357,7 +353,7 @@ fun WorkoutIntelligenceScreen(
                             "View Plan ›",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF8B5CF6)
+                            color = Color(0xFF7B81BE)
                         )
                     }
                 }
@@ -378,9 +374,7 @@ private fun WorkoutStatTile(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.White)
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
+            .neuRaised(radius = 10.dp, depth = 2.dp, blur = 4.dp)
             .padding(horizontal = 6.dp, vertical = 6.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -389,7 +383,7 @@ private fun WorkoutStatTile(
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(11.dp))
-                Text(label, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B), maxLines = 1)
+                Text(label, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0), maxLines = 1)
             }
             Text(value, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
         }
@@ -408,9 +402,7 @@ private fun WorkoutStatusChip(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.White)
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
+            .neuRaised(radius = 10.dp, depth = 2.dp, blur = 4.dp)
             .padding(horizontal = 4.dp, vertical = 5.dp)
     ) {
         Row(
@@ -427,8 +419,8 @@ private fun WorkoutStatusChip(
                 Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(11.dp))
             }
             Column {
-                Text(value, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1E1B4B), maxLines = 1)
-                Text(label, fontSize = 6.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B), maxLines = 1)
+                Text(value, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF343434), maxLines = 1)
+                Text(label, fontSize = 6.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0), maxLines = 1)
             }
         }
     }
@@ -454,7 +446,7 @@ private fun DailyWorkoutTrendChart(
         val plotBottom = size.height - 20.dp.toPx()
         val plotH = (plotBottom - plotTop).coerceAtLeast(1f)
         val span = plotRight - plotLeft
-        val axisStyle = TextStyle(fontSize = 7.5.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.SemiBold)
+        val axisStyle = TextStyle(fontSize = 7.5.sp, color = Color(0xFFA1AEBF), fontWeight = FontWeight.SemiBold)
 
         val xOf = { day: Int -> plotLeft + (day - 1) * span / 30f }
         val yOf = { minutes: Int -> plotBottom - (minutes / 90f) * plotH }
@@ -464,7 +456,7 @@ private fun DailyWorkoutTrendChart(
         yLabels.forEachIndexed { i, label ->
             val y = plotTop + i * plotH / 4f
             drawLine(
-                color = Color(0xFFF1F5F9),
+                color = Color(0xFFE6E9EF),
                 start = Offset(plotLeft, y),
                 end = Offset(plotRight, y),
                 strokeWidth = 1f
@@ -488,8 +480,8 @@ private fun DailyWorkoutTrendChart(
                 drawLine(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF10B981).copy(alpha = 0.5f),
-                            Color(0xFF10B981).copy(alpha = 0.05f)
+                            Color(0xFF21A87D).copy(alpha = 0.5f),
+                            Color(0xFF21A87D).copy(alpha = 0.05f)
                         ),
                         startY = y,
                         endY = plotBottom
@@ -544,9 +536,9 @@ private fun DailyWorkoutTrendChart(
             path = areaPath,
             brush = Brush.verticalGradient(
                 colors = listOf(
-                    Color(0xFF10B981).copy(alpha = 0.20f),
-                    Color(0xFF8B5CF6).copy(alpha = 0.08f),
-                    Color(0xFF8B5CF6).copy(alpha = 0.00f)
+                    Color(0xFF21A87D).copy(alpha = 0.20f),
+                    Color(0xFF7B81BE).copy(alpha = 0.08f),
+                    Color(0xFF7B81BE).copy(alpha = 0.00f)
                 ),
                 startY = plotTop,
                 endY = plotBottom
@@ -557,7 +549,7 @@ private fun DailyWorkoutTrendChart(
         drawPath(
             path = linePath,
             brush = Brush.horizontalGradient(
-                listOf(Color(0xFF8B5CF6), Color(0xFF10B981), Color(0xFF8B5CF6))
+                listOf(Color(0xFF7B81BE), Color(0xFF21A87D), Color(0xFF7B81BE))
             ),
             style = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round)
         )
@@ -573,7 +565,7 @@ private fun DailyWorkoutTrendChart(
                     center = Offset(x, y)
                 )
                 drawCircle(
-                    color = if (p.minutes >= 80) Color(0xFF10B981) else if (p.minutes <= 35) Color(0xFFEF4444) else Color(0xFF8B5CF6),
+                    color = if (p.minutes >= 80) Color(0xFF21A87D) else if (p.minutes <= 35) Color(0xFFFF7272) else Color(0xFF7B81BE),
                     radius = 2.dp.toPx(),
                     center = Offset(x, y)
                 )
@@ -583,10 +575,10 @@ private fun DailyWorkoutTrendChart(
         // Floating callout badges matching reference:
         // Day 2 (47m, purple), Day 8 (88m, green with gold crown 👑), Day 16 (32m, red), Day 28 (74m, purple)
         val badges = listOf(
-            WorkoutBadgeData(day = 2, minutes = 47, label = "47m", bg = Color(0xFF8B5CF6), hasCrown = false),
-            WorkoutBadgeData(day = 8, minutes = 88, label = "88m", bg = Color(0xFF10B981), hasCrown = true),
-            WorkoutBadgeData(day = 16, minutes = 32, label = "32m", bg = Color(0xFFEF4444), hasCrown = false),
-            WorkoutBadgeData(day = 28, minutes = 74, label = "74m", bg = Color(0xFF8B5CF6), hasCrown = false)
+            WorkoutBadgeData(day = 2, minutes = 47, label = "47m", bg = Color(0xFF7B81BE), hasCrown = false),
+            WorkoutBadgeData(day = 8, minutes = 88, label = "88m", bg = Color(0xFF21A87D), hasCrown = true),
+            WorkoutBadgeData(day = 16, minutes = 32, label = "32m", bg = Color(0xFFFF7272), hasCrown = false),
+            WorkoutBadgeData(day = 28, minutes = 74, label = "74m", bg = Color(0xFF7B81BE), hasCrown = false)
         )
 
         badges.forEach { b ->
@@ -665,9 +657,9 @@ private fun MonthlyWorkoutPatternChart(
         val barW = slotW * 0.54f
         val maxHr = 44f
 
-        val monthStyle = TextStyle(fontSize = 8.5.sp, color = Color(0xFF64748B), fontWeight = FontWeight.SemiBold)
-        val hourStyle = TextStyle(fontSize = 9.sp, color = Color(0xFF1E1B4B), fontWeight = FontWeight.ExtraBold)
-        val redHourStyle = TextStyle(fontSize = 9.sp, color = Color(0xFFEF4444), fontWeight = FontWeight.ExtraBold)
+        val monthStyle = TextStyle(fontSize = 8.5.sp, color = Color(0xFF8C94A0), fontWeight = FontWeight.SemiBold)
+        val hourStyle = TextStyle(fontSize = 9.sp, color = Color(0xFF343434), fontWeight = FontWeight.ExtraBold)
+        val redHourStyle = TextStyle(fontSize = 9.sp, color = Color(0xFFFF7272), fontWeight = FontWeight.ExtraBold)
 
         val months = listOf(
             MonthBarItem("Jan", 36, false, false, false),
@@ -695,7 +687,7 @@ private fun MonthlyWorkoutPatternChart(
                 val barH = 26.dp.toPx()
                 val barTop = plotBottom - barH
                 drawRoundRect(
-                    color = Color(0xFFE2E8F0),
+                    color = Color(0xFFDCDFE6),
                     topLeft = Offset(left, barTop),
                     size = Size(barW, barH),
                     cornerRadius = CornerRadius(4.dp.toPx()),
@@ -709,9 +701,9 @@ private fun MonthlyWorkoutPatternChart(
                 val barTop = plotBottom - barH
 
                 val barBrush = when {
-                    m.isPeak -> Brush.verticalGradient(listOf(Color(0xFF10B981), Color(0xFF34D399)))
-                    m.isAlert -> Brush.verticalGradient(listOf(Color(0xFFFCA5A5), Color(0xFFEF4444)))
-                    else -> Brush.verticalGradient(listOf(Color(0xFF8B5CF6), Color(0xFFA78BFA)))
+                    m.isPeak -> Brush.verticalGradient(listOf(Color(0xFF21A87D), Color(0xFF42CD8C)))
+                    m.isAlert -> Brush.verticalGradient(listOf(Color(0xFFFFB8B8), Color(0xFFFF7272)))
+                    else -> Brush.verticalGradient(listOf(Color(0xFF7B81BE), Color(0xFF9AA1D2)))
                 }
 
                 drawRoundRect(
