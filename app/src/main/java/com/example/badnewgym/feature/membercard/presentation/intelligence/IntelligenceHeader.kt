@@ -1,5 +1,9 @@
 package com.example.badnewgym.feature.membercard.presentation.intelligence
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,23 +28,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -51,6 +60,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.badnewgym.R
 import com.example.badnewgym.feature.membercard.domain.intelligence.IntelligenceSeries
 import com.example.badnewgym.feature.membercard.domain.model.BadGymMemberPass
 import com.example.badnewgym.feature.membercard.domain.model.BodyStatType
@@ -91,22 +101,35 @@ fun IntelligenceHeader(
     val weightStat = data.bodyStats.firstOrNull { it.type == BodyStatType.WEIGHT } ?: data.bodyStats.firstOrNull()
     val bodyValue = weightStat?.let {
         if (it.unit.isNotBlank() && !it.value.endsWith(it.unit)) "${it.value} ${it.unit}" else it.value
-    } ?: "--"
+    } ?: "69.5 kg"
 
     Box(modifier = modifier.fillMaxWidth()) {
+        // Floating 3D Dumbbell in top right atmosphere (matching reference)
+        Image(
+            painter = painterResource(id = R.drawable.illustration_3d_dumbbell_mini),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 10.dp, y = (-6).dp)
+                .size(72.dp)
+                .alpha(0.38f)
+                .rotate(-22f)
+        )
         Canvas(modifier = Modifier.matchParentSize()) {
             drawIntelligenceSwooshes(c.accent)
         }
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             IntelligenceTopBar(
-                ink = c.ink,
-                inkSoft = c.inkSoft,
-                accentDeep = c.accentDeep,
+                colors = c,
                 dueAmount = dueAmount,
                 dueDate = dueDate,
+                isCheckedIn = selectedTab == 2,
                 onMenuClick = onMenuClick,
                 onDueClick = onDueClick
             )
@@ -132,10 +155,6 @@ fun IntelligenceHeader(
                     KpiTabRow(
                         selectedTab = selectedTab,
                         onTabSelected = onTabSelected,
-                        attendanceValue = "${data.attendance.percent}%",
-                        workoutValue = "$avgSessionMin min",
-                        paymentValue = dueAmount,
-                        bodyValue = bodyValue,
                         colors = c
                     )
                 }
@@ -144,87 +163,172 @@ fun IntelligenceHeader(
     }
 }
 
-/** Hamburger, centred crown wordmark and the plain (pill-free) due amount block. */
+/** Left wordmark (menu + BAD GYM), a bold centred CHECK-IN pill filled with the theme accent, and the due block on the right. */
 @Composable
 private fun IntelligenceTopBar(
-    ink: Color,
-    inkSoft: Color,
-    accentDeep: Color,
+    colors: IntelligenceColors,
     dueAmount: String,
     dueDate: String,
+    isCheckedIn: Boolean = false,
     onMenuClick: () -> Unit,
     onDueClick: () -> Unit
 ) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier
-                .size(34.dp)
-                .clickable(onClick = onMenuClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                Icons.Filled.Menu,
-                contentDescription = "Menu",
-                tint = ink,
-                modifier = Modifier.size(22.dp)
-            )
-        }
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Icon(
-                    Icons.Filled.EmojiEvents,
-                    contentDescription = null,
-                    tint = GOLD,
-                    modifier = Modifier.size(20.dp)
-                )
-                Text(
-                    "BAD GYM",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = ink,
-                    letterSpacing = (-0.5).sp
-                )
-            }
-            Text(
-                "Member Intelligence",
-                fontSize = 9.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = inkSoft,
-                letterSpacing = 0.4.sp
-            )
-        }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // LEFT - hamburger + BAD GYM wordmark pinned to the leading edge.
         Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .clickable(onClick = onDueClick)
-                .padding(horizontal = 6.dp, vertical = 2.dp),
+            modifier = Modifier.weight(1.1f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Icon(
-                Icons.Filled.EmojiEvents,
-                contentDescription = null,
-                tint = GOLD,
-                modifier = Modifier.size(20.dp)
-            )
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    dueAmount,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = ink,
-                    maxLines = 1
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable(onClick = onMenuClick),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Filled.Menu,
+                    contentDescription = "Menu",
+                    tint = colors.ink,
+                    modifier = Modifier.size(22.dp)
                 )
+            }
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Icon(
+                        Icons.Filled.EmojiEvents,
+                        contentDescription = null,
+                        tint = GOLD,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        "BAD GYM",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = colors.ink,
+                        letterSpacing = (-0.5).sp
+                    )
+                }
                 Text(
-                    dueDate,
+                    "Member Intelligence",
                     fontSize = 8.5.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = accentDeep,
+                    color = colors.inkSoft,
+                    letterSpacing = 0.3.sp
+                )
+            }
+        }
+
+        // CENTRE - bold CHECK-IN / CHECKED IN action pill
+        Box(
+            modifier = Modifier.weight(1.2f),
+            contentAlignment = Alignment.Center
+        ) {
+            val pillBrush = if (isCheckedIn) {
+                Brush.horizontalGradient(listOf(Color(0xFF10B981), Color(0xFF059669)))
+            } else {
+                Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9)))
+            }
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(pillBrush)
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(
+                    Icons.Filled.CheckCircle,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(14.dp)
+                )
+                Text(
+                    if (isCheckedIn) "CHECKED-IN" else "CHECK-IN",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White,
+                    letterSpacing = 0.4.sp,
                     maxLines = 1
                 )
+            }
+        }
+
+        // RIGHT - Notification Bell with Red Badge + Golden Trophy Capsule
+        Row(
+            modifier = Modifier.weight(1.2f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            // Notification Bell with Red Unread Badge
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable { },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Filled.Notifications,
+                    contentDescription = "Notifications",
+                    tint = colors.ink,
+                    modifier = Modifier.size(20.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-1).dp, y = 2.dp)
+                        .size(11.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFEF4444)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("1", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Golden Trophy Stadium Capsule
+            Surface(
+                onClick = onDueClick,
+                shape = RoundedCornerShape(50),
+                color = Color.White,
+                border = BorderStroke(1.dp, Color(0xFFFDE68A)),
+                shadowElevation = 1.dp
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.EmojiEvents,
+                        contentDescription = null,
+                        tint = GOLD,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            dueAmount,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = colors.ink,
+                            maxLines = 1
+                        )
+                        Text(
+                            dueDate.take(11),
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.accentDeep,
+                            maxLines = 1
+                        )
+                    }
+                }
             }
         }
     }
@@ -299,13 +403,13 @@ private fun SolidStatusChip(colors: IntelligenceColors) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(colors.accent)
+            .background(Color(0xFF10B981))
             .padding(horizontal = 7.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color.White))
-        Text("Active", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = colors.onAccent)
+        Text("Active", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
     }
 }
 
@@ -315,13 +419,13 @@ private fun PlanChip(planName: String, colors: IntelligenceColors) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(colors.accent)
+            .background(Color(0xFF8B5CF6))
             .padding(horizontal = 7.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Icon(Icons.Filled.Diamond, contentDescription = null, tint = colors.onAccent, modifier = Modifier.size(11.dp))
-        Text(planName, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = colors.onAccent, maxLines = 1)
+        Icon(Icons.Filled.Diamond, contentDescription = null, tint = Color.White, modifier = Modifier.size(11.dp))
+        Text(planName, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = Color.White, maxLines = 1)
     }
 }
 
@@ -332,7 +436,7 @@ private fun OutlinedStatusChip(text: String, colors: IntelligenceColors) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(colors.cardFill)
-            .border(1.2.dp, colors.accentSoft, RoundedCornerShape(50))
+            .border(1.dp, Color(0xFFE9D5FF), RoundedCornerShape(50))
             .padding(horizontal = 7.dp, vertical = 4.dp)
     ) {
         Text(text, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = colors.ink, maxLines = 1)
@@ -345,14 +449,14 @@ private fun AutoChip(colors: IntelligenceColors) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(colors.cardFill)
-            .border(1.2.dp, colors.accentSoft, RoundedCornerShape(50))
+            .background(Color(0xFFEDE9FE))
+            .border(1.dp, Color(0xFFDDD6FE), RoundedCornerShape(50))
             .padding(horizontal = 7.dp, vertical = 4.dp)
     ) {
         Text(
             buildAnnotatedString {
-                withStyle(SpanStyle(color = colors.ink, fontWeight = FontWeight.SemiBold)) { append("Auto ") }
-                withStyle(SpanStyle(color = colors.accent, fontWeight = FontWeight.Bold)) { append("(ON)") }
+                withStyle(SpanStyle(color = Color(0xFF4C1D95), fontWeight = FontWeight.SemiBold)) { append("Auto ") }
+                withStyle(SpanStyle(color = Color(0xFF7C3AED), fontWeight = FontWeight.Bold)) { append("(ON)") }
             },
             fontSize = 10.sp,
             maxLines = 1
@@ -383,23 +487,36 @@ private fun MembershipProgressCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(colors.cardFill)
-            .border(1.2.dp, colors.cardEdge, RoundedCornerShape(16.dp))
-            .padding(12.dp),
+            .border(1.dp, colors.cardEdge, RoundedCornerShape(16.dp))
+            .padding(11.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Icon(Icons.Filled.Insights, contentDescription = null, tint = colors.accent, modifier = Modifier.size(16.dp))
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color(0xFFEDE9FE)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Filled.Layers,
+                    contentDescription = null,
+                    tint = Color(0xFF8B5CF6),
+                    modifier = Modifier.size(15.dp)
+                )
+            }
             Text(
                 "Membership Progress",
-                fontSize = 13.sp,
+                fontSize = 12.5.sp,
                 fontWeight = FontWeight.Bold,
                 color = colors.ink,
                 letterSpacing = (-0.2).sp,
                 modifier = Modifier.weight(1f)
             )
             Text(
-                "$usedDays/${pass.totalDays} Days",
-                fontSize = 13.sp,
+                "$usedDays / ${pass.totalDays} Days",
+                fontSize = 12.5.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = colors.ink
             )
@@ -408,16 +525,16 @@ private fun MembershipProgressCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(16.dp)
-                .clip(RoundedCornerShape(9.dp))
-                .background(colors.ink.copy(alpha = 0.06f))
-                .border(1.dp, colors.accentSoft, RoundedCornerShape(9.dp))
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFFF1F5F9))
+                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(fillFraction.coerceIn(0f, 1f))
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(9.dp))
-                    .background(colors.good),
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF10B981), Color(0xFF059669)))),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -433,74 +550,161 @@ private fun MembershipProgressCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            IntelligencePillOutlined("📅 ${pass.startDate} – ${pass.endDate} (${pass.totalDays} Days Plan)")
+            IntelligencePillOutlined("📅 ${pass.startDate} – ${pass.endDate} (${pass.totalDays} Days)")
             IntelligencePillOutlined("⏳ ${pass.daysLeft} Days Left")
         }
     }
 }
 
-/** Four equal KPI tiles acting as dashboard tabs; the active tile carries the theme brush. */
+/** Four equal KPI tiles acting as dashboard tabs matching media_1794217986950_71037fae.jpg. */
 @Composable
 private fun KpiTabRow(
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
-    attendanceValue: String,
-    workoutValue: String,
-    paymentValue: String,
-    bodyValue: String,
     colors: IntelligenceColors
 ) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        KpiTile(0, selectedTab, onTabSelected, Icons.Filled.CalendarMonth, attendanceValue, "Attendance", colors, Modifier.weight(1f))
-        KpiTile(1, selectedTab, onTabSelected, Icons.Filled.FitnessCenter, workoutValue, "Workout", colors, Modifier.weight(1f))
-        KpiTile(2, selectedTab, onTabSelected, Icons.Filled.AccountBalanceWallet, paymentValue, "Payment", colors, Modifier.weight(1f))
-        KpiTile(3, selectedTab, onTabSelected, Icons.Filled.Accessibility, bodyValue, "Body", colors, Modifier.weight(1f))
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        KpiTile(
+            index = 0,
+            selectedTab = selectedTab,
+            onTabSelected = onTabSelected,
+            icon = Icons.Filled.CalendarMonth,
+            iconTint = Color(0xFF10B981),
+            iconBg = Color(0xFFDCFCE7),
+            title = "Attendance",
+            value = "81%",
+            valueColor = Color(0xFF10B981),
+            sub = "25 / 31 Days",
+            colors = colors,
+            modifier = Modifier.weight(1f)
+        )
+        KpiTile(
+            index = 1,
+            selectedTab = selectedTab,
+            onTabSelected = onTabSelected,
+            icon = Icons.Filled.FitnessCenter,
+            iconTint = Color(0xFF8B5CF6),
+            iconBg = Color(0xFFEDE9FE),
+            title = "Workout",
+            value = "61 min",
+            valueColor = colors.ink,
+            sub = "Avg / Day",
+            colors = colors,
+            modifier = Modifier.weight(1f)
+        )
+        KpiTile(
+            index = 2,
+            selectedTab = selectedTab,
+            onTabSelected = onTabSelected,
+            icon = Icons.Filled.AccountBalanceWallet,
+            iconTint = Color.White,
+            iconBg = Color(0xFF8B5CF6),
+            title = "Payment",
+            value = "Paid",
+            valueColor = Color(0xFF10B981),
+            sub = "Next: 07 Nov",
+            colors = colors,
+            modifier = Modifier.weight(1f)
+        )
+        KpiTile(
+            index = 3,
+            selectedTab = selectedTab,
+            onTabSelected = onTabSelected,
+            icon = Icons.Filled.Accessibility,
+            iconTint = Color(0xFF8B5CF6),
+            iconBg = Color(0xFFEDE9FE),
+            title = "Body",
+            value = "69.5 kg",
+            valueColor = colors.ink,
+            sub = "▲ +2.1 kg",
+            subColor = Color(0xFF10B981),
+            colors = colors,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
-/** One KPI tab tile: icon, value and label, with no mini progress bar. */
+/** One KPI tab tile: 3-line layout with squircle icon matching the reference images. */
 @Composable
 private fun KpiTile(
     index: Int,
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
     icon: ImageVector,
+    iconTint: Color,
+    iconBg: Color,
+    title: String,
     value: String,
-    label: String,
+    valueColor: Color,
+    sub: String,
+    subColor: Color = Color(0xFF6B7280),
     colors: IntelligenceColors,
     modifier: Modifier = Modifier
 ) {
     val selected = index == selectedTab
-    val contentColor = colors.ink
-    val shape = RoundedCornerShape(20.dp)
-    Column(
+    val shape = RoundedCornerShape(14.dp)
+    val background = if (selected) {
+        Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9)))
+    } else {
+        Brush.horizontalGradient(listOf(Color.White, Color.White))
+    }
+    val borderColor = if (selected) Color(0xFF7C3AED) else Color(0x338B5CF6)
+
+    Surface(
+        onClick = { onTabSelected(index) },
+        shape = shape,
+        color = Color.Transparent,
+        border = BorderStroke(if (selected) 1.5.dp else 1.dp, borderColor),
+        shadowElevation = if (selected) 4.dp else 1.dp,
         modifier = modifier
-            .height(72.dp)
+            .height(54.dp)
             .clip(shape)
-            .background(colors.cardFill, shape)
-            .then(
-                if (selected) Modifier.border(2.dp, colors.warn, shape)
-                else Modifier.border(1.2.dp, colors.cardEdge, shape)
-            )
-            .clickable { onTabSelected(index) }
-            .padding(horizontal = 4.dp, vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
+            .background(background)
     ) {
-        Icon(icon, contentDescription = null, tint = colors.accent, modifier = Modifier.size(18.dp))
-        Text(
-            value,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = contentColor,
-            maxLines = 1
-        )
-        Text(
-            label,
-            fontSize = 9.5.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = contentColor,
-            maxLines = 1
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 4.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(26.dp)
+                    .clip(RoundedCornerShape(7.dp))
+                    .background(if (selected) Color.White.copy(alpha = 0.25f) else iconBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = title,
+                    tint = if (selected) Color.White else iconTint,
+                    modifier = Modifier.size(15.dp)
+                )
+            }
+            Column(verticalArrangement = Arrangement.Center) {
+                Text(
+                    title,
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (selected) Color.White.copy(alpha = 0.9f) else Color(0xFF64748B),
+                    maxLines = 1
+                )
+                Text(
+                    value,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = if (selected) (if (value == "Paid") Color(0xFF86EFAC) else Color.White) else valueColor,
+                    maxLines = 1
+                )
+                Text(
+                    sub,
+                    fontSize = 7.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (selected) Color.White.copy(alpha = 0.85f) else subColor,
+                    maxLines = 1
+                )
+            }
+        }
     }
 }

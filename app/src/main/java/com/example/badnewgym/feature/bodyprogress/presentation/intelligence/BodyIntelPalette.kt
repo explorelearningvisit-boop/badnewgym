@@ -1,43 +1,48 @@
 package com.example.badnewgym.feature.bodyprogress.presentation.intelligence
 
 import androidx.compose.ui.graphics.Color
+import com.example.badnewgym.feature.membercard.design.BadGymThemeManager
 
 /**
- * Light pearl palette for Body Intelligence.
+ * Theme-reactive palette for the full Body Intelligence workspace.
  *
- * Deliberately restrained: one emerald family, one cool neutral family and two
- * status accents. Dark surfaces are never used as a card background.
+ * Every accent derives from the active [BadGymThemeManager] theme, so switching
+ * the dashboard theme re-skins this whole surface too; neutral ink stays legible
+ * and status hues stay fixed so "good/warn" never changes meaning per theme.
  */
 internal object BodyIntelPalette {
-    // BAD GYM Emerald Soft Glass Theme Tokens
-    val Primary = Color(0xFF159B65)
-    val DeepEmerald = Color(0xFF087B50)
-    val FreshGreen = Color(0xFF38B978)
-    val SoftMint = Color(0xFFDDF5E8)
-    val Background = Color(0xFFF3F6F3)
-    val Surface = Color(0xFFFFFFFF)
-    val Text = Color(0xFF26352D)
-    val Secondary = Color(0xFF75847A)
-    val TextMuted = Color(0xFFA0AAA3)
-    val CardBorder = Color(0xFFE2EBE5)
+    private val theme get() = BadGymThemeManager.activeTheme
+    private val accent get() = theme.primaryColor
+    private val accentDeep get() = theme.secondaryColor
+
+    val Primary get() = accent
+    val DeepEmerald get() = accentDeep
+    val FreshGreen get() = accent
+    val SoftMint get() = accent.copy(alpha = 0.12f)
+    val Background get() = Color(0xFFFAFBFC)
+    val Surface get() = Color.White
+    val Text get() = Color(0xFF1E2A24)
+    val Secondary get() = Color(0xFF6B7A72)
+    val TextMuted get() = Color(0xFF9AA6A0)
+    val CardBorder get() = accent.copy(alpha = 0.16f)
 
     // Palette & Glass Surface Aliases
-    val Pearl = Color(0xFFF3F6F3)
-    val Card = Color(0xFFFFFFFF)
-    val CardSoft = Color(0xFFF1F8F4)
-    val CardInset = Color(0xFFF7FBF9)
+    val Pearl get() = Color(0xFFFAFBFC)
+    val Card get() = Color.White
+    val CardSoft get() = accent.copy(alpha = 0.08f)
+    val CardInset get() = accent.copy(alpha = 0.05f)
 
-    val Ink = Color(0xFF26352D)
-    val InkSoft = Color(0xFF2C4A40)
-    val Muted = Color(0xFF75847A)
-    val Faint = Color(0xFFA0AAA3)
-    val Hairline = Color(0xFFE2EBE5)
-    val HairlineStrong = Color(0xFFCBE3D7)
+    val Ink get() = Color(0xFF1E2A24)
+    val InkSoft get() = accentDeep
+    val Muted get() = Color(0xFF6B7A72)
+    val Faint get() = Color(0xFF9AA6A0)
+    val Hairline get() = accent.copy(alpha = 0.14f)
+    val HairlineStrong get() = accent.copy(alpha = 0.26f)
 
-    val Emerald = Color(0xFF159B65)
-    val EmeraldDeep = Color(0xFF087B50)
-    val EmeraldWash = Color(0xFFDDF5E8)
-    val EmeraldEdge = Color(0xFF38B978)
+    val Emerald get() = accent
+    val EmeraldDeep get() = accentDeep
+    val EmeraldWash get() = accent.copy(alpha = 0.12f)
+    val EmeraldEdge get() = accent
 
     val Violet = Color(0xFF6B5BD2)
     val VioletWash = Color(0xFFF0EEFB)

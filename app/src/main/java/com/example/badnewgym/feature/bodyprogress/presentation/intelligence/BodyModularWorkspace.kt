@@ -84,6 +84,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.R
 import com.example.badnewgym.feature.bodyprogress.domain.intelligence.*
+import com.example.badnewgym.feature.bodyprogress.domain.model.BodyMetric
+import kotlin.math.roundToInt
 
 // =============================================================================
 // MODULAR BODY INTELLIGENCE WORKSPACE (PROFESSIONAL FIXED-VIEWPORT SYSTEM)
@@ -426,14 +428,17 @@ private fun BodyNavTile(
     modifier: Modifier = Modifier
 ) {
     val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
+    val accent = activeTheme.primaryColor
+    val accentDeep = activeTheme.secondaryColor
+    val onAccent = if ((accent.red + accent.green + accent.blue) / 3f > 0.62f) Color(0xFF0F172A) else Color.White
     val shape = RoundedCornerShape(10.dp)
     val fill = if (isSelected) {
-        activeTheme.getActiveTabBrush()
+        Brush.verticalGradient(listOf(accent, accentDeep))
     } else {
-        Brush.verticalGradient(listOf(Color.White, Color.White))
+        Brush.verticalGradient(listOf(Color.White, accent.copy(alpha = 0.07f)))
     }
-    val borderColor = if (isSelected) activeTheme.getActiveTabBorder() else Color(0xFFE2E8F0)
-    val activeTextColor = activeTheme.getActiveTabTextColor()
+    val borderColor = if (isSelected) accentDeep else accent.copy(alpha = 0.22f)
+    val activeTextColor = onAccent
 
     Surface(
         onClick = onClick,
@@ -456,7 +461,7 @@ private fun BodyNavTile(
             Icon(
                 imageVector = icon,
                 contentDescription = tab.label,
-                tint = if (isSelected) activeTextColor else Color(0xFF64748B),
+                tint = if (isSelected) activeTextColor else accentDeep,
                 modifier = Modifier.size(13.dp)
             )
             Text(
@@ -605,9 +610,12 @@ private fun SecondaryPill(
     onClick: () -> Unit
 ) {
     val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
-    val fill = if (isSelected) activeTheme.getActiveTabBrush() else Brush.verticalGradient(listOf(Color.White, Color.White))
-    val borderColor = if (isSelected) activeTheme.getActiveTabBorder() else Color(0xFFE2E8F0)
-    val textColor = if (isSelected) activeTheme.getActiveTabTextColor() else Color(0xFF64748B)
+    val accent = activeTheme.primaryColor
+    val accentDeep = activeTheme.secondaryColor
+    val onAccent = if ((accent.red + accent.green + accent.blue) / 3f > 0.62f) Color(0xFF0F172A) else Color.White
+    val fill = if (isSelected) Brush.verticalGradient(listOf(accent, accentDeep)) else Brush.verticalGradient(listOf(Color.White, accent.copy(alpha = 0.07f)))
+    val borderColor = if (isSelected) accentDeep else accent.copy(alpha = 0.22f)
+    val textColor = if (isSelected) onAccent else Color(0xFF475569)
 
     Surface(
         onClick = onClick,
@@ -637,16 +645,28 @@ private fun SecondaryPill(
 
 @Composable
 fun BodyOverviewModule(state: BodyIntelligenceState) {
+    val readings = state.view.readings
+    val weight = readings.firstOrNull { it.metric == BodyMetric.WEIGHT }
+    val muscle = readings.firstOrNull { it.metric == BodyMetric.MUSCLE_MASS }
+    val fat = readings.firstOrNull { it.metric == BodyMetric.BODY_FAT }
+    val bmi = readings.firstOrNull { it.metric == BodyMetric.BMI }
+    val current = weight?.value ?: 0.0
+    val start = weight?.history?.firstOrNull()?.second ?: current
+    val target = weight?.goalLabel.orEmpty().bodyParseDouble()
+    val percent = if (target > start) (((current - start) / (target - start)) * 100).roundToInt().coerceIn(0, 100) else 0
+    val goalLabel = state.input.profile?.goalLabel?.takeIf { it.isNotBlank() }
+        ?: if (target >= current) "Muscle Gain" else "Fat Loss"
+    val startLabel = weight?.history?.firstOrNull()?.first ?: "start"
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // CARD 1: TRANSFORMATION GOAL (Athlete silhouette + 56% Donut Gauge + 3 Milestones + 3 Metric Pods)
+        // CARD 1: TRANSFORMATION GOAL (real goal, computed progress, recorded composition)
         BodyMasterCard {
             CardHeaderStrip(
                 title = "Transformation Goal",
                 icon = Icons.Filled.Flag,
-                trailingText = "● Fat Loss • 65.0 kg"
+                trailingText = "● $goalLabel • ${bodyFmt(target)} kg"
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -702,24 +722,22 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                             drawArc(
                                 brush = Brush.sweepGradient(
                                     listOf(
-                                        Color(0xFF06B6D4),
-                                        Color(0xFF10B981),
-                                        Color(0xFFFACC15),
-                                        Color(0xFFEAB308),
-                                        Color(0xFF06B6D4)
+                                        BodyIntelPalette.Emerald,
+                                        BodyIntelPalette.EmeraldDeep,
+                                        BodyIntelPalette.Emerald
                                     )
                                 ),
                                 startAngle = -90f,
-                                sweepAngle = 360f * 0.56f,
+                                sweepAngle = 360f * percent / 100f,
                                 useCenter = false,
                                 style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
                             )
                         }
                         Text(
-                            text = "56%",
+                            text = "$percent%",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF0F172A)
+                            color = BodyIntelPalette.Ink
                         )
                     }
 
@@ -728,18 +746,9 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "72.8 kg", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF0F172A))
-                            Text(text = "Start", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "69.5 kg", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF15803D))
-                            Text(text = "Current", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "65.0 kg", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF7E22CE))
-                            Text(text = "Target", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
-                        }
+                        GoalMilestone(bodyFmt(start), "Start", BodyIntelPalette.Ink)
+                        GoalMilestone(bodyFmt(current), "Now", BodyIntelPalette.EmeraldDeep)
+                        GoalMilestone(bodyFmt(target), "Goal", BodyIntelPalette.Violet)
                     }
                 }
             }
@@ -754,22 +763,22 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
                     label = "BMI",
-                    value = "22.7",
-                    badge = "Normal",
+                    value = bmi?.value?.let { bodyFmt(it) } ?: "--",
+                    badge = bodyBmiStatus(bmi?.value),
                     badgeColor = Color(0xFF16A34A)
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
                     label = "Body Fat",
-                    value = "18.5",
+                    value = fat?.value?.let { bodyFmt(it) } ?: "--",
                     unit = "%",
-                    badge = "Moderate",
+                    badge = bodyFatStatus(fat?.value),
                     badgeColor = Color(0xFFD97706)
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
                     label = "Muscle",
-                    value = "56.6",
+                    value = muscle?.value?.let { bodyFmt(it) } ?: "--",
                     unit = "kg",
                     badge = "Good",
                     badgeColor = Color(0xFF16A34A)
@@ -777,12 +786,12 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
             }
         }
 
-        // CARD 2: QUICK INSIGHTS
+        // CARD 2: QUICK INSIGHTS (real change since the first recorded weigh-in)
         BodyMasterCard {
             CardHeaderStrip(
                 title = "Quick Insights",
                 icon = Icons.Filled.Info,
-                trailingText = "Analysis"
+                trailingText = "Since $startLabel"
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -794,31 +803,55 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
                     label = "Weight",
-                    value = "-3.3",
+                    value = bodySigned(current - start),
                     unit = "kg",
-                    badge = "Progress",
+                    badge = "Change",
                     badgeColor = Color(0xFF16A34A)
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
-                    label = "To Target",
-                    value = "+4.5",
+                    label = "Muscle",
+                    value = bodySigned(bodyDelta(muscle)),
                     unit = "kg",
-                    badge = "Remaining",
+                    badge = "Change",
                     badgeColor = Color(0xFF2563EB)
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
-                    label = "Achieved",
-                    value = "42.3",
+                    label = "Body Fat",
+                    value = bodySigned(bodyDelta(fat)),
                     unit = "%",
-                    badge = "On Track",
+                    badge = "Change",
                     badgeColor = Color(0xFF7E22CE)
                 )
             }
         }
     }
 }
+
+/** One labelled start/now/goal readout inside the transformation card. */
+@Composable
+private fun GoalMilestone(value: String, label: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = value, fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = color)
+        Text(text = label, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+    }
+}
+
+private fun bodyFmt(v: Double): String = String.format(java.util.Locale.US, "%.1f", v)
+private fun bodySigned(v: Double): String = String.format(java.util.Locale.US, "%+.1f", v)
+private fun String.bodyParseDouble(): Double =
+    filter { it.isDigit() || it == '.' || it == '-' }.toDoubleOrNull() ?: 0.0
+private fun bodyDelta(r: CompositionReading?): Double {
+    val h = r?.history ?: return 0.0
+    return if (h.size >= 2) h.last().second - h.first().second else 0.0
+}
+private fun bodyBmiStatus(v: Double?): String =
+    if (v == null || v <= 0.0) "--" else if (v < 18.5) "Lean" else if (v <= 24.9) "Normal" else "High"
+private fun bodyFatStatus(v: Double?): String =
+    if (v == null || v <= 0.0) "--" else if (v <= 15.0) "Lean" else if (v <= 20.0) "Athletic" else "Moderate"
+private fun bodyPctOf(part: Double, whole: Double): String =
+    if (whole > 0.0) String.format(java.util.Locale.US, "%.1f%%", part / whole * 100.0) else "--"
 
 // =============================================================================
 // MODULE 2: COMPOSITION
@@ -834,13 +867,22 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
     ) {
         when (state.compositionSubTab) {
             CompositionSubTab.OVERVIEW -> {
-                // CARD 1: COMPOSITION BREAKDOWN & DONUT
+                val readings = state.view.readings
+                val wKg = readings.firstOrNull { it.metric == BodyMetric.WEIGHT }?.value ?: 0.0
+                val fatPct = readings.firstOrNull { it.metric == BodyMetric.BODY_FAT }?.value ?: 0.0
+                val muscleKg = readings.firstOrNull { it.metric == BodyMetric.MUSCLE_MASS }?.value ?: 0.0
+                val fatMass = if (wKg > 0.0 && fatPct > 0.0) wKg * fatPct / 100.0 else 0.0
+                val leanMass = if (wKg > 0.0) wKg - fatMass else 0.0
+                val leanPct = if (wKg > 0.0) (leanMass / wKg * 100.0).roundToInt() else 0
+                val fatSlicePct = 100 - leanPct
+
+                // CARD 1: COMPOSITION BREAKDOWN (lean vs fat computed from recorded weight + body-fat)
                 BodyMasterCard {
                     CardHeaderStrip(
-                        title = "Body Composition (${rec.totalWeightKg} kg)",
+                        title = "Body Composition (${bodyFmt(wKg)} kg)",
                         icon = Icons.Filled.Scale,
                         trailingBadge = "Truth Verified",
-                        trailingBadgeColor = BodyIntelPalette.DeepEmerald
+                        trailingBadgeColor = BodyIntelPalette.EmeraldDeep
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -852,12 +894,10 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                     ) {
                         DonutChart(
                             segments = listOf(
-                                DonutSegment("Muscle", 81, Color(0xFF10B981)),
-                                DonutSegment("Fat", 19, Color(0xFFF59E0B)),
-                                DonutSegment("Water", 60, Color(0xFF0284C7)),
-                                DonutSegment("Bone", 5, Color(0xFF8B5CF6))
+                                DonutSegment("Lean", leanPct, BodyIntelPalette.Emerald),
+                                DonutSegment("Fat", fatSlicePct, Color(0xFFF59E0B))
                             ),
-                            centerTop = "${rec.totalWeightKg}",
+                            centerTop = bodyFmt(wKg),
                             centerBottom = "kg Total",
                             size = 70.dp,
                             stroke = 9.dp
@@ -869,25 +909,23 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
-                            CompositionLegendRow(color = Color(0xFF10B981), label = "Muscle", value = "${rec.fatFreeMassKg} kg", pct = "81.4%")
-                            CompositionLegendRow(color = Color(0xFFF59E0B), label = "Fat", value = "${rec.fatMassKg} kg", pct = "18.5%")
-                            CompositionLegendRow(color = Color(0xFF0284C7), label = "Water", value = "${rec.bodyWaterKg} kg", pct = "60.1%")
-                            CompositionLegendRow(color = Color(0xFF8B5CF6), label = "Bone", value = "${rec.boneMineralKg} kg", pct = "4.5%")
+                            CompositionLegendRow(color = BodyIntelPalette.Emerald, label = "Muscle", value = "${bodyFmt(muscleKg)} kg", pct = bodyPctOf(muscleKg, wKg))
+                            CompositionLegendRow(color = Color(0xFF10B981), label = "Lean Mass", value = "${bodyFmt(leanMass)} kg", pct = bodyPctOf(leanMass, wKg))
+                            CompositionLegendRow(color = Color(0xFFF59E0B), label = "Fat Mass", value = "${bodyFmt(fatMass)} kg", pct = bodyPctOf(fatMass, wKg))
                         }
                     }
                 }
 
-                // CARD 2: SYMMETRICAL BIOMETRIC PODS
+                // CARD 2: recorded adipose markers only (no fabricated water/bone/BMR/visceral)
                 BodyMasterCard {
                     CardHeaderStrip(
                         title = "Adipose & Metabolic Markers",
                         icon = Icons.Filled.LocalFireDepartment,
-                        trailingText = "BMR ${rec.bmrKcal} kcal"
+                        trailingText = "Recorded"
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // Row of 3 Symmetrical Metric Pods
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -895,15 +933,15 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
                             label = "Body Fat",
-                            value = "${rec.bodyFatPercent}",
+                            value = bodyFmt(fatPct),
                             unit = "%",
-                            badge = "Healthy",
+                            badge = bodyFatStatus(fatPct),
                             badgeColor = BodyIntelPalette.Primary
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
                             label = "Fat Mass",
-                            value = "${rec.fatMassKg}",
+                            value = bodyFmt(fatMass),
                             unit = "kg",
                             badge = "Adipose",
                             badgeColor = Color(0xFFD97706)
@@ -911,33 +949,9 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
                             label = "Lean Mass",
-                            value = "${rec.fatFreeMassKg}",
+                            value = bodyFmt(leanMass),
                             unit = "kg",
                             badge = "Active",
-                            badgeColor = BodyIntelPalette.DeepEmerald
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Row of 2 Symmetrical Pods for Visceral Fat & BMR
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        UniformMetricPod(
-                            modifier = Modifier.weight(1f),
-                            label = "Visceral Fat",
-                            value = "Grade ${rec.visceralFatGrade}",
-                            badge = "Low Risk",
-                            badgeColor = BodyIntelPalette.Primary
-                        )
-                        UniformMetricPod(
-                            modifier = Modifier.weight(1f),
-                            label = "Basal Burn",
-                            value = "${rec.bmrKcal}",
-                            unit = "kcal",
-                            badge = "Optimal",
                             badgeColor = BodyIntelPalette.DeepEmerald
                         )
                     }
@@ -1454,51 +1468,42 @@ private data class ProgressTrendConfig(
 
 @Composable
 fun BodyProgressModule(state: BodyIntelligenceState) {
+    val readings = state.view.readings
+    fun cfgFor(title: String, metric: BodyMetric, unit: String): ProgressTrendConfig {
+        val r = readings.firstOrNull { it.metric == metric }
+        var pts = r?.history?.map { it.second.toFloat() }.orEmpty()
+        if (pts.size < 2) {
+            val v = r?.value?.toFloat() ?: 0f
+            pts = listOf(v, v)
+        }
+        val cur = pts.last()
+        val prev = pts[pts.size - 2]
+        val chg = cur - prev
+        val pct = if (prev != 0f) chg / prev * 100f else 0f
+        val lo = pts.min() - 1f
+        val hi = pts.max() + 1f
+        val arrow = if (chg <= 0f) "▼" else "▲"
+        val curText = if (unit == "%") "${bodyFmt(cur.toDouble())}%" else "${bodyFmt(cur.toDouble())} $unit"
+        val prevText = if (unit == "%") "${bodyFmt(prev.toDouble())}%" else "${bodyFmt(prev.toDouble())} $unit"
+        val chgText = if (unit == "%") "${bodySigned(chg.toDouble())}%" else "${bodySigned(chg.toDouble())} $unit"
+        val pctText = "$arrow ${String.format(java.util.Locale.US, "%.1f", kotlin.math.abs(pct.toDouble()))}%"
+        return ProgressTrendConfig(
+            titleText = title,
+            pointsList = pts,
+            unitStr = unit,
+            minVal = lo,
+            maxVal = hi,
+            curText = curText,
+            prevText = prevText,
+            chgText = chgText,
+            pctText = pctText
+        )
+    }
     val config = when (state.progressSubTab) {
-        ProgressSubTab.WEIGHT -> ProgressTrendConfig(
-            titleText = "Weight Trend (kg)",
-            pointsList = listOf(74.5f, 72.8f, 71.2f, 70.1f, 69.5f),
-            unitStr = "kg",
-            minVal = 65f,
-            maxVal = 76f,
-            curText = "69.5 kg",
-            prevText = "72.8 kg",
-            chgText = "-3.3 kg",
-            pctText = "▼ 4.5%"
-        )
-        ProgressSubTab.BODY_FAT -> ProgressTrendConfig(
-            titleText = "Body Fat Trend (%)",
-            pointsList = listOf(21.2f, 20.4f, 19.5f, 18.9f, 18.5f),
-            unitStr = "%",
-            minVal = 17f,
-            maxVal = 22f,
-            curText = "18.5%",
-            prevText = "20.4%",
-            chgText = "-1.9%",
-            pctText = "▼ 9.3%"
-        )
-        ProgressSubTab.MUSCLE -> ProgressTrendConfig(
-            titleText = "Skeletal Muscle Mass (kg)",
-            pointsList = listOf(50.8f, 51.5f, 52.2f, 52.8f, 53.2f),
-            unitStr = "kg",
-            minVal = 49f,
-            maxVal = 55f,
-            curText = "53.2 kg",
-            prevText = "51.5 kg",
-            chgText = "+1.7 kg",
-            pctText = "▲ 3.3%"
-        )
-        ProgressSubTab.SIZE -> ProgressTrendConfig(
-            titleText = "Waist Circumference (in)",
-            pointsList = listOf(34.5f, 33.8f, 33.0f, 32.4f, 32.0f),
-            unitStr = "in",
-            minVal = 31f,
-            maxVal = 36f,
-            curText = "32.0 in",
-            prevText = "33.8 in",
-            chgText = "-1.8 in",
-            pctText = "▼ 5.3%"
-        )
+        ProgressSubTab.WEIGHT -> cfgFor("Weight Trend (kg)", BodyMetric.WEIGHT, "kg")
+        ProgressSubTab.BODY_FAT -> cfgFor("Body Fat Trend (%)", BodyMetric.BODY_FAT, "%")
+        ProgressSubTab.MUSCLE -> cfgFor("Muscle Mass Trend (kg)", BodyMetric.MUSCLE_MASS, "kg")
+        ProgressSubTab.SIZE -> cfgFor("Waist Circumference (cm)", BodyMetric.WAIST, "cm")
     }
 
     val pointsList = config.pointsList
@@ -1616,13 +1621,23 @@ fun BodyProgressModule(state: BodyIntelligenceState) {
                 }
             }
 
-            // X-Axis Labels
+            // X-Axis Labels (real months from the trended metric's own history)
+            val axisMetric = when (state.progressSubTab) {
+                ProgressSubTab.WEIGHT -> BodyMetric.WEIGHT
+                ProgressSubTab.BODY_FAT -> BodyMetric.BODY_FAT
+                ProgressSubTab.MUSCLE -> BodyMetric.MUSCLE_MASS
+                ProgressSubTab.SIZE -> BodyMetric.WAIST
+            }
+            val axisLabels = readings.firstOrNull { it.metric == axisMetric }
+                ?.history?.map { it.first }
+                ?.takeIf { it.isNotEmpty() }
+                ?: pointsList.map { "" }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                state.progressTimeline.forEach { p ->
-                    Text(text = p.dateLabel, fontSize = 8.sp, color = BodyIntelPalette.Secondary)
+                axisLabels.forEach { label ->
+                    Text(text = label, fontSize = 8.sp, color = BodyIntelPalette.Secondary)
                 }
             }
 
@@ -1640,19 +1655,26 @@ fun BodyProgressModule(state: BodyIntelligenceState) {
             }
         }
 
-        // Assessment Milestones
-        BodyMasterCard {
-            CardHeaderStrip(
-                title = "Assessment Milestones",
-                icon = Icons.Filled.Flag,
-                trailingText = "Target Cycle"
-            )
+        // Assessment Milestones (real weigh-in checkpoints from the recorded history)
+        val wHist = readings.firstOrNull { it.metric == BodyMetric.WEIGHT }?.history ?: emptyList()
+        if (wHist.size >= 2) {
+            BodyMasterCard {
+                CardHeaderStrip(
+                    title = "Assessment Milestones",
+                    icon = Icons.Filled.Flag,
+                    trailingText = "Weigh-in log"
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            state.transformationGoal.milestones.forEach { m ->
-                MilestoneItemCard(m)
-                Spacer(modifier = Modifier.height(3.dp))
+                val ms = listOf(
+                    MilestoneItem("Initial weigh-in", wHist.first().first, true, "${bodyFmt(wHist.first().second)} kg • starting point"),
+                    MilestoneItem("Latest weigh-in", wHist.last().first, true, "${bodyFmt(wHist.last().second)} kg • ${bodySigned(wHist.last().second - wHist.first().second)} kg total")
+                )
+                ms.forEach { m ->
+                    MilestoneItemCard(m)
+                    Spacer(modifier = Modifier.height(3.dp))
+                }
             }
         }
     }

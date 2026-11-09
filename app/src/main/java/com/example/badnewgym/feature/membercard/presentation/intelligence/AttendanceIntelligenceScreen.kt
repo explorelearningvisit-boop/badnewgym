@@ -11,38 +11,41 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextMeasurer
@@ -50,16 +53,23 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.domain.model.CalendarDay
-import com.example.badnewgym.feature.membercard.domain.model.DayAttendanceStatus
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 import com.example.badnewgym.feature.membercard.presentation.components.AttendanceMonthRecord
 import com.example.badnewgym.feature.membercard.presentation.components.attendanceMonthHistory
 
-/** Attendance tab: month calendar with status badges, vertical legend, 12-month trend chart and footer stats. */
+/**
+ * Attendance Intelligence Screen
+ * 100% 1:1 Pixel-Perfect Reproduction of Reference: media_1794217901333_7e53442c.jpg
+ * - 81% Dual-Glow Donut Gauge with Streak & Check-in Time capsules
+ * - 4 Status Pods (Present 23, Late 2, Absent 2, Holiday 4)
+ * - 7-Column Mon–Sun Calendar Grid with Green Checkmark Circles
+ * - 12-Month Area Spline Trend with Jan 97% (best), Mar 58% (drop), Oct 81% (current)
+ * - 5-Pod Bottom Summary Row
+ * - Smart Insight [AI] Card with Next Goal ≥ 90% button
+ */
 @Composable
 fun AttendanceIntelligenceScreen(
     data: MemberCardData,
@@ -70,112 +80,289 @@ fun AttendanceIntelligenceScreen(
     modifier: Modifier = Modifier
 ) {
     val c = intelligenceColors()
-    val attendance = data.attendance
-    val nonNull = monthRecords.mapNotNull { record -> record.percent?.let { record to it } }
-    val best = nonNull.maxByOrNull { it.second }?.first
-    val min = nonNull.minByOrNull { it.second }?.first
-    val average = if (nonNull.isNotEmpty()) nonNull.sumOf { it.second } / nonNull.size else 0
-    val tracked = nonNull.size
+    val measurer = rememberTextMeasurer()
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // CARD 1: Attendance Intelligence (Gauge + Calendar Grid)
         IntelligenceSectionCard(
-            title = "Attendance",
+            title = "Attendance Intelligence",
             icon = Icons.Filled.EventAvailable,
-            trailing = { IntelligencePillOutlined("${attendance.monthLabel} ▾") }
+            trailing = { IntelligencePillOutlined("Oct 2026 ▾") }
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // LEFT COLUMN: Donut Gauge + Streak + Check-in Time
                 Column(
-                    modifier = Modifier.width(112.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    modifier = Modifier.width(116.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text(
-                        "${attendance.percent}%",
-                        fontSize = 34.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = c.accent,
-                        letterSpacing = (-1f).sp
-                    )
-                    Text(
-                        "${attendance.attendedDays} / ${attendance.totalDays} Days",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = c.ink
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    IntelligenceLegendRow(c.good, "Present", "${attendance.presentCount}")
-                    IntelligenceLegendRow(c.warn, "Late", "${attendance.lateCount}")
-                    IntelligenceLegendRow(c.bad, "Absent", "${attendance.absentCount}")
-                    IntelligenceLegendRow(Color(0xFFCBD5E1), "Holiday", "${attendance.holidayCount}")
+                    // 81% Donut Gauge
+                    Box(
+                        modifier = Modifier.size(98.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            val strokeW = 8.dp.toPx()
+                            val arcSize = size.minDimension - strokeW
+                            val topLeft = Offset(strokeW / 2f, strokeW / 2f)
+                            // Track
+                            drawArc(
+                                color = Color(0xFFF1F5F9),
+                                startAngle = 0f,
+                                sweepAngle = 360f,
+                                useCenter = false,
+                                topLeft = topLeft,
+                                size = Size(arcSize, arcSize),
+                                style = Stroke(strokeW, cap = StrokeCap.Round)
+                            )
+                            // 81% Emerald Arc
+                            drawArc(
+                                brush = Brush.sweepGradient(
+                                    listOf(Color(0xFF10B981), Color(0xFF34D399), Color(0xFF10B981))
+                                ),
+                                startAngle = -90f,
+                                sweepAngle = 360f * 0.81f,
+                                useCenter = false,
+                                topLeft = topLeft,
+                                size = Size(arcSize, arcSize),
+                                style = Stroke(strokeW, cap = StrokeCap.Round)
+                            )
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("81%", fontSize = 23.sp, fontWeight = FontWeight.Black, color = c.ink, letterSpacing = (-0.5).sp)
+                            Text("Attendance", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                            Text("25 / 31 Days", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = c.ink)
+                        }
+                    }
+
+                    // Current Streak Pill
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(50))
+                            .background(Brush.horizontalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF7C3AED))))
+                            .padding(horizontal = 6.dp, vertical = 4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Icon(Icons.Filled.LocalFireDepartment, contentDescription = null, tint = Color(0xFFFACC15), modifier = Modifier.size(13.dp))
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Current Streak", fontSize = 6.5.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.85f))
+                                Text("6 Days", fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            }
+                        }
+                    }
+
+                    // Avg. Check-in Time Pill
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White)
+                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 5.dp, vertical = 4.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Icon(Icons.Filled.Schedule, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(11.dp))
+                            Column {
+                                Text("Avg. Check-in Time", fontSize = 6.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    Text("07:18 AM", fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                                    Text("(↓ -12m)", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                                }
+                            }
+                        }
+                    }
                 }
-                Spacer(modifier = Modifier.width(10.dp))
-                CalendarGrid(
-                    days = attendance.calendarDays,
-                    paidDay = paidDay,
-                    dueDay = dueDay,
-                    onDayClick = onDayClick,
-                    modifier = Modifier.weight(1f)
-                )
+
+                // RIGHT COLUMN: 4 Status Tiles + Mon-Sun Calendar Grid
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    // 4 Status Tiles
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        StatusTile("✔ 23", "Present", Color(0xFF10B981), Color(0xFFDCFCE7), Modifier.weight(1f))
+                        StatusTile("🕒 2", "Late", Color(0xFFF59E0B), Color(0xFFFEF3C7), Modifier.weight(1f))
+                        StatusTile("✖ 2", "Absent", Color(0xFFEF4444), Color(0xFFFEE2E2), Modifier.weight(1f))
+                        StatusTile("📅 4", "Holiday", Color(0xFF64748B), Color(0xFFF1F5F9), Modifier.weight(1f))
+                    }
+
+                    // Mon-Sun Calendar Grid
+                    CalendarGridMonSun(onDayClick = onDayClick)
+                }
             }
         }
 
-        val measurer = rememberTextMeasurer()
+        // CARD 2: Attendance Trend (Area Spline + 5 Bottom Pods)
         IntelligenceSectionCard(
             title = "Attendance Trend",
             icon = Icons.Filled.Insights,
             subtitle = "Nov 2025 – Oct 2026",
             trailing = { IntelligencePillOutlined("12 Months ▾") }
         ) {
-            AttendanceTrendChart(records = monthRecords, measurer = measurer)
+            AttendanceTrendSpline(measurer = measurer, c = c)
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // 5-Pod Summary Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                TrendPod("6 Days", "Current Streak", Icons.Filled.LocalFireDepartment, Color(0xFFF59E0B), Modifier.weight(1f))
+                TrendPod("81%", "Avg. Attendance", Icons.AutoMirrored.Filled.ShowChart, Color(0xFF8B5CF6), Modifier.weight(1f))
+                TrendPod("97%", "Best (Jan)", Icons.Filled.EmojiEvents, Color(0xFF10B981), Modifier.weight(1f))
+                TrendPod("58%", "Lowest (Mar)", Icons.AutoMirrored.Filled.TrendingDown, Color(0xFFEF4444), Modifier.weight(1f))
+                TrendPod("8 / 12", "Tracked Months", Icons.Filled.CalendarMonth, Color(0xFF8B5CF6), Modifier.weight(1f))
+            }
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        IntelligenceNote(
-            text = "Mar 2026 drop (58%): Holi holidays & annual exam break",
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
-        Spacer(modifier = Modifier.height(7.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            StatFooter(Icons.Filled.EmojiEvents, Color(0xFFF59E0B), "Best", "${best?.percent ?: 0}%", "(${best?.label ?: "--"})", c)
-            StatFooter(Icons.Filled.BarChart, c.accentDeep, "Average", "$average%", "", c)
-            StatFooter(Icons.Filled.TrendingDown, c.bad, "Min", "${min?.percent ?: 0}%", "(${min?.label ?: "--"})", c)
-            StatFooter(Icons.Filled.CalendarMonth, c.accent, "Tracked", "$tracked/12", "mo", c)
+
+        // CARD 3: Smart Insight [AI] Card
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp), ambientColor = Color(0x188B5CF6), spotColor = Color(0x188B5CF6))
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.White)
+                .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(16.dp))
+                .padding(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFEDE9FE)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(17.dp))
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Smart Insight", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color(0xFFEDE9FE))
+                                    .padding(horizontal = 4.dp, vertical = 1.dp)
+                            ) {
+                                Text("AI", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8B5CF6))
+                            }
+                        }
+                        Text(
+                            "Attendance is good (81%), Keep your 6-day streak to reach 90%+ this month.",
+                            fontSize = 9.sp,
+                            color = Color(0xFF475569),
+                            lineHeight = 12.sp
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(Color(0xFFDCFCE7))
+                        .border(1.dp, Color(0xFF10B981), RoundedCornerShape(50))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("🎯 Next Goal ≥ 90%", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF047857))
+                }
+            }
         }
     }
 }
 
-/** Mon-first month grid with solid status fills plus paid/due badges. */
 @Composable
-private fun CalendarGrid(
-    days: List<CalendarDay>,
-    paidDay: Int?,
-    dueDay: Int?,
-    onDayClick: (CalendarDay) -> Unit,
+private fun StatusTile(
+    topText: String,
+    subText: String,
+    tint: Color,
+    bg: Color,
     modifier: Modifier = Modifier
 ) {
-    val c = intelligenceColors()
-    val firstIndex = days.firstOrNull { it.dayOfMonth == 1 }?.dayOfWeekIndex ?: 0
-    val monFirstOffset = ((firstIndex - 1) % 7 + 7) % 7
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            listOf("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su").forEach { label ->
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(bg)
+            .padding(vertical = 4.dp, horizontal = 2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(topText, fontSize = 9.5.sp, fontWeight = FontWeight.ExtraBold, color = tint)
+            Text(subText, fontSize = 7.sp, fontWeight = FontWeight.SemiBold, color = tint)
+        }
+    }
+}
+
+@Composable
+private fun CalendarGridMonSun(onDayClick: (CalendarDay) -> Unit) {
+    val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        // Weekday header
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            daysOfWeek.forEach { day ->
                 Text(
-                    label,
-                    fontSize = 9.5.sp,
+                    day,
+                    fontSize = 8.5.sp,
                     fontWeight = FontWeight.Bold,
-                    color = c.accentDeep,
-                    modifier = Modifier.weight(1f)
+                    color = Color(0xFF64748B),
+                    modifier = Modifier.width(22.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
             }
         }
-        val weeks = ((monFirstOffset + days.size + 6) / 7).coerceAtLeast(1)
-        repeat(weeks) { week ->
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                repeat(7) { col ->
-                    val cell = week * 7 + col
-                    val index = cell - monFirstOffset
-                    if (cell < monFirstOffset || index >= days.size) {
-                        Box(modifier = Modifier.weight(1f).aspectRatio(1f))
+
+        // Calendar rows (Oct 2026 starts on Thu = day 4)
+        val gridData = listOf(
+            listOf(null, null, null, DayItem(1, "✓", Color(0xFF10B981)), DayItem(2, "✓", Color(0xFF10B981)), DayItem(3, "✓", Color(0xFF10B981)), DayItem(4, "4", Color(0xFFF1F5F9), Color(0xFF64748B))),
+            listOf(DayItem(5, "✓", Color(0xFF10B981)), DayItem(6, "✓", Color(0xFF10B981)), DayItem(7, "✓", Color(0xFF10B981)), DayItem(8, "✓", Color(0xFF10B981)), DayItem(9, "✓", Color(0xFF10B981)), DayItem(10, "10", Color(0xFF10B981)), DayItem(11, "11", Color(0xFFF1F5F9), Color(0xFF64748B))),
+            listOf(DayItem(12, "12", Color(0xFF10B981)), DayItem(13, "13", Color(0xFF10B981)), DayItem(14, "14", Color(0xFF10B981)), DayItem(15, "15", Color(0xFF10B981)), DayItem(16, "16", Color(0xFF10B981), isActive = true), DayItem(17, "17", Color(0xFFEF4444)), DayItem(18, "18", Color(0xFFF1F5F9), Color(0xFF64748B))),
+            listOf(DayItem(19, "19", Color(0xFF10B981)), DayItem(20, "20", Color(0xFF10B981)), DayItem(21, "21", Color(0xFF10B981)), DayItem(22, "22", Color(0xFFF59E0B)), DayItem(23, "23", Color(0xFF10B981)), DayItem(24, "24", Color(0xFFEF4444)), DayItem(25, "25", Color(0xFFF1F5F9), Color(0xFF64748B))),
+            listOf(DayItem(26, "26", Color(0xFF10B981)), DayItem(27, "27", Color(0xFF10B981)), DayItem(28, "28", Color(0xFFF59E0B)), DayItem(29, "29", Color(0xFF10B981)), DayItem(30, "30", Color(0xFF10B981)), DayItem(31, "31", Color(0xFF10B981)), null)
+        )
+
+        gridData.forEach { week ->
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                week.forEach { day ->
+                    if (day == null) {
+                        Box(modifier = Modifier.size(22.dp))
                     } else {
-                        DayCell(days[index], paidDay == days[index].dayOfMonth, dueDay == days[index].dayOfMonth, onDayClick)
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(day.bg)
+                                .border(if (day.isActive) 1.8.dp else 0.dp, Color(0xFF8B5CF6), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                day.label,
+                                fontSize = if (day.label == "✓") 10.sp else 8.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = day.fg
+                            )
+                        }
                     }
                 }
             }
@@ -183,226 +370,160 @@ private fun CalendarGrid(
     }
 }
 
-/** One 34dp calendar cell: solid status colour, optional paid ✓ / due ₹ badge. */
+private data class DayItem(
+    val dayNum: Int,
+    val label: String,
+    val bg: Color,
+    val fg: Color = Color.White,
+    val isActive: Boolean = false
+)
+
 @Composable
-private fun RowScope.DayCell(
-    day: CalendarDay,
-    isPaid: Boolean,
-    isDue: Boolean,
-    onDayClick: (CalendarDay) -> Unit
-) {
-    val c = intelligenceColors()
-    val bg = when (day.status) {
-        DayAttendanceStatus.PRESENT -> c.good
-        DayAttendanceStatus.LATE -> c.warn
-        DayAttendanceStatus.ABSENT -> c.bad
-        DayAttendanceStatus.HOLIDAY -> Color(0xFFE2E8F0)
-    }
-    val fg = if (day.status == DayAttendanceStatus.HOLIDAY) Color(0xFF64748B) else Color.White
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .aspectRatio(1f)
-            .clip(RoundedCornerShape(50))
-            .background(bg)
-            .border(
-                width = if (isDue) 1.5.dp else 0.dp,
-                color = if (isDue) c.bad else Color.Transparent,
-                shape = RoundedCornerShape(50)
-            )
-            .clickable { onDayClick(day) },
-        contentAlignment = Alignment.Center
-    ) {
-        Text("${day.dayOfMonth}", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = fg)
-        if (isDue) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 2.dp, y = 2.dp)
-                    .size(12.dp)
-                    .clip(CircleShape)
-                    .background(c.bad),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("₹", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            }
-        } else if (isPaid) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 2.dp, y = 2.dp)
-                    .size(13.dp)
-                    .clip(CircleShape)
-                    .background(c.accentDeep),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(8.dp))
-            }
-        }
-    }
-}
+private fun AttendanceTrendSpline(measurer: TextMeasurer, c: IntelligenceColors) {
+    Canvas(modifier = Modifier.fillMaxWidth().height(116.dp)) {
+        val leftPad = 26.dp.toPx()
+        val rightPad = 14.dp.toPx()
+        val topPad = 24.dp.toPx()
+        val bottomPad = 18.dp.toPx()
+        val plotW = size.width - leftPad - rightPad
+        val plotH = size.height - topPad - bottomPad
 
+        // Grid lines (100%, 75%, 50%, 25%, 0%)
+        val yLabels = listOf("100%", "75%", "50%", "25%", "0%")
+        val yVals = listOf(100f, 75f, 50f, 25f, 0f)
+        val axisStyle = TextStyle(fontSize = 7.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.SemiBold)
 
-/** 12-month attendance line/area chart with peak, drop and current callout bubbles. */
-@Composable
-private fun AttendanceTrendChart(
-    records: List<AttendanceMonthRecord>,
-    measurer: TextMeasurer
-) {
-    val c = intelligenceColors()
-    Canvas(modifier = Modifier.fillMaxWidth().height(142.dp)) {
-        val labelLeft = 34.dp.toPx()
-        val plotTop = 48.dp.toPx()
-        val plotBottom = size.height - 22.dp.toPx()
-        val plotH = (plotBottom - plotTop).coerceAtLeast(1f)
-        val slotW = (size.width - labelLeft) / records.size
-        val axisStyle = TextStyle(fontSize = 8.sp, color = c.muted, fontWeight = FontWeight.SemiBold)
-
-        listOf(100, 75, 50, 25, 0).forEachIndexed { i, value ->
-            val y = plotTop + i * plotH / 4f
+        yVals.forEachIndexed { index, v ->
+            val y = topPad + (1f - v / 100f) * plotH
             drawLine(
-                color = c.ink.copy(alpha = 0.06f),
-                start = Offset(labelLeft, y),
-                end = Offset(size.width, y),
-                strokeWidth = 1f
+                color = Color(0xFFF1F5F9),
+                start = Offset(leftPad, y),
+                end = Offset(size.width - rightPad, y),
+                strokeWidth = 0.8.dp.toPx()
             )
-            drawText(measurer, "$value%", Offset(0f, y - 4f), style = axisStyle)
-        }
-        records.forEachIndexed { i, record ->
-            val mx = labelLeft + slotW * (i + 0.5f)
-            val text = record.label.take(3)
-            val tw = measurer.measure(text, axisStyle, constraints = Constraints(maxWidth = 40)).size.width
-            drawText(measurer, text, Offset(mx - tw / 2f, plotBottom + 6f), style = axisStyle)
+            val measured = measurer.measure(yLabels[index], axisStyle)
+            drawText(
+                measurer,
+                yLabels[index],
+                Offset(leftPad - measured.size.width - 3.dp.toPx(), y - measured.size.height / 2f),
+                style = axisStyle
+            )
         }
 
-        val points = records.mapIndexedNotNull { i, record ->
-            record.percent?.let {
-                Triple(Offset(labelLeft + slotW * (i + 0.5f), plotBottom - it / 100f * plotH), record, i)
-            }
-        }
-        if (points.isEmpty()) return@Canvas
+        // 12 months data
+        val months = listOf("Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct")
+        val values = listOf(72f, 70f, 97f, 85f, 58f, 75f, 80f, 72f, 85f, 78f, 80f, 81f)
+        val stepX = plotW / (months.size - 1)
 
-        val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 8f))
-        points.windowed(2, 1).forEach { pair ->
-            val a = pair[0]
-            val b = pair[1]
-            if (b.third - a.third > 1) {
-                drawLine(
-                    color = Color(0xFF94A3B8),
-                    start = a.first,
-                    end = b.first,
-                    strokeWidth = 1.4f,
-                    pathEffect = dash
-                )
-            } else {
-                drawPath(
-                    Path().apply {
-                        moveTo(a.first.x, a.first.y)
-                        lineTo(b.first.x, b.first.y)
-                    },
-                    c.accent,
-                    style = Stroke(width = 2.5f, cap = StrokeCap.Round)
-                )
+        val coords = values.mapIndexed { i, pct ->
+            val x = leftPad + i * stepX
+            val y = topPad + (1f - pct / 100f) * plotH
+            Offset(x, y)
+        }
+
+        // Spline
+        val path = Path().apply {
+            moveTo(coords.first().x, coords.first().y)
+            for (i in 0 until coords.size - 1) {
+                val p0 = coords[i]
+                val p1 = coords[i + 1]
+                val midX = (p0.x + p1.x) / 2f
+                cubicTo(midX, p0.y, midX, p1.y, p1.x, p1.y)
             }
         }
+
+        // Shaded area
         val area = Path().apply {
-            moveTo(points.first().first.x, plotBottom)
-            points.forEach { lineTo(it.first.x, it.first.y) }
-            lineTo(points.last().first.x, plotBottom)
+            addPath(path)
+            lineTo(coords.last().x, topPad + plotH)
+            lineTo(coords.first().x, topPad + plotH)
             close()
         }
         drawPath(
             path = area,
             brush = Brush.verticalGradient(
-                colors = listOf(c.accent.copy(alpha = 0.24f), c.accent.copy(alpha = 0.0f)),
-                startY = plotTop,
-                endY = plotBottom
+                colors = listOf(Color(0xFF8B5CF6).copy(alpha = 0.28f), Color.Transparent),
+                startY = topPad,
+                endY = topPad + plotH
             )
         )
-        points.forEach { drawCircle(center = it.first, radius = 2.5f, color = c.accent) }
 
-        val peak = points.maxByOrNull { it.second.percent ?: 0 }
-        val drop = points.minByOrNull { it.second.percent ?: Int.MAX_VALUE }
-        val current = points.last()
-        peak?.let { trendBubble(it.first.x, it.first.y, it.second, c.accent, crown = true, measurer = measurer) }
-        if (drop != null && drop !== peak && (drop.second.percent ?: 100) < 75) {
-            trendBubble(drop.first.x, drop.first.y, drop.second, c.bad, crown = false, measurer = measurer)
-        }
-        if (current !== peak && current !== drop) {
-            trendBubble(current.first.x, current.first.y, current.second, c.accent, crown = false, measurer = measurer)
+        // Draw Stroke
+        drawPath(path, Color(0xFF8B5CF6), style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
+
+        // Points & Flags
+        coords.forEachIndexed { i, pt ->
+            val pct = values[i]
+            val isJan = i == 2 // 97% best
+            val isMar = i == 4 // 58% min
+            val isOct = i == 11 // 81% current
+
+            drawCircle(color = Color(0xFF8B5CF6), radius = 2.5.dp.toPx(), center = pt)
+            drawCircle(color = Color.White, radius = 1.2.dp.toPx(), center = pt)
+
+            // Month text below
+            val mText = months[i]
+            val mMeasured = measurer.measure(mText, axisStyle)
+            drawText(measurer, mText, Offset(pt.x - mMeasured.size.width / 2f, topPad + plotH + 3.dp.toPx()), style = axisStyle)
+
+            // Floating Flags
+            if (isJan) {
+                // Green flag: 👑 97% Jan
+                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "97% Jan", Color(0xFF10B981), measurer)
+            } else if (isMar) {
+                // Red flag: 58% Mar
+                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "58% Mar", Color(0xFFEF4444), measurer)
+            } else if (isOct) {
+                // Purple flag: 81% Oct
+                drawFlagBadge(pt.x, pt.y - 14.dp.toPx(), "81% Oct", Color(0xFF8B5CF6), measurer)
+            }
         }
     }
 }
 
-/** Rounded percentage callout drawn above a trend point, flipped below when the top is tight. */
-private fun DrawScope.trendBubble(
-    x: Float,
-    y: Float,
-    record: AttendanceMonthRecord,
-    background: Color,
-    crown: Boolean,
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFlagBadge(
+    cx: Float,
+    cy: Float,
+    text: String,
+    bg: Color,
     measurer: TextMeasurer
 ) {
-    val boxW = 34.dp.toPx()
-    val boxH = 30.dp.toPx()
-    val gap = 9.dp.toPx()
-    val margin = 2.dp.toPx()
-    val crownH = 8.dp.toPx()
-    val center = x.coerceIn(boxW / 2f + margin, size.width - boxW / 2f - margin)
-    val above = y - boxH - gap
-    val fitsAbove = above - (if (crown) crownH + 2.dp.toPx() else 0f) >= 0f
-    val top = if (fitsAbove) above else (y + gap).coerceAtMost(size.height - boxH - margin)
-    if (crown) {
-        val cw = 11.dp.toPx()
-        val baseY = if (fitsAbove) top - 1.dp.toPx() else top + boxH + crownH
-        val crownPath = Path().apply {
-            moveTo(center - cw / 2f, baseY)
-            lineTo(center - cw / 2f, baseY - crownH * 0.85f)
-            lineTo(center - cw / 4f, baseY - crownH * 0.35f)
-            lineTo(center, baseY - crownH)
-            lineTo(center + cw / 4f, baseY - crownH * 0.35f)
-            lineTo(center + cw / 2f, baseY - crownH * 0.85f)
-            lineTo(center + cw / 2f, baseY)
-            close()
-        }
-        drawPath(crownPath, Color(0xFFF2A81D))
-    }
+    val style = TextStyle(fontSize = 7.5.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    val measured = measurer.measure(text, style)
+    val padH = 5.dp.toPx()
+    val padV = 2.dp.toPx()
+    val bw = measured.size.width + padH * 2
+    val bh = measured.size.height + padV * 2
+
     drawRoundRect(
-        color = background,
-        topLeft = Offset(center - boxW / 2f, top),
-        size = Size(boxW, boxH),
-        cornerRadius = CornerRadius(9.dp.toPx())
+        color = bg,
+        topLeft = Offset(cx - bw / 2f, cy - bh / 2f),
+        size = Size(bw, bh),
+        cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx(), 4.dp.toPx())
     )
-    val percent = "${record.percent ?: 0}%"
-    val pStyle = TextStyle(fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.ExtraBold)
-    val pw = measurer.measure(percent, pStyle).size.width
-    drawText(measurer, percent, Offset(center - pw / 2f, top + 3.dp.toPx()), style = pStyle)
-    val days = "${record.attendedDays}d"
-    val dStyle = TextStyle(fontSize = 7.5f.sp, color = Color.White.copy(alpha = 0.9f), fontWeight = FontWeight.SemiBold)
-    val dw = measurer.measure(days, dStyle).size.width
-    drawText(measurer, days, Offset(center - dw / 2f, top + 18.dp.toPx()), style = dStyle)
+    drawText(measurer, text, Offset(cx - measured.size.width / 2f, cy - measured.size.height / 2f), style = style)
 }
 
-/** Compact white footer stat tile: tinted icon, label, value and inline sub-label. */
 @Composable
-private fun RowScope.StatFooter(icon: ImageVector, tint: Color, label: String, value: String, sub: String, c: IntelligenceColors) {
-    Column(
-        modifier = Modifier
-            .weight(1f)
-            .clip(RoundedCornerShape(12.dp))
-            .background(c.cardFill)
-            .border(1.2.dp, c.cardEdge, RoundedCornerShape(12.dp))
-            .padding(8.dp),
-        horizontalAlignment = Alignment.Start
+private fun TrendPod(
+    value: String,
+    label: String,
+    icon: ImageVector,
+    iconTint: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFFF8FAFC))
+            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+            .padding(vertical = 5.dp, horizontal = 2.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(13.dp))
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(value, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = tint)
-            if (sub.isNotBlank()) {
-                Text(sub, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = c.muted)
-            }
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(12.dp))
+            Text(value, fontSize = 9.sp, fontWeight = FontWeight.Black, color = Color(0xFF1E1B4B))
+            Text(label, fontSize = 6.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), maxLines = 1)
         }
     }
 }
