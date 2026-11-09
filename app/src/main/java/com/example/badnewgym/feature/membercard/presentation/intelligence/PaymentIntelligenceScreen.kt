@@ -110,7 +110,7 @@ fun PaymentIntelligenceScreen(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // 1. 5-Pill Subnavigation Bar
         // Five labelled pills cannot fit 360-392dp, so the row scrolls and the trailing edge fades
@@ -242,7 +242,7 @@ private fun PaymentOverviewDittoView(
             Box(
                 modifier = Modifier
                     .width(1.dp)
-                    .height(52.dp)
+                    .height(46.dp)
                     .background(Color(0xFFEDE9FE))
             )
 
@@ -271,7 +271,7 @@ private fun PaymentOverviewDittoView(
             Box(
                 modifier = Modifier
                     .width(1.dp)
-                    .height(52.dp)
+                    .height(46.dp)
                     .background(Color(0xFFEDE9FE))
             )
 
@@ -753,7 +753,7 @@ private fun TimelineItem(
  */
 @Composable
 private fun MonthlySplineChart(measurer: TextMeasurer, c: IntelligenceColors) {
-    Canvas(modifier = Modifier.fillMaxWidth().height(124.dp)) {
+    Canvas(modifier = Modifier.fillMaxWidth().height(96.dp)) {
         val leftPad = 26.dp.toPx()
         val rightPad = 10.dp.toPx()
         val topPad = 24.dp.toPx()

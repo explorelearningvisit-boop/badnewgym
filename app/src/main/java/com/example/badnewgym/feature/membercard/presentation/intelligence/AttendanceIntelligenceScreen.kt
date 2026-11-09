@@ -84,7 +84,7 @@ fun AttendanceIntelligenceScreen(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // CARD 1: Attendance Intelligence (Gauge + Calendar Grid)
         IntelligenceSectionCard(
@@ -99,17 +99,17 @@ fun AttendanceIntelligenceScreen(
             ) {
                 // LEFT COLUMN: Donut Gauge + Streak + Check-in Time
                 Column(
-                    modifier = Modifier.width(116.dp),
+                    modifier = Modifier.width(102.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     // 81% Donut Gauge
                     Box(
-                        modifier = Modifier.size(98.dp),
+                        modifier = Modifier.size(86.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Canvas(modifier = Modifier.fillMaxSize()) {
-                            val strokeW = 8.dp.toPx()
+                            val strokeW = 7.dp.toPx()
                             val arcSize = size.minDimension - strokeW
                             val topLeft = Offset(strokeW / 2f, strokeW / 2f)
                             // Track
@@ -136,9 +136,9 @@ fun AttendanceIntelligenceScreen(
                             )
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("81%", fontSize = 23.sp, fontWeight = FontWeight.Black, color = c.ink, letterSpacing = (-0.5).sp)
-                            Text("Attendance", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
-                            Text("25 / 31 Days", fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = c.ink)
+                            Text("81%", fontSize = 20.sp, fontWeight = FontWeight.Black, color = c.ink, letterSpacing = (-0.5).sp)
+                            Text("Attendance", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                            Text("25 / 31 Days", fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = c.ink)
                         }
                     }
 
@@ -234,8 +234,8 @@ fun AttendanceIntelligenceScreen(
                 .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp), ambientColor = Color(0x188B5CF6), spotColor = Color(0x188B5CF6))
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
-                .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(16.dp))
-                .padding(12.dp)
+                .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(14.dp))
+                .padding(9.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -327,7 +327,7 @@ private fun CalendarGridMonSun(onDayClick: (CalendarDay) -> Unit) {
                     fontSize = 8.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF64748B),
-                    modifier = Modifier.width(22.dp),
+                    modifier = Modifier.width(19.dp),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
             }
@@ -346,11 +346,11 @@ private fun CalendarGridMonSun(onDayClick: (CalendarDay) -> Unit) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 week.forEach { day ->
                     if (day == null) {
-                        Box(modifier = Modifier.size(22.dp))
+                        Box(modifier = Modifier.size(19.dp))
                     } else {
                         Box(
                             modifier = Modifier
-                                .size(22.dp)
+                                .size(19.dp)
                                 .clip(CircleShape)
                                 .background(day.bg)
                                 .border(if (day.isActive) 1.8.dp else 0.dp, Color(0xFF8B5CF6), CircleShape),
@@ -380,7 +380,7 @@ private data class DayItem(
 
 @Composable
 private fun AttendanceTrendSpline(measurer: TextMeasurer, c: IntelligenceColors) {
-    Canvas(modifier = Modifier.fillMaxWidth().height(116.dp)) {
+    Canvas(modifier = Modifier.fillMaxWidth().height(94.dp)) {
         val leftPad = 26.dp.toPx()
         val rightPad = 14.dp.toPx()
         val topPad = 24.dp.toPx()

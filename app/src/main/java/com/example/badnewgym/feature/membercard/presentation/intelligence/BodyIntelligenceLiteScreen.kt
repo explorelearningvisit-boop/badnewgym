@@ -133,7 +133,7 @@ fun BodyIntelligenceLiteScreen(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // TOP 8-MODULE WORKSPACE NAVIGATOR (Overview, Composition, Measurements, Progress, Gallery, Goals, Health, More)
         BodyPrimaryNavBar(
@@ -161,16 +161,6 @@ fun BodyIntelligenceLiteScreen(
             // OVERVIEW MODE: 100% 1:1 MATCHING media_1794217964514_04b0cbd3.jpg
             // =========================================================================
 
-            // HEADER CARD: Body Intelligence • Composition • Measurements • Progress
-            IntelligenceSectionCard(
-                title = "Body Intelligence",
-                icon = Icons.Filled.Accessibility,
-                subtitle = "Composition • Measurements • Progress",
-                trailing = { IntelligencePillOutlined("Oct 2026 ▾") }
-            ) {
-                // Inside Header Card: Empty wrapper, content follows below
-            }
-
             // CARD 1: TRANSFORMATION GOAL HERO
             Box(
                 modifier = Modifier
@@ -179,9 +169,9 @@ fun BodyIntelligenceLiteScreen(
                     .clip(RoundedCornerShape(16.dp))
                     .background(Color.White)
                     .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(16.dp))
-                    .padding(12.dp)
+                    .padding(9.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
                     // Header inside card: Title + Subtitle + "✔ On Track" badge
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -223,12 +213,12 @@ fun BodyIntelligenceLiteScreen(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         // Left: Athlete in Soft Lavender Aura Glow
                         Box(
                             modifier = Modifier
-                                .size(width = 86.dp, height = 104.dp)
+                                .size(width = 62.dp, height = 76.dp)
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(
                                     Brush.radialGradient(
@@ -252,11 +242,11 @@ fun BodyIntelligenceLiteScreen(
 
                         // Center: 46% Donut Gauge with Dumbbell Glyph
                         Box(
-                            modifier = Modifier.size(88.dp),
+                            modifier = Modifier.size(74.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Canvas(modifier = Modifier.fillMaxSize()) {
-                                val strokeW = 7.dp.toPx()
+                                val strokeW = 6.dp.toPx()
                                 val arcSize = size.minDimension - strokeW
                                 val topLeft = Offset(strokeW / 2f, strokeW / 2f)
 
@@ -365,7 +355,7 @@ fun BodyIntelligenceLiteScreen(
                         .border(1.dp, Color(0x208B5CF6), RoundedCornerShape(14.dp))
                         .padding(10.dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Icon(Icons.AutoMirrored.Filled.FactCheck, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(13.dp))
                             Text("Body Composition", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
@@ -375,7 +365,7 @@ fun BodyIntelligenceLiteScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(60.dp),
+                                .height(46.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Canvas(modifier = Modifier.size(56.dp)) {
@@ -417,7 +407,7 @@ fun BodyIntelligenceLiteScreen(
                         .border(1.dp, Color(0x208B5CF6), RoundedCornerShape(14.dp))
                         .padding(10.dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -450,7 +440,7 @@ fun BodyIntelligenceLiteScreen(
                     .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(16.dp))
                     .padding(12.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     // Header + 3-Color Legend
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -490,7 +480,7 @@ fun BodyIntelligenceLiteScreen(
                         .border(1.dp, Color(0x208B5CF6), RoundedCornerShape(14.dp))
                         .padding(10.dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Icon(Icons.Filled.PhotoCamera, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(13.dp))
                             Text("Gallery", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
@@ -508,7 +498,7 @@ fun BodyIntelligenceLiteScreen(
                             Box(
                                 modifier = Modifier
                                     .weight(0.9f)
-                                    .height(48.dp)
+                                    .height(38.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(Color(0xFFFAF5FF))
                                     .border(1.dp, Color(0xFFDDD6FE), RoundedCornerShape(8.dp))
@@ -676,7 +666,7 @@ private fun LegendDot(label: String, color: Color) {
 private fun GalleryThumbItem(resId: Int, label: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(48.dp)
+            .height(38.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFFF8FAFC))
             .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp)),
@@ -713,7 +703,7 @@ private fun BodyTrendSplineChart(
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(115.dp)
+            .height(78.dp)
     ) {
         val plotLeft = 24.dp.toPx()
         val plotRight = size.width - 6.dp.toPx()

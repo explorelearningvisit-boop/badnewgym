@@ -388,23 +388,23 @@ fun IntelligenceSectionCard(
                 ),
                 shape = RoundedCornerShape(18.dp)
             )
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(7.dp)
+            .padding(horizontal = 9.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             Box(
                 modifier = Modifier
-                    .size(34.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .size(26.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(c.accent),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = c.onAccent, modifier = Modifier.size(18.dp))
+                Icon(icon, contentDescription = null, tint = c.onAccent, modifier = Modifier.size(14.dp))
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = c.ink, letterSpacing = (-0.2).sp)
+                Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = c.ink, letterSpacing = (-0.2).sp)
                 if (subtitle != null) {
-                    Text(subtitle, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.accentDeep)
+                    Text(subtitle, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.accentDeep)
                 }
             }
             trailing?.invoke(this)
@@ -428,14 +428,14 @@ fun IntelligencePillOutlined(
             .background(c.cardFill)
             .border(1.2.dp, c.accentSoft, RoundedCornerShape(50))
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .padding(horizontal = 8.dp, vertical = 3.5.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         if (leading != null) {
-            Icon(leading, contentDescription = null, tint = c.accent, modifier = Modifier.size(12.dp))
+            Icon(leading, contentDescription = null, tint = c.accent, modifier = Modifier.size(11.dp))
         }
-        Text(text, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.ink, maxLines = 1)
+        Text(text, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.ink, maxLines = 1)
     }
 }
 

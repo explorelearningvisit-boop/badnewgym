@@ -123,7 +123,7 @@ fun IntelligenceHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             IntelligenceTopBar(
                 colors = c,
@@ -144,7 +144,7 @@ fun IntelligenceHeader(
                 enter = expandVertically(expandFrom = Alignment.Top),
                 exit = shrinkVertically(shrinkTowards = Alignment.Top)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     MembershipProgressCard(
                         pass = pass,
                         usedDays = usedDays,
@@ -349,10 +349,10 @@ private fun IntelligenceIdentityRow(
     ) {
         Box(
             modifier = Modifier
-                .size(52.dp)
+                .size(40.dp)
                 .clip(CircleShape)
                 .background(colors.accent)
-                .padding(2.5.dp)
+                .padding(2.dp)
                 .clip(CircleShape)
                 .background(Color.White)
                 .clickable(onClick = onAvatarClick)
@@ -368,24 +368,24 @@ private fun IntelligenceIdentityRow(
         }
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(
                 pass.name,
-                fontSize = 17.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = colors.ink,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 IdentityMetaItem(Icons.Filled.Person, pass.memberId, colors)
                 IdentityMetaItem(Icons.Filled.CalendarMonth, "${pass.age} Yrs", colors)
                 IdentityMetaItem(Icons.Filled.Male, pass.gender, colors)
             }
             Row(
-                modifier = Modifier.height(23.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.height(19.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SolidStatusChip(colors = colors)
@@ -404,7 +404,7 @@ private fun SolidStatusChip(colors: IntelligenceColors) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(Color(0xFF10B981))
-            .padding(horizontal = 7.dp, vertical = 4.dp),
+            .padding(horizontal = 6.dp, vertical = 2.5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
@@ -420,7 +420,7 @@ private fun PlanChip(planName: String, colors: IntelligenceColors) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(Color(0xFF8B5CF6))
-            .padding(horizontal = 7.dp, vertical = 4.dp),
+            .padding(horizontal = 6.dp, vertical = 2.5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -437,7 +437,7 @@ private fun OutlinedStatusChip(text: String, colors: IntelligenceColors) {
             .clip(RoundedCornerShape(50))
             .background(colors.cardFill)
             .border(1.dp, Color(0xFFE9D5FF), RoundedCornerShape(50))
-            .padding(horizontal = 7.dp, vertical = 4.dp)
+            .padding(horizontal = 6.dp, vertical = 2.5.dp)
     ) {
         Text(text, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = colors.ink, maxLines = 1)
     }
@@ -451,7 +451,7 @@ private fun AutoChip(colors: IntelligenceColors) {
             .clip(RoundedCornerShape(50))
             .background(Color(0xFFEDE9FE))
             .border(1.dp, Color(0xFFDDD6FE), RoundedCornerShape(50))
-            .padding(horizontal = 7.dp, vertical = 4.dp)
+            .padding(horizontal = 6.dp, vertical = 2.5.dp)
     ) {
         Text(
             buildAnnotatedString {
@@ -488,14 +488,14 @@ private fun MembershipProgressCard(
             .clip(RoundedCornerShape(16.dp))
             .background(colors.cardFill)
             .border(1.dp, colors.cardEdge, RoundedCornerShape(16.dp))
-            .padding(11.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             Box(
                 modifier = Modifier
-                    .size(24.dp)
-                    .clip(RoundedCornerShape(6.dp))
+                    .size(18.dp)
+                    .clip(RoundedCornerShape(5.dp))
                     .background(Color(0xFFEDE9FE)),
                 contentAlignment = Alignment.Center
             ) {
@@ -503,12 +503,12 @@ private fun MembershipProgressCard(
                     Icons.Filled.Layers,
                     contentDescription = null,
                     tint = Color(0xFF8B5CF6),
-                    modifier = Modifier.size(15.dp)
+                    modifier = Modifier.size(11.dp)
                 )
             }
             Text(
                 "Membership Progress",
-                fontSize = 12.5.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = colors.ink,
                 letterSpacing = (-0.2).sp,
@@ -516,42 +516,41 @@ private fun MembershipProgressCard(
             )
             Text(
                 "$usedDays / ${pass.totalDays} Days",
-                fontSize = 12.5.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = colors.ink
+            )
+            Text(
+                "· ${pass.daysLeft}d left",
+                fontSize = 9.5.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFD97706)
             )
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(16.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .height(10.dp)
+                .clip(RoundedCornerShape(5.dp))
                 .background(Color(0xFFF1F5F9))
-                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+                .border(0.8.dp, Color(0xFFE2E8F0), RoundedCornerShape(5.dp))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(fillFraction.coerceIn(0f, 1f))
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(5.dp))
                     .background(Brush.horizontalGradient(listOf(Color(0xFF10B981), Color(0xFF059669)))),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     "$usedPercentLabel% Used",
-                    fontSize = 9.sp,
+                    fontSize = 7.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     maxLines = 1
                 )
             }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            IntelligencePillOutlined("📅 ${pass.startDate} – ${pass.endDate} (${pass.totalDays} Days)")
-            IntelligencePillOutlined("⏳ ${pass.daysLeft} Days Left")
         }
     }
 }
@@ -650,16 +649,13 @@ private fun KpiTile(
     }
     val borderColor = if (selected) Color(0xFF7C3AED) else Color(0x338B5CF6)
 
-    Surface(
-        onClick = { onTabSelected(index) },
-        shape = shape,
-        color = Color.Transparent,
-        border = BorderStroke(if (selected) 1.5.dp else 1.dp, borderColor),
-        shadowElevation = if (selected) 4.dp else 1.dp,
+    Box(
         modifier = modifier
-            .height(54.dp)
+            .height(46.dp)
             .clip(shape)
             .background(background)
+            .border(if (selected) 1.5.dp else 1.dp, borderColor, shape)
+            .clickable { onTabSelected(index) }
     ) {
         Row(
             modifier = Modifier

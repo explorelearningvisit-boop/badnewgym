@@ -84,7 +84,7 @@ fun WorkoutIntelligenceScreen(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // CARD 1: Workout Intelligence (Gauge + Stat Tiles + Daily Trend + 4 Chips)
         IntelligenceSectionCard(
@@ -100,11 +100,11 @@ fun WorkoutIntelligenceScreen(
             ) {
                 // Circular Ring Gauge (19.4 hr Total Workout)
                 Box(
-                    modifier = Modifier.size(98.dp),
+                    modifier = Modifier.size(86.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
-                        val strokeW = 8.dp.toPx()
+                        val strokeW = 7.dp.toPx()
                         val arcSize = size.minDimension - strokeW
                         val topLeft = Offset(strokeW / 2f, strokeW / 2f)
 
@@ -204,7 +204,7 @@ fun WorkoutIntelligenceScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Subtitle: Daily Workout Trend
             Text(
@@ -214,12 +214,12 @@ fun WorkoutIntelligenceScreen(
                 color = c.ink
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             // Daily Minutes Spline Chart with Vertical Stem Glow Volume
             DailyWorkoutTrendChart(points = points, measurer = measurer, c = c)
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // 4 Horizontal Status Chips Row
             Row(
@@ -278,8 +278,8 @@ fun WorkoutIntelligenceScreen(
                 .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp), ambientColor = Color(0x188B5CF6), spotColor = Color(0x188B5CF6))
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
-                .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(16.dp))
-                .padding(12.dp)
+                .border(1.dp, Color(0x288B5CF6), RoundedCornerShape(14.dp))
+                .padding(9.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -446,7 +446,7 @@ private fun DailyWorkoutTrendChart(
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(130.dp)
+            .height(104.dp)
     ) {
         val plotLeft = 28.dp.toPx()
         val plotRight = size.width - 6.dp.toPx()
@@ -657,7 +657,7 @@ private fun MonthlyWorkoutPatternChart(
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(115.dp)
+            .height(96.dp)
     ) {
         val plotBottom = size.height - 16.dp.toPx()
         val topPad = 32.dp.toPx()

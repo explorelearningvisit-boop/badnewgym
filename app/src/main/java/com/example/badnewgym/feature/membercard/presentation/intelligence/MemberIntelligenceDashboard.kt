@@ -130,8 +130,8 @@ fun MemberIntelligenceDashboard(
                     .fillMaxWidth()
                     .weight(1f)
                     .nestedScroll(foldOnScroll),
-                contentPadding = PaddingValues(8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                contentPadding = PaddingValues(6.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 when (selectedTab) {
                     0 -> item(key = "tab_attendance") {
