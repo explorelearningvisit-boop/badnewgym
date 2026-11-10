@@ -1,6 +1,30 @@
 # BAD GYM — Current Task
 
-## ACTIVE TASK — 5-IMAGE NEO-GLASS LAVENDER MEMBER INTELLIGENCE UPGRADE
+## VERIFIED MILESTONE — BOLD/DENSE REDESIGN + LAVENDER SKIN + PHASE 0 DOCS
+- **Status**: COMMITTED & VERIFIED LIVE ON PHYSICAL DEVICE
+- **Branch**: `feature/member-intelligence-v3`
+- **Commit**: `Member Intelligence: bold/dense redesign, Lavender skin, nav + chart fixes, Phase 0 docs`
+- **Build gate**: `./gradlew clean testDebugUnitTest assembleDebug` → BUILD SUCCESSFUL (5m 17s)
+- **Device**: Xiaomi 11i 5G `zxdada69gunb7ls4` (1080×2400 @440dpi)
+- **Evidence**: `docs/reference/images/f1_attendance.png`, `f2_workout.png`, `g3_payment.png`,
+  `g4_body.png`, `x1_sheet.png`
+- **Shipped**:
+  - `IntelligenceTypography` (9–26 sp, nothing below SemiBold) and `IntelligenceDensity`
+    tokens applied to header + all four modules.
+  - `NeuThemes.Lavender` (`#8239E8` on `#F5F3F8`, white cards, `#079B70`/`#E34E58`/`#E9AA35`)
+    is the default skin; `reset()` returns to it.
+  - Payment sub-nav rebuilt as a 3+2 equal-width grid (no clipped pills).
+  - Chart gutters on attendance/workout/payment/body so axis labels and callouts never clip.
+  - Payment trend badge bug fixed (May only, sized to text).
+  - Body workspace nav auto-scrolls to the selection with edge fades + chevron.
+  - Quick-actions sheet skins laid out 4+3 (Midnight no longer clipped).
+  - Decorative 3D athlete removed from the Body goal card.
+- **Docs**: PROJECT_AUDIT, EXISTING_FEATURES_INVENTORY, DESIGN_SYSTEM, IMPLEMENTATION_ROADMAP,
+  PROJECT_ARCHITECTURE, TEST_REPORT, IMPLEMENTATION_PROGRESS, AGENT_HANDOFF, KNOWN_ISSUES,
+  TASKS, CHANGELOG.
+- **Next**: Phase 8 Overview module → Phase 9 real-data wiring (needs a data-source decision).
+
+## HISTORICAL — 5-IMAGE NEO-GLASS LAVENDER MEMBER INTELLIGENCE UPGRADE
 - **Objective**: Full end-to-end integration of all 5 newly uploaded reference images into the production Android app:
   1. Image 1: `media_1794217901333_7e53442c.jpg` (Attendance Intelligence with 81% Dual-Glow Gauge, Current Streak 6d, Avg Time 07:18 AM, Mon-Sun Checkmark Grid, 12-Month Area Spline Trend with Jan/Mar/Oct flags, 5-pod stats, Smart Insight AI).
   2. Image 2: `media_1794217939597_36ee4831.jpg` (Workout Intelligence with 19.4 hr Total Gauge, 4 top stat tiles, Daily Workout Trend with vertical green stems and 88m peak crown, 4 status chips, Monthly Workout Pattern with July 44h peak green bar, Smart Insight AI + athlete silhouette + View Plan).

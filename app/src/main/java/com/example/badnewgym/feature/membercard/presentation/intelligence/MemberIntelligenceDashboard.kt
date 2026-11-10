@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,10 +26,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.BodyIntelligenceSheetHost
 import com.example.badnewgym.feature.bodyprogress.presentation.intelligence.rememberBodyIntelligenceState
@@ -103,12 +107,27 @@ fun MemberIntelligenceDashboard(
         headerCompact = false
     }
     val shellColors = intelligenceColors()
+    val baseDensity = LocalDensity.current
+    val context = LocalContext.current
+    LaunchedEffect(Unit) { NeuStyle.attach(context) }
+    // One knob for text (fontScale) and one for icons/buttons/boxes (density),
+    // so the whole dashboard rescales proportionally instead of per-widget.
+    val scaledDensity = remember(baseDensity, NeuStyle.textScale, NeuStyle.componentScale) {
+        Density(
+            density = baseDensity.density * NeuStyle.componentScale,
+            fontScale = baseDensity.fontScale * NeuStyle.textScale
+        )
+    }
+    key(NeuStyle.themeId) {
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(shellColors.screenBrush)
     ) {
-        CompositionLocalProvider(LocalTextStyle provides TextStyle(fontFamily = BadGymSans)) {
+        CompositionLocalProvider(
+            LocalDensity provides scaledDensity,
+            LocalTextStyle provides TextStyle(fontFamily = BadGymSans, fontWeight = FontWeight.Bold)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -132,8 +151,8 @@ fun MemberIntelligenceDashboard(
                     .fillMaxWidth()
                     .weight(1f)
                     .nestedScroll(foldOnScroll),
-                contentPadding = PaddingValues(6.dp),
-                verticalArrangement = Arrangement.spacedBy(5.dp)
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 when (selectedTab) {
                     0 -> item(key = "tab_attendance") {
@@ -165,5 +184,6 @@ fun MemberIntelligenceDashboard(
             BodyIntelligenceSheetHost(state = bodyState)
         }
         }
+    }
     }
 }

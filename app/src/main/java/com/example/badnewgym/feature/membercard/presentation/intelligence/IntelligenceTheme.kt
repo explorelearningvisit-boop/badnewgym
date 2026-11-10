@@ -83,116 +83,166 @@ fun darken(color: Color, factor: Float): Color = Color(
 
 
 /**
- * Neumorphic design system reconstructed from the three supplied style guides.
- *
- * Surfaces sit on the same value as the canvas and are separated only by two
- * opposing shadows: a white highlight from the top-left and a cool #A6B4C8
- * shade toward the bottom-right. Accents are used as fills, never as washes,
- * so no card changes colour when a tab is selected.
+ * Live palette. Every token resolves through [NeuStyle.theme], so switching a
+ * theme re-skins the whole dashboard without touching a single screen.
  */
 object NeuPalette {
-    // Canvas + surfaces (style guide 1: E9EDF0 / E6E9EF)
-    val canvas = Color(0xFFE6EAEE)
-    val canvasDeep = Color(0xFFE0E5EA)
-    val surface = Color(0xFFEDF0F4)
-    val surfaceRaised = Color(0xFFF5F7FA)
-    val surfaceSunken = Color(0xFFDCE2E8)
-    val shadow = Color(0xFFA6B4C8)
-    val shadowSoft = Color(0xFFD3DBE6)
-    val highlight = Color(0xFFFFFFFF)
+    private val t: NeuTheme get() = NeuStyle.theme
 
-    // Ink (style guide 2: 343434 / A1AEBF / 8C94A0)
-    val ink = Color(0xFF343434)
-    val inkSoft = Color(0xFF6E7887)
-    val muted = Color(0xFF8C94A0)
-    val faint = Color(0xFFA1AEBF)
+    val canvas get() = t.canvas
+    val canvasDeep get() = t.canvasDeep
+    val surface get() = t.surface
+    val surfaceRaised get() = t.surfaceRaised
+    val surfaceSunken get() = t.surfaceSunken
+    val shadow get() = t.shadow
+    val shadowSoft get() = t.shadowSoft
+    val highlight get() = t.highlight
+    val highlightAlpha get() = t.highlightAlpha
 
-    // Accents (style guides 1-3, deduplicated)
-    val violet = Color(0xFF7B81BE)
-    val violetDeep = Color(0xFF5E649E)
-    val blue = Color(0xFF6B92E5)
-    val sky = Color(0xFF489CC1)
-    val green = Color(0xFF21A87D)
-    val greenBright = Color(0xFF42CD8C)
-    val greenDeep = Color(0xFF178A66)
-    val coral = Color(0xFFFF7272)
-    val coralDeep = Color(0xFFE05C5C)
-    val amber = Color(0xFFFFBB0D)
-    val amberDeep = Color(0xFFD99F0B)
-    val pink = Color(0xFFF88AB0)
+    val ink get() = t.ink
+    val inkSoft get() = t.inkSoft
+    val muted get() = t.muted
+    val faint get() = t.faint
+
+    val violet get() = t.violet
+    val violetDeep get() = t.violetDeep
+    val violetWash get() = t.violetWash
+    val green get() = t.green
+    val greenDeep get() = t.greenDeep
+    val greenBright get() = t.greenBright
+    val greenWash get() = t.greenWash
+    val coral get() = t.coral
+    val coralDeep get() = t.coralDeep
+    val coralWash get() = t.coralWash
+    val amber get() = t.amber
+    val amberDeep get() = t.amberDeep
+    val amberWash get() = t.amberWash
+    val blue get() = t.blue
+    val sky get() = t.sky
+    val pink get() = t.pink
+    val onAccent get() = t.onAccent
+    val isDark get() = t.dark
 }
 
 /**
- * Extruded neumorphic surface. Draws the dark shade first, the white highlight
- * second, then fills flat so the interior matches the canvas exactly.
+ * Extruded neumorphic surface. Draws the dark shade first, the highlight
+ * second, then fills flat. Radius and depth follow the appearance sliders.
  */
 fun Modifier.neuRaised(
     radius: Dp = 24.dp,
     color: Color = NeuPalette.surface,
     depth: Dp = 6.dp,
     blur: Dp = 14.dp
-): Modifier = this
-    .drawBehind {
-        val r = radius.toPx().coerceAtMost(minOf(size.width, size.height) / 2f)
-        drawIntoCanvas { canvas ->
-            val paint = android.graphics.Paint()
-            paint.isAntiAlias = true
-            paint.color = color.toArgb()
-            paint.setShadowLayer(blur.toPx(), depth.toPx(), depth.toPx(), NeuPalette.shadow.toArgb())
-            canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, r, r, paint)
-            paint.setShadowLayer(blur.toPx(), -depth.toPx(), -depth.toPx(), Color.White.copy(alpha = 0.62f).toArgb())
-            canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, r, r, paint)
+): Modifier {
+    val r = radius * NeuStyle.radiusScale
+    val d = depth * NeuStyle.depthScale
+    val b = blur * NeuStyle.depthScale
+    val shade = NeuPalette.shadow
+    val glint = NeuPalette.highlight.copy(alpha = NeuPalette.highlightAlpha)
+    return this
+        .drawBehind {
+            val radiusPx = r.toPx().coerceAtMost(minOf(size.width, size.height) / 2f)
+            drawIntoCanvas { canvas ->
+                val paint = android.graphics.Paint()
+                paint.isAntiAlias = true
+                paint.color = color.toArgb()
+                if (b > 0.dp) {
+                    paint.setShadowLayer(b.toPx(), d.toPx(), d.toPx(), shade.toArgb())
+                    canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, radiusPx, radiusPx, paint)
+                    paint.setShadowLayer(b.toPx(), -d.toPx(), -d.toPx(), glint.toArgb())
+                    canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, radiusPx, radiusPx, paint)
+                } else {
+                    paint.clearShadowLayer()
+                    canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, radiusPx, radiusPx, paint)
+                }
+            }
         }
-    }
-    .clip(RoundedCornerShape(radius))
-    .background(color)
+        .clip(RoundedCornerShape(r))
+        .background(color)
+}
 
-/** Pressed / sunken well: inner shade at the top edge, inner glow at the bottom. */
+/** Pressed / sunken well. */
 fun Modifier.neuSunken(
     radius: Dp = 18.dp,
     color: Color = NeuPalette.surfaceSunken
-): Modifier = this
-    .clip(RoundedCornerShape(radius))
-    .background(color)
-    .drawWithContent {
-        drawContent()
-        val edge = 14.dp.toPx()
-        drawRect(
-            brush = Brush.verticalGradient(
-                listOf(NeuPalette.shadow.copy(alpha = 0.42f), Color.Transparent),
-                startY = 0f,
-                endY = edge
-            )
-        )
-    }
+): Modifier {
+    val r = radius * NeuStyle.radiusScale
+    val shade = NeuPalette.shadow
+    val strength = 0.42f * NeuStyle.depthScale.coerceAtMost(1.4f)
+    return this
+        .clip(RoundedCornerShape(r))
+        .background(color)
+        .drawWithContent {
+            drawContent()
+            if (strength > 0f) {
+                val edge = 14.dp.toPx()
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        listOf(shade.copy(alpha = strength), Color.Transparent),
+                        startY = 0f,
+                        endY = edge
+                    )
+                )
+            }
+        }
+}
 
-/** Accent-filled neumorphic pill: solid colour with a soft self-coloured glow. */
+/** Accent-filled neumorphic pill. */
 fun Modifier.neuAccent(
     color: Color,
     radius: Dp = 20.dp,
     depth: Dp = 5.dp,
     blur: Dp = 12.dp
-): Modifier = this
-    .drawBehind {
-        val r = radius.toPx().coerceAtMost(minOf(size.width, size.height) / 2f)
-        drawIntoCanvas { canvas ->
-            val paint = android.graphics.Paint()
-            paint.isAntiAlias = true
-            paint.color = color.toArgb()
-            paint.setShadowLayer(blur.toPx(), depth.toPx(), depth.toPx(), color.copy(alpha = 0.45f).toArgb())
-            canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, r, r, paint)
+): Modifier {
+    val r = radius * NeuStyle.radiusScale
+    val d = depth * NeuStyle.depthScale
+    val b = blur * NeuStyle.depthScale
+    return this
+        .drawBehind {
+            val radiusPx = r.toPx().coerceAtMost(minOf(size.width, size.height) / 2f)
+            drawIntoCanvas { canvas ->
+                val paint = android.graphics.Paint()
+                paint.isAntiAlias = true
+                paint.color = color.toArgb()
+                if (b > 0.dp) {
+                    paint.setShadowLayer(b.toPx(), d.toPx(), d.toPx(), color.copy(alpha = 0.45f).toArgb())
+                } else {
+                    paint.clearShadowLayer()
+                }
+                canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, radiusPx, radiusPx, paint)
+            }
         }
-    }
-    .clip(RoundedCornerShape(radius))
-    .background(Brush.verticalGradient(listOf(color, darken(color, 0.9f))))
+        .clip(RoundedCornerShape(r))
+        .background(Brush.verticalGradient(listOf(color, darken(color, 0.9f))))
+}
 
-/** The single token set the whole dashboard reads from. Pack themes no longer recolour it. */
+/**
+ * Tactile claymorphic surface with gentle diffuse blue-tinted drop shadow
+ * and subtle clean hairline border.
+ */
+fun Modifier.clayCard(
+    radius: Dp = 18.dp,
+    elevation: Dp = 4.dp,
+    border: Color = Color(0xFFF1F5F9),
+    backgroundColor: Color = Color.White
+): Modifier = this
+    .shadow(
+        elevation = elevation,
+        shape = RoundedCornerShape(radius),
+        spotColor = Color(0x181E3A8A),
+        ambientColor = Color(0x0C1E3A8A)
+    )
+    .border(1.dp, border, RoundedCornerShape(radius))
+    .clip(RoundedCornerShape(radius))
+    .background(backgroundColor)
+
+/** The single token set the whole dashboard reads from. */
 fun neoIntelligenceColors(): IntelligenceColors = IntelligenceColors(
     accent = NeuPalette.violet,
     accentDeep = NeuPalette.violetDeep,
     accentWash = NeuPalette.violet.copy(alpha = 0.10f),
     accentSoft = NeuPalette.violet.copy(alpha = 0.22f),
-    onAccent = Color.White,
+    onAccent = NeuPalette.onAccent,
     ink = NeuPalette.ink,
     inkSoft = NeuPalette.inkSoft,
     muted = NeuPalette.muted,
@@ -205,13 +255,13 @@ fun neoIntelligenceColors(): IntelligenceColors = IntelligenceColors(
     warnDeep = NeuPalette.amberDeep,
     bad = NeuPalette.coral,
     info = NeuPalette.sky,
-    screenBrush = Brush.linearGradient(listOf(NeuPalette.canvas, NeuPalette.canvas)),
-    activeTabBrush = Brush.horizontalGradient(listOf(NeuPalette.violet, NeuPalette.violetDeep)),
-    onActiveTab = Color.White
+    screenBrush = Brush.verticalGradient(listOf(NeuPalette.canvas, NeuPalette.canvasDeep)),
+    activeTabBrush = Brush.verticalGradient(listOf(Color(0xFF3B82F6), Color(0xFF1D4ED8))),
+    onActiveTab = NeuPalette.onAccent
 )
 
 @Composable
-fun intelligenceColors(): IntelligenceColors = remember { neoIntelligenceColors() }
+fun intelligenceColors(): IntelligenceColors = remember(NeuStyle.themeId) { neoIntelligenceColors() }
 
 /** Draws the decorative leaf-swoosh curves used in the light header corners. */
 fun DrawScope.drawIntelligenceSwooshes(accent: Color) {
@@ -276,24 +326,24 @@ fun IntelligenceSectionCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .neuRaised(radius = 22.dp, depth = 6.dp, blur = 14.dp)
-            .padding(horizontal = 11.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(7.dp)
+            .neuRaised(radius = IntelligenceDensity.radiusCard, depth = 6.dp, blur = 14.dp)
+            .padding(horizontal = IntelligenceDensity.cardPaddingH, vertical = IntelligenceDensity.cardPaddingV),
+        verticalArrangement = Arrangement.spacedBy(IntelligenceDensity.widgetGapSm)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(IntelligenceDensity.widgetGapSm)) {
             Box(
                 modifier = Modifier
-                    .size(26.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(IntelligenceDensity.iconMedium)
+                    .clip(RoundedCornerShape(IntelligenceDensity.radiusSmall))
                     .background(c.accent),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = c.onAccent, modifier = Modifier.size(14.dp))
+                Icon(icon, contentDescription = null, tint = c.onAccent, modifier = Modifier.size(IntelligenceDensity.iconSmall))
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = c.ink, letterSpacing = (-0.2).sp)
+                Text(title, fontSize = IntelligenceTypography.sizeCardTitle, fontWeight = IntelligenceTypography.weightTitle, color = c.ink, letterSpacing = (-0.2).sp)
                 if (subtitle != null) {
-                    Text(subtitle, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.accentDeep)
+                    Text(subtitle, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = c.accentDeep)
                 }
             }
             trailing?.invoke(this)
@@ -313,16 +363,16 @@ fun IntelligencePillOutlined(
     val c = intelligenceColors()
     Row(
         modifier = modifier
-            .neuRaised(radius = 50.dp, color = NeuPalette.surfaceRaised, depth = 2.dp, blur = 5.dp)
+            .neuRaised(radius = IntelligenceDensity.radiusPill, color = NeuPalette.surfaceRaised, depth = 2.dp, blur = 5.dp)
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
-            .padding(horizontal = 9.dp, vertical = 4.dp),
+            .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         if (leading != null) {
-            Icon(leading, contentDescription = null, tint = c.accent, modifier = Modifier.size(11.dp))
+            Icon(leading, contentDescription = null, tint = c.accent, modifier = Modifier.size(IntelligenceDensity.iconMicro))
         }
-        Text(text, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = c.ink, maxLines = 1)
+        Text(text, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = c.ink, maxLines = 1)
     }
 }
 
@@ -340,23 +390,23 @@ fun IntelligenceChip(
     val onFill = Color(0xFF3B2A00)
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(IntelligenceDensity.radiusChip))
             .background(if (selected) c.warn else c.cardFill)
-            .border(1.2.dp, if (selected) c.warn else c.cardEdge, RoundedCornerShape(12.dp))
+            .border(1.2.dp, if (selected) c.warn else c.cardEdge, RoundedCornerShape(IntelligenceDensity.radiusChip))
             .clickable { onClick() }
-            .padding(horizontal = 6.dp, vertical = 6.dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(1.dp)
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Icon(icon, contentDescription = null, tint = if (selected) onFill else c.accent, modifier = Modifier.size(12.dp))
+            Icon(icon, contentDescription = null, tint = if (selected) onFill else c.accent, modifier = Modifier.size(IntelligenceDensity.iconMicro))
             Text(
                 label,
-                fontSize = 9.5.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = IntelligenceTypography.sizeSmall,
+                fontWeight = IntelligenceTypography.weightBody,
                 color = if (selected) onFill else c.ink,
                 letterSpacing = (-0.2).sp,
                 maxLines = 1
@@ -365,8 +415,8 @@ fun IntelligenceChip(
         if (value != null) {
             Text(
                 value,
-                fontSize = 10.5.sp,
-                fontWeight = FontWeight.ExtraBold,
+                fontSize = IntelligenceTypography.sizeSmall,
+                fontWeight = IntelligenceTypography.weightValue,
                 color = if (selected) onFill else c.accentDeep,
                 maxLines = 1
             )
@@ -379,20 +429,20 @@ fun IntelligenceChip(
 fun IntelligenceLegendRow(color: Color, label: String, count: String, modifier: Modifier = Modifier) {
     val c = intelligenceColors()
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
+        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(color))
         Text(
             label,
-            fontSize = 10.5.sp,
-            fontWeight = FontWeight.SemiBold,
+            fontSize = IntelligenceTypography.sizeSmall,
+            fontWeight = IntelligenceTypography.weightBody,
             color = c.ink,
-            modifier = Modifier.padding(start = 7.dp)
+            modifier = Modifier.padding(start = 8.dp)
         )
         Text(
             count,
-            fontSize = 10.5.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = IntelligenceTypography.sizeSmall,
+            fontWeight = IntelligenceTypography.weightValue,
             color = c.ink,
-            modifier = Modifier.padding(start = 6.dp)
+            modifier = Modifier.padding(start = 7.dp)
         )
     }
 }
@@ -404,14 +454,14 @@ fun IntelligenceNote(text: String, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(50))
+            .clip(RoundedCornerShape(IntelligenceDensity.radiusPill))
             .background(c.accentWash)
-            .padding(horizontal = 10.dp, vertical = 7.dp),
+            .padding(horizontal = 12.dp, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
     ) {
-        Icon(Icons.Filled.Info, contentDescription = null, tint = c.accent, modifier = Modifier.size(12.dp))
-        Text(text, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = c.ink, lineHeight = 12.sp)
+        Icon(Icons.Filled.Info, contentDescription = null, tint = c.accent, modifier = Modifier.size(IntelligenceDensity.iconSmall))
+        Text(text, fontSize = IntelligenceTypography.sizeBody, fontWeight = IntelligenceTypography.weightBody, color = c.ink, lineHeight = 14.sp)
     }
 }
 

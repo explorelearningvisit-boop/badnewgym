@@ -1,6 +1,9 @@
 package com.example.badnewgym.feature.bodyprogress.presentation.intelligence
 
 import androidx.compose.foundation.BorderStroke
+import com.example.badnewgym.feature.membercard.presentation.intelligence.IntelligenceDensity
+import com.example.badnewgym.feature.membercard.presentation.intelligence.IntelligenceTypography
+import com.example.badnewgym.feature.membercard.presentation.intelligence.NeuPalette
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Compare
@@ -59,6 +63,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -183,8 +188,8 @@ fun CardHeaderStrip(
             Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = title,
-                fontSize = 11.5.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = IntelligenceTypography.sizeSmall,
+                fontWeight = IntelligenceTypography.weightBody,
                 color = BodyIntelPalette.Text,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -210,8 +215,8 @@ fun CardHeaderStrip(
                     )
                     Text(
                         text = actionLabel,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = IntelligenceTypography.sizeMicro,
+                        fontWeight = IntelligenceTypography.weightBody,
                         color = Color.White
                     )
                 }
@@ -223,8 +228,8 @@ fun CardHeaderStrip(
             ) {
                 Text(
                     text = trailingBadge,
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = IntelligenceTypography.sizeMicro,
+                    fontWeight = IntelligenceTypography.weightBody,
                     color = trailingBadgeColor,
                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
                 )
@@ -232,7 +237,7 @@ fun CardHeaderStrip(
         } else if (trailingText != null) {
             Text(
                 text = trailingText,
-                fontSize = 9.sp,
+                fontSize = IntelligenceTypography.sizeMicro,
                 fontWeight = FontWeight.Medium,
                 color = BodyIntelPalette.Secondary
             )
@@ -270,7 +275,7 @@ fun UniformMetricPod(
             ) {
                 Text(
                     text = label,
-                    fontSize = 8.5.sp,
+                    fontSize = IntelligenceTypography.sizeMicro,
                     fontWeight = FontWeight.Medium,
                     color = BodyIntelPalette.Secondary,
                     maxLines = 1,
@@ -283,8 +288,8 @@ fun UniformMetricPod(
                     ) {
                         Text(
                             text = badge,
-                            fontSize = 7.5.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = IntelligenceTypography.sizeMicro,
+                            fontWeight = IntelligenceTypography.weightBody,
                             color = badgeColor,
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
                         )
@@ -304,16 +309,16 @@ fun UniformMetricPod(
             ) {
                 Text(
                     text = value,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Black,
+                    fontSize = IntelligenceTypography.sizeCardTitle,
+                    fontWeight = IntelligenceTypography.weightValue,
                     color = BodyIntelPalette.Text,
                     lineHeight = 16.sp
                 )
                 if (unit.isNotEmpty()) {
                     Text(
                         text = unit,
-                        fontSize = 8.5.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = IntelligenceTypography.sizeMicro,
+                        fontWeight = IntelligenceTypography.weightBody,
                         color = BodyIntelPalette.Primary,
                         modifier = Modifier.padding(bottom = 1.dp)
                     )
@@ -353,8 +358,8 @@ fun UniformModuleTile(
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = title,
-                fontSize = 9.5.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = IntelligenceTypography.sizeMicro,
+                fontWeight = IntelligenceTypography.weightBody,
                 color = BodyIntelPalette.Text,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -385,10 +390,18 @@ fun BodyPrimaryNavBar(
         BodyPrimaryTab.MORE to Icons.Filled.MoreHoriz
     )
 
+    val primaryScroll = rememberScrollState()
+    LaunchedEffect(selectedTab) {
+        val idx = BodyPrimaryTab.entries.indexOf(selectedTab).coerceAtLeast(0)
+        val target = primaryScroll.maxValue * idx / (BodyPrimaryTab.entries.size - 1).coerceAtLeast(1)
+        primaryScroll.animateScrollTo(target)
+    }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+            .horizontalScroll(primaryScroll),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         BodyPrimaryTab.entries.forEach { tab ->
@@ -400,6 +413,26 @@ fun BodyPrimaryNavBar(
                 onClick = { onTabSelected(tab) }
             )
         }
+    }
+    Box(
+        modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .width(30.dp)
+            .fillMaxHeight()
+            .background(
+                Brush.horizontalGradient(
+                    listOf(Color.Transparent, NeuPalette.canvas)
+                )
+            ),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        Icon(
+            Icons.Filled.ChevronRight,
+            contentDescription = "More tabs",
+            tint = NeuPalette.muted,
+            modifier = Modifier.size(16.dp)
+        )
+    }
     }
 }
 
@@ -447,16 +480,16 @@ private fun BodyNavPill(
             )
             Text(
                 text = tab.label,
-                fontSize = 10.sp,
-                fontWeight = if (isSelected) FontWeight.Black else FontWeight.SemiBold,
-                color = if (isSelected) onAccent else Color(0xFF5C6673),
+                fontSize = IntelligenceTypography.sizeSmall,
+                fontWeight = if (isSelected) IntelligenceTypography.weightValue else IntelligenceTypography.weightBody,
+                color = if (isSelected) onAccent else NeuPalette.inkSoft,
                 maxLines = 1
             )
             if (!value.isNullOrBlank()) {
                 Text(
                     text = value,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = IntelligenceTypography.sizeSmall,
+                    fontWeight = IntelligenceTypography.weightTitle,
                     color = if (isSelected) onAccent else accentDeep,
                     maxLines = 1
                 )
@@ -471,9 +504,11 @@ fun BodySecondaryNavBar(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    LaunchedEffect(state.primaryTab) { scrollState.scrollTo(0) }
 
+    Box(modifier = modifier.fillMaxWidth()) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(scrollState)
             .padding(horizontal = 2.dp, vertical = 2.dp),
@@ -506,8 +541,8 @@ fun BodySecondaryNavBar(
                 )
                 Text(
                     text = "Body • ${state.primaryTab.label}",
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Black,
+                    fontSize = IntelligenceTypography.sizeMicro,
+                    fontWeight = IntelligenceTypography.weightValue,
                     color = tagTextColor
                 )
             }
@@ -588,6 +623,26 @@ fun BodySecondaryNavBar(
             }
         }
     }
+    Box(
+        modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .width(30.dp)
+            .fillMaxHeight()
+            .background(
+                Brush.horizontalGradient(
+                    listOf(Color.Transparent, NeuPalette.canvas)
+                )
+            ),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        Icon(
+            Icons.Filled.ChevronRight,
+            contentDescription = "More tabs",
+            tint = NeuPalette.muted,
+            modifier = Modifier.size(16.dp)
+        )
+    }
+    }
 }
 
 @Composable
@@ -599,10 +654,10 @@ private fun SecondaryPill(
     val activeTheme = com.example.badnewgym.feature.membercard.design.BadGymThemeManager.activeTheme
     val accent = activeTheme.primaryColor
     val accentDeep = activeTheme.secondaryColor
-    val onAccent = if ((accent.red + accent.green + accent.blue) / 3f > 0.62f) Color(0xFF343434) else Color.White
+    val onAccent = if ((accent.red + accent.green + accent.blue) / 3f > 0.62f) NeuPalette.ink else Color.White
     val fill = if (isSelected) Brush.verticalGradient(listOf(accent, accentDeep)) else Brush.verticalGradient(listOf(Color.White, accent.copy(alpha = 0.07f)))
     val borderColor = if (isSelected) accentDeep else accent.copy(alpha = 0.22f)
-    val textColor = if (isSelected) onAccent else Color(0xFF6E7887)
+    val textColor = if (isSelected) onAccent else NeuPalette.inkSoft
 
     Surface(
         onClick = onClick,
@@ -618,8 +673,8 @@ private fun SecondaryPill(
     ) {
         Text(
             text = label,
-            fontSize = 9.sp,
-            fontWeight = if (isSelected) FontWeight.Black else FontWeight.SemiBold,
+            fontSize = IntelligenceTypography.sizeMicro,
+            fontWeight = if (isSelected) IntelligenceTypography.weightValue else IntelligenceTypography.weightBody,
             color = textColor,
             modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
         )
@@ -671,10 +726,10 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                         .clip(RoundedCornerShape(10.dp))
                         .background(
                             Brush.verticalGradient(
-                                listOf(Color(0xFFEDF0F4), Color(0xFFE6E9EF))
+                                listOf(NeuPalette.surface, NeuPalette.surface)
                             )
                         )
-                        .border(1.dp, Color(0xFFDCDFE6), RoundedCornerShape(10.dp)),
+                        .border(1.dp, NeuPalette.shadowSoft, RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -700,7 +755,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     ) {
                         Canvas(modifier = Modifier.fillMaxSize()) {
                             drawArc(
-                                color = Color(0xFFDCDFE6),
+                                color = NeuPalette.shadowSoft,
                                 startAngle = 0f,
                                 sweepAngle = 360f,
                                 useCenter = false,
@@ -722,8 +777,8 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                         }
                         Text(
                             text = "$percent%",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Black,
+                            fontSize = IntelligenceTypography.sizeCardTitle,
+                            fontWeight = IntelligenceTypography.weightValue,
                             color = BodyIntelPalette.Ink
                         )
                     }
@@ -752,7 +807,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     label = "BMI",
                     value = bmi?.value?.let { bodyFmt(it) } ?: "--",
                     badge = bodyBmiStatus(bmi?.value),
-                    badgeColor = Color(0xFF21A87D)
+                    badgeColor = NeuPalette.green
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
@@ -760,7 +815,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = fat?.value?.let { bodyFmt(it) } ?: "--",
                     unit = "%",
                     badge = bodyFatStatus(fat?.value),
-                    badgeColor = Color(0xFFD99F0B)
+                    badgeColor = NeuPalette.amberDeep
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
@@ -768,7 +823,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = muscle?.value?.let { bodyFmt(it) } ?: "--",
                     unit = "kg",
                     badge = "Good",
-                    badgeColor = Color(0xFF21A87D)
+                    badgeColor = NeuPalette.green
                 )
             }
         }
@@ -793,7 +848,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = bodySigned(current - start),
                     unit = "kg",
                     badge = "Change",
-                    badgeColor = Color(0xFF21A87D)
+                    badgeColor = NeuPalette.green
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
@@ -801,7 +856,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = bodySigned(bodyDelta(muscle)),
                     unit = "kg",
                     badge = "Change",
-                    badgeColor = Color(0xFF6B92E5)
+                    badgeColor = NeuPalette.blue
                 )
                 UniformMetricPod(
                     modifier = Modifier.weight(1f),
@@ -809,7 +864,7 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
                     value = bodySigned(bodyDelta(fat)),
                     unit = "%",
                     badge = "Change",
-                    badgeColor = Color(0xFF6A70A8)
+                    badgeColor = NeuPalette.violetDeep
                 )
             }
         }
@@ -820,8 +875,8 @@ fun BodyOverviewModule(state: BodyIntelligenceState) {
 @Composable
 private fun GoalMilestone(value: String, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = value, fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = color)
-        Text(text = label, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
+        Text(text = value, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightValue, color = color)
+        Text(text = label, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.muted)
     }
 }
 
@@ -882,7 +937,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                         DonutChart(
                             segments = listOf(
                                 DonutSegment("Lean", leanPct, BodyIntelPalette.Emerald),
-                                DonutSegment("Fat", fatSlicePct, Color(0xFFFFBB0D))
+                                DonutSegment("Fat", fatSlicePct, NeuPalette.amber)
                             ),
                             centerTop = bodyFmt(wKg),
                             centerBottom = "kg Total",
@@ -897,8 +952,8 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             verticalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
                             CompositionLegendRow(color = BodyIntelPalette.Emerald, label = "Muscle", value = "${bodyFmt(muscleKg)} kg", pct = bodyPctOf(muscleKg, wKg))
-                            CompositionLegendRow(color = Color(0xFF21A87D), label = "Lean Mass", value = "${bodyFmt(leanMass)} kg", pct = bodyPctOf(leanMass, wKg))
-                            CompositionLegendRow(color = Color(0xFFFFBB0D), label = "Fat Mass", value = "${bodyFmt(fatMass)} kg", pct = bodyPctOf(fatMass, wKg))
+                            CompositionLegendRow(color = NeuPalette.green, label = "Lean Mass", value = "${bodyFmt(leanMass)} kg", pct = bodyPctOf(leanMass, wKg))
+                            CompositionLegendRow(color = NeuPalette.amber, label = "Fat Mass", value = "${bodyFmt(fatMass)} kg", pct = bodyPctOf(fatMass, wKg))
                         }
                     }
                 }
@@ -931,7 +986,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             value = bodyFmt(fatMass),
                             unit = "kg",
                             badge = "Adipose",
-                            badgeColor = Color(0xFFD99F0B)
+                            badgeColor = NeuPalette.amberDeep
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -951,7 +1006,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                         title = "Fat Mass Analysis",
                         icon = Icons.Filled.Opacity,
                         trailingBadge = "${rec.bodyFatPercent}% Fat",
-                        trailingBadgeColor = Color(0xFFD99F0B)
+                        trailingBadgeColor = NeuPalette.amberDeep
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -966,7 +1021,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             value = "${rec.fatMassKg}",
                             unit = "kg",
                             badge = "18.5%",
-                            badgeColor = Color(0xFFD99F0B)
+                            badgeColor = NeuPalette.amberDeep
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -1003,7 +1058,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
                                 text = "Target fat loss: -4.5 kg to reach 15.0% athletic body fat goal.",
-                                fontSize = 9.sp,
+                                fontSize = IntelligenceTypography.sizeMicro,
                                 color = BodyIntelPalette.DeepEmerald,
                                 fontWeight = FontWeight.Medium
                             )
@@ -1041,7 +1096,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             value = "${rec.bodyWaterKg}",
                             unit = "kg",
                             badge = "60.1%",
-                            badgeColor = Color(0xFF489CC1)
+                            badgeColor = NeuPalette.sky
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -1049,7 +1104,7 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             value = "${rec.boneMineralKg}",
                             unit = "kg",
                             badge = "Dense",
-                            badgeColor = Color(0xFF7B81BE)
+                            badgeColor = NeuPalette.violet
                         )
                     }
 
@@ -1160,8 +1215,8 @@ fun BodyCompositionModule(state: BodyIntelligenceState) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "Bilateral Balance", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.DeepEmerald)
-                            Text(text = "98.5% Symmetrical • Balanced", fontSize = 9.sp, color = BodyIntelPalette.Primary, fontWeight = FontWeight.SemiBold)
+                            Text(text = "Bilateral Balance", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.DeepEmerald)
+                            Text(text = "98.5% Symmetrical • Balanced", fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Primary, fontWeight = IntelligenceTypography.weightBody)
                         }
                     }
                 }
@@ -1180,12 +1235,12 @@ private fun CompositionLegendRow(color: Color, label: String, value: String, pct
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.size(7.dp).clip(CircleShape).background(color))
             Spacer(modifier = Modifier.width(5.dp))
-            Text(text = label, fontSize = 10.sp, color = BodyIntelPalette.Text, fontWeight = FontWeight.Medium)
+            Text(text = label, fontSize = IntelligenceTypography.sizeSmall, color = BodyIntelPalette.Text, fontWeight = FontWeight.Medium)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = value, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Text)
+            Text(text = value, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Text)
             Spacer(modifier = Modifier.width(3.dp))
-            Text(text = "($pct)", fontSize = 8.5.sp, color = BodyIntelPalette.Secondary)
+            Text(text = "($pct)", fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Secondary)
         }
     }
 }
@@ -1293,8 +1348,8 @@ fun BodyMeasurementsModule(state: BodyIntelligenceState) {
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = "14 Circumference Records",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = IntelligenceTypography.sizeSmall,
+                            fontWeight = IntelligenceTypography.weightBody,
                             color = BodyIntelPalette.Text
                         )
                     }
@@ -1313,8 +1368,8 @@ fun BodyMeasurementsModule(state: BodyIntelligenceState) {
                             ) {
                                 Text(
                                     text = "in",
-                                    fontSize = 8.5.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = IntelligenceTypography.sizeMicro,
+                                    fontWeight = IntelligenceTypography.weightBody,
                                     color = if (!isCm) Color.White else BodyIntelPalette.Secondary,
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp)
                                 )
@@ -1326,8 +1381,8 @@ fun BodyMeasurementsModule(state: BodyIntelligenceState) {
                             ) {
                                 Text(
                                     text = "cm",
-                                    fontSize = 8.5.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = IntelligenceTypography.sizeMicro,
+                                    fontWeight = IntelligenceTypography.weightBody,
                                     color = if (isCm) Color.White else BodyIntelPalette.Secondary,
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp)
                                 )
@@ -1349,10 +1404,10 @@ fun BodyMeasurementsModule(state: BodyIntelligenceState) {
                             .padding(horizontal = 8.dp, vertical = 3.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Measurement", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.DeepEmerald)
+                        Text(text = "Measurement", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.DeepEmerald)
                         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                            Text(text = "Current", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.DeepEmerald)
-                            Text(text = "Change", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.DeepEmerald)
+                            Text(text = "Current", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.DeepEmerald)
+                            Text(text = "Change", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.DeepEmerald)
                         }
                     }
                 }
@@ -1372,9 +1427,9 @@ fun BodyMeasurementsModule(state: BodyIntelligenceState) {
                     } else {
                         (if (m.changeInches >= 0) "+${m.changeInches}" else "${m.changeInches}") + " in"
                     }
-                    val changeColor = if (m.category == MeasurementCategory.CORE && m.changeInches < 0) Color(0xFF21A87D)
-                                      else if (m.category != MeasurementCategory.CORE && m.changeInches > 0) Color(0xFF21A87D)
-                                      else Color(0xFFFF7272)
+                    val changeColor = if (m.category == MeasurementCategory.CORE && m.changeInches < 0) NeuPalette.green
+                                      else if (m.category != MeasurementCategory.CORE && m.changeInches > 0) NeuPalette.green
+                                      else NeuPalette.coral
 
                     Row(
                         modifier = Modifier
@@ -1383,14 +1438,14 @@ fun BodyMeasurementsModule(state: BodyIntelligenceState) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = m.name, fontSize = 9.sp, fontWeight = FontWeight.Medium, color = BodyIntelPalette.Text)
+                        Text(text = m.name, fontSize = IntelligenceTypography.sizeMicro, fontWeight = FontWeight.Medium, color = BodyIntelPalette.Text)
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Text(text = curVal, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Text)
-                            Text(text = changeVal, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = changeColor)
+                            Text(text = curVal, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Text)
+                            Text(text = changeVal, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = changeColor)
                         }
                     }
                     if (i < filtered.lastIndex) {
-                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFE9EFEC)))
+                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(NeuPalette.surface))
                     }
                 }
             }
@@ -1429,10 +1484,10 @@ private fun SymmetryRow(label: String, measurements: String, status: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, fontSize = 9.5.sp, color = BodyIntelPalette.Text, fontWeight = FontWeight.Medium)
+        Text(text = label, fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Text, fontWeight = FontWeight.Medium)
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(text = measurements, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Text)
-            Text(text = status, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = BodyIntelPalette.DeepEmerald)
+            Text(text = measurements, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Text)
+            Text(text = status, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.DeepEmerald)
         }
     }
 }
@@ -1522,8 +1577,8 @@ fun BodyProgressModule(state: BodyIntelligenceState) {
                 ) {
                     Text(
                         text = range,
-                        fontSize = 9.5.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        fontSize = IntelligenceTypography.sizeMicro,
+                        fontWeight = if (isSelected) IntelligenceTypography.weightBody else FontWeight.Medium,
                         color = if (isSelected) Color.White else BodyIntelPalette.Secondary,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(vertical = 4.dp)
@@ -1560,7 +1615,7 @@ fun BodyProgressModule(state: BodyIntelligenceState) {
                     for (i in 0..2) {
                         val y = h * (i / 2f)
                         drawLine(
-                            color = Color(0xFFE9EFEC),
+                            color = NeuPalette.surface,
                             start = Offset(0f, y),
                             end = Offset(w, y),
                             strokeWidth = 1f
@@ -1624,7 +1679,7 @@ fun BodyProgressModule(state: BodyIntelligenceState) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 axisLabels.forEach { label ->
-                    Text(text = label, fontSize = 8.sp, color = BodyIntelPalette.Secondary)
+                    Text(text = label, fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Secondary)
                 }
             }
 
@@ -1684,7 +1739,7 @@ private fun MilestoneItemCard(item: MilestoneItem) {
                 modifier = Modifier
                     .size(18.dp)
                     .clip(CircleShape)
-                    .background(if (item.completed) BodyIntelPalette.Primary else Color(0xFFE0EAE5)),
+                    .background(if (item.completed) BodyIntelPalette.Primary else NeuPalette.surface),
                 contentAlignment = Alignment.Center
             ) {
                 if (item.completed) {
@@ -1693,12 +1748,12 @@ private fun MilestoneItemCard(item: MilestoneItem) {
             }
             Spacer(modifier = Modifier.width(7.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = item.title, fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Text)
+                Text(text = item.title, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Text)
                 if (item.note != null) {
-                    Text(text = item.note, fontSize = 8.sp, color = BodyIntelPalette.Secondary)
+                    Text(text = item.note, fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Secondary)
                 }
             }
-            Text(text = item.date, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = BodyIntelPalette.DeepEmerald)
+            Text(text = item.date, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.DeepEmerald)
         }
     }
 }
@@ -1732,7 +1787,7 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                             .fillMaxWidth()
                             .height(100.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFFE9EFEC))
+                            .background(NeuPalette.surface)
                             .pointerInput(Unit) {
                                 detectDragGestures { change, _ ->
                                     change.consume()
@@ -1752,14 +1807,14 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                                 .width(dividerOffset)
                                 .align(Alignment.CenterStart)
                                 .clipToBounds()
-                                .background(Brush.verticalGradient(listOf(Color(0xFFDCDFE6), Color(0xFFD3DBE6)))),
+                                .background(Brush.verticalGradient(listOf(NeuPalette.shadowSoft, NeuPalette.shadowSoft))),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Filled.Person, contentDescription = null, tint = Color(0xFF8C94A0), modifier = Modifier.size(28.dp))
+                                Icon(Icons.Filled.Person, contentDescription = null, tint = NeuPalette.muted, modifier = Modifier.size(28.dp))
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "BEFORE", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = Color(0xFF6E7887))
-                                Text(text = "01 Apr 2025 • 74.5 kg", fontSize = 7.5.sp, color = Color(0xFF8C94A0))
+                                Text(text = "BEFORE", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightValue, color = NeuPalette.inkSoft)
+                                Text(text = "01 Apr 2025 • 74.5 kg", fontSize = IntelligenceTypography.sizeMicro, color = NeuPalette.muted)
                             }
                         }
 
@@ -1770,14 +1825,14 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                                 .width(w * (1f - sliderX))
                                 .align(Alignment.CenterEnd)
                                 .clipToBounds()
-                                .background(Brush.verticalGradient(listOf(Color(0xFFD5EDE4), Color(0xFFB7DFD1)))),
+                                .background(Brush.verticalGradient(listOf(NeuPalette.greenWash, NeuPalette.greenWash))),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Filled.FitnessCenter, contentDescription = null, tint = BodyIntelPalette.Primary, modifier = Modifier.size(28.dp))
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "AFTER", fontSize = 9.5.sp, fontWeight = FontWeight.Black, color = BodyIntelPalette.DeepEmerald)
-                                Text(text = "30 Jun 2025 • 69.5 kg", fontSize = 7.5.sp, color = BodyIntelPalette.Primary)
+                                Text(text = "AFTER", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightValue, color = BodyIntelPalette.DeepEmerald)
+                                Text(text = "30 Jun 2025 • 69.5 kg", fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Primary)
                             }
                         }
 
@@ -1810,8 +1865,8 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "BEFORE: 74.5 kg", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Secondary)
-                        Text(text = "AFTER: 69.5 kg (-5.0 kg)", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Primary)
+                        Text(text = "BEFORE: 74.5 kg", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Secondary)
+                        Text(text = "AFTER: 69.5 kg (-5.0 kg)", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Primary)
                     }
                 }
             }
@@ -1832,14 +1887,14 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                             .fillMaxWidth()
                             .height(90.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Brush.verticalGradient(listOf(Color(0xFFEAF3EF), Color(0xFFDAEFE6)))),
+                            .background(Brush.verticalGradient(listOf(NeuPalette.surface, NeuPalette.greenWash))),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Filled.Person, contentDescription = null, tint = BodyIntelPalette.Primary, modifier = Modifier.size(36.dp))
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(text = "$poseName Standard Profile", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.DeepEmerald)
-                            Text(text = "Latest: 30 Jun 2025 • 69.5 kg", fontSize = 8.5.sp, color = BodyIntelPalette.Secondary)
+                            Text(text = "$poseName Standard Profile", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.DeepEmerald)
+                            Text(text = "Latest: 30 Jun 2025 • 69.5 kg", fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Secondary)
                         }
                     }
                 }
@@ -1873,10 +1928,10 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
                                 ) {
                                     Icon(Icons.Filled.CameraAlt, contentDescription = null, tint = BodyIntelPalette.Primary, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.height(2.dp))
-                                    Text(text = month, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Text)
-                                    Text(text = weight, fontSize = 8.sp, color = BodyIntelPalette.Secondary)
+                                    Text(text = month, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Text)
+                                    Text(text = weight, fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Secondary)
                                     Surface(shape = RoundedCornerShape(4.dp), color = BodyIntelPalette.Primary) {
-                                        Text(text = tag, fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
+                                        Text(text = tag, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = Color.White, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
                                     }
                                 }
                             }
@@ -1896,7 +1951,7 @@ fun BodyGalleryModule(state: BodyIntelligenceState) {
             Spacer(modifier = Modifier.width(3.dp))
             Text(
                 text = "Photos are privately encrypted and only stored on your device.",
-                fontSize = 8.sp,
+                fontSize = IntelligenceTypography.sizeMicro,
                 color = BodyIntelPalette.Secondary
             )
         }
@@ -1970,8 +2025,8 @@ fun BodyGoalsModule(state: BodyIntelligenceState) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "3.3 kg lost • 4.5 kg to target", fontSize = 8.5.sp, color = BodyIntelPalette.Secondary)
-                        Text(text = "${goal.progressPercent}% achieved", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Primary)
+                        Text(text = "3.3 kg lost • 4.5 kg to target", fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Secondary)
+                        Text(text = "${goal.progressPercent}% achieved", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Primary)
                     }
                 }
             }
@@ -2002,9 +2057,9 @@ fun BodyGoalsModule(state: BodyIntelligenceState) {
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(text = "✓ Phase 1: Reconditioning (75.0 kg → 72.8 kg) • Completed Mar 2025", fontSize = 9.5.sp, color = BodyIntelPalette.DeepEmerald)
+                    Text(text = "✓ Phase 1: Reconditioning (75.0 kg → 72.8 kg) • Completed Mar 2025", fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.DeepEmerald)
                     Spacer(modifier = Modifier.height(3.dp))
-                    Text(text = "✓ Foundation Phase: Assessment & Onboarding • Completed Feb 2025", fontSize = 9.5.sp, color = BodyIntelPalette.Secondary)
+                    Text(text = "✓ Foundation Phase: Assessment & Onboarding • Completed Feb 2025", fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Secondary)
                 }
             }
         }
@@ -2045,7 +2100,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             value = "${h.restingHeartRateBpm}",
                             unit = "bpm",
                             badge = "60-100",
-                            badgeColor = Color(0xFFFF7272)
+                            badgeColor = NeuPalette.coral
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -2053,7 +2108,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             value = "${h.bloodPressureSys}/${h.bloodPressureDia}",
                             unit = "mmHg",
                             badge = "Normal",
-                            badgeColor = Color(0xFF489CC1)
+                            badgeColor = NeuPalette.sky
                         )
                     }
                 }
@@ -2078,7 +2133,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             label = "Sleep Duration",
                             value = h.sleepDuration,
                             badge = "88% Rest",
-                            badgeColor = Color(0xFF7B81BE)
+                            badgeColor = NeuPalette.violet
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -2111,7 +2166,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             value = "${h.dailySteps}",
                             unit = "steps",
                             badge = "10k Goal",
-                            badgeColor = Color(0xFF21A87D)
+                            badgeColor = NeuPalette.green
                         )
                         UniformMetricPod(
                             modifier = Modifier.weight(1f),
@@ -2119,7 +2174,7 @@ fun BodyHealthModule(state: BodyIntelligenceState) {
                             value = "${h.hydrationLiters}",
                             unit = "L",
                             badge = "Optimal",
-                            badgeColor = Color(0xFF6B92E5)
+                            badgeColor = NeuPalette.blue
                         )
                     }
                 }
@@ -2180,8 +2235,8 @@ private fun MoreOptionRow(
         }
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = BodyIntelPalette.Text)
-            Text(text = subtitle, fontSize = 8.sp, color = BodyIntelPalette.Secondary)
+            Text(text = title, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = BodyIntelPalette.Text)
+            Text(text = subtitle, fontSize = IntelligenceTypography.sizeMicro, color = BodyIntelPalette.Secondary)
         }
     }
 }

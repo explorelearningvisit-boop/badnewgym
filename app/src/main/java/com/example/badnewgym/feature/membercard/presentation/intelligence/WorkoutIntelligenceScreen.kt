@@ -18,37 +18,29 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TrackChanges
-import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextMeasurer
@@ -60,17 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.domain.intelligence.IntelligenceSeries
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
-import java.util.Locale
 
 /**
- * Workout Intelligence Screen
- * 100% 1:1 Pixel-Perfect Reproduction of Reference: media_1794217939597_36ee4831.jpg
- * - 19.4 hr Total Workout circular ring gauge (dual neon green / purple sweep)
- * - 4 Stat tiles (37 min Avg/Day, 88 min Best 👑, 32 min Lowest 🔻, 61% Consistency 🎯)
- * - Daily Workout Trend area spline with glowing vertical stem volume lines, 4 callout badges (47m, 88m 👑, 32m, 74m)
- * - 4 horizontal status chips (19/31 Active Days, 5 Days Current Streak, 18/30 Goal Days, 61% Consistency)
- * - Monthly Workout Pattern with 10 monthly bars, July 44h peak green bar with gold crown 👑, Total 256.0 hr
- * - Smart Insight [AI] card with athlete silhouette illustration and "View Plan ›" action
+ * Neumorphic Workout Intelligence Screen:
+ * - All headings, data, names, metrics highlighted & extra-bold.
+ * - Monthly Workout Pattern features tactile Neumorphic Capsule Bars (Images 2 & 5).
+ * - Ultra-compact layout with tactile 3D buttons and cards.
  */
 @Composable
 fun WorkoutIntelligenceScreen(
@@ -84,7 +71,7 @@ fun WorkoutIntelligenceScreen(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // CARD 1: Workout Intelligence (Gauge + Stat Tiles + Daily Trend + 4 Chips)
         IntelligenceSectionCard(
@@ -96,21 +83,21 @@ fun WorkoutIntelligenceScreen(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Circular Ring Gauge (19.4 hr Total Workout)
+                // Circular Ring Gauge (19.4 hr Total Workout) - Compact 70dp
                 Box(
-                    modifier = Modifier.size(86.dp),
+                    modifier = Modifier.size(70.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
-                        val strokeW = 7.dp.toPx()
+                        val strokeW = 6.dp.toPx()
                         val arcSize = size.minDimension - strokeW
                         val topLeft = Offset(strokeW / 2f, strokeW / 2f)
 
                         // Track
                         drawArc(
-                            color = Color(0xFFE6E9EF),
+                            color = NeuPalette.shadowSoft,
                             startAngle = 0f,
                             sweepAngle = 360f,
                             useCenter = false,
@@ -123,10 +110,10 @@ fun WorkoutIntelligenceScreen(
                         drawArc(
                             brush = Brush.sweepGradient(
                                 listOf(
-                                    Color(0xFF21A87D),
-                                    Color(0xFF7B81BE),
-                                    Color(0xFF6A70A8),
-                                    Color(0xFF21A87D)
+                                    NeuPalette.green,
+                                    NeuPalette.violet,
+                                    NeuPalette.violetDeep,
+                                    NeuPalette.green
                                 )
                             ),
                             startAngle = -90f,
@@ -139,33 +126,33 @@ fun WorkoutIntelligenceScreen(
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            "19.4 hr",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Black,
+                            "19.4h",
+                            fontSize = IntelligenceTypography.sizeMetric,
+                            fontWeight = IntelligenceTypography.weightValue,
                             color = c.ink,
                             letterSpacing = (-0.5).sp
                         )
                         Text(
-                            "Total Workout",
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF8C94A0)
+                            "Workout",
+                            fontSize = IntelligenceTypography.sizeSmall,
+                            fontWeight = IntelligenceTypography.weightValue,
+                            color = NeuPalette.violet
                         )
                     }
                 }
 
-                // 2x2 Grid of Stat Tiles
+                // 2x2 Grid of Stat Tiles - Highlighted & bold
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         WorkoutStatTile(
                             icon = Icons.Filled.Schedule,
-                            iconTint = Color(0xFF21A87D),
+                            iconTint = NeuPalette.green,
                             value = "37 min",
                             label = "Avg / Day",
                             valueColor = c.ink,
@@ -173,111 +160,108 @@ fun WorkoutIntelligenceScreen(
                         )
                         WorkoutStatTile(
                             icon = Icons.Filled.EmojiEvents,
-                            iconTint = Color(0xFFFFBB0D),
+                            iconTint = Color(0xFFF59E0B),
                             value = "88 min",
-                            label = "Best",
-                            valueColor = c.ink,
+                            label = "Best 👑",
+                            valueColor = Color(0xFFD97706),
                             modifier = Modifier.weight(1f)
                         )
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         WorkoutStatTile(
                             icon = Icons.AutoMirrored.Filled.TrendingDown,
-                            iconTint = Color(0xFFFF7272),
+                            iconTint = Color(0xFFDC2626),
                             value = "32 min",
-                            label = "Lowest",
-                            valueColor = Color(0xFFFF7272),
+                            label = "Lowest 🔻",
+                            valueColor = Color(0xFFDC2626),
                             modifier = Modifier.weight(1f)
                         )
                         WorkoutStatTile(
                             icon = Icons.Filled.TrackChanges,
-                            iconTint = Color(0xFF21A87D),
+                            iconTint = NeuPalette.violet,
                             value = "61%",
                             label = "Consistency",
-                            valueColor = c.ink,
+                            valueColor = NeuPalette.violet,
                             modifier = Modifier.weight(1f)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             // Subtitle: Daily Workout Trend
             Text(
                 "Daily Workout Trend",
-                fontSize = 11.5.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = IntelligenceTypography.sizeCardTitle,
+                fontWeight = IntelligenceTypography.weightValue,
                 color = c.ink
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
-
-            // Daily Minutes Spline Chart with Vertical Stem Glow Volume
+            // Daily Minutes Spline Chart with Vertical Stem Glow Volume - Compact 76dp
             DailyWorkoutTrendChart(points = points, measurer = measurer, c = c)
 
-            Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
-            // 4 Horizontal Status Chips Row
+            // 4 Horizontal Status Chips Row - Big bold readable values
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 WorkoutStatusChip(
                     icon = Icons.AutoMirrored.Filled.DirectionsRun,
-                    iconTint = Color(0xFF21A87D),
-                    bg = Color(0xFFDAEFE6),
-                    value = "19 / 31",
+                    iconTint = NeuPalette.green,
+                    bg = Color(0xFFD1FAE5),
+                    value = "19/31",
                     label = "Active Days",
                     modifier = Modifier.weight(1f)
                 )
                 WorkoutStatusChip(
                     icon = Icons.Filled.LocalFireDepartment,
-                    iconTint = Color(0xFFFFBB0D),
-                    bg = Color(0xFFFBEFD4),
+                    iconTint = Color(0xFFD97706),
+                    bg = Color(0xFFFEF3C7),
                     value = "5 Days",
-                    label = "Current Streak",
+                    label = "Streak",
                     modifier = Modifier.weight(1f)
                 )
                 WorkoutStatusChip(
                     icon = Icons.Filled.CalendarMonth,
-                    iconTint = Color(0xFF7B81BE),
-                    bg = Color(0xFFE0E3F2),
-                    value = "18 / 30",
-                    label = "Goal Days",
+                    iconTint = NeuPalette.violet,
+                    bg = Color(0xFFEDE9FE),
+                    value = "18/30",
+                    label = "Goal",
                     modifier = Modifier.weight(1f)
                 )
                 WorkoutStatusChip(
                     icon = Icons.Filled.TrackChanges,
-                    iconTint = Color(0xFF21A87D),
-                    bg = Color(0xFFDAEFE6),
+                    iconTint = NeuPalette.green,
+                    bg = Color(0xFFD1FAE5),
                     value = "61%",
-                    label = "Consistency",
+                    label = "Steady",
                     modifier = Modifier.weight(1f)
                 )
             }
         }
 
-        // CARD 2: Monthly Workout Pattern (This Year)
+        // CARD 2: Monthly Workout Pattern (This Year) - Featuring Neumorphic Capsule Bars
         IntelligenceSectionCard(
             title = "Monthly Workout Pattern",
             icon = Icons.Filled.BarChart,
             subtitle = "(This Year)",
-            trailing = { IntelligencePillOutlined("⏱ Total: 256.0 hr") }
+            trailing = { IntelligencePillOutlined("Total: 256.0 hr") }
         ) {
-            MonthlyWorkoutPatternChart(pattern = IntelligenceSeries.workoutMonthlyPattern(), measurer = measurer, c = c)
+            MonthlyWorkoutCapsuleBarChart(measurer = measurer, c = c)
         }
 
         // CARD 3: Smart Insight [AI] Card
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .neuRaised(radius = 16.dp, depth = 6.dp, blur = 16.dp)
-                
-                .padding(9.dp)
+                .neuRaised(radius = 12.dp, depth = 3.dp, blur = 8.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -287,82 +271,82 @@ fun WorkoutIntelligenceScreen(
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFE0E3F2)),
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFEDE9FE)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.Filled.FitnessCenter,
                             contentDescription = null,
-                            tint = Color(0xFF7B81BE),
-                            modifier = Modifier.size(17.dp)
+                            tint = NeuPalette.violet,
+                            modifier = Modifier.size(15.dp)
                         )
                     }
-                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
                                 "Smart Insight",
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontSize = IntelligenceTypography.sizeSmall,
+                                fontWeight = IntelligenceTypography.weightValue,
                                 color = c.ink
                             )
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFFE0E3F2))
+                                    .background(NeuPalette.violet)
                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                             ) {
                                 Text(
                                     "AI",
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = Color(0xFF7B81BE)
+                                    fontSize = IntelligenceTypography.sizeMicro,
+                                    fontWeight = IntelligenceTypography.weightValue,
+                                    color = Color.White
                                 )
                             }
                         }
                         Text(
                             "Great consistency (61%)! 🔥 Maintain 5+ day streak to reach 44 hr+ next month.",
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color(0xFF6E7887),
-                            lineHeight = 12.sp
+                            fontSize = IntelligenceTypography.sizeSmall,
+                            fontWeight = IntelligenceTypography.weightBody,
+                            color = NeuPalette.inkSoft,
+                            lineHeight = 15.sp
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.width(6.dp))
 
-                // "View Plan ›" Pill Button
+                // "View Plan ›" 3D Neumorphic Pill Button (matching Image 1)
                 Box(
                     modifier = Modifier
-                        .neuRaised(radius = 50.dp, color = NeuPalette.surfaceRaised, depth = 2.dp, blur = 5.dp)
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(Color(0xFF8B5CF6), NeuPalette.violetDeep)
+                            )
+                        )
                         .clickable(onClick = onClick)
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                        .padding(horizontal = 11.dp, vertical = 7.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Text(
-                            "View Plan ›",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF7B81BE)
-                        )
-                    }
+                    Text(
+                        "View Plan ›",
+                        fontSize = IntelligenceTypography.sizeSmall,
+                        fontWeight = IntelligenceTypography.weightValue,
+                        color = Color.White
+                    )
                 }
             }
         }
     }
 }
 
-/** Stat tile inside the 2x2 grid matching reference. */
+/** Stat tile for Workout section. All labels & values are highlighted, bold, and readable. */
 @Composable
 private fun WorkoutStatTile(
     icon: ImageVector,
@@ -374,23 +358,23 @@ private fun WorkoutStatTile(
 ) {
     Box(
         modifier = modifier
-            .neuRaised(radius = 10.dp, depth = 2.dp, blur = 4.dp)
-            .padding(horizontal = 6.dp, vertical = 6.dp)
+            .neuRaised(radius = 8.dp, depth = 2.dp, blur = 4.dp)
+            .padding(horizontal = 6.dp, vertical = 4.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(11.dp))
-                Text(label, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0), maxLines = 1)
+                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(13.dp))
+                Text(label, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.inkSoft, maxLines = 1)
             }
-            Text(value, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = valueColor, maxLines = 1)
+            Text(value, fontSize = IntelligenceTypography.sizeCardTitle, fontWeight = IntelligenceTypography.weightValue, color = valueColor, maxLines = 1)
         }
     }
 }
 
-/** Status chip below the Daily Workout Trend graph matching reference. */
+/** Status chip below the Daily Workout Trend graph. */
 @Composable
 private fun WorkoutStatusChip(
     icon: ImageVector,
@@ -402,12 +386,12 @@ private fun WorkoutStatusChip(
 ) {
     Box(
         modifier = modifier
-            .neuRaised(radius = 10.dp, depth = 2.dp, blur = 4.dp)
-            .padding(horizontal = 4.dp, vertical = 5.dp)
+            .neuRaised(radius = 8.dp, depth = 2.dp, blur = 4.dp)
+            .padding(horizontal = 4.dp, vertical = 4.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -416,18 +400,18 @@ private fun WorkoutStatusChip(
                     .background(bg),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(11.dp))
+                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(12.dp))
             }
             Column {
-                Text(value, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF343434), maxLines = 1)
-                Text(label, fontSize = 6.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0), maxLines = 1)
+                Text(value, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightValue, color = NeuPalette.ink, maxLines = 1)
+                Text(label, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.inkSoft, maxLines = 1)
             }
         }
     }
 }
 
 /**
- * Daily Workout Trend Spline with Glowing Vertical Stems (Volume Drop Lines) and Callout Badges
+ * Daily Workout Trend Spline with Glowing Vertical Stems and Callout Badges
  */
 @Composable
 private fun DailyWorkoutTrendChart(
@@ -438,30 +422,31 @@ private fun DailyWorkoutTrendChart(
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(104.dp)
+            .height(96.dp)
     ) {
         val plotLeft = 28.dp.toPx()
-        val plotRight = size.width - 6.dp.toPx()
-        val plotTop = 32.dp.toPx()
-        val plotBottom = size.height - 20.dp.toPx()
+        val plotRight = size.width - 20.dp.toPx()
+        val plotTop = 22.dp.toPx()
+        val plotBottom = size.height - 18.dp.toPx()
         val plotH = (plotBottom - plotTop).coerceAtLeast(1f)
         val span = plotRight - plotLeft
-        val axisStyle = TextStyle(fontSize = 7.5.sp, color = Color(0xFFA1AEBF), fontWeight = FontWeight.SemiBold)
+        val axisStyle = TextStyle(fontSize = IntelligenceTypography.sizeSmall, color = NeuPalette.inkSoft, fontWeight = IntelligenceTypography.weightBody)
 
         val xOf = { day: Int -> plotLeft + (day - 1) * span / 30f }
         val yOf = { minutes: Int -> plotBottom - (minutes / 90f) * plotH }
 
-        // Y-axis gridlines & labels (90m, 68m, 45m, 23m, 0m)
-        val yLabels = listOf("90m", "68m", "45m", "23m", "0m")
+        // Y-axis gridlines & labels (90m, 45m, 0m)
+        val yLabels = listOf("90m", "45m", "0m")
         yLabels.forEachIndexed { i, label ->
-            val y = plotTop + i * plotH / 4f
+            val y = plotTop + i * plotH / 2f
             drawLine(
-                color = Color(0xFFE6E9EF),
+                color = NeuPalette.shadowSoft,
                 start = Offset(plotLeft, y),
                 end = Offset(plotRight, y),
                 strokeWidth = 1f
             )
-            drawText(measurer, label, Offset(0f, y - 5.dp.toPx()), style = axisStyle)
+            val lw = measurer.measure(label, axisStyle).size.width
+            drawText(measurer, label, Offset(plotLeft - lw - 3.dp.toPx(), y - 6.dp.toPx()), style = axisStyle)
         }
 
         // X-axis labels (1, 5, 10, 15, 20, 25, 31)
@@ -469,10 +454,10 @@ private fun DailyWorkoutTrendChart(
             val text = day.toString()
             val tw = measurer.measure(text, axisStyle).size.width
             val labelX = (xOf(day) - tw / 2f).coerceIn(plotLeft - tw, size.width - tw)
-            drawText(measurer, text, Offset(labelX, plotBottom + 4.dp.toPx()), style = axisStyle)
+            drawText(measurer, text, Offset(labelX, plotBottom + 2.dp.toPx()), style = axisStyle)
         }
 
-        // Draw Vertical Glowing Stems (volume lines) from x-axis to each data point
+        // Draw Vertical Glowing Stems from x-axis to each data point
         points.forEach { p ->
             val x = xOf(p.day)
             val y = yOf(p.minutes)
@@ -480,8 +465,8 @@ private fun DailyWorkoutTrendChart(
                 drawLine(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF21A87D).copy(alpha = 0.5f),
-                            Color(0xFF21A87D).copy(alpha = 0.05f)
+                            NeuPalette.green.copy(alpha = 0.5f),
+                            NeuPalette.green.copy(alpha = 0.05f)
                         ),
                         startY = y,
                         endY = plotBottom
@@ -536,9 +521,9 @@ private fun DailyWorkoutTrendChart(
             path = areaPath,
             brush = Brush.verticalGradient(
                 colors = listOf(
-                    Color(0xFF21A87D).copy(alpha = 0.20f),
-                    Color(0xFF7B81BE).copy(alpha = 0.08f),
-                    Color(0xFF7B81BE).copy(alpha = 0.00f)
+                    NeuPalette.green.copy(alpha = 0.20f),
+                    NeuPalette.violet.copy(alpha = 0.08f),
+                    NeuPalette.violet.copy(alpha = 0.00f)
                 ),
                 startY = plotTop,
                 endY = plotBottom
@@ -549,7 +534,7 @@ private fun DailyWorkoutTrendChart(
         drawPath(
             path = linePath,
             brush = Brush.horizontalGradient(
-                listOf(Color(0xFF7B81BE), Color(0xFF21A87D), Color(0xFF7B81BE))
+                listOf(NeuPalette.violet, NeuPalette.green, NeuPalette.violet)
             ),
             style = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round)
         )
@@ -565,33 +550,49 @@ private fun DailyWorkoutTrendChart(
                     center = Offset(x, y)
                 )
                 drawCircle(
-                    color = if (p.minutes >= 80) Color(0xFF21A87D) else if (p.minutes <= 35) Color(0xFFFF7272) else Color(0xFF7B81BE),
+                    color = if (p.minutes >= 80) NeuPalette.green else if (p.minutes <= 35) Color(0xFFEF4444) else NeuPalette.violet,
                     radius = 2.dp.toPx(),
                     center = Offset(x, y)
                 )
             }
         }
 
-        // Floating callout badges matching reference:
-        // Day 2 (47m, purple), Day 8 (88m, green with gold crown 👑), Day 16 (32m, red), Day 28 (74m, purple)
+        // Floating callout badges matching peak points:
         val badges = listOf(
-            WorkoutBadgeData(day = 2, minutes = 47, label = "47m", bg = Color(0xFF7B81BE), hasCrown = false),
-            WorkoutBadgeData(day = 8, minutes = 88, label = "88m", bg = Color(0xFF21A87D), hasCrown = true),
-            WorkoutBadgeData(day = 16, minutes = 32, label = "32m", bg = Color(0xFFFF7272), hasCrown = false),
-            WorkoutBadgeData(day = 28, minutes = 74, label = "74m", bg = Color(0xFF7B81BE), hasCrown = false)
+            WorkoutBadgeData(day = 2, minutes = 47, label = "47m", bg = NeuPalette.violet, hasCrown = false),
+            WorkoutBadgeData(day = 8, minutes = 88, label = "88m", bg = NeuPalette.green, hasCrown = true),
+            WorkoutBadgeData(day = 16, minutes = 32, label = "32m", bg = Color(0xFFDC2626), hasCrown = false),
+            WorkoutBadgeData(day = 28, minutes = 74, label = "74m", bg = NeuPalette.violet, hasCrown = false)
         )
 
         badges.forEach { b ->
-            val x = xOf(b.day)
-            val y = yOf(b.minutes)
-            drawWorkoutCalloutBadge(
-                text = b.label,
-                x = x,
-                y = y,
-                bg = b.bg,
-                hasCrown = b.hasCrown,
-                measurer = measurer
+            val bx = xOf(b.day)
+            val by = yOf(b.minutes)
+
+            val badgeStyle = TextStyle(
+                fontSize = IntelligenceTypography.sizeMicro,
+                color = Color.White,
+                fontWeight = IntelligenceTypography.weightValue
             )
+            val textLayout = measurer.measure(b.label, badgeStyle)
+            val padH = 4.dp.toPx()
+            val padV = 2.dp.toPx()
+            val boxW = textLayout.size.width + padH * 2
+            val boxH = textLayout.size.height + padV * 2
+            val boxLeft = (bx - boxW / 2f).coerceIn(plotLeft, plotRight - boxW)
+            val boxTop = by - boxH - 6.dp.toPx()
+
+            if (b.hasCrown) {
+                drawCrown(centerX = bx, baseY = boxTop - 2.dp.toPx())
+            }
+
+            drawRoundRect(
+                color = b.bg,
+                topLeft = Offset(boxLeft, boxTop),
+                size = Size(boxW, boxH),
+                cornerRadius = CornerRadius(4.dp.toPx())
+            )
+            drawText(measurer, b.label, Offset(boxLeft + padH, boxTop + padV), style = badgeStyle)
         }
     }
 }
@@ -604,62 +605,34 @@ private data class WorkoutBadgeData(
     val hasCrown: Boolean
 )
 
-/** Callout badge on the Daily Workout Trend spline. */
-private fun DrawScope.drawWorkoutCalloutBadge(
-    text: String,
-    x: Float,
-    y: Float,
-    bg: Color,
-    hasCrown: Boolean,
-    measurer: TextMeasurer
-) {
-    val style = TextStyle(fontSize = 8.sp, color = Color.White, fontWeight = FontWeight.ExtraBold)
-    val measured = measurer.measure(text, style)
-    val padH = 5.dp.toPx()
-    val padV = 2.dp.toPx()
-    val boxW = measured.size.width + padH * 2f
-    val boxH = measured.size.height + padV * 2f
-    val gap = 6.dp.toPx()
-    val top = y - boxH - gap
-    val left = (x - boxW / 2f).coerceIn(2.dp.toPx(), size.width - boxW - 2.dp.toPx())
-
-    if (hasCrown) {
-        drawCrown(centerX = left + boxW / 2f, baseY = top - 2.dp.toPx())
-    }
-
-    drawRoundRect(
-        color = bg,
-        topLeft = Offset(left, top),
-        size = Size(boxW, boxH),
-        cornerRadius = CornerRadius(6.dp.toPx())
-    )
-    drawText(measurer, text, Offset(left + padH, top + padV), style = style)
-}
-
 /**
- * Monthly Workout Pattern Chart with 10 bars:
- * Jan (36h), Feb (40h), Mar (12h red), Apr (24h), May (28h), Jun (- dashed), Jul (44h green 👑), Aug (28h), Sep (28h), Oct (40h)
+ * Neumorphic Capsule Bar Chart (100% matched to reference Images 2 & 5):
+ * - Sunken vertical pill tracks with rounded capsule ends.
+ * - Liquid gradient capsule fills rising from the baseline.
+ * - Peak July with Gold Crown 👑 and emerald gradient fill.
+ * - High-contrast bold numbers and month labels.
  */
 @Composable
-private fun MonthlyWorkoutPatternChart(
-    pattern: List<IntelligenceSeries.WorkoutMonthPoint>,
+private fun MonthlyWorkoutCapsuleBarChart(
     measurer: TextMeasurer,
     c: IntelligenceColors
 ) {
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(96.dp)
+            .height(92.dp)
     ) {
-        val plotBottom = size.height - 16.dp.toPx()
-        val topPad = 32.dp.toPx()
+        val plotBottom = size.height - 18.dp.toPx()
+        val topPad = 20.dp.toPx()
+        val totalTrackH = plotBottom - topPad
         val slotW = size.width / 10f
-        val barW = slotW * 0.54f
+        val barW = (slotW * 0.48f).coerceAtLeast(10.dp.toPx())
+        val capsuleRadius = CornerRadius(barW / 2f, barW / 2f)
         val maxHr = 44f
 
-        val monthStyle = TextStyle(fontSize = 8.5.sp, color = Color(0xFF8C94A0), fontWeight = FontWeight.SemiBold)
-        val hourStyle = TextStyle(fontSize = 9.sp, color = Color(0xFF343434), fontWeight = FontWeight.ExtraBold)
-        val redHourStyle = TextStyle(fontSize = 9.sp, color = Color(0xFFFF7272), fontWeight = FontWeight.ExtraBold)
+        val monthStyle = TextStyle(fontSize = IntelligenceTypography.sizeSmall, color = NeuPalette.inkSoft, fontWeight = IntelligenceTypography.weightValue)
+        val hourStyle = TextStyle(fontSize = IntelligenceTypography.sizeSmall, color = NeuPalette.ink, fontWeight = IntelligenceTypography.weightValue)
+        val redHourStyle = TextStyle(fontSize = IntelligenceTypography.sizeSmall, color = Color(0xFFDC2626), fontWeight = IntelligenceTypography.weightValue)
 
         val months = listOf(
             MonthBarItem("Jan", 36, false, false, false),
@@ -667,8 +640,8 @@ private fun MonthlyWorkoutPatternChart(
             MonthBarItem("Mar", 12, false, true, false),
             MonthBarItem("Apr", 24, false, false, false),
             MonthBarItem("May", 28, false, false, false),
-            MonthBarItem("Jun", 0, false, false, true), // Empty / hatched
-            MonthBarItem("Jul", 44, true, false, false), // Peak with crown & green gradient
+            MonthBarItem("Jun", 0, false, false, true),
+            MonthBarItem("Jul", 44, true, false, false),
             MonthBarItem("Aug", 28, false, false, false),
             MonthBarItem("Sep", 28, false, false, false),
             MonthBarItem("Oct", 40, false, false, false)
@@ -680,44 +653,57 @@ private fun MonthlyWorkoutPatternChart(
             drawText(measurer, m.label, Offset(cx - mw / 2f, plotBottom + 3.dp.toPx()), style = monthStyle)
 
             val left = cx - barW / 2f
-            val right = left + barW
+
+            // 1. Draw the Neumorphic Sunken Capsule Track (Images 2 & 5)
+            drawRoundRect(
+                color = Color(0xFFEDE9FE),
+                topLeft = Offset(left, topPad),
+                size = Size(barW, totalTrackH),
+                cornerRadius = capsuleRadius
+            )
+            // Inner track subtle border
+            drawRoundRect(
+                color = Color(0xFFDDD6FE),
+                topLeft = Offset(left, topPad),
+                size = Size(barW, totalTrackH),
+                cornerRadius = capsuleRadius,
+                style = Stroke(width = 0.8.dp.toPx())
+            )
 
             if (m.isHatched) {
-                // Dashed / hatched empty bar for June
-                val barH = 26.dp.toPx()
-                val barTop = plotBottom - barH
-                drawRoundRect(
-                    color = Color(0xFFDCDFE6),
-                    topLeft = Offset(left, barTop),
-                    size = Size(barW, barH),
-                    cornerRadius = CornerRadius(4.dp.toPx()),
-                    style = Stroke(1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f)))
-                )
+                // June: empty / dashed pill track
                 val dashText = "-"
                 val dw = measurer.measure(dashText, monthStyle).size.width
-                drawText(measurer, dashText, Offset(cx - dw / 2f, barTop - 14.dp.toPx()), style = monthStyle)
+                drawText(measurer, dashText, Offset(cx - dw / 2f, topPad + totalTrackH / 2f - 7.dp.toPx()), style = monthStyle)
             } else {
-                val barH = (m.hours / maxHr) * (plotBottom - topPad)
-                val barTop = plotBottom - barH
+                // 2. Liquid Capsule Fill inside the sunken track
+                val fillH = ((m.hours / maxHr) * totalTrackH).coerceAtLeast(barW)
+                val fillTop = plotBottom - fillH
 
                 val barBrush = when {
-                    m.isPeak -> Brush.verticalGradient(listOf(Color(0xFF21A87D), Color(0xFF42CD8C)))
-                    m.isAlert -> Brush.verticalGradient(listOf(Color(0xFFFFB8B8), Color(0xFFFF7272)))
-                    else -> Brush.verticalGradient(listOf(Color(0xFF7B81BE), Color(0xFF9AA1D2)))
+                    m.isPeak -> Brush.verticalGradient(
+                        listOf(Color(0xFF00E5FF), NeuPalette.green, NeuPalette.green)
+                    )
+                    m.isAlert -> Brush.verticalGradient(
+                        listOf(Color(0xFFFF8A80), Color(0xFFEF4444), Color(0xFFDC2626))
+                    )
+                    else -> Brush.verticalGradient(
+                        listOf(Color(0xFF38BDF8), NeuPalette.violet, NeuPalette.violetDeep)
+                    )
                 }
 
                 drawRoundRect(
                     brush = barBrush,
-                    topLeft = Offset(left, barTop),
-                    size = Size(barW, barH),
-                    cornerRadius = CornerRadius(5.dp.toPx())
+                    topLeft = Offset(left, fillTop),
+                    size = Size(barW, fillH),
+                    cornerRadius = capsuleRadius
                 )
 
-                // Label above bar
+                // 3. Highlighted bold hour text above the capsule
                 val hourText = "${m.hours}h"
                 val textStyle = if (m.isAlert) redHourStyle else hourStyle
                 val hw = measurer.measure(hourText, textStyle).size.width
-                val labelY = barTop - 13.dp.toPx()
+                val labelY = topPad - 13.dp.toPx()
 
                 if (m.isPeak) {
                     drawCrown(centerX = cx, baseY = labelY - 2.dp.toPx())

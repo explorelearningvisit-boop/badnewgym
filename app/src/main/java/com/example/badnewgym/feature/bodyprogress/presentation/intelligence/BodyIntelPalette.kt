@@ -1,6 +1,7 @@
 package com.example.badnewgym.feature.bodyprogress.presentation.intelligence
 
 import androidx.compose.ui.graphics.Color
+import com.example.badnewgym.feature.membercard.presentation.intelligence.NeuPalette
 import com.example.badnewgym.feature.membercard.design.BadGymThemeManager
 
 /**
@@ -19,23 +20,23 @@ internal object BodyIntelPalette {
     val DeepEmerald get() = accentDeep
     val FreshGreen get() = accent
     val SoftMint get() = accent.copy(alpha = 0.12f)
-    val Background get() = Color(0xFFEDF0F4)
+    val Background get() = NeuPalette.surface
     val Surface get() = Color.White
-    val Text get() = Color(0xFF343434)
-    val Secondary get() = Color(0xFF8C94A0)
-    val TextMuted get() = Color(0xFFA1AEBF)
+    val Text get() = NeuPalette.ink
+    val Secondary get() = NeuPalette.muted
+    val TextMuted get() = NeuPalette.faint
     val CardBorder get() = accent.copy(alpha = 0.16f)
 
     // Palette & Glass Surface Aliases
-    val Pearl get() = Color(0xFFEDF0F4)
+    val Pearl get() = NeuPalette.surface
     val Card get() = Color.White
     val CardSoft get() = accent.copy(alpha = 0.08f)
     val CardInset get() = accent.copy(alpha = 0.05f)
 
-    val Ink get() = Color(0xFF343434)
+    val Ink get() = NeuPalette.ink
     val InkSoft get() = accentDeep
-    val Muted get() = Color(0xFF8C94A0)
-    val Faint get() = Color(0xFFA1AEBF)
+    val Muted get() = NeuPalette.muted
+    val Faint get() = NeuPalette.faint
     val Hairline get() = accent.copy(alpha = 0.14f)
     val HairlineStrong get() = accent.copy(alpha = 0.26f)
 
@@ -44,12 +45,12 @@ internal object BodyIntelPalette {
     val EmeraldWash get() = accent.copy(alpha = 0.12f)
     val EmeraldEdge get() = accent
 
-    val Violet = Color(0xFF6E74B0)
-    val VioletWash = Color(0xFFEAEAF3)
-    val Blue = Color(0xFF6B92E5)
-    val BlueWash = Color(0xFFE8F1FC)
-    val Amber = Color(0xFFB5850A)
-    val AmberWash = Color(0xFFF7EFE1)
-    val Rose = Color(0xFFCF5A6E)
-    val RoseWash = Color(0xFFFDEBF0)
+    val Violet = NeuPalette.violet
+    val VioletWash = NeuPalette.violetWash
+    val Blue = NeuPalette.blue
+    val BlueWash = NeuPalette.violetWash
+    val Amber = NeuPalette.amberDeep
+    val AmberWash = NeuPalette.amberWash
+    val Rose = NeuPalette.coralDeep
+    val RoseWash = NeuPalette.violetWash
 }

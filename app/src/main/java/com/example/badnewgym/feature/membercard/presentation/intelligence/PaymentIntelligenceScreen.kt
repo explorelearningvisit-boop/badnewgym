@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -103,77 +104,66 @@ fun PaymentIntelligenceScreen(
     val subTabs = listOf(
         SubTabItem("Overview", Icons.Filled.DateRange),
         SubTabItem("History", Icons.Filled.Schedule),
-        SubTabItem("Plan & Changes", Icons.Filled.FactCheck),
+        SubTabItem("Plan", Icons.Filled.FactCheck),
         SubTabItem("Behaviour", Icons.Filled.Security),
         SubTabItem("Analytics", Icons.AutoMirrored.Filled.TrendingUp)
     )
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // 1. 5-Pill Subnavigation Bar
-        // Five labelled pills cannot fit 360-392dp, so the row scrolls and the trailing edge fades
-        // instead of hard-cutting the fourth pill mid-word.
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                subTabs.forEachIndexed { index, item ->
-                    val isSelected = selectedSubTab == index
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(
-                                if (isSelected) Brush.horizontalGradient(listOf(Color(0xFF7B81BE), Color(0xFF5E649E)))
-                                else Brush.horizontalGradient(listOf(Color.White, Color.White))
-                            )
-                            .border(
-                                width = 1.dp,
-                                color = if (isSelected) Color(0xFF6A70A8) else Color(0x3DA6B4C8),
-                                shape = RoundedCornerShape(50)
-                            )
-                            .clickable { selectedSubTab = index }
-                            .padding(horizontal = 11.dp, vertical = 7.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
+        // 1. Sub-navigation: a 3 + 2 grid so every label stays fully visible at
+        // large type sizes instead of being hard-cut by a scroll viewport.
+        Column(verticalArrangement = Arrangement.spacedBy(IntelligenceDensity.widgetGapSm)) {
+            subTabs.chunked(3).forEachIndexed { rowIndex, rowTabs ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(IntelligenceDensity.widgetGapSm)
+                ) {
+                    rowTabs.forEachIndexed { colIndex, item ->
+                        val index = rowIndex * 3 + colIndex
+                        val isSelected = selectedSubTab == index
                         Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(IntelligenceDensity.radiusPill))
+                                .background(
+                                    if (isSelected) Brush.horizontalGradient(listOf(NeuPalette.violet, NeuPalette.violetDeep))
+                                    else Brush.horizontalGradient(listOf(Color.White, Color.White))
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = if (isSelected) NeuPalette.violetDeep else NeuPalette.shadow.copy(alpha = 0.24f),
+                                    shape = RoundedCornerShape(IntelligenceDensity.radiusPill)
+                                )
+                                .clickable { selectedSubTab = index }
+                                .padding(vertical = 8.dp, horizontal = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Icon(
                                 item.icon,
                                 contentDescription = null,
-                                tint = if (isSelected) Color.White else Color(0xFF7B81BE),
-                                modifier = Modifier.size(13.dp)
+                                tint = if (isSelected) Color.White else NeuPalette.violet,
+                                modifier = Modifier.size(IntelligenceDensity.iconSmall)
                             )
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = item.title,
-                                fontSize = 11.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                fontSize = IntelligenceTypography.sizeSmall,
+                                fontWeight = IntelligenceTypography.weightBody,
                                 color = if (isSelected) Color.White else c.ink,
-                                maxLines = 1
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
+                    // Keep the last row balanced when it holds fewer cells.
+                    repeat(3 - rowTabs.size) { Spacer(modifier = Modifier.weight(1f)) }
                 }
             }
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .width(22.dp)
-                    .fillMaxHeight()
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(Color.Transparent, Color.White.copy(alpha = 0.92f))
-                        )
-                    )
-            )
         }
-
         // Sub-Tab Content
         when (selectedSubTab) {
             0 -> PaymentOverviewDittoView(
@@ -218,21 +208,21 @@ private fun PaymentOverviewDittoView(
             Row(
                 modifier = Modifier.weight(1.3f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(32.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF21A87D)),
+                        .background(NeuPalette.green),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                    Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                    Text("Payment Status", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
-                    Text("Paid", fontSize = 23.sp, fontWeight = FontWeight.Black, color = Color(0xFF21A87D), letterSpacing = (-0.5).sp)
-                    Text("Valid till 07 Nov 2026", fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
+                    Text("Payment Status", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.inkSoft)
+                    Text("Paid", fontSize = IntelligenceTypography.sizeMetric, fontWeight = IntelligenceTypography.weightValue, color = NeuPalette.green, letterSpacing = (-0.5).sp)
+                    Text("Valid till 07 Nov 2026", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.inkSoft)
                 }
             }
 
@@ -241,27 +231,26 @@ private fun PaymentOverviewDittoView(
                 modifier = Modifier
                     .width(1.dp)
                     .height(46.dp)
-                    .background(Color(0xFFE0E3F2))
+                    .background(NeuPalette.violetWash)
             )
 
             // Column 2: Gold Plan details
             Column(
                 modifier = Modifier
                     .weight(0.95f)
-                    .padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(3.dp)
+                    .padding(horizontal = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = Color(0xFFFFBB0D), modifier = Modifier.size(13.dp))
-                    Text("Gold Plan", fontSize = 11.5.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                    Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(13.dp))
+                    Text("Gold Plan", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightValue, color = c.ink)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Icon(Icons.Filled.CalendarMonth, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(12.dp))
-                    Text("30 Days", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF6E7887))
+                    Icon(Icons.Filled.CalendarMonth, contentDescription = null, tint = NeuPalette.violet, modifier = Modifier.size(12.dp))
+                    Text("30 Days", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.inkSoft)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text("₹", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF7B81BE))
-                    Text("₹1,200", fontSize = 11.5.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                    Text("₹1,200", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightValue, color = NeuPalette.violet)
                 }
             }
 
@@ -269,30 +258,30 @@ private fun PaymentOverviewDittoView(
             Box(
                 modifier = Modifier
                     .width(1.dp)
-                    .height(46.dp)
-                    .background(Color(0xFFE0E3F2))
+                    .height(38.dp)
+                    .background(NeuPalette.shadowSoft)
             )
 
             // Column 3: Next Renewal & Countdown
             Column(
                 modifier = Modifier
                     .weight(1.05f)
-                    .padding(start = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(3.dp),
+                    .padding(start = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
                 horizontalAlignment = Alignment.Start
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Icon(Icons.Filled.CalendarMonth, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(12.dp))
-                    Text("Next Renewal", fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
+                    Icon(Icons.Filled.CalendarMonth, contentDescription = null, tint = NeuPalette.violet, modifier = Modifier.size(12.dp))
+                    Text("Next Renewal", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.inkSoft)
                 }
-                Text("07 Nov 2026", fontSize = 12.5.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                Text("07 Nov 2026", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightValue, color = c.ink)
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .background(Color(0xFF21A87D))
-                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                        .background(NeuPalette.green)
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
-                    Text("8 Days Left", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("8 Days Left", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightValue, color = Color.White)
                 }
             }
         }
@@ -305,8 +294,8 @@ private fun PaymentOverviewDittoView(
     ) {
         StatPodItem(
             icon = Icons.Filled.AccountBalanceWallet,
-            iconTint = Color(0xFF21A87D),
-            iconBg = Color(0xFFDAEFE6),
+            iconTint = NeuPalette.green,
+            iconBg = NeuPalette.greenWash,
             value = "₹14,400",
             label = "Lifetime Paid",
             c = c,
@@ -314,8 +303,8 @@ private fun PaymentOverviewDittoView(
         )
         StatPodItem(
             icon = Icons.Filled.Layers,
-            iconTint = Color(0xFF7B81BE),
-            iconBg = Color(0xFFE0E3F2),
+            iconTint = NeuPalette.violet,
+            iconBg = NeuPalette.violetWash,
             value = "12",
             label = "Total Cycles",
             c = c,
@@ -323,8 +312,8 @@ private fun PaymentOverviewDittoView(
         )
         StatPodItem(
             icon = Icons.Filled.Star,
-            iconTint = Color(0xFFFFBB0D),
-            iconBg = Color(0xFFFBEFD4),
+            iconTint = NeuPalette.amber,
+            iconBg = NeuPalette.amberWash,
             value = "₹1,200",
             label = "Total Discount",
             c = c,
@@ -332,8 +321,8 @@ private fun PaymentOverviewDittoView(
         )
         StatPodItem(
             icon = Icons.Filled.Autorenew,
-            iconTint = Color(0xFF7B81BE),
-            iconBg = Color(0xFFE0E3F2),
+            iconTint = NeuPalette.violet,
+            iconBg = NeuPalette.violetWash,
             value = "0",
             label = "Outstanding",
             c = c,
@@ -364,12 +353,12 @@ private fun PaymentOverviewDittoView(
                         modifier = Modifier
                             .size(20.dp)
                             .clip(RoundedCornerShape(5.dp))
-                            .background(Color(0xFFE0E3F2)),
+                            .background(NeuPalette.violetWash),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.FactCheck, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(12.dp))
+                        Icon(Icons.Filled.FactCheck, contentDescription = null, tint = NeuPalette.violet, modifier = Modifier.size(12.dp))
                     }
-                    Text("Payment Behaviour", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                    Text("Payment Behaviour", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightTitle, color = c.ink)
                 }
 
                 // Middle: Donut + Breakdown
@@ -380,7 +369,7 @@ private fun PaymentOverviewDittoView(
                 ) {
                     // Donut Chart
                     Box(
-                        modifier = Modifier.size(76.dp),
+                        modifier = Modifier.size(78.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -389,7 +378,7 @@ private fun PaymentOverviewDittoView(
                             val topLeft = Offset(strokeW / 2f, strokeW / 2f)
                             // Track
                             drawArc(
-                                color = Color(0xFFE6E9EF),
+                                color = NeuPalette.surface,
                                 startAngle = 0f,
                                 sweepAngle = 360f,
                                 useCenter = false,
@@ -399,7 +388,7 @@ private fun PaymentOverviewDittoView(
                             )
                             // Emerald Progress
                             drawArc(
-                                brush = Brush.sweepGradient(listOf(Color(0xFF21A87D), Color(0xFF42CD8C), Color(0xFF21A87D))),
+                                brush = Brush.sweepGradient(listOf(NeuPalette.green, NeuPalette.greenBright, NeuPalette.green)),
                                 startAngle = -90f,
                                 sweepAngle = 360f * 0.86f,
                                 useCenter = false,
@@ -409,11 +398,8 @@ private fun PaymentOverviewDittoView(
                             )
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Row(verticalAlignment = Alignment.Bottom) {
-                                Text("86", fontSize = 17.sp, fontWeight = FontWeight.Black, color = c.ink)
-                                Text("/100", fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFFA1AEBF))
-                            }
-                            Text("Reliability", fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF7B81BE))
+                            Text("86", fontSize = IntelligenceTypography.sizeMetric, fontWeight = IntelligenceTypography.weightValue, color = c.ink)
+                            Text("Reliability", fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightValue, color = NeuPalette.violet)
                         }
                     }
 
@@ -422,14 +408,14 @@ private fun PaymentOverviewDittoView(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        BehaviourBarItem("✔ On Time", 0.67f, "8 (67%)", Color(0xFF21A87D))
-                        BehaviourBarItem(">> Early", 0.17f, "2 (17%)", Color(0xFF489CC1))
-                        BehaviourBarItem("🕒 Late", 0.17f, "2 (17%)", Color(0xFFFFBB0D))
+                        BehaviourBarItem("On Time", 0.67f, "8 (67%)", NeuPalette.green)
+                        BehaviourBarItem("Early", 0.17f, "2 (17%)", NeuPalette.sky)
+                        BehaviourBarItem("Late", 0.17f, "2 (17%)", NeuPalette.amber)
                     }
                 }
 
                 // Divider
-                Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFE6E9EF)))
+                Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(NeuPalette.surface))
 
                 // Bottom 3 mini chips
                 Row(
@@ -437,9 +423,9 @@ private fun PaymentOverviewDittoView(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MiniBadge("📅 3d", "Avg. Late", Color(0xFF7B81BE))
-                    MiniBadge("⚡ 5d", "Avg. Early", Color(0xFFFFBB0D))
-                    MiniBadge("⚠️ 0", "Overdue", Color(0xFFFF7272))
+                    MiniBadge("📅 3d", "Avg. Late", NeuPalette.violet)
+                    MiniBadge("⚡ 5d", "Avg. Early", NeuPalette.amber)
+                    MiniBadge("⚠️ 0", "Overdue", NeuPalette.coral)
                 }
             }
         }
@@ -462,20 +448,20 @@ private fun PaymentOverviewDittoView(
                         modifier = Modifier
                             .size(20.dp)
                             .clip(RoundedCornerShape(5.dp))
-                            .background(Color(0xFFE0E3F2)),
+                            .background(NeuPalette.violetWash),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.CreditCard, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(12.dp))
+                        Icon(Icons.Filled.CreditCard, contentDescription = null, tint = NeuPalette.violet, modifier = Modifier.size(12.dp))
                     }
-                    Text("Plan History", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                    Text("Plan History", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightTitle, color = c.ink)
                 }
 
                 // Timeline List
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TimelineItem("May 2026", "Plan Upgrade", "Silver → Gold", Color(0xFF21A87D), isRing = false)
-                    TimelineItem("Mar 2026", "Late Payment", "Paid after 3 days", Color(0xFFFFBB0D), isRing = false)
-                    TimelineItem("Apr 2026", "Membership Gap", "No active plan", Color(0xFFA1AEBF), isRing = true)
-                    TimelineItem("Jan 2026", "Joined Gym", "Gold Plan (₹1,200)", Color(0xFF21A87D), isRing = false, isLast = true)
+                    TimelineItem("May 2026", "Plan Upgrade", "Silver → Gold", NeuPalette.green, isRing = false)
+                    TimelineItem("Mar 2026", "Late Payment", "Paid after 3 days", NeuPalette.amber, isRing = false)
+                    TimelineItem("Apr 2026", "Membership Gap", "No active plan", NeuPalette.faint, isRing = true)
+                    TimelineItem("Jan 2026", "Joined Gym", "Gold Plan (₹1,200)", NeuPalette.green, isRing = false, isLast = true)
                 }
             }
         }
@@ -504,12 +490,12 @@ private fun PaymentOverviewDittoView(
                         modifier = Modifier
                             .size(22.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(Color(0xFFE0E3F2)),
+                            .background(NeuPalette.violetWash),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ShowChart, contentDescription = null, tint = Color(0xFF7B81BE), modifier = Modifier.size(14.dp))
+                        Icon(Icons.AutoMirrored.Filled.ShowChart, contentDescription = null, tint = NeuPalette.violet, modifier = Modifier.size(14.dp))
                     }
-                    Text("Monthly Payment Trend (₹)", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
+                    Text("Monthly Payment Trend (₹)", fontSize = IntelligenceTypography.sizeCardTitle, fontWeight = IntelligenceTypography.weightTitle, color = c.ink)
                 }
             }
 
@@ -540,17 +526,17 @@ private fun PaymentOverviewDittoView(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF7B81BE)),
+                        .background(NeuPalette.violet),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Filled.Star, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text("AI Insight", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF6A70A8))
+                    Text("AI Insight", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightTitle, color = NeuPalette.violetDeep)
                     Text(
                         "Payment reliability is High (86%). You usually pay on time. Next renewal on 07 Nov. 👍",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = IntelligenceTypography.sizeMicro,
+                        fontWeight = IntelligenceTypography.weightBody,
                         color = c.ink,
                         lineHeight = 12.5.sp
                     )
@@ -562,7 +548,7 @@ private fun PaymentOverviewDittoView(
                 modifier = Modifier
                     .width(1.dp)
                     .height(60.dp)
-                    .background(Color(0xFFE0E3F2))
+                    .background(NeuPalette.violetWash)
             )
 
             // Right Half: Suggestion
@@ -582,29 +568,29 @@ private fun PaymentOverviewDittoView(
                         modifier = Modifier
                             .size(30.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFFBEFD4)),
+                            .background(NeuPalette.amberWash),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.Lightbulb, contentDescription = null, tint = Color(0xFFD99F0B), modifier = Modifier.size(17.dp))
+                        Icon(Icons.Filled.Lightbulb, contentDescription = null, tint = NeuPalette.amberDeep, modifier = Modifier.size(17.dp))
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("Suggestion", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = c.ink)
-                        Text("• Renew 1–3 days early to keep 100% reliability.", fontSize = 8.sp, color = Color(0xFF6E7887), lineHeight = 10.sp)
-                        Text("• Consider 3-Month Plan & save 10%.", fontSize = 8.sp, color = Color(0xFF6E7887), lineHeight = 10.sp)
+                        Text("Suggestion", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightTitle, color = c.ink)
+                        Text("• Renew 1–3 days early to keep 100% reliability.", fontSize = IntelligenceTypography.sizeMicro, color = NeuPalette.inkSoft, lineHeight = 10.sp)
+                        Text("• Consider 3-Month Plan & save 10%.", fontSize = IntelligenceTypography.sizeMicro, color = NeuPalette.inkSoft, lineHeight = 10.sp)
                     }
                 }
                 Box(
                     modifier = Modifier
                         .size(26.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFE0E3F2))
+                        .background(NeuPalette.violetWash)
                         .clickable { onReceiptClick() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = null,
-                        tint = Color(0xFF7B81BE),
+                        tint = NeuPalette.violet,
                         modifier = Modifier.size(17.dp)
                     )
                 }
@@ -629,24 +615,24 @@ private fun StatPodItem(
         modifier = modifier
             .neuRaised(radius = 14.dp, depth = 6.dp, blur = 16.dp)
             
-            .padding(vertical = 8.dp, horizontal = 4.dp),
+            .padding(vertical = 6.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(3.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(28.dp)
-                    .clip(RoundedCornerShape(7.dp))
+                    .size(24.dp)
+                    .clip(RoundedCornerShape(6.dp))
                     .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(16.dp))
+                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(14.dp))
             }
-            Text(value, fontSize = 12.5.sp, fontWeight = FontWeight.Black, color = c.ink)
-            Text(label, fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8C94A0), maxLines = 1)
+            Text(value, fontSize = IntelligenceTypography.sizeCardTitle, fontWeight = IntelligenceTypography.weightValue, color = c.ink, maxLines = 1)
+            Text(label, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.inkSoft, maxLines = 1)
         }
     }
 }
@@ -664,15 +650,21 @@ private fun BehaviourBarItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(title, fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF343434))
-            Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF343434))
+            Text(
+                text = "$title   $label",
+                fontSize = IntelligenceTypography.sizeSmall,
+                fontWeight = IntelligenceTypography.weightBody,
+                color = NeuPalette.ink,
+                maxLines = 2,
+                lineHeight = 13.sp
+            )
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(4.5.dp)
+                .height(5.dp)
                 .clip(RoundedCornerShape(50))
-                .background(Color(0xFFE6E9EF))
+                .background(NeuPalette.shadowSoft)
         ) {
             Box(
                 modifier = Modifier
@@ -688,8 +680,8 @@ private fun BehaviourBarItem(
 @Composable
 private fun MiniBadge(top: String, sub: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(top, fontSize = 8.5.sp, fontWeight = FontWeight.ExtraBold, color = color)
-        Text(sub, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFA1AEBF))
+        Text(top, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightValue, color = color)
+        Text(sub, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.inkSoft)
     }
 }
 
@@ -720,17 +712,44 @@ private fun TimelineItem(
                     modifier = Modifier
                         .width(1.dp)
                         .height(14.dp)
-                        .background(Color(0xFFDCDFE6))
+                        .background(NeuPalette.shadowSoft)
                 )
             }
         }
-        Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(date, fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8C94A0))
-                Text("•", fontSize = 8.sp, color = Color(0xFFD3DBE6))
-                Text(title, fontSize = 9.5.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF343434))
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(1.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    title,
+                    fontSize = IntelligenceTypography.sizeSmall,
+                    fontWeight = IntelligenceTypography.weightValue,
+                    color = NeuPalette.ink,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    date,
+                    fontSize = IntelligenceTypography.sizeSmall,
+                    fontWeight = IntelligenceTypography.weightBody,
+                    color = NeuPalette.inkSoft,
+                    maxLines = 1,
+                    modifier = Modifier.padding(start = 6.dp)
+                )
             }
-            Text(sub, fontSize = 8.sp, color = Color(0xFF8C94A0))
+            Text(
+                sub,
+                fontSize = IntelligenceTypography.sizeMicro,
+                fontWeight = IntelligenceTypography.weightBody,
+                color = NeuPalette.muted,
+                maxLines = 1
+            )
         }
     }
 }
@@ -741,24 +760,24 @@ private fun TimelineItem(
  */
 @Composable
 private fun MonthlySplineChart(measurer: TextMeasurer, c: IntelligenceColors) {
-    Canvas(modifier = Modifier.fillMaxWidth().height(86.dp)) {
-        val leftPad = 26.dp.toPx()
-        val rightPad = 10.dp.toPx()
-        val topPad = 24.dp.toPx()
-        val bottomPad = 20.dp.toPx()
+    Canvas(modifier = Modifier.fillMaxWidth().height(76.dp)) {
+        val leftPad = 34.dp.toPx()
+        val rightPad = 22.dp.toPx()
+        val topPad = 20.dp.toPx()
+        val bottomPad = 18.dp.toPx()
         val plotW = size.width - leftPad - rightPad
         val plotH = size.height - topPad - bottomPad
 
         // Grid lines (1.5k, 1.2k, 1.0k, 0.5k, 0)
-        val yLabels = listOf("1.5k", "1.2k", "1.0k", "0.5k", "0")
-        val yVals = listOf(1500f, 1200f, 1000f, 500f, 0f)
+        val yLabels = listOf("1.5k", "0")
+        val yVals = listOf(1500f, 0f)
         val maxVal = 1500f
-        val axisStyle = TextStyle(fontSize = 7.5.sp, color = Color(0xFFA1AEBF), fontWeight = FontWeight.SemiBold)
+        val axisStyle = TextStyle(fontSize = IntelligenceTypography.sizeSmall, color = NeuPalette.inkSoft, fontWeight = IntelligenceTypography.weightBody)
 
         yVals.forEachIndexed { index, v ->
             val y = topPad + (1f - v / maxVal) * plotH
             drawLine(
-                color = Color(0xFFE6E9EF),
+                color = NeuPalette.shadowSoft,
                 start = Offset(leftPad, y),
                 end = Offset(size.width - rightPad, y),
                 strokeWidth = 0.8.dp.toPx()
@@ -805,7 +824,7 @@ private fun MonthlySplineChart(measurer: TextMeasurer, c: IntelligenceColors) {
         drawPath(
             path = areaPath,
             brush = Brush.verticalGradient(
-                colors = listOf(Color(0xFFA9AEE3).copy(alpha = 0.35f), Color(0xFF67E8F9).copy(alpha = 0.08f), Color.Transparent),
+                colors = listOf(NeuPalette.violet.copy(alpha = 0.35f), NeuPalette.sky.copy(alpha = 0.08f), Color.Transparent),
                 startY = topPad,
                 endY = topPad + plotH
             )
@@ -814,13 +833,13 @@ private fun MonthlySplineChart(measurer: TextMeasurer, c: IntelligenceColors) {
         // Draw Line Stroke
         drawPath(
             path = path,
-            brush = Brush.horizontalGradient(listOf(Color(0xFF7B81BE), Color(0xFF8B91CC), Color(0xFF21A87D))),
+            brush = Brush.horizontalGradient(listOf(NeuPalette.violet, NeuPalette.violet, NeuPalette.green)),
             style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
         )
 
         // Draw Points & Floating Labels
-        val dotValStyle = TextStyle(fontSize = 7.5.sp, color = Color(0xFF343434), fontWeight = FontWeight.Bold)
-        val redStyle = TextStyle(fontSize = 8.sp, color = Color(0xFFFF7272), fontWeight = FontWeight.Black)
+        val dotValStyle = TextStyle(fontSize = IntelligenceTypography.sizeMicro, color = NeuPalette.ink, fontWeight = IntelligenceTypography.weightBody)
+        val redStyle = TextStyle(fontSize = IntelligenceTypography.sizeMicro, color = NeuPalette.coral, fontWeight = IntelligenceTypography.weightValue)
 
         coords.forEachIndexed { i, pt ->
             val rupees = points[i]
@@ -830,14 +849,14 @@ private fun MonthlySplineChart(measurer: TextMeasurer, c: IntelligenceColors) {
 
             // Outer glow circle for Oct
             if (isOct) {
-                drawCircle(color = Color(0xFF21A87D).copy(alpha = 0.3f), radius = 6.dp.toPx(), center = pt)
-                drawCircle(color = Color(0xFF21A87D), radius = 3.5.dp.toPx(), center = pt)
+                drawCircle(color = NeuPalette.green.copy(alpha = 0.3f), radius = 6.dp.toPx(), center = pt)
+                drawCircle(color = NeuPalette.green, radius = 3.5.dp.toPx(), center = pt)
                 drawCircle(color = Color.White, radius = 1.5.dp.toPx(), center = pt)
             } else if (isApr) {
-                drawCircle(color = Color(0xFFFF7272), radius = 3.dp.toPx(), center = pt)
+                drawCircle(color = NeuPalette.coral, radius = 3.dp.toPx(), center = pt)
                 drawCircle(color = Color.White, radius = 1.2.dp.toPx(), center = pt)
             } else {
-                drawCircle(color = Color(0xFF7B81BE), radius = 2.8.dp.toPx(), center = pt)
+                drawCircle(color = NeuPalette.violet, radius = 2.8.dp.toPx(), center = pt)
                 drawCircle(color = Color.White, radius = 1.2.dp.toPx(), center = pt)
             }
 
@@ -850,26 +869,26 @@ private fun MonthlySplineChart(measurer: TextMeasurer, c: IntelligenceColors) {
             if (isApr) {
                 val measured = measurer.measure("0", redStyle)
                 drawText(measurer, "0", Offset(pt.x - measured.size.width / 2f, pt.y - measured.size.height - 2.dp.toPx()), style = redStyle)
-            } else if (!isMay) {
+            } else if (isOct) {
                 val label = "${(rupees / 1000f).toString().take(3)}k"
                 val measured = measurer.measure(label, dotValStyle)
                 drawText(measurer, label, Offset(pt.x - measured.size.width / 2f, pt.y - measured.size.height - 3.dp.toPx()), style = dotValStyle)
-            } else {
-                // May Plan ↑ 1.5k pill badge floating above
-                val pillW = 46.dp.toPx()
-                val pillH = 14.dp.toPx()
-                val pillLeft = pt.x - pillW / 2f
+            } else if (isMay) {
+                // May Plan ↑ 1.5k pill badge: sized to its text so nothing is clipped.
+                val pillStyle = TextStyle(fontSize = IntelligenceTypography.sizeMicro, color = Color.White, fontWeight = IntelligenceTypography.weightBody)
+                val pText = "Plan ↑ 1.5k"
+                val pMeasured = measurer.measure(pText, pillStyle)
+                val pillW = pMeasured.size.width + 10.dp.toPx()
+                val pillH = pMeasured.size.height + 4.dp.toPx()
+                val pillLeft = (pt.x - pillW / 2f).coerceIn(2.dp.toPx(), size.width - pillW - 2.dp.toPx())
                 val pillTop = pt.y - pillH - 4.dp.toPx()
                 drawRoundRect(
-                    color = Color(0xFF7B81BE),
+                    color = NeuPalette.violet,
                     topLeft = Offset(pillLeft, pillTop),
                     size = Size(pillW, pillH),
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(50f, 50f)
                 )
-                val pillStyle = TextStyle(fontSize = 7.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                val pText = "Plan ↑ 1.5k"
-                val pMeasured = measurer.measure(pText, pillStyle)
-                drawText(measurer, pText, Offset(pt.x - pMeasured.size.width / 2f, pillTop + (pillH - pMeasured.size.height) / 2f), style = pillStyle)
+                drawText(measurer, pText, Offset(pillLeft + 5.dp.toPx(), pillTop + 2.dp.toPx()), style = pillStyle)
             }
         }
     }
@@ -881,16 +900,16 @@ private fun MonthlySplineChart(measurer: TextMeasurer, c: IntelligenceColors) {
 @Composable
 private fun PaymentHistorySubView(onReceiptClick: () -> Unit, c: IntelligenceColors) {
     val history = listOf(
-        HistoryTx("Cycle 12", "16 Oct 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", Color(0xFF21A87D), "Ref: BG-99214"),
-        HistoryTx("Cycle 11", "16 Sep 2026", "Gold Plan (30 Days)", "₹1,200", "⚡ 2d Early", Color(0xFF489CC1), "Ref: BG-88102"),
-        HistoryTx("Cycle 10", "16 Aug 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", Color(0xFF21A87D), "Ref: BG-77491"),
-        HistoryTx("Cycle 09", "16 Jul 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", Color(0xFF21A87D), "Ref: BG-66230"),
-        HistoryTx("Cycle 08", "16 Jun 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", Color(0xFF21A87D), "Ref: BG-55819"),
-        HistoryTx("Cycle 07", "16 May 2026", "Annual Plan Upgrade", "₹1,800", "👑 Upgraded", Color(0xFF7B81BE), "Ref: BG-44912"),
-        HistoryTx("Cycle 06", "16 Apr 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", Color(0xFF21A87D), "Ref: BG-33821"),
-        HistoryTx("Cycle 05", "16 Mar 2026", "Gold Plan (30 Days)", "₹1,200", "🕒 3d Late", Color(0xFFFFBB0D), "Ref: BG-22194"),
-        HistoryTx("Cycle 04", "16 Feb 2026", "Silver Plan (30 Days)", "₹800", "✔ On Time", Color(0xFF21A87D), "Ref: BG-11083"),
-        HistoryTx("Cycle 03", "16 Jan 2026", "Joined BAD GYM (Silver)", "₹800", "🎉 Joined", Color(0xFF7B81BE), "Ref: BG-00912")
+        HistoryTx("Cycle 12", "16 Oct 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", NeuPalette.green, "Ref: BG-99214"),
+        HistoryTx("Cycle 11", "16 Sep 2026", "Gold Plan (30 Days)", "₹1,200", "⚡ 2d Early", NeuPalette.sky, "Ref: BG-88102"),
+        HistoryTx("Cycle 10", "16 Aug 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", NeuPalette.green, "Ref: BG-77491"),
+        HistoryTx("Cycle 09", "16 Jul 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", NeuPalette.green, "Ref: BG-66230"),
+        HistoryTx("Cycle 08", "16 Jun 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", NeuPalette.green, "Ref: BG-55819"),
+        HistoryTx("Cycle 07", "16 May 2026", "Annual Plan Upgrade", "₹1,800", "👑 Upgraded", NeuPalette.violet, "Ref: BG-44912"),
+        HistoryTx("Cycle 06", "16 Apr 2026", "Gold Plan (30 Days)", "₹1,200", "✔ On Time", NeuPalette.green, "Ref: BG-33821"),
+        HistoryTx("Cycle 05", "16 Mar 2026", "Gold Plan (30 Days)", "₹1,200", "🕒 3d Late", NeuPalette.amber, "Ref: BG-22194"),
+        HistoryTx("Cycle 04", "16 Feb 2026", "Silver Plan (30 Days)", "₹800", "✔ On Time", NeuPalette.green, "Ref: BG-11083"),
+        HistoryTx("Cycle 03", "16 Jan 2026", "Joined BAD GYM (Silver)", "₹800", "🎉 Joined", NeuPalette.violet, "Ref: BG-00912")
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -909,22 +928,22 @@ private fun PaymentHistorySubView(onReceiptClick: () -> Unit, c: IntelligenceCol
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Text(tx.cycle, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = c.ink)
-                            Text("•", fontSize = 10.sp, color = Color(0xFFD3DBE6))
-                            Text(tx.date, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
+                            Text(tx.cycle, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = c.ink)
+                            Text("•", fontSize = IntelligenceTypography.sizeSmall, color = NeuPalette.shadowSoft)
+                            Text(tx.date, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.muted)
                         }
-                        Text(tx.plan, fontSize = 9.5.sp, fontWeight = FontWeight.Medium, color = Color(0xFF6E7887))
-                        Text(tx.ref, fontSize = 8.sp, color = Color(0xFFA1AEBF))
+                        Text(tx.plan, fontSize = IntelligenceTypography.sizeMicro, fontWeight = FontWeight.Medium, color = NeuPalette.inkSoft)
+                        Text(tx.ref, fontSize = IntelligenceTypography.sizeMicro, color = NeuPalette.faint)
                     }
                     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(tx.amount, fontSize = 14.sp, fontWeight = FontWeight.Black, color = c.ink)
+                        Text(tx.amount, fontSize = IntelligenceTypography.sizeCardTitle, fontWeight = IntelligenceTypography.weightValue, color = c.ink)
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(tx.statusColor.copy(alpha = 0.14f))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
-                            Text(tx.status, fontSize = 8.5.sp, fontWeight = FontWeight.Bold, color = tx.statusColor)
+                            Text(tx.status, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = tx.statusColor)
                         }
                     }
                 }
@@ -954,12 +973,12 @@ private fun PaymentPlanAndChangesSubView(c: IntelligenceColors) {
             .padding(14.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("💎 Gold Plan (30 Days)", fontSize = 16.sp, fontWeight = FontWeight.Black, color = c.ink)
-            Text("Price: ₹1,200 / Month (Auto-Renews 07 Nov 2026)", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF7B81BE))
+            Text("💎 Gold Plan (30 Days)", fontSize = IntelligenceTypography.sizeMetric, fontWeight = IntelligenceTypography.weightValue, color = c.ink)
+            Text("Price: ₹1,200 / Month (Auto-Renews 07 Nov 2026)", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.violet)
 
-            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFE0E3F2)))
+            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(NeuPalette.violetWash))
 
-            Text("Included Benefits:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = c.ink)
+            Text("Included Benefits:", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = c.ink)
             listOf(
                 "✔ Full Gym & Strength Floor Access",
                 "✔ Cardio & High-Intensity HIIT Zone",
@@ -968,7 +987,7 @@ private fun PaymentPlanAndChangesSubView(c: IntelligenceColors) {
                 "✔ Steam & Sauna Access (2 Days / Week)",
                 "✔ Monthly 1-on-1 Trainer Assessment"
             ).forEach {
-                Text(it, fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFF5C6673))
+                Text(it, fontSize = IntelligenceTypography.sizeSmall, fontWeight = FontWeight.Medium, color = NeuPalette.inkSoft)
             }
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -978,8 +997,8 @@ private fun PaymentPlanAndChangesSubView(c: IntelligenceColors) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFFBEFD4).copy(alpha = 0.5f))
-                    .border(1.dp, Color(0xFFFFBB0D).copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                    .background(NeuPalette.amberWash.copy(alpha = 0.5f))
+                    .border(1.dp, NeuPalette.amber.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
                 .padding(10.dp)
             ) {
                 Row(
@@ -988,16 +1007,16 @@ private fun PaymentPlanAndChangesSubView(c: IntelligenceColors) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text("👑 Platinum VIP Upgrade", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF8A6410))
-                        Text("Unlimited Sauna + Daily Trainer (₹2,200/mo)", fontSize = 8.5.sp, color = Color(0xFFB5850A))
+                        Text("👑 Platinum VIP Upgrade", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightTitle, color = NeuPalette.amberDeep)
+                        Text("Unlimited Sauna + Daily Trainer (₹2,200/mo)", fontSize = IntelligenceTypography.sizeMicro, color = NeuPalette.amberDeep)
                     }
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
-                            .background(Brush.horizontalGradient(listOf(Color(0xFFFFBB0D), Color(0xFFD99F0B))))
+                            .background(Brush.horizontalGradient(listOf(NeuPalette.amber, NeuPalette.amberDeep)))
                             .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
-                        Text("Upgrade ▸", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Upgrade ▸", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = Color.White)
                     }
                 }
             }
@@ -1016,16 +1035,16 @@ private fun PaymentBehaviourSubView(c: IntelligenceColors) {
             .padding(14.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Payment Reliability Score: 86 / 100", fontSize = 15.sp, fontWeight = FontWeight.Black, color = c.ink)
-            Text("Punctuality Rating: High (Grade A+)", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF21A87D))
+            Text("Payment Reliability Score: 86 / 100", fontSize = IntelligenceTypography.sizeCardTitle, fontWeight = IntelligenceTypography.weightValue, color = c.ink)
+            Text("Punctuality Rating: High (Grade A+)", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.green)
 
-            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFE0E3F2)))
+            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(NeuPalette.violetWash))
 
-            BehaviourDetailRow("On-Time Settlement Rate", "83.3% (10/12 cycles)", Color(0xFF21A87D))
-            BehaviourDetailRow("Consecutive Paid Cycles", "12 Cycles (No Lapses)", Color(0xFF21A87D))
-            BehaviourDetailRow("Avg. Advance Payment", "+2.4 Days Early", Color(0xFF489CC1))
-            BehaviourDetailRow("Preferred Mode", "UPI (83.3%)", Color(0xFF7B81BE))
-            BehaviourDetailRow("Default / Overdue Risk", "Very Low (< 3%)", Color(0xFF21A87D))
+            BehaviourDetailRow("On-Time Settlement Rate", "83.3% (10/12 cycles)", NeuPalette.green)
+            BehaviourDetailRow("Consecutive Paid Cycles", "12 Cycles (No Lapses)", NeuPalette.green)
+            BehaviourDetailRow("Avg. Advance Payment", "+2.4 Days Early", NeuPalette.sky)
+            BehaviourDetailRow("Preferred Mode", "UPI (83.3%)", NeuPalette.violet)
+            BehaviourDetailRow("Default / Overdue Risk", "Very Low (< 3%)", NeuPalette.green)
         }
     }
 }
@@ -1037,8 +1056,8 @@ private fun BehaviourDetailRow(title: String, value: String, color: Color) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(title, fontSize = 10.5.sp, fontWeight = FontWeight.Medium, color = Color(0xFF6E7887))
-        Text(value, fontSize = 10.5.sp, fontWeight = FontWeight.Bold, color = color)
+        Text(title, fontSize = IntelligenceTypography.sizeSmall, fontWeight = FontWeight.Medium, color = NeuPalette.inkSoft)
+        Text(value, fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = color)
     }
 }
 
@@ -1053,24 +1072,24 @@ private fun PaymentAnalyticsSubView(c: IntelligenceColors) {
             .padding(14.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Annual Financial Summary (2026)", fontSize = 15.sp, fontWeight = FontWeight.Black, color = c.ink)
-            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(Color(0xFFE0E3F2)))
+            Text("Annual Financial Summary (2026)", fontSize = IntelligenceTypography.sizeCardTitle, fontWeight = IntelligenceTypography.weightValue, color = c.ink)
+            Box(modifier = Modifier.fillMaxWidth().height(0.8.dp).background(NeuPalette.violetWash))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                AnalyticsStatBox("Lifetime Paid", "₹14,400", Color(0xFF21A87D), Modifier.weight(1f))
-                AnalyticsStatBox("Loyalty Discounts", "₹1,200", Color(0xFFFFBB0D), Modifier.weight(1f))
+                AnalyticsStatBox("Lifetime Paid", "₹14,400", NeuPalette.green, Modifier.weight(1f))
+                AnalyticsStatBox("Loyalty Discounts", "₹1,200", NeuPalette.amber, Modifier.weight(1f))
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                AnalyticsStatBox("Avg Monthly Spend", "₹1,200", Color(0xFF7B81BE), Modifier.weight(1f))
-                AnalyticsStatBox("Next Due Date", "07 Nov", Color(0xFF489CC1), Modifier.weight(1f))
+                AnalyticsStatBox("Avg Monthly Spend", "₹1,200", NeuPalette.violet, Modifier.weight(1f))
+                AnalyticsStatBox("Next Due Date", "07 Nov", NeuPalette.sky, Modifier.weight(1f))
             }
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFDAEFE6).copy(alpha = 0.6f))
-                    .border(1.dp, Color(0xFF21A87D).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                    .background(NeuPalette.greenWash.copy(alpha = 0.6f))
+                    .border(1.dp, NeuPalette.green.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                     .padding(10.dp)
             ) {
                 Row(
@@ -1079,16 +1098,16 @@ private fun PaymentAnalyticsSubView(c: IntelligenceColors) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text("Early Bird Renewal Bonus", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F6B4E))
-                        Text("Pay by 03 Nov to save ₹120 (10% Off)", fontSize = 8.5.sp, color = Color(0xFF178A66))
+                        Text("Early Bird Renewal Bonus", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.greenDeep)
+                        Text("Pay by 03 Nov to save ₹120 (10% Off)", fontSize = IntelligenceTypography.sizeMicro, color = NeuPalette.greenDeep)
                     }
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
-                            .background(Color(0xFF21A87D))
+                            .background(NeuPalette.green)
                             .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
-                        Text("Pay ₹1,080", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Pay ₹1,080", fontSize = IntelligenceTypography.sizeSmall, fontWeight = IntelligenceTypography.weightBody, color = Color.White)
                     }
                 }
             }
@@ -1101,13 +1120,13 @@ private fun AnalyticsStatBox(label: String, value: String, color: Color, modifie
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFEDF0F4))
-            .border(1.dp, Color(0xFFDCDFE6), RoundedCornerShape(12.dp))
+            .background(NeuPalette.surface)
+            .border(1.dp, NeuPalette.shadowSoft, RoundedCornerShape(12.dp))
             .padding(10.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(label, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF8C94A0))
-            Text(value, fontSize = 14.sp, fontWeight = FontWeight.Black, color = color)
+            Text(label, fontSize = IntelligenceTypography.sizeMicro, fontWeight = IntelligenceTypography.weightBody, color = NeuPalette.muted)
+            Text(value, fontSize = IntelligenceTypography.sizeCardTitle, fontWeight = IntelligenceTypography.weightValue, color = color)
         }
     }
 }

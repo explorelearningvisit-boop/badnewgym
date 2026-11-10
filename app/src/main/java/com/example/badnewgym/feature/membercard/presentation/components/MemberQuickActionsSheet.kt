@@ -6,6 +6,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +34,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -43,10 +49,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.design.MemberCardAccent
 import com.example.badnewgym.feature.membercard.design.MemberCardAccentManager
+import com.example.badnewgym.feature.membercard.presentation.intelligence.NeuStyle
+import com.example.badnewgym.feature.membercard.presentation.intelligence.NeuTheme
+import com.example.badnewgym.feature.membercard.presentation.intelligence.NeuThemes
 
 /**
  * Small, honest action surface. It exposes only actions that are implemented
@@ -76,6 +86,8 @@ fun MemberQuickActionsSheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(max = 600.dp)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp)
             ) {
                 GlassSheetHeader(
@@ -124,6 +136,10 @@ fun MemberQuickActionsSheet(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                AppearanceSection()
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -205,11 +221,160 @@ private fun AccentSwatch(
         }
         Text(
             text = accent.title,
-            fontSize = 12.sp,
+            fontSize = 12.5.sp,
             lineHeight = 15.sp,
-            fontWeight = if (isSelected) FontWeight.Black else FontWeight.SemiBold,
-            color = if (isSelected) GlassInk else GlassMuted,
+            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+            color = if (isSelected) GlassInk else GlassInkSoft,
             maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun AppearanceSection() {
+    val activeTheme = NeuStyle.theme
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        GlassSectionLabel(text = "Dashboard theme")
+        // Seven skins in a 4 + 3 grid so no label is ever clipped by a scroll edge.
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            NeuThemes.all.chunked(4).forEach { rowThemes ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    rowThemes.forEach { theme ->
+                        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                            ThemeSwatch(
+                                theme = theme,
+                                isSelected = theme.id == activeTheme.id,
+                                onClick = { NeuStyle.selectTheme(theme.id) }
+                            )
+                        }
+                    }
+                    repeat(4 - rowThemes.size) { Spacer(modifier = Modifier.weight(1f)) }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(2.dp))
+        ScaleSlider("Text size", NeuStyle.textScale, NeuStyle.TEXT_MIN, NeuStyle.TEXT_MAX) {
+            NeuStyle.updateTextScale(it)
+        }
+        ScaleSlider("Icons & controls", NeuStyle.componentScale, NeuStyle.COMPONENT_MIN, NeuStyle.COMPONENT_MAX) {
+            NeuStyle.updateComponentScale(it)
+        }
+        ScaleSlider("Corner radius", NeuStyle.radiusScale, NeuStyle.RADIUS_MIN, NeuStyle.RADIUS_MAX) {
+            NeuStyle.updateRadiusScale(it)
+        }
+        ScaleSlider("Shadow depth", NeuStyle.depthScale, NeuStyle.DEPTH_MIN, NeuStyle.DEPTH_MAX) {
+            NeuStyle.updateDepthScale(it)
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White)
+                .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp))
+                .clickable { NeuStyle.reset() }
+                .padding(vertical = 9.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "↺ Reset to Guide Defaults",
+                fontSize = 12.5.sp,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFF6D28D9)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ThemeSwatch(
+    theme: NeuTheme,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clickable { onClick() }
+                .shadow(if (isSelected) 4.dp else 1.dp, CircleShape)
+                .clip(CircleShape)
+                .background(theme.surface)
+                .border(
+                    width = if (isSelected) 2.5.dp else 1.dp,
+                    color = if (isSelected) theme.violet else Color.White,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(18.dp)
+                    .clip(CircleShape)
+                    .background(theme.violet)
+            )
+        }
+        Text(
+            text = theme.label,
+            fontSize = 11.sp,
+            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+            color = if (isSelected) GlassInk else GlassInkSoft,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun ScaleSlider(
+    label: String,
+    value: Float,
+    min: Float,
+    max: Float,
+    onChange: (Float) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                label,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = GlassInk
+            )
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(Color(0xFFEDE9FE))
+                    .border(1.dp, Color(0xFFDDD6FE), RoundedCornerShape(50))
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    "${(value * 100).toInt()}%",
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFF6D28D9)
+                )
+            }
+        }
+        Slider(
+            value = value,
+            onValueChange = onChange,
+            valueRange = min..max,
+            colors = SliderDefaults.colors(
+                thumbColor = Color(0xFF7C3AED),
+                activeTrackColor = Color(0xFF7C3AED),
+                inactiveTrackColor = Color(0xFFE2E8F0)
+            ),
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

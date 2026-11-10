@@ -196,7 +196,7 @@ fun GlassSheetHeader(
                     text = subtitle,
                     fontSize = 12.5.sp,
                     lineHeight = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Bold,
                     color = GlassMuted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -301,9 +301,9 @@ fun GlassActionTile(
             ) {
                 Text(
                     text = title,
-                    fontSize = 15.sp,
+                    fontSize = 15.5.sp,
                     lineHeight = 19.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Black,
                     color = GlassInk,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -312,7 +312,7 @@ fun GlassActionTile(
                     text = subtitle,
                     fontSize = 12.5.sp,
                     lineHeight = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Bold,
                     color = GlassMuted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -389,10 +389,10 @@ fun GlassChip(
 fun GlassSectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text.uppercase(),
-        fontSize = 11.sp,
+        fontSize = 12.sp,
         lineHeight = 14.sp,
         fontWeight = FontWeight.Black,
-        color = GlassFaint,
+        color = GlassInkSoft,
         letterSpacing = 0.9.sp,
         modifier = modifier
     )
