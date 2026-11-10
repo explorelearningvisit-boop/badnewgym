@@ -326,8 +326,8 @@ fun IntelligenceSectionCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .neuRaised(radius = IntelligenceDensity.radiusCard, depth = 6.dp, blur = 14.dp)
-            .padding(horizontal = IntelligenceDensity.cardPaddingH, vertical = IntelligenceDensity.cardPaddingV),
+            .clayCard(radius = 18.dp, elevation = 4.dp)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(IntelligenceDensity.widgetGapSm)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(IntelligenceDensity.widgetGapSm)) {

@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.badnewgym.feature.membercard.domain.intelligence.IntelligenceSeries
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
+import kotlin.math.roundToInt
 
 /**
  * Neumorphic Workout Intelligence Screen:
@@ -67,6 +68,10 @@ fun WorkoutIntelligenceScreen(
 ) {
     val c = intelligenceColors()
     val measurer = rememberTextMeasurer()
+    // Consistency is derived from real active days, so the tab cannot disagree with Overview.
+    val monthDays = data.attendance.totalDays.coerceAtLeast(1)
+    val consistency = (data.workoutTrend.daysWithWorkout * 100f / monthDays).roundToInt().coerceIn(0, 100)
+
     val points = IntelligenceSeries.workoutDailyNormalized(data.workoutTrend.bars)
 
     Column(
@@ -153,7 +158,7 @@ fun WorkoutIntelligenceScreen(
                         WorkoutStatTile(
                             icon = Icons.Filled.Schedule,
                             iconTint = NeuPalette.green,
-                            value = "37 min",
+                            value = "${data.workoutTrend.avgPerDayMinutes} min",
                             label = "Avg / Day",
                             valueColor = c.ink,
                             modifier = Modifier.weight(1f)
@@ -161,7 +166,7 @@ fun WorkoutIntelligenceScreen(
                         WorkoutStatTile(
                             icon = Icons.Filled.EmojiEvents,
                             iconTint = Color(0xFFF59E0B),
-                            value = "88 min",
+                            value = "${data.workoutTrend.peakMinutes} min",
                             label = "Best 👑",
                             valueColor = Color(0xFFD97706),
                             modifier = Modifier.weight(1f)
@@ -174,7 +179,7 @@ fun WorkoutIntelligenceScreen(
                         WorkoutStatTile(
                             icon = Icons.AutoMirrored.Filled.TrendingDown,
                             iconTint = Color(0xFFDC2626),
-                            value = "32 min",
+                            value = "${data.workoutTrend.lowestMinutes} min",
                             label = "Lowest 🔻",
                             valueColor = Color(0xFFDC2626),
                             modifier = Modifier.weight(1f)
@@ -182,7 +187,7 @@ fun WorkoutIntelligenceScreen(
                         WorkoutStatTile(
                             icon = Icons.Filled.TrackChanges,
                             iconTint = NeuPalette.violet,
-                            value = "61%",
+                            value = "$consistency%",
                             label = "Consistency",
                             valueColor = NeuPalette.violet,
                             modifier = Modifier.weight(1f)
@@ -239,7 +244,7 @@ fun WorkoutIntelligenceScreen(
                     icon = Icons.Filled.TrackChanges,
                     iconTint = NeuPalette.green,
                     bg = Color(0xFFD1FAE5),
-                    value = "61%",
+                    value = "$consistency%",
                     label = "Steady",
                     modifier = Modifier.weight(1f)
                 )
@@ -310,7 +315,7 @@ fun WorkoutIntelligenceScreen(
                             }
                         }
                         Text(
-                            "Great consistency (61%)! 🔥 Maintain 5+ day streak to reach 44 hr+ next month.",
+                            "Consistency is $consistency% this month. Keep a 5-day streak to pass 44 hr next month.",
                             fontSize = IntelligenceTypography.sizeSmall,
                             fontWeight = IntelligenceTypography.weightBody,
                             color = NeuPalette.inkSoft,

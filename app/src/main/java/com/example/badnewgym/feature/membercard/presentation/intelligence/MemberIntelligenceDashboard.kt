@@ -42,7 +42,7 @@ import com.example.badnewgym.feature.membercard.domain.model.CalendarDay
 import com.example.badnewgym.feature.membercard.domain.model.MemberCardData
 
 /**
- * V3 Member Intelligence shell: Clean header + 4 KPI tabs on the pack canvas gradient.
+ * V3 Member Intelligence shell: Clean header + 5 KPI tabs on the pack canvas gradient.
  * (Old theme strip and extra body sub-bars removed for a clean, pixel-perfect viewport).
  */
 @Composable
@@ -175,8 +175,11 @@ fun MemberIntelligenceDashboard(
                             onRemindClick = {}
                         )
                     }
-                    else -> item(key = "tab_body") {
+                    3 -> item(key = "tab_body") {
                         BodyIntelligenceLiteScreen(data = data, state = bodyState)
+                    }
+                    else -> item(key = "tab_overview") {
+                        OverviewIntelligenceScreen(data = data, pass = pass)
                     }
                 }
             }

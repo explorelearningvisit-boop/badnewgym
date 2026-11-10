@@ -246,9 +246,9 @@ object NeuThemes {
         onAccent = 0xFF1B1F26
     )
 
-    val all = listOf(NeoSky, Lavender, Snow, Mint, Sand, Steel, Rose, Midnight)
+    val all = listOf(Lavender, NeoSky, Snow, Mint, Sand, Steel, Rose, Midnight)
 
-    fun byId(id: String): NeuTheme = all.firstOrNull { it.id == id } ?: NeoSky
+    fun byId(id: String): NeuTheme = all.firstOrNull { it.id == id } ?: Lavender
 }
 
 /**
@@ -261,7 +261,7 @@ object NeuStyle {
 
     private var prefs: android.content.SharedPreferences? = null
 
-    var themeId by mutableStateOf(NeuThemes.NeoSky.id)
+    var themeId by mutableStateOf(NeuThemes.Lavender.id)
         private set
     /** Multiplies every text size only. */
     var textScale by mutableFloatStateOf(1f)
@@ -282,7 +282,7 @@ object NeuStyle {
         if (prefs != null) return
         val p = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs = p
-        themeId = NeuThemes.byId(p.getString("theme", NeuThemes.NeoSky.id) ?: NeuThemes.NeoSky.id).id
+        themeId = NeuThemes.byId(p.getString("theme", NeuThemes.Lavender.id) ?: NeuThemes.Lavender.id).id
         textScale = p.getFloat("text", 1f).coerceIn(TEXT_MIN, TEXT_MAX)
         componentScale = p.getFloat("component", 1f).coerceIn(COMPONENT_MIN, COMPONENT_MAX)
         radiusScale = p.getFloat("radius", 1f).coerceIn(RADIUS_MIN, RADIUS_MAX)
