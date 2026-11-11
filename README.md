@@ -1,6 +1,17 @@
-# Multi-Project Workspace Guide
+# BAD GYM Workspace
 
-This workspace hosts **3 completely independent projects**. Each project has its own dedicated codebase, purpose, and execution commands.
+## New cross-platform product (active development)
+The fresh Android + iOS Flutter application lives in **`flutter_app/`**. This is the new product foundation; it does not port the previous Kotlin UI. Start here for all new BAD GYM mobile feature work.
+
+- App guide: [flutter_app/README.md](flutter_app/README.md)
+- Cross-platform plan: [docs/FLUTTER_CROSS_PLATFORM_MIGRATION.md](docs/FLUTTER_CROSS_PLATFORM_MIGRATION.md)
+- Implementation ledger: [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md)
+
+The rest of this repository is a multi-project workspace containing earlier Android, phone-tracking and OPPO tooling. Those folders are retained unchanged during the Flutter rebuild; do not treat them as dependencies of the new Flutter app.
+
+---
+
+The legacy workspace areas below are retained for reference and are independent of the new Flutter app.
 
 ---
 
@@ -69,3 +80,4 @@ This workspace hosts **3 completely independent projects**. Each project has its
   * OPPO Device Report: [`OPPO/OPPO_FULL_MOBILE_SCAN_REPORT.md`](OPPO/OPPO_FULL_MOBILE_SCAN_REPORT.md)
 * **Run:**
   * Double-click [`Launch_Oppo_Dev_Studio.bat`](Launch_Oppo_Dev_Studio.bat) or run `python tools\oppo_dev_studio.py`.
+
