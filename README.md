@@ -1,3 +1,20 @@
+# BAD GYM Cross-Platform Migration Notice (2026-11-11)
+
+The approved new mobile client is Flutter/Dart targeting Android and iPhone (iOS) from one codebase. It will live in `mobile_flutter/`.
+
+The existing Kotlin/Jetpack Compose app under `:app` remains the legacy/reference implementation while Flutter reaches feature parity. Do not overwrite or delete it during migration.
+
+Read:
+- [Flutter cross-platform contract](docs/reference/FLUTTER_CROSS_PLATFORM_CONTRACT.md)
+- [Flutter execution plan](docs/implementation/FLUTTER_CROSS_PLATFORM_PLAN.md)
+- [Repository audit](docs/audit/REPOSITORY_AUDIT_2026-11-11.md)
+- [Progress tracker](docs/IMPLEMENTATION_PROGRESS.md)
+- [Agent handoff](docs/implementation/AGENT_HANDOFF.md)
+
+Important: the existing `backend/` FastAPI project is low-GPS telemetry only, not the BAD GYM membership/payment backend. The existing Supabase architecture/schema files are proposals pending verification. iOS builds and simulator/signing require macOS + Xcode.
+
+---
+
 # Multi-Project Workspace Guide
 
 This workspace hosts **3 completely independent projects**. Each project has its own dedicated codebase, purpose, and execution commands.
