@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'features/attendance/presentation/attendance_screen.dart';
 import 'features/workout/presentation/workout_screen.dart';
 import 'features/payment/presentation/payment_screen.dart';
+import 'features/body/presentation/body_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -547,6 +548,9 @@ class _DetailView extends StatelessWidget {
     }
     if (section == MemberSection.payment) {
       return const PaymentScreen(memberId: 'BG215');
+    }
+    if (section == MemberSection.body) {
+      return const BodyScreen(memberId: 'BG215');
     }
     final details = switch (section) {
       MemberSection.attendance => _DetailData('Attendance Intelligence', Icons.calendar_month, BadGymTheme.green, '81%', '25 / 31 days', ['Present 23', 'Late 2', 'Absent 2', 'Holiday 4'], '6 day streak'),
