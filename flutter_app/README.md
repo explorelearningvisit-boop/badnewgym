@@ -23,6 +23,16 @@ flutter test
 flutter run
 ```
 
+Keep the app running while iterating on Dart UI. Press `r` in the `flutter run` terminal for Hot Reload and `R` for Hot Restart. Ordinary widget/layout/color/text changes should not require a new APK or a Gradle rebuild. Native plugin, Android Gradle, manifest, signing or package configuration changes do require a rebuild.
+
+Capture a real-device screenshot from a second PowerShell window:
+```powershell
+adb shell screencap -p /sdcard/member-intelligence.png
+adb pull /sdcard/member-intelligence.png .\member-intelligence.png
+```
+
+The Flutter CI workflow also builds a debug APK and is being extended to launch it on an Android emulator and save a screenshot artifact, so visual checks can run without your laptop staying online.
+
 If Flutter is not on PATH, install Flutter stable using the official Flutter Windows installation guide, add its `bin` directory to PATH, close/reopen the terminal, and verify `flutter --version` before continuing. Android Studio should have Android SDK Platform Tools, Command-line Tools and an emulator image installed. Accept SDK licenses with `flutter doctor --android-licenses` when prompted.
 
 For a connected Android phone, enable Developer options and USB debugging, connect it, then run `flutter devices` followed by `flutter run -d <device-id>`. For an emulator, start it from Android Studio Device Manager first.
