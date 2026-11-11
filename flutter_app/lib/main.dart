@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'features/attendance/presentation/attendance_screen.dart';
+import 'features/workout/presentation/workout_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -539,6 +540,9 @@ class _DetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (section == MemberSection.attendance) {
       return const AttendanceScreen(memberId: 'BG215');
+    }
+    if (section == MemberSection.workout) {
+      return const WorkoutScreen(memberId: 'BG215');
     }
     final details = switch (section) {
       MemberSection.attendance => _DetailData('Attendance Intelligence', Icons.calendar_month, BadGymTheme.green, '81%', '25 / 31 days', ['Present 23', 'Late 2', 'Absent 2', 'Holiday 4'], '6 day streak'),
