@@ -155,6 +155,7 @@ Work on branch migration/flutter-cross-platform until the clean project foundati
 - [x] Add initial navigation widget tests and Android/iOS CI build jobs.
 - [ ] Verify toolchain and decide whether to move the Flutter app to a dedicated clean repository root.
 - [ ] Produce individual image/SVG asset packs.
-- [ ] Complete overview, authentication, gym context, backend contracts and production CRUD workflows.
+- [x] Define provider-neutral auth session/repository contracts and Owner/Member presentation permission policy.
+- [ ] Complete overview extraction, gym context, backend integration and production CRUD workflows.
 - [ ] Run parity tests and capture screenshots on Android/iOS.
 - [ ] Produce Android and iOS release artifacts in supported environments.
