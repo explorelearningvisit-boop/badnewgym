@@ -12,7 +12,7 @@ Baseline: `backup/local-main-2026-11-11` @ `32fccc7a306d93f4c0216156e81e76b4d70f
 - [x] Implementation plan committed.
 - [x] Agent handoff and crash-recovery instructions committed.
 - [ ] Local working tree and uncommitted changes inspected.
-- [ ] Active source-of-truth instructions updated.
+- [x] Active source-of-truth instructions updated.
 - [ ] Runtime data flow and repository/ViewModel audit completed.
 - [ ] Static chart/demo fixture replacement plan verified against all production sources.
 - [ ] Shared lavender design tokens implemented.
@@ -24,7 +24,7 @@ Baseline: `backup/local-main-2026-11-11` @ `32fccc7a306d93f4c0216156e81e76b4d70f
 - [ ] Build, tests and device screenshots verified.
 
 ## Current checkpoint
-Documentation-only checkpoint. No Kotlin, Gradle, database or production UI source files have been changed yet.
+Documentation-only checkpoint committed through SHA `71518e81ecc44dc7e30a5640aa3ccd6431c6d5a0`. The new lavender contract is now listed first in AGENTS.md and the active override is prepended to CURRENT_TASK.md and ANTIGRAVITY_RUN.md. No Kotlin, Gradle, database or production UI source files have been changed yet.
 
 ## Known limitations
 - The laptop's local working directory is not mounted in this session. Only user-uploaded reference images are present.
@@ -33,7 +33,7 @@ Documentation-only checkpoint. No Kotlin, Gradle, database or production UI sour
 - No Gradle build, emulator or physical-device verification has been run in this session.
 
 ## Next action
-Update repository instruction files so every AI agent sees the new lavender full-screen contract before implementation. Then inspect the real repository/ViewModel data flow and create the metric-to-source matrix.
+Inspect the user's actual local working tree and uncommitted changes, then trace the production repository/ViewModel data flow and create the metric-to-source matrix before changing UI code.
 
 ## Recovery protocol
 Read this file, `docs/implementation/AGENT_HANDOFF.md`, `AGENTS.md`, `CURRENT_TASK.md`, and `docs/reference/MEMBER_INTELLIGENCE_LAVENDER_REFERENCE_CONTRACT.md`. Check `git status` and current SHA. Never discard or overwrite uncommitted changes. Resume at the first unchecked item.
