@@ -57,7 +57,7 @@ abstract final class BadGymTheme {
           bodyMedium: TextStyle(fontSize: 12, color: muted),
           labelLarge: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
         ),
-        scaffoldMessengerTheme: const ScaffoldMessengerThemeData(
+        snackBarTheme: const SnackBarThemeData(
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -599,8 +599,12 @@ class _FitnessJourney extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: CustomPaint(
-            painter: _RoadPainter(),
+          child: IgnorePointer(
+            child: ClipRect(
+              child: CustomPaint(
+                painter: _RoadPainter(),
+              ),
+            ),
           ),
         ),
         Column(
@@ -696,7 +700,7 @@ class _JourneyCard extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xF7FFFFFF), Color(0xEFFFFFFF), Color(0xF4F0FF)],
+              colors: [Color(0xF7FFFFFF), Color(0xEFFFFFFF), Color(0xFFF4F0FF)],
             ),
             borderRadius: BorderRadius.circular(19),
             border: Border.all(color: Colors.white, width: 1.3),
