@@ -1,3 +1,23 @@
+# ACTIVE TASK OVERRIDE — FULL-SCREEN LAVENDER MEMBER INTELLIGENCE (2026-11-11)
+
+The latest user-supplied four-screen lavender/purple reference plus the previously supplied Body Intelligence reference is now the visual source of truth for this task.
+
+Read first:
+- `docs/audit/REPOSITORY_AUDIT_2026-11-11.md`
+- `docs/reference/MEMBER_INTELLIGENCE_LAVENDER_REFERENCE_CONTRACT.md`
+- `docs/implementation/MEMBER_INTELLIGENCE_LAVENDER_IMPLEMENTATION_PLAN.md`
+- `docs/implementation/AGENT_HANDOFF.md`
+- `docs/IMPLEMENTATION_PROGRESS.md`
+
+This task explicitly changes the previous compact 300×550dp card target into five full-screen native Compose destinations: Overview, Attendance, Workout, Payment and Body. It also changes the visual palette from emerald/mint-only to pale lavender/pearl with violet navigation and semantic emerald/amber/rose/grey. Preserve the old V2 domain, data-integrity, privacy, payment, entitlement and widget authorization rules; supersede only the old visual target and geometry.
+
+Do not begin source edits until the local working tree is inspected and the actual production repository/ViewModel data flow is traced. Replace demo defaults and static chart arrays with real records. Do not add libraries without a demonstrated need.
+
+Current branch: `feature/member-intelligence-lavender-rebuild`
+Starting baseline: `backup/local-main-2026-11-11` @ `32fccc7a306d93f4c0216156e81e76b4d70f0f48`
+
+---
+
 # BAD GYM — Current Task
 
 ## ACTIVE TASK — MEMBER INTELLIGENCE V2
