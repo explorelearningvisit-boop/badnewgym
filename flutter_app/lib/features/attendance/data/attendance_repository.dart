@@ -12,13 +12,14 @@ class DemoAttendanceRepository implements AttendanceRepository {
     final records = <AttendanceRecord>[];
     for (var day = 1; day <= daysInMonth; day++) {
       final date = DateTime(month.year, month.month, day);
+      if (date.isAfter(DateTime.now())) continue;
       if (date.weekday == DateTime.sunday) {
         records.add(AttendanceRecord(date: date, status: AttendanceStatus.holiday));
       } else if ([3, 11, 18, 25].contains(day)) {
         records.add(AttendanceRecord(date: date, status: AttendanceStatus.absent));
       } else if ([7, 16].contains(day)) {
         records.add(AttendanceRecord(date: date, status: AttendanceStatus.late));
-      } else if (date.isBefore(DateTime.now()) || day <= 10) {
+      } else {
         records.add(AttendanceRecord(date: date, status: AttendanceStatus.present));
       }
     }
