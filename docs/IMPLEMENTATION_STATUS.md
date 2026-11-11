@@ -41,11 +41,12 @@ Updated: 2026-11-11
 - No APK, AAB or IPA has been produced.
 
 ## Next milestones
-1. Confirm GitHub Actions execution and fix any analyzer/test/build failures.
+1. Run the local verification commands in `flutter_app/README.md`; fix formatter, analyzer and test failures from the actual output.
 2. Extract overview, profile and membership UI into feature-first presentation/domain/data layers.
-3. Build individual asset pack from the generated visual references.
-4. Confirm backend schema/auth/RLS and create typed repository contracts.
-5. Implement member, gym, attendance, workout, payment, body and admin workflows.
-6. Add offline cache/sync only after domain conflict rules are defined.
-7. Add accessibility, responsive, golden and integration coverage.
-8. Build and verify Android artifacts; build iOS artifacts on macOS/Xcode CI.
+3. Confirm backend provider, schema, auth, RLS and storage; then implement the concrete auth/data adapters.
+4. Build the real owner/member login, gym context and member workflows.
+5. Implement operational CRUD: check-in/out, workout logging, payments/receipts and measured body updates.
+6. Build individual image/SVG assets with source and license manifest.
+7. Add offline cache/sync only after conflict rules are defined.
+8. Add accessibility, responsive, golden and integration coverage.
+9. Verify Android artifacts on emulator/device and iOS simulator/device on macOS/Xcode.
