@@ -24,7 +24,7 @@ Baseline: `backup/local-main-2026-11-11` @ `32fccc7a306d93f4c0216156e81e76b4d70f
 - [ ] Build, tests and device screenshots verified.
 
 ## Current checkpoint
-Documentation-only checkpoint committed through SHA `71518e81ecc44dc7e30a5640aa3ccd6431c6d5a0`. The new lavender contract is now listed first in AGENTS.md and the active override is prepended to CURRENT_TASK.md and ANTIGRAVITY_RUN.md. No Kotlin, Gradle, database or production UI source files have been changed yet.
+Flutter cross-platform direction is now user-approved and recorded. The Flutter contract, plan, handoff, model prompts, audit and source-of-truth overrides are committed. The existing Kotlin application remains untouched. No Flutter source scaffold or production UI code has been created yet.
 
 ## Known limitations
 - The laptop's local working directory is not mounted in this session. Only user-uploaded reference images are present.
@@ -33,7 +33,7 @@ Documentation-only checkpoint committed through SHA `71518e81ecc44dc7e30a5640aa3
 - No Gradle build, emulator or physical-device verification has been run in this session.
 
 ## Next action
-Obtain access to the user's actual local working tree and the real business backend/schema or backend repository. The remote Android repo currently has no implemented member business repository or Supabase client; only proposed schema documentation exists. Once that source is available, map each metric to its real table/field and define the repository adapter before connecting UI state. Do not invent API endpoints or treat fixtures as live data.
+Obtain the real BAD GYM business backend/schema or backend repository and inspect the local working tree. Then scaffold Flutter under mobile_flutter/ (never at repository root), configure Android+iOS targets, and build the shared lavender shell. Do not connect production metrics until each one maps to a verified backend field. iOS build validation requires macOS/Xcode.
 
 ## Recovery protocol
 Read this file, `docs/implementation/AGENT_HANDOFF.md`, `AGENTS.md`, `CURRENT_TASK.md`, and `docs/reference/MEMBER_INTELLIGENCE_LAVENDER_REFERENCE_CONTRACT.md`. Check `git status` and current SHA. Never discard or overwrite uncommitted changes. Resume at the first unchecked item.
