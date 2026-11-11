@@ -41,3 +41,10 @@ void main() {
     expect(find.text('BODY MEASUREMENTS'), findsOneWidget);
   });
 }
+
+  testWidgets('swipes horizontally between intelligence modules', (tester) async {
+    await tester.pumpWidget(const BadGymApp());
+    await tester.drag(find.byKey(const ValueKey('overview')), const Offset(-320, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('Attendance Intelligence'), findsOneWidget);
+  });
