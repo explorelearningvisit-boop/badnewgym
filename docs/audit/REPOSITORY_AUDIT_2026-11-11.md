@@ -77,3 +77,14 @@ This replaces the previous compact-card/emerald-only visual target for this task
 - The laptop's local filesystem is not mounted in this session; only conversation reference images are mounted.
 - No Gradle build, emulator launch, physical-device screenshot or local Git working-tree status was executed in this session.
 - Before implementation, the local owner must sync/commit/stash uncommitted work or provide the current working tree to the coding agent. Never overwrite unknown local changes.
+
+
+## User-approved platform decision (2026-11-11)
+The user explicitly selected Flutter to ship Android and iPhone from one shared codebase. This supersedes the earlier recommendation to continue the new implementation exclusively in Kotlin/Jetpack Compose.
+
+- A recursive tree audit of baseline `32fccc7a306d93f4c0216156e81e76b4d70f0f48` found 902 entries and no `pubspec.yaml`, `lib/`, `ios/` or Flutter tests.
+- Therefore Flutter does not currently exist in this repository. Create an isolated application under `mobile_flutter/`; do not run Flutter scaffold generation at the root because root is an existing Gradle Android project.
+- Preserve root Kotlin `:app` as legacy/reference during migration. No Kotlin source has been changed by this work.
+- The root `backend/` is FastAPI for low-GPS telemetry/location resolution only (`/api/v1/telemetry/report`, `/batch`, `/latest`, `/location/{device_id}`). It is not the BAD GYM membership, attendance, workout or payment backend.
+- Flutter contract and implementation plan are recorded in `docs/reference/FLUTTER_CROSS_PLATFORM_CONTRACT.md` and `docs/implementation/FLUTTER_CROSS_PLATFORM_PLAN.md`.
+- Platform caveat: iOS build/signing/simulator requires macOS + Xcode. iOS restricts Wi-Fi/BSSID scanning and background execution compared with Android; audit each native plugin on both platforms.
