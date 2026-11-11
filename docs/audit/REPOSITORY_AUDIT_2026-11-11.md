@@ -38,11 +38,11 @@
 
 ## Confirmed risks / defects to resolve
 1. **Demo-data default:** the production screen signature currently defaults to `MemberCardData.sampleAshwaniSingh()`. Trace the complete runtime data flow and replace the production default with repository/ViewModel state. Sample fixtures may remain preview/test-only.
-2. **Hard-coded workout history:** `MasterStoryboardDashboard.kt` contains a static 30-day `workoutBars` list.
-3. **Hard-coded monthly workout:** `monthlyWorkoutPattern` contains fixed Jan–Oct values.
-4. **Hard-coded payment trend:** `paymentTrendData()` returns a fixed Jan–Oct series.
+2. **Unused static workout array:** `MasterStoryboardDashboard.kt` defines a fixed 30-day `workoutBars` list, but repository-wide usage within that file shows it is not referenced beyond its declaration. Confirm no external use before removing it.
+3. **Hard-coded monthly workout:** `monthlyWorkoutPattern` is a fixed Jan–Oct series consumed by the monthly workout card; replace it with aggregation from actual session records.
+4. **Hard-coded payment trend:** `paymentTrendData()` returns a fixed Jan–Oct series consumed by the payment chart; replace it with aggregation from actual settled/partial transaction records.
 5. **Identity consistency:** `MemberDashboardV2Screen` derives the sheet identity from `BadGymMemberPass.getAll9Passes().first()`; verify it matches the active member snapshot before retaining this behavior.
-6. **Visual-contract drift:** repository docs still prescribe a 300×550dp compact emerald/mint card. The newly supplied four-screen lavender/purple reference explicitly changes this task to a full-screen multi-tab dashboard. Update the active task contract before UI implementation; do not let stale geometry/palette instructions override the latest reference.
+6. **Visual-contract drift:** repository docs still prescribe a 300×550dp compact emerald/mint card. The newly supplied four-screen lavender/purple reference explicitly changes this task to a full-screen multi-tab dashboard. A task-specific contract and overrides have now been added on the feature branch.
 7. **Theme drift:** the backup contains a 10-theme selector including dark/neon variants. Retire it from the member-facing screen for this design; keep source assets only if another feature still depends on them.
 8. **Duplicate/legacy presentations:** inspect the active route and references before deleting components. Preserve domain, data, payment, navigation, privacy and entitlement behavior.
 
