@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'features/attendance/presentation/attendance_screen.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const BadGymApp());
@@ -535,6 +537,9 @@ class _DetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (section == MemberSection.attendance) {
+      return const AttendanceScreen(memberId: 'BG215');
+    }
     final details = switch (section) {
       MemberSection.attendance => _DetailData('Attendance Intelligence', Icons.calendar_month, BadGymTheme.green, '81%', '25 / 31 days', ['Present 23', 'Late 2', 'Absent 2', 'Holiday 4'], '6 day streak'),
       MemberSection.workout => _DetailData('Workout Intelligence', Icons.fitness_center, BadGymTheme.purple, '61 min', 'Today · Legs', ['Weekly sessions 4 / 5', 'Logged volume 8,420 kg', 'Peak session 88 min', 'Monthly total 19.4 hr'], '420 kcal logged'),
