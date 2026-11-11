@@ -28,7 +28,7 @@ Updated: 2026-11-11
 - [x] Expanded CI workflow to include Android debug APK and iOS simulator builds.
 - [x] Added bottom navigation and two widget smoke tests.
 - [x] Added app setup instructions.
-- [ ] Run `flutter pub get`, `flutter analyze`, `flutter test` in a Flutter SDK environment.
+- [ ] Run `flutter pub get`, `dart format`, `flutter analyze`, `flutter test` and Android/iOS CI builds in a Flutter SDK environment.
 - [ ] Verify Android emulator and physical Android device.
 - [ ] Verify iOS simulator and physical iPhone using macOS/Xcode.
 
@@ -41,8 +41,8 @@ Updated: 2026-11-11
 - No APK, AAB or IPA has been produced.
 
 ## Next milestones
-1. Wait for CI and fix any analyzer/test/build failures.
-2. Continue extracting the overview and member identity into feature-first presentation/domain/data layers.
+1. Confirm GitHub Actions execution and fix any analyzer/test/build failures.
+2. Extract overview, profile and membership UI into feature-first presentation/domain/data layers.
 3. Build individual asset pack from the generated visual references.
 4. Confirm backend schema/auth/RLS and create typed repository contracts.
 5. Implement member, gym, attendance, workout, payment, body and admin workflows.
