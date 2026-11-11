@@ -9,7 +9,13 @@ Updated: 2026-11-11
 - [x] Added responsive Member Intelligence overview shell.
 - [x] Added member identity and membership progress summary.
 - [x] Added Attendance, Workout, Payment and Body summary modules.
-- [x] Added dedicated detail states for the four intelligence modules.
+- [x] Added initial dedicated detail states for the four intelligence modules.
+- [x] Extracted member profile and membership value model into core domain.
+- [x] Added typed attendance record/summary domain models.
+- [x] Added AttendanceRepository boundary and clearly labelled demo implementation.
+- [x] Added dedicated monthly Attendance screen with month navigation, status calendar, legend and distribution summary.
+- [x] Routed Attendance tab to its feature screen.
+- [x] Expanded CI workflow to include Android debug APK and iOS simulator builds.
 - [x] Added bottom navigation and two widget smoke tests.
 - [x] Added app setup instructions.
 - [ ] Run `flutter pub get`, `flutter analyze`, `flutter test` in a Flutter SDK environment.
@@ -25,7 +31,7 @@ Updated: 2026-11-11
 - No APK, AAB or IPA has been produced.
 
 ## Next milestones
-1. Run CI and fix all analyzer/test failures.
+1. Wait for CI and fix any analyzer/test/build failures.
 2. Split the prototype into feature-first presentation/domain/data layers.
 3. Build individual asset pack from the generated visual references.
 4. Confirm backend schema/auth/RLS and create typed repository contracts.
