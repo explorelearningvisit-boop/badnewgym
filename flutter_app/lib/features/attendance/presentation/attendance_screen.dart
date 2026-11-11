@@ -151,9 +151,9 @@ class _Calendar extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('MONTHLY CALENDAR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: _ink, letterSpacing: .5)),
         const SizedBox(height: 10),
-        const Row(children: [
+        Row(children: [
           for (final day in ['S', 'M', 'T', 'W', 'T', 'F', 'S'])
-            Expanded(child: Center(child: Text(day, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF9295A7))))),
+            Expanded(child: Center(child: Text(day, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF9295A7))))),
         ]),
         const SizedBox(height: 6),
         GridView.builder(

@@ -52,7 +52,6 @@ class _BodyScreenState extends State<BodyScreen> {
 const _ink = Color(0xFF1D2450);
 const _muted = Color(0xFF72758D);
 const _purple = Color(0xFF7628E8);
-const _green = Color(0xFF159B68);
 
 BoxDecoration _card() => BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), border: Border.all(color: const Color(0xFFE5E0F0)), boxShadow: const [BoxShadow(color: Color(0x10512A8A), blurRadius: 9, offset: Offset(0, 3))]);
 

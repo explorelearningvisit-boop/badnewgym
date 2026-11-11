@@ -164,9 +164,9 @@ class _VolumeCard extends StatelessWidget {
     child: Row(children: [
       Container(width: 44, height: 44, decoration: BoxDecoration(color: const Color(0xFFE8F6FC), borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.monitor_weight_outlined, color: _blue)),
       const SizedBox(width: 10),
-      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('Logged training volume', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _ink)),
-        const Text('Sum of recorded sets × reps × load', style: TextStyle(fontSize: 9, color: _muted)),
+      const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Logged training volume', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _ink)),
+        Text('Sum of recorded sets × reps × load', style: TextStyle(fontSize: 9, color: _muted)),
       ])),
       Text('${summary.totalVolumeKg.toStringAsFixed(0)} kg', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: _blue)),
     ]),
