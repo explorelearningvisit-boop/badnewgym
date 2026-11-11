@@ -29,6 +29,15 @@ jobs:
         with:
           channel: stable
           cache: true
+      - run: flutter create --platforms=android --project-name bad_gym .
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - run: flutter --version
       - run: flutter pub get
       - name: Format Dart sources
