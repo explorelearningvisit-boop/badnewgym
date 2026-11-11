@@ -596,19 +596,8 @@ class _FitnessJourney extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: [
-        Positioned.fill(
-          child: IgnorePointer(
-            child: ClipRect(
-              child: CustomPaint(
-                painter: _RoadPainter(),
-              ),
-            ),
-          ),
-        ),
-        Column(
-          children: [
             _JourneyCard(
               title: 'Attendance Intelligence',
               subtitle: '25 / 31 Days',
@@ -656,8 +645,6 @@ class _FitnessJourney extends StatelessWidget {
               metricIcon: Icons.monitor_weight_outlined,
               onTap: () => onSelect(MemberSection.body),
             ),
-          ],
-        ),
       ],
     );
   }
@@ -799,68 +786,6 @@ class _JourneyCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _RoadPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.width / 2;
-    final road = Path()
-      ..moveTo(center + 48, 0)
-      ..cubicTo(center + 100, 55, center - 100, 75, center - 48, 125)
-      ..cubicTo(center + 5, 175, center + 100, 205, center + 42, 255)
-      ..cubicTo(center - 15, 310, center - 100, 340, center - 40, 390);
-
-    final glow = Paint()
-      ..color = BadGymTheme.green.withValues(alpha: .17)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 48
-      ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 9);
-    canvas.drawPath(road, glow);
-
-    final edge = Paint()
-      ..color = BadGymTheme.greenDeep
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 42
-      ..strokeCap = StrokeCap.round;
-    canvas.drawPath(road, edge);
-
-    final surface = Paint()
-      ..shader = const LinearGradient(
-        colors: [Color(0xFF8E56E9), Color(0xFF6D3DCE), Color(0xFF9B65EA)],
-      ).createShader(Offset.zero & size)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 35
-      ..strokeCap = StrokeCap.round;
-    canvas.drawPath(road, surface);
-
-    final lane = Paint()
-      ..color = Colors.white.withValues(alpha: .78)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.7
-      ..strokeCap = StrokeCap.round;
-    canvas.drawPath(
-      road,
-      lane
-        ..strokeWidth = 1.6
-        ..style = PaintingStyle.stroke,
-    );
-    lane
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.round;
-    for (final metric in road.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final segment = metric.extractPath(distance, distance + 7);
-        canvas.drawPath(segment, lane);
-        distance += 14;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _InsightStrip extends StatelessWidget {
