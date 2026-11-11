@@ -50,3 +50,13 @@ Updated: 2026-11-11
 7. Add offline cache/sync only after conflict rules are defined.
 8. Add accessibility, responsive, golden and integration coverage.
 9. Verify Android artifacts on emulator/device and iOS simulator/device on macOS/Xcode.
+
+## Scope lock — UI-first approval gate (2026-11-11)
+- Current deliverable is ONLY the mobile-first Member Intelligence Card and its Overview, Attendance, Workout, Payment and Body UI interactions.
+- Match the user's approved image reference for visual style, color, typography, material assets, chart grammar, proportions and motion. Do not infer unprovided image details.
+- Support 360 logical-pixel mobile viewport, compact shared member header, tap-accessible modules, horizontal/vertical progressive disclosure and no redundant metrics.
+- Demo fixtures are permitted for UI demonstration only and must be labelled; no backend, Firebase, Supabase, production API, authentication, payment collection or operational sync until visual sign-off.
+- Previously committed auth/role contracts are dormant scaffolding, not a new implementation priority.
+- Acceptance gate: local Flutter formatting/analyzer/tests pass, Android debug app runs, screenshots compared to the approved reference, interaction and overflow checks pass, user approves design.
+- Remaining 20–25 reference images/menus are explicitly out of scope until this first card is approved.
+- Local workflow: hot reload for UI iterations; incremental builds for changed native dependencies; APK build only when an installable artifact is needed.
