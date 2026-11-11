@@ -33,7 +33,7 @@ Documentation-only checkpoint committed through SHA `71518e81ecc44dc7e30a5640aa3
 - No Gradle build, emulator or physical-device verification has been run in this session.
 
 ## Next action
-Inspect the user's actual local working tree and uncommitted changes, then trace the production repository/ViewModel data flow and create the metric-to-source matrix before changing UI code.
+Obtain access to the user's actual local working tree and the real business backend/schema or backend repository. The remote Android repo currently has no implemented member business repository or Supabase client; only proposed schema documentation exists. Once that source is available, map each metric to its real table/field and define the repository adapter before connecting UI state. Do not invent API endpoints or treat fixtures as live data.
 
 ## Recovery protocol
 Read this file, `docs/implementation/AGENT_HANDOFF.md`, `AGENTS.md`, `CURRENT_TASK.md`, and `docs/reference/MEMBER_INTELLIGENCE_LAVENDER_REFERENCE_CONTRACT.md`. Check `git status` and current SHA. Never discard or overwrite uncommitted changes. Resume at the first unchecked item.
