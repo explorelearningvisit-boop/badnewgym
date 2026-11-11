@@ -13,7 +13,7 @@ Baseline: `backup/local-main-2026-11-11` @ `32fccc7a306d93f4c0216156e81e76b4d70f
 - [x] Agent handoff and crash-recovery instructions committed.
 - [ ] Local working tree and uncommitted changes inspected.
 - [x] Active source-of-truth instructions updated.
-- [ ] Runtime data flow and repository/ViewModel audit completed.
+- [x] Initial runtime/data-flow audit completed (production business repository not found; backend contract is a blocker).
 - [ ] Static chart/demo fixture replacement plan verified against all production sources.
 - [ ] Shared lavender design tokens implemented.
 - [ ] Overview implemented.
