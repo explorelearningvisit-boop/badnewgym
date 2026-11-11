@@ -1,3 +1,20 @@
+# TASK-SPECIFIC OVERRIDE — 2026-11-11
+
+For the active full-screen Member Intelligence lavender redesign, use:
+`docs/reference/MEMBER_INTELLIGENCE_LAVENDER_REFERENCE_CONTRACT.md`
+`docs/audit/REPOSITORY_AUDIT_2026-11-11.md`
+`docs/implementation/MEMBER_INTELLIGENCE_LAVENDER_IMPLEMENTATION_PLAN.md`
+`docs/implementation/AGENT_HANDOFF.md`
+`docs/IMPLEMENTATION_PROGRESS.md`
+
+These task-specific documents supersede older Member Intelligence visual geometry and palette instructions (including the 300×550dp compact-card target and emerald/mint-only palette) for this redesign only. The older V2 contract remains authoritative for non-visual domain rules: real data, payment correctness, attendance semantics, privacy, entitlements, widget authorization and admin/member separation.
+
+The current reference is a full-screen, five-destination mobile experience: Overview, Attendance, Workout, Payment and Body. Use light lavender/pearl surfaces, violet navigation, emerald positive states and semantic amber/rose/grey. Do not introduce dark/neon theme selection, decorative 3D or fake metrics.
+
+Do not implement in `BAD_GYM_MEMBER_INTELLIGENCE_READY/`. Do not modify `OPPO/` or device-agent tooling. Do not overwrite local uncommitted changes.
+
+---
+
 # BAD GYM — Repository Execution Rules
 
 ## ACTIVE PROJECT
