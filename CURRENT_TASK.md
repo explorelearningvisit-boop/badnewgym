@@ -1,3 +1,22 @@
+# USER-APPROVED PLATFORM OVERRIDE — FLUTTER ANDROID + iOS (2026-11-11)
+
+The user has explicitly selected Flutter so BAD GYM can target Android and iPhone from one shared Dart codebase. This decision supersedes the earlier Kotlin-only implementation recommendation.
+
+Read first:
+- `docs/reference/FLUTTER_CROSS_PLATFORM_CONTRACT.md`
+- `docs/implementation/FLUTTER_CROSS_PLATFORM_PLAN.md`
+- `docs/implementation/AGENT_HANDOFF.md`
+- `docs/IMPLEMENTATION_PROGRESS.md`
+
+Create the new Flutter app only under `mobile_flutter/`. The existing root Kotlin/Jetpack Compose app is legacy/reference and must remain intact until Flutter reaches feature parity and Android+iOS QA. Do not run `flutter create` at repository root.
+
+Use Flutter stable, Dart null safety, Material 3, Riverpod, GoRouter and Dio as initial defaults. Add packages only when required. The existing FastAPI backend is telemetry-only; Supabase docs are proposals, not proof of a live member/payment backend. Do not invent business endpoints or treat sample fixtures as production data.
+
+iOS build/simulator/signing requires macOS + Xcode. Verify plugin capabilities independently on both platforms; iOS restricts Wi-Fi/BSSID scanning and background work compared with Android.
+
+The previous lavender full-screen visual contract remains active, but its implementation target is Flutter. Preserve existing Kotlin code as a reference only.
+---
+
 # ACTIVE TASK OVERRIDE — FULL-SCREEN LAVENDER MEMBER INTELLIGENCE (2026-11-11)
 
 The latest user-supplied four-screen lavender/purple reference plus the previously supplied Body Intelligence reference is now the visual source of truth for this task.
