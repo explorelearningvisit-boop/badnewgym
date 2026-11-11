@@ -87,18 +87,30 @@ class _MemberHomePageState extends State<MemberHomePage> {
           children: [
             const _TopBar(),
             Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
-                switchInCurve: Curves.easeOutCubic,
-                child: isOverview
-                    ? _OverviewView(
-                        key: const ValueKey('overview'),
-                        onSelect: select,
-                      )
-                    : _DetailView(
-                        key: ValueKey(selected),
-                        section: selected,
-                      ),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragEnd: (details) {
+                  final velocity = details.primaryVelocity ?? 0;
+                  final currentIndex = MemberSection.values.indexOf(selected);
+                  if (velocity < -260 && currentIndex < MemberSection.values.length - 1) {
+                    select(MemberSection.values[currentIndex + 1]);
+                  } else if (velocity > 260 && currentIndex > 0) {
+                    select(MemberSection.values[currentIndex - 1]);
+                  }
+                },
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  switchInCurve: Curves.easeOutCubic,
+                  child: isOverview
+                      ? _OverviewView(
+                          key: const ValueKey('overview'),
+                          onSelect: select,
+                        )
+                      : _DetailView(
+                          key: ValueKey(selected),
+                          section: selected,
+                        ),
+                ),
               ),
             ),
           ],
