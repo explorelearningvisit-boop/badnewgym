@@ -15,6 +15,16 @@ Updated: 2026-11-11
 - [x] Added AttendanceRepository boundary and clearly labelled demo implementation.
 - [x] Added dedicated monthly Attendance screen with month navigation, status calendar, legend and distribution summary.
 - [x] Routed Attendance tab to its feature screen.
+- [x] Added typed workout session and summary models plus a repository boundary.
+- [x] Added Workout Intelligence screen with 7-day duration bars, recent sessions and logged training volume.
+- [x] Routed Workout tab to its feature screen.
+- [x] Added typed payment transaction, method and status models plus repository boundary.
+- [x] Added Payment Intelligence screen with payment state, outstanding amount, renewal, history and payment-method mix.
+- [x] Routed Payment tab to its feature screen.
+- [x] Added dated body measurement model and repository boundary.
+- [x] Added Body Intelligence screen for measured weight, goal reference and dated waist/chest/arm measurements.
+- [x] Routed Body tab to its feature screen.
+- [x] Expanded widget tests to cover navigation and key content for all four tabs.
 - [x] Expanded CI workflow to include Android debug APK and iOS simulator builds.
 - [x] Added bottom navigation and two widget smoke tests.
 - [x] Added app setup instructions.
@@ -32,7 +42,7 @@ Updated: 2026-11-11
 
 ## Next milestones
 1. Wait for CI and fix any analyzer/test/build failures.
-2. Split the prototype into feature-first presentation/domain/data layers.
+2. Continue extracting the overview and member identity into feature-first presentation/domain/data layers.
 3. Build individual asset pack from the generated visual references.
 4. Confirm backend schema/auth/RLS and create typed repository contracts.
 5. Implement member, gym, attendance, workout, payment, body and admin workflows.
