@@ -17,7 +17,7 @@ flutter run
 ```
 
 ## Current milestone
-This is the first runnable UI foundation: responsive member overview, member identity/membership summary, Attendance/Workout/Payment/Body overview modules, and section detail views. All displayed values are labelled as demo/sample and are not connected to a production backend.
+The current prototype includes a responsive member overview plus dedicated Attendance, Workout, Payment and Body feature screens with typed domain models and repository interfaces. All visible values remain demo fixtures and are not connected to a production backend. All displayed values are labelled as demo/sample and are not connected to a production backend.
 
 ## Next milestones
 1. Replace placeholder profile/illustration visuals with separately exported, transparent and verified assets.
