@@ -21,9 +21,16 @@
 - No additional chart, icon, 3D or animation dependency is justified before the current components are audited.
 
 ## Runtime entry path
-`MainActivity.kt` sets content to `MemberCheckInScreen(initialSheet = ...)`.
-`MemberCheckInScreen.kt` defaults its data argument to `MemberCardData.sampleAshwaniSingh()` and routes to `MemberDashboardV2Screen`.
+`MainActivity.kt` sets content to `MemberCheckInScreen(initialSheet = ...)` without injecting a repository-backed member snapshot.
+`MemberCheckInScreen.kt` and `MemberDashboardV2Screen.kt` both default to `MemberCardData.sampleAshwaniSingh()`.
 `MemberDashboardV2Screen.kt` composes `MasterStoryboardDashboard` and the existing receipt, analytics, attendance-day, search, notification and quick-action sheets.
+
+## Business-data integration finding
+- No `MemberCardRepository`, `MemberCardViewModel`, `MemberCardDataMapper`, `SupabaseClientProvider` or Supabase SDK implementation was found in the active application source during this search.
+- Supabase references found are documentation-only: `docs/SUPABASE_ARCHITECTURE.md` and `docs/DATABASE_SCHEMA.md` describe an intended architecture and proposed tables, not an implemented client/repository.
+- The Room database found by search is `TelemetryDatabase` for telemetry, not member/payment/attendance business records.
+- `BodyProgressViewModel` defaults to `BodyProgressFixtureSource`; the source file explicitly labels itself development fixture-only and not a production data source.
+- Therefore the current Member Intelligence screens cannot yet be assumed to display live business data. A real repository/backend contract is a prerequisite for production data binding. Do not invent endpoints or embed service-role credentials. Reuse a separately existing backend integration only if the owner supplies its location or schema/migrations.
 
 ## Existing feature inventory
 - Shared BAD GYM header and member identity.
@@ -37,14 +44,16 @@
 - Existing 10-theme engine was added on the backup branch. It includes multiple dark/neon themes and a quick selector; the new lavender reference should become the default and sole active presentation for this task. Do not show a theme picker in the member-facing dashboard unless separately requested.
 
 ## Confirmed risks / defects to resolve
-1. **Demo-data default:** the production screen signature currently defaults to `MemberCardData.sampleAshwaniSingh()`. Trace the complete runtime data flow and replace the production default with repository/ViewModel state. Sample fixtures may remain preview/test-only.
-2. **Unused static workout array:** `MasterStoryboardDashboard.kt` defines a fixed 30-day `workoutBars` list, but repository-wide usage within that file shows it is not referenced beyond its declaration. Confirm no external use before removing it.
-3. **Hard-coded monthly workout:** `monthlyWorkoutPattern` is a fixed Jan–Oct series consumed by the monthly workout card; replace it with aggregation from actual session records.
-4. **Hard-coded payment trend:** `paymentTrendData()` returns a fixed Jan–Oct series consumed by the payment chart; replace it with aggregation from actual settled/partial transaction records.
-5. **Identity consistency:** `MemberDashboardV2Screen` derives the sheet identity from `BadGymMemberPass.getAll9Passes().first()`; verify it matches the active member snapshot before retaining this behavior.
-6. **Visual-contract drift:** repository docs still prescribe a 300×550dp compact emerald/mint card. The newly supplied four-screen lavender/purple reference explicitly changes this task to a full-screen multi-tab dashboard. A task-specific contract and overrides have now been added on the feature branch.
-7. **Theme drift:** the backup contains a 10-theme selector including dark/neon variants. Retire it from the member-facing screen for this design; keep source assets only if another feature still depends on them.
-8. **Duplicate/legacy presentations:** inspect the active route and references before deleting components. Preserve domain, data, payment, navigation, privacy and entitlement behavior.
+1. **Demo-data default:** the production screen signature currently defaults to `MemberCardData.sampleAshwaniSingh()` and `MainActivity` does not inject a live data source. Replace this with repository/ViewModel state after the backend boundary is identified. Sample fixtures remain preview/test-only.
+2. **No member business repository found:** search did not find an active MemberCard repository/ViewModel, Supabase client provider, Supabase SDK dependency or business-data Room entities/DAOs. The existing Supabase architecture/schema docs are proposals, not implementation. This is the primary integration blocker.
+3. **Body fixture default:** `BodyProgressViewModel` defaults to `BodyProgressFixtureSource`, whose source comment explicitly states fixture-only. Replace with a production repository before presenting it as member data.
+4. **Unused static workout array:** `MasterStoryboardDashboard.kt` defines a fixed 30-day `workoutBars` list, but it is not referenced beyond its declaration in that file. Confirm no external use before removing it.
+5. **Hard-coded monthly workout:** `monthlyWorkoutPattern` is a fixed Jan–Oct series consumed by the monthly workout card; replace it with aggregation from actual session records.
+6. **Hard-coded payment trend:** `paymentTrendData()` returns a fixed Jan–Oct series consumed by the payment chart; replace it with aggregation from actual settled/partial transaction records.
+7. **Identity consistency:** `MemberDashboardV2Screen` derives the sheet identity from `BadGymMemberPass.getAll9Passes().first()`; verify it matches the active member snapshot before retaining this behavior.
+8. **Visual-contract drift:** repository docs still prescribe a 300×550dp compact emerald/mint card. The newly supplied four-screen lavender/purple reference explicitly changes this task to a full-screen multi-tab dashboard. A task-specific contract and overrides have now been added on the feature branch.
+9. **Theme drift:** the backup contains a 10-theme selector including dark/neon variants. Retire it from the member-facing screen for this design; keep source assets only if another feature still depends on them.
+10. **Duplicate/legacy presentations:** inspect the active route and references before deleting components. Preserve domain, data, payment, navigation, privacy and entitlement behavior.
 
 ## Git / CI findings
 - Remote `main` latest inspected commit: `eefe61e7...` (2026-11-02).
