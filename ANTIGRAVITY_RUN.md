@@ -1,3 +1,21 @@
+# ACTIVE RUN OVERRIDE — LAVENDER FULL-SCREEN MEMBER INTELLIGENCE
+
+Use the latest task-specific contract:
+- docs/audit/REPOSITORY_AUDIT_2026-11-11.md
+- docs/reference/MEMBER_INTELLIGENCE_LAVENDER_REFERENCE_CONTRACT.md
+- docs/implementation/MEMBER_INTELLIGENCE_LAVENDER_IMPLEMENTATION_PLAN.md
+- docs/implementation/DEEPSEEK_NOMOTRON_ANTIGRAVITY_PROMPTS.md
+- docs/implementation/AGENT_HANDOFF.md
+- docs/IMPLEMENTATION_PROGRESS.md
+
+The new user reference supersedes the older compact 300×550dp / emerald-mint-only visual target for this task. Implement five full-screen native Compose destinations: Overview, Attendance, Workout, Payment and Body. Preserve old V2 domain, data-integrity, payment, privacy and entitlement rules.
+
+Start by checking git status and the exact baseline. The intended starting baseline is branch backup/local-main-2026-11-11 at 32fccc7a306d93f4c0216156e81e76b4d70f0f48; the task branch is feature/member-intelligence-lavender-rebuild. Never overwrite uncommitted local work.
+
+Follow the repository-specific plan and agent ownership prompts. Do not claim build/device verification unless it was actually run and recorded.
+
+---
+
 # BAD GYM — Antigravity Pull-and-Run Handoff
 
 STOP USING THE OLD MEMBER INTELLIGENCE PRESENTATION.
