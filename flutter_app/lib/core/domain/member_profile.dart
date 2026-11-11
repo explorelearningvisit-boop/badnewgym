@@ -12,5 +12,5 @@ class MemberProfile {
   final int membershipDurationDays;
   final MembershipState state;
   int get daysRemaining => (membershipDurationDays - membershipDaysElapsed).clamp(0, membershipDurationDays);
-  double get progress => membershipDurationDays <= 0 ? 0 : (membershipDaysElapsed / membershipDurationDays).clamp(0, 1);
+  double get progress => membershipDurationDays <= 0 ? 0 : (membershipDaysElapsed / membershipDurationDays).clamp(0, 1).toDouble();
 }
