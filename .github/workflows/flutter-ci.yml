@@ -46,6 +46,38 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bad-gym-debug-apk
+          path: flutter_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+
+  android-emulator-preview:
+    needs: analyze-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bad-gym-debug-apk
+          path: bad-gym-debug-apk
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          script: |
+            mkdir -p artifacts/screenshots
+            adb install bad-gym-debug-apk/app-debug.apk
+            adb shell monkey -p com.example.bad_gym 1
+            sleep 4
+            adb exec-out screencap -p > artifacts/screenshots/member-intelligence-overview.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bad-gym-android-preview
+          path: artifacts/screenshots/member-intelligence-overview.png
+          if-no-files-found: error
 
   ios-simulator-build:
     runs-on: macos-latest
