@@ -149,10 +149,12 @@ Work on branch migration/flutter-cross-platform until the clean project foundati
 - [x] Confirmed user wants a fresh project, not Kotlin migration.
 - [x] Created isolated branch migration/flutter-cross-platform.
 - [x] Updated this specification to make Android and iOS first-class from day one.
-- [ ] Verify toolchain and decide repository root strategy.
-- [ ] Scaffold clean Flutter app.
-- [ ] Establish package identity and design system.
+- [x] Scaffold clean Flutter app under `flutter_app/` on isolated branch.
+- [x] Establish package identity, Material 3 light theme and first responsive app shell.
+- [x] Add feature-first Attendance, Workout, Payment and Body domain/repository/presentation modules.
+- [x] Add initial navigation widget tests and Android/iOS CI build jobs.
+- [ ] Verify toolchain and decide whether to move the Flutter app to a dedicated clean repository root.
 - [ ] Produce individual image/SVG asset packs.
-- [ ] Implement product features and backend contracts.
+- [ ] Complete overview, authentication, gym context, backend contracts and production CRUD workflows.
 - [ ] Run parity tests and capture screenshots on Android/iOS.
 - [ ] Produce Android and iOS release artifacts in supported environments.
