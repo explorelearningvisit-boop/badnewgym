@@ -6,7 +6,7 @@ void main() {
     await tester.pumpWidget(const BadGymApp());
     expect(find.text('BAD GYM'), findsOneWidget);
     expect(find.text('Ashwani Kumar Singh'), findsOneWidget);
-    expect(find.text('MEMBER JOURNEY'), findsOneWidget);
+    expect(find.text('THE ROAD TO FITNESS SUCCESS'), findsOneWidget);
   });
 
   testWidgets('opens Attendance intelligence', (tester) async {
