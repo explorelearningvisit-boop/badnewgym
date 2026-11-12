@@ -1,0 +1,95 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [migration/flutter-cross-platform]
+    paths:
+      - "flutter_app/**"
+      - ".github/workflows/flutter-ci.yml"
+  pull_request:
+    branches: [migration/flutter-cross-platform]
+    paths:
+      - "flutter_app/**"
+      - ".github/workflows/flutter-ci.yml"
+
+concurrency:
+  group: flutter-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter_app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter create --platforms=android --project-name bad_gym .
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - run: flutter --version
+      - run: flutter pub get
+      - name: Format Dart sources
+        run: dart format lib test
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bad-gym-debug-apk
+          path: flutter_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+
+  android-emulator-preview:
+    needs: analyze-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bad-gym-debug-apk
+          path: bad-gym-debug-apk
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          script: |
+            mkdir -p artifacts/screenshots
+            adb install bad-gym-debug-apk/app-debug.apk
+            adb shell monkey -p com.example.bad_gym 1
+            sleep 4
+            adb exec-out screencap -p > artifacts/screenshots/member-intelligence-overview.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bad-gym-android-preview
+          path: artifacts/screenshots/member-intelligence-overview.png
+          if-no-files-found: error
+
+  ios-simulator-build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: flutter_app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter create --platforms=ios --project-name bad_gym .
+      - run: flutter pub get
+      - run: flutter build ios --simulator --no-codesign
