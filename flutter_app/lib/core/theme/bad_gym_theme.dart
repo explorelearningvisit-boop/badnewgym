@@ -1,37 +1,55 @@
 import 'package:flutter/material.dart';
 
 abstract final class BadGymColors {
-  static const Color background = Color(0xFFFAF2F0);
+  // Screen Background: Soft luxury lavender / pearl
+  static const Color background = Color(0xFFF4EEFD);
   static const Color surfaceWhite = Colors.white;
-  static const Color surfaceSoft = Color(0xFFFAF7F6);
-  static const Color borderSubtle = Color(0xFFF3ECEB);
+  static const Color surfaceSoft = Color(0xFFF8F5FE);
+  static const Color borderSubtle = Color(0xFFE9E0F8);
 
-  // Dark navigation & profile cards
-  static const Color darkRail = Color(0xFF3A2F2E);
-  static const Color darkRailDivider = Color(0xFF524443);
-  static const Color darkCardStart = Color(0xFF7A584F);
-  static const Color darkCardMid = Color(0xFF4C3435);
-  static const Color darkCardEnd = Color(0xFF382728);
+  // Royal Purple Surfaces & Cards
+  static const Color purpleDark = Color(0xFF1A0234);
+  static const Color purpleRail = Color(0xFF1E033A);
+  static const Color purpleRailDivider = Color(0xFF3B1563);
+  static const Color purpleCardStart = Color(0xFF380B61);
+  static const Color purpleCardMid = Color(0xFF250645);
+  static const Color purpleCardEnd = Color(0xFF160032);
+  static const Color purpleInnerGlass = Color(0xFF130125);
 
-  // Accents
-  static const Color coralPrimary = Color(0xFFED5B54);
-  static const Color coralDark = Color(0xFFE0453E);
-  static const Color emerald = Color(0xFF16A34A);
-  static const Color emeraldActive = Color(0xFF15A049);
-  static const Color limeProgressStart = Color(0xFF6DE338);
-  static const Color limeProgressEnd = Color(0xFF00D26A);
-  static const Color gold = Color(0xFFF9B834);
-  static const Color goldDark = Color(0xFF362208);
+  // Neon Glow Accents
+  static const Color neonViolet = Color(0xFFA855F7);
+  static const Color neonVioletGlow = Color(0x66A855F7);
+  static const Color neonVioletBorder = Color(0xFFB066FE);
+  static const Color neonLime = Color(0xFF22C55E);
+  static const Color neonLimeGlow = Color(0xFF4ADE80);
+
+  // Status & Badges
+  static const Color emerald = Color(0xFF22C55E);
+  static const Color emeraldActive = Color(0xFF16A34A);
+  static const Color limeProgressStart = Color(0xFF22C55E);
+  static const Color limeProgressEnd = Color(0xFF4ADE80);
+  static const Color gold = Color(0xFFF59E0B);
+  static const Color goldDark = Color(0xFFD97706);
   static const Color yellowLate = Color(0xFFF59E0B);
   static const Color redAbsent = Color(0xFFEF4444);
-  static const Color purpleHoliday = Color(0xFF8B5CF6);
+  static const Color purpleHoliday = Color(0xFFA855F7);
+  static const Color cyanBody = Color(0xFF06B6D4);
+  static const Color coralPrimary = Color(0xFFEF4444);
 
-  // Ink / Typography
-  static const Color inkNavy = Color(0xFF0E152A);
-  static const Color inkPrimary = Color(0xFF1A202C);
-  static const Color inkSecondary = Color(0xFF4A5568);
-  static const Color inkMuted = Color(0xFF718096);
-  static const Color inkLight = Color(0xFFDDD6D5);
+  // Dark navigation & legacy aliases
+  static const Color darkRail = Color(0xFF1E033A);
+  static const Color darkRailDivider = Color(0xFF3B1563);
+  static const Color darkCardStart = Color(0xFF380B61);
+  static const Color darkCardMid = Color(0xFF250645);
+  static const Color darkCardEnd = Color(0xFF160032);
+
+  // Typography & Inks
+  static const Color inkNavy = Color(0xFF140228);
+  static const Color inkPrimary = Color(0xFF1E1035);
+  static const Color inkSecondary = Color(0xFF4B3D60);
+  static const Color inkMuted = Color(0xFF7A6B90);
+  static const Color inkLight = Color(0xFFDDD6FE);
+  static const Color inkLavender = Color(0xFFC4B5FD);
 }
 
 abstract final class BadGymTypography {

@@ -23,51 +23,59 @@ class QuickStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            tab: QuickStatTab.attendance,
-            icon: Icons.calendar_month_outlined,
-            title: 'Attendance',
-            value: '${data.attendanceRate}%',
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildStatCard(
+              tab: QuickStatTab.attendance,
+              icon: Icons.calendar_month_outlined,
+              iconColor: Colors.white,
+              title: 'Attendance',
+              value: '${data.attendanceRate}%',
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: _buildStatCard(
-            tab: QuickStatTab.workout,
-            icon: Icons.fitness_center,
-            title: 'Workout',
-            value: data.workoutTime,
+          const SizedBox(width: 5),
+          Expanded(
+            child: _buildStatCard(
+              tab: QuickStatTab.workout,
+              icon: Icons.fitness_center,
+              iconColor: BadGymColors.neonViolet,
+              title: 'Workout',
+              value: data.workoutTime,
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: _buildStatCard(
-            tab: QuickStatTab.payment,
-            icon: Icons.account_balance_wallet_outlined,
-            title: 'Payment',
-            value: data.paymentStatus,
-            valueColor: BadGymColors.emerald,
+          const SizedBox(width: 5),
+          Expanded(
+            child: _buildStatCard(
+              tab: QuickStatTab.payment,
+              icon: Icons.account_balance_wallet_rounded,
+              iconColor: BadGymColors.gold,
+              title: 'Payment',
+              value: data.paymentStatus,
+              valueColor: BadGymColors.emerald,
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: _buildStatCard(
-            tab: QuickStatTab.body,
-            icon: Icons.accessibility_new_outlined,
-            title: 'Body',
-            value: data.bodyWeight,
+          const SizedBox(width: 5),
+          Expanded(
+            child: _buildStatCard(
+              tab: QuickStatTab.body,
+              icon: Icons.person,
+              iconColor: BadGymColors.cyanBody,
+              title: 'Body',
+              value: data.bodyWeight,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildStatCard({
     required QuickStatTab tab,
     required IconData icon,
+    Color? iconColor,
     required String title,
     required String value,
     Color? valueColor,
@@ -75,69 +83,80 @@ class QuickStatsRow extends StatelessWidget {
     final isSelected = tab == selectedTab;
 
     if (isSelected) {
+      // Selected Tab: Deep Royal Purple with Neon Violet Glow Border
       return InkWell(
         onTap: () => onTabSelected?.call(tab),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 3),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFFED5B54),
-                Color(0xFFE0453E),
+                BadGymColors.purpleCardStart,
+                BadGymColors.purpleCardEnd,
               ],
             ),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: BadGymColors.neonViolet,
+              width: 1.6,
+            ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFE0453E).withValues(alpha: 0.35),
+                color: BadGymColors.neonViolet.withValues(alpha: 0.5),
                 blurRadius: 8,
-                offset: const Offset(0, 3),
+                offset: const Offset(0, 2),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.25),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 16,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 2.5),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontFamily: BadGymTypography.fontBody,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 9.5,
+                        color: BadGymColors.inkLight,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 3),
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontFamily: BadGymTypography.fontBody,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(height: 1),
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0),
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
                 child: Text(
                   value,
                   style: const TextStyle(
                     fontFamily: BadGymTypography.fontHeading,
-                    fontSize: 14,
                     fontWeight: FontWeight.w900,
+                    fontSize: 14,
                     color: Colors.white,
+                    height: 1.0,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -146,62 +165,68 @@ class QuickStatsRow extends StatelessWidget {
       );
     }
 
+    // Unselected Tab: Pearl White Glass with Soft Lavender Border
     return InkWell(
       onTap: () => onTabSelected?.call(tab),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 3),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: BadGymColors.borderSubtle,
+            width: 1.2,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
+              color: BadGymColors.purpleRail.withValues(alpha: 0.05),
+              blurRadius: 5,
               offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 4.0),
-              child: Icon(
-                icon,
-                color: BadGymColors.coralPrimary,
-                size: 16,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    icon,
+                    size: 12,
+                    color: iconColor ?? BadGymColors.inkMuted,
+                  ),
+                  const SizedBox(width: 2.5),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: BadGymTypography.fontBody,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 9.5,
+                      color: Color(0xFF4B5563),
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 3),
-            Padding(
-              padding: const EdgeInsets.only(left: 4.0),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: BadGymTypography.fontBody,
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w500,
-                  color: BadGymColors.inkPrimary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Padding(
-              padding: const EdgeInsets.only(left: 4.0),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
               child: Text(
                 value,
                 style: TextStyle(
                   fontFamily: BadGymTypography.fontHeading,
-                  fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: valueColor ?? BadGymColors.inkPrimary,
+                  fontSize: 13.5,
+                  color: valueColor ?? const Color(0xFF1F2937),
+                  height: 1.0,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

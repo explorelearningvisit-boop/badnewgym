@@ -58,6 +58,14 @@ class MemberIntelligenceData {
   final List<CalendarDayItem> calendarDays;
   final List<TrendDataPoint> trendPoints;
 
+  // New VIP Check-In & Luxury Dashboard Fields
+  final String checkInTime;
+  final String checkInDate;
+  final String checkInLocation;
+  final String paymentAmount;
+  final String paymentNextDue;
+  final int notificationCount;
+
   const MemberIntelligenceData({
     required this.name,
     required this.memberId,
@@ -83,6 +91,12 @@ class MemberIntelligenceData {
     required this.bestStreak,
     required this.calendarDays,
     required this.trendPoints,
+    this.checkInTime = '06:42 PM',
+    this.checkInDate = 'Fri, 16 Oct 2026',
+    this.checkInLocation = 'Main Gym Floor',
+    this.paymentAmount = '₹1,200',
+    this.paymentNextDue = '24 Oct 2026',
+    this.notificationCount = 3,
   });
 
   static MemberIntelligenceData get ashwaniKumarSingh {
@@ -91,7 +105,7 @@ class MemberIntelligenceData {
       const CalendarDayItem(day: 1, status: DayAttendanceStatus.empty),
       const CalendarDayItem(day: 2, status: DayAttendanceStatus.empty),
       const CalendarDayItem(day: 3, status: DayAttendanceStatus.present),
-      const CalendarDayItem(day: 4, status: DayAttendanceStatus.present),
+      const CalendarDayItem(day: 4, status: DayAttendanceStatus.holiday),
       // Week 2
       const CalendarDayItem(day: 5, status: DayAttendanceStatus.present),
       const CalendarDayItem(day: 6, status: DayAttendanceStatus.present),
@@ -153,7 +167,7 @@ class MemberIntelligenceData {
       totalDays: 30,
       usedPercentage: 73.3,
       daysLeft: 8,
-      renewDate: '07 Nov 2026',
+      renewDate: '24 Oct 2026',
       attendanceRate: 81,
       attendanceFraction: '25 / 31 Days',
       workoutTime: '58 min',
@@ -163,10 +177,16 @@ class MemberIntelligenceData {
       lateCount: 2,
       absentCount: 2,
       holidayCount: 4,
-      currentStreak: '6 Days',
+      currentStreak: '5 Days',
       bestStreak: '14 Days',
       calendarDays: days,
       trendPoints: trend,
+      checkInTime: '06:42 PM',
+      checkInDate: 'Fri, 16 Oct 2026',
+      checkInLocation: 'Main Gym Floor',
+      paymentAmount: '₹1,200',
+      paymentNextDue: '24 Oct 2026',
+      notificationCount: 3,
     );
   }
 }

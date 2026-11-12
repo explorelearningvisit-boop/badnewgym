@@ -71,16 +71,16 @@ class AttendanceMetricsRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // 1. Donut Chart
+        // 1. Donut Chart with Neon Lime Arc
         SizedBox(
-          width: 74,
-          height: 74,
+          width: 68,
+          height: 68,
           child: CustomPaint(
-            painter: DonutChartPainter(
-              progress: data.attendanceRate / 100.0,
-              strokeColor: BadGymColors.emerald,
-              trackColor: const Color(0xFFF0EFEB),
-              strokeWidth: 6.0,
+            painter: const DonutChartPainter(
+              progress: 0.81,
+              strokeColor: BadGymColors.neonLime,
+              trackColor: Color(0xFFF1EBFB),
+              strokeWidth: 5.5,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -91,7 +91,7 @@ class AttendanceMetricsRow extends StatelessWidget {
                     fontFamily: BadGymTypography.fontHeading,
                     fontWeight: FontWeight.w900,
                     fontSize: 15,
-                    color: BadGymColors.inkPrimary,
+                    color: Color(0xFF111827),
                     height: 1.0,
                   ),
                 ),
@@ -101,19 +101,18 @@ class AttendanceMetricsRow extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: BadGymTypography.fontBody,
                     fontWeight: FontWeight.w600,
-                    fontSize: 9,
-                    color: BadGymColors.inkSecondary,
+                    fontSize: 9.5,
+                    color: Color(0xFF6B7280),
                     height: 1.0,
                   ),
                 ),
-                const SizedBox(height: 1),
                 const Text(
                   'Days',
                   style: TextStyle(
                     fontFamily: BadGymTypography.fontBody,
                     fontWeight: FontWeight.w500,
-                    fontSize: 8,
-                    color: BadGymColors.inkMuted,
+                    fontSize: 9,
+                    color: Color(0xFF6B7280),
                     height: 1.0,
                   ),
                 ),
@@ -124,38 +123,41 @@ class AttendanceMetricsRow extends StatelessWidget {
 
         const SizedBox(width: 6),
 
-        // 2. Legend Box
+        // 2. Legend Pill Container (Present 23, Late 2, Absent 2, Holiday 4)
         Expanded(
-          flex: 4,
+          flex: 10,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFFAF7F6),
-              borderRadius: BorderRadius.circular(10),
+              color: const Color(0xFFF7F3FC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFFEBE2F8),
+                width: 1,
+              ),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildLegendItem(
-                  color: BadGymColors.emerald,
+                _buildLegendRow(
+                  color: BadGymColors.neonLime,
                   label: 'Present',
                   count: data.presentCount,
                 ),
                 const SizedBox(height: 2.5),
-                _buildLegendItem(
+                _buildLegendRow(
                   color: BadGymColors.yellowLate,
                   label: 'Late',
                   count: data.lateCount,
                 ),
                 const SizedBox(height: 2.5),
-                _buildLegendItem(
+                _buildLegendRow(
                   color: BadGymColors.redAbsent,
                   label: 'Absent',
                   count: data.absentCount,
                 ),
                 const SizedBox(height: 2.5),
-                _buildLegendItem(
+                _buildLegendRow(
                   color: BadGymColors.purpleHoliday,
                   label: 'Holiday',
                   count: data.holidayCount,
@@ -167,26 +169,104 @@ class AttendanceMetricsRow extends StatelessWidget {
 
         const SizedBox(width: 6),
 
-        // 3. Streaks Box
+        // 3. Streak Cards: Current Streak 5 Days, Best Streak 14 Days
         Expanded(
-          flex: 4,
+          flex: 9,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildStreakCard(
-                imageAsset: 'assets/images/fire_icon.png',
-                fallbackIcon: Icons.local_fire_department,
-                iconColor: const Color(0xFFFF5722),
-                value: data.currentStreak,
-                subtitle: 'Current Streak',
+              // Current Streak
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.local_fire_department_rounded,
+                    color: Color(0xFFEA580C),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Current Streak',
+                          style: TextStyle(
+                            fontFamily: BadGymTypography.fontBody,
+                            fontSize: 8,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF6B7280),
+                            height: 1.0,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          data.currentStreak,
+                          style: const TextStyle(
+                            fontFamily: BadGymTypography.fontHeading,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF111827),
+                            height: 1.1,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 5),
-              _buildStreakCard(
-                imageAsset: 'assets/images/trophy_icon.png',
-                fallbackIcon: Icons.emoji_events,
-                iconColor: const Color(0xFFFBBF24),
-                value: data.bestStreak,
-                subtitle: 'Best Streak',
+
+              // Best Streak
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.emoji_events_rounded,
+                    color: Color(0xFFF59E0B),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Best Streak',
+                          style: TextStyle(
+                            fontFamily: BadGymTypography.fontBody,
+                            fontSize: 8,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF6B7280),
+                            height: 1.0,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          data.bestStreak,
+                          style: const TextStyle(
+                            fontFamily: BadGymTypography.fontHeading,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF111827),
+                            height: 1.1,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -195,7 +275,7 @@ class AttendanceMetricsRow extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendItem({
+  Widget _buildLegendRow({
     required Color color,
     required String label,
     required int count,
@@ -217,9 +297,12 @@ class AttendanceMetricsRow extends StatelessWidget {
             style: const TextStyle(
               fontFamily: BadGymTypography.fontBody,
               fontSize: 9,
-              fontWeight: FontWeight.w600,
-              color: BadGymColors.inkPrimary,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF4B5563),
+              height: 1.0,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Text(
@@ -228,59 +311,9 @@ class AttendanceMetricsRow extends StatelessWidget {
             fontFamily: BadGymTypography.fontHeading,
             fontSize: 9.5,
             fontWeight: FontWeight.w800,
-            color: BadGymColors.inkPrimary,
+            color: Color(0xFF111827),
+            height: 1.0,
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStreakCard({
-    required String imageAsset,
-    required IconData fallbackIcon,
-    required Color iconColor,
-    required String value,
-    required String subtitle,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Image.asset(
-          imageAsset,
-          width: 18,
-          height: 18,
-          errorBuilder: (_, __, ___) => Icon(
-            fallbackIcon,
-            color: iconColor,
-            size: 18,
-          ),
-        ),
-        const SizedBox(width: 5),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              value,
-              style: const TextStyle(
-                fontFamily: BadGymTypography.fontHeading,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: BadGymColors.inkPrimary,
-                height: 1.1,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontFamily: BadGymTypography.fontBody,
-                fontSize: 8,
-                fontWeight: FontWeight.w500,
-                color: BadGymColors.inkMuted,
-                height: 1.1,
-              ),
-            ),
-          ],
         ),
       ],
     );

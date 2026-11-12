@@ -22,7 +22,8 @@ class MemberCheckInScreen extends StatefulWidget {
 
 class _MemberCheckInScreenState extends State<MemberCheckInScreen> {
   late final MemberIntelligenceData _data;
-  RailTab _selectedRailTab = RailTab.attendance;
+  final ScrollController _scrollController = ScrollController();
+  RailTab _selectedRailTab = RailTab.intelligence;
   QuickStatTab _selectedStatTab = QuickStatTab.attendance;
 
   @override
@@ -31,10 +32,17 @@ class _MemberCheckInScreenState extends State<MemberCheckInScreen> {
     _data = widget.initialData ?? MemberIntelligenceData.ashwaniKumarSingh;
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _onRailTabSelected(RailTab tab) {
     setState(() {
       _selectedRailTab = tab;
       switch (tab) {
+        case RailTab.intelligence:
         case RailTab.attendance:
           _selectedStatTab = QuickStatTab.attendance;
           break;
@@ -58,7 +66,7 @@ class _MemberCheckInScreenState extends State<MemberCheckInScreen> {
       _selectedStatTab = tab;
       switch (tab) {
         case QuickStatTab.attendance:
-          _selectedRailTab = RailTab.attendance;
+          _selectedRailTab = RailTab.intelligence;
           break;
         case QuickStatTab.workout:
           _selectedRailTab = RailTab.workout;
@@ -73,6 +81,16 @@ class _MemberCheckInScreenState extends State<MemberCheckInScreen> {
     });
   }
 
+  void _scrollDown() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.offset + 260,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,48 +98,76 @@ class _MemberCheckInScreenState extends State<MemberCheckInScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top App Bar
+            // 1. Sleek Royal Purple Top Header Bar (Matching Image 2)
             TopHeaderBar(
-              onMenuPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Menu tapped')),
-                );
-              },
+              data: _data,
               onNotificationPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Notifications (1 unread)')),
+                  SnackBar(
+                    content: Text('${_data.notificationCount} unread gym notifications'),
+                    backgroundColor: BadGymColors.purpleCardStart,
+                  ),
                 );
               },
-              onDatePressed: () {
+              onMorePressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Date: Thu, 16 Oct 2026')),
+                  const SnackBar(
+                    content: Text('Member options tapped'),
+                    backgroundColor: BadGymColors.purpleCardStart,
+                  ),
                 );
               },
             ),
 
-            // Scrollable Content
+            // 2. Scrollable Body
             Expanded(
               child: SingleChildScrollView(
+                controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.fromLTRB(4, 2, 4, 16),
                 child: Column(
                   children: [
-                    // Member Profile Card
+                    // Member VIP Check-In Pass Card (Matching Image 1)
                     MemberProfileCard(
                       data: _data,
                       onRenewPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Plan Renewal - 8 Days Remaining')),
+                          SnackBar(
+                            content: Text(
+                              'Renew Membership: ${_data.daysLeft} Days Remaining (Expires ${_data.renewDate})',
+                            ),
+                            backgroundColor: BadGymColors.purpleCardStart,
+                          ),
+                        );
+                      },
+                      onPaymentDetailsPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Payment Status: ${_data.paymentStatus} (${_data.paymentAmount})',
+                            ),
+                            backgroundColor: BadGymColors.purpleCardStart,
+                          ),
                         );
                       },
                     ),
 
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
 
-                    // Main 2-column layout: Left Rail + Right Content
-                    IntrinsicHeight(
+                    // 4 Quick Stats Row Spanning Full Width (Matching Image 3 Top)
+                    QuickStatsRow(
+                      data: _data,
+                      selectedTab: _selectedStatTab,
+                      onTabSelected: _onStatTabSelected,
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Two-Column Section: Left Rail + Right Attendance Card (Matching Image 3)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Left Vertical Navigation Rail
                           VerticalNavigationRail(
@@ -129,46 +175,50 @@ class _MemberCheckInScreenState extends State<MemberCheckInScreen> {
                             onTabSelected: _onRailTabSelected,
                           ),
 
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 8),
 
-                          // Right Column: Quick Stats + Attendance Intelligence
+                          // Right Attendance Intelligence Card
                           Expanded(
-                            child: Column(
-                              children: [
-                                // 4 Quick Stat Cards
-                                QuickStatsRow(
-                                  data: _data,
-                                  selectedTab: _selectedStatTab,
-                                  onTabSelected: _onStatTabSelected,
-                                ),
-
-                                const SizedBox(height: 6),
-
-                                // Attendance Intelligence Card
-                                AttendanceIntelligenceCard(
-                                  data: _data,
-                                  onMonthDropdownPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('October 2026 selected')),
-                                    );
-                                  },
-                                ),
-                              ],
+                            child: AttendanceIntelligenceCard(
+                              data: _data,
+                              onMonthDropdownPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('October 2026 selected'),
+                                    backgroundColor: BadGymColors.purpleCardStart,
+                                  ),
+                                );
+                              },
+                              onInfoPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Attendance Intelligence Calculation: 25 / 31 Days (81%)'),
+                                    backgroundColor: BadGymColors.purpleCardStart,
+                                  ),
+                                );
+                              },
+                              onScrollDownPressed: _scrollDown,
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
 
-                    // Bottom Promotional Banner
-                    PromoBannerWidget(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Muscle Building Program tapped')),
-                        );
-                      },
+                    // Bottom Promotional Banner (Muscle Building Program)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: PromoBannerWidget(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Start Muscle Building Plan'),
+                              backgroundColor: BadGymColors.purpleCardStart,
+                            ),
+                          );
+                        },
+                      ),
                     ),
 
                     const SizedBox(height: 10),

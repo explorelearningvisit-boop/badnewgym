@@ -1,132 +1,244 @@
 import 'package:flutter/material.dart';
+import 'package:bad_gym/core/models/member_intelligence_data.dart';
 import 'package:bad_gym/core/theme/bad_gym_theme.dart';
 
 class TopHeaderBar extends StatelessWidget {
-  final VoidCallback? onMenuPressed;
+  final MemberIntelligenceData data;
   final VoidCallback? onNotificationPressed;
-  final VoidCallback? onDatePressed;
+  final VoidCallback? onMorePressed;
 
   const TopHeaderBar({
     super.key,
-    this.onMenuPressed,
+    required this.data,
     this.onNotificationPressed,
-    this.onDatePressed,
+    this.onMorePressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            BadGymColors.purpleCardStart,
+            BadGymColors.purpleCardMid,
+            BadGymColors.purpleCardEnd,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: BadGymColors.neonVioletBorder.withValues(alpha: 0.65),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: BadGymColors.neonViolet.withValues(alpha: 0.22),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 1. Hamburger menu button
-          InkWell(
-            onTap: onMenuPressed,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFF473B3A),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          // 1. Member Profile Avatar with Neon Ring
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: BadGymColors.neonViolet,
+                width: 1.8,
               ),
-              child: const Icon(
-                Icons.menu,
-                color: Colors.white,
-                size: 19,
+              boxShadow: [
+                BoxShadow(
+                  color: BadGymColors.neonViolet.withValues(alpha: 0.4),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/avatar_ashwini.png',
+                fit: BoxFit.cover,
               ),
             ),
           ),
-          const SizedBox(width: 7),
+          const SizedBox(width: 8),
 
-          // 2. 3D Dumbbell logo
-          Image.asset(
-            'assets/images/logo_dumbbell.png',
-            width: 30,
-            height: 24,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(width: 7),
-
-          // 3. BAD GYM title & subtitle
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'BAD GYM',
-                style: BadGymTypography.titleLarge.copyWith(
-                  fontSize: 16,
-                  height: 1.1,
+          // 2. Center Capsule: Checked In + Time & Date (Scaling smoothly)
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              decoration: BoxDecoration(
+                color: BadGymColors.purpleInnerGlass.withValues(alpha: 0.85),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: BadGymColors.neonViolet.withValues(alpha: 0.25),
+                  width: 1,
                 ),
               ),
-              const Text(
-                'Member Intelligence',
-                style: TextStyle(
-                  fontFamily: BadGymTypography.fontHeading,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 10,
-                  color: BadGymColors.inkSecondary,
-                  letterSpacing: -0.2,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Checked In neon green pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 3.5),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF22C55E),
+                            Color(0xFF16A34A),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF22C55E).withValues(alpha: 0.45),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle_rounded,
+                            size: 13,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 3.5),
+                          Text(
+                            'Checked In',
+                            style: TextStyle(
+                              fontFamily: BadGymTypography.fontHeading,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 10.5,
+                              color: Colors.white,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // Thin translucent divider
+                    Container(
+                      width: 1,
+                      height: 24,
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // Time and Date column
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          data.checkInTime,
+                          style: const TextStyle(
+                            fontFamily: BadGymTypography.fontHeading,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 14.5,
+                            color: Colors.white,
+                            height: 1.1,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.calendar_month,
+                              size: 9.5,
+                              color: BadGymColors.inkLight,
+                            ),
+                            const SizedBox(width: 2.5),
+                            Text(
+                              data.checkInDate,
+                              style: const TextStyle(
+                                fontFamily: BadGymTypography.fontBody,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 9.5,
+                                color: BadGymColors.inkLight,
+                                height: 1.1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
+          const SizedBox(width: 6),
 
-          const Spacer(),
-
-          // 4. Notification icon button with red badge
+          // 3. Notification Bell with Red Badge
           InkWell(
             onTap: onNotificationPressed,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              width: 34,
+              height: 34,
               child: Stack(
-                alignment: Alignment.center,
+                clipBehavior: Clip.none,
                 children: [
-                  const Icon(
-                    Icons.notifications,
-                    color: Color(0xFF332726),
-                    size: 19,
+                  const Center(
+                    child: Icon(
+                      Icons.notifications,
+                      color: Colors.white,
+                      size: 23,
+                    ),
                   ),
                   Positioned(
-                    top: 4,
-                    right: 5,
+                    top: 1,
+                    right: 1,
                     child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: const BoxDecoration(
-                        color: BadGymColors.coralPrimary,
+                      padding: const EdgeInsets.all(2.5),
+                      decoration: BoxDecoration(
+                        color: BadGymColors.redAbsent,
                         shape: BoxShape.circle,
+                        border: Border.all(
+                          color: BadGymColors.purpleCardMid,
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: BadGymColors.redAbsent.withValues(alpha: 0.5),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 15,
+                        minHeight: 15,
                       ),
                       alignment: Alignment.center,
-                      child: const Text(
-                        '1',
-                        style: TextStyle(
+                      child: Text(
+                        '${data.notificationCount}',
+                        style: const TextStyle(
+                          fontFamily: BadGymTypography.fontHeading,
                           color: Colors.white,
-                          fontSize: 8.5,
-                          fontWeight: FontWeight.w800,
-                          height: 1.0,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                          height: 1,
                         ),
                       ),
                     ),
@@ -135,45 +247,17 @@ class TopHeaderBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 6),
 
-          // 5. Date pill capsule
+          // 4. Three Vertical Dots
           InkWell(
-            onTap: onDatePressed,
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              height: 36,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
+            onTap: onMorePressed,
+            borderRadius: BorderRadius.circular(14),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2.0),
+              child: Icon(
+                Icons.more_vert,
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.calendar_month_outlined,
-                    color: BadGymColors.coralPrimary,
-                    size: 15,
-                  ),
-                  SizedBox(width: 5),
-                  Text(
-                    'Thu, 16 Oct 2026',
-                    style: TextStyle(
-                      fontFamily: BadGymTypography.fontBody,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 10.5,
-                      color: BadGymColors.inkPrimary,
-                    ),
-                  ),
-                ],
+                size: 21,
               ),
             ),
           ),
